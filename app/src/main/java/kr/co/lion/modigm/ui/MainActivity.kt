@@ -1,10 +1,11 @@
-package kr.co.lion.modigm
+package kr.co.lion.modigm.ui
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import kr.co.lion.modigm.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,6 +18,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // 테스트 - 원빈
+
     }
 }
