@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".ui.login.OtherLoginFragment">
+    tools:context=".ui.login.OtherLoginFragment"
+    android:transitionGroup="true">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textViewOtherTitle"
