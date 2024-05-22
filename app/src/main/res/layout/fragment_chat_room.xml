@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarChatRoom"
+            style="@style/CustomToolbar"
+            android:layout_width="409dp"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            app:navigationIcon="@drawable/icon_back_24px"
+            app:title="스터디 제목"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/toolbarText"
+            tools:layout_editor_absoluteX="1dp"
+            tools:layout_editor_absoluteY="2dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/layoutChatbox"
+            android:layout_below="@id/toolbarChatRoom"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="10dp" />
+
+
+        <LinearLayout
+            android:id="@+id/layoutChatbox"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:background="#fafafa"
+            android:minHeight="48dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButtonChatRoomAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:backgroundTint="#fafafa"
+                android:src="@drawable/icon_add_24px" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="9dp"
+                android:layout_marginBottom="8dp"
+                android:background="#EEEEEE"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/editTextMessage"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="Enter Message"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine"
+                    android:maxLines="6"
+                    android:paddingLeft="8dp" />
+
+                <ImageButton
+                    android:id="@+id/imageButtonChatRoomSend"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="5dp"
+                    android:backgroundTint="#999999"
+                    android:src="@drawable/icon_arrow_up_24px" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</layout>
