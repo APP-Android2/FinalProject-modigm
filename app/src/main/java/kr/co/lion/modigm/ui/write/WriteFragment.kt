@@ -64,24 +64,23 @@ class WriteFragment : Fragment() {
             }.attach()
         }
     }
-}
-
-private class FragmentPagerAdapter(val fragmentList: List<Fragment>,fragmentActivity: FragmentActivity): FragmentStateAdapter(fragmentActivity){
-    override fun getItemCount(): Int {
-        return fragmentList.size
-    }
-
-    override fun createFragment(position: Int): Fragment {
-        val fragment = fragmentList[position]
-
-
-        // 각 fragment에 전달할 데이터를 설정해준다
-        val bundle = Bundle().apply {
-            // ###  넣어줘야 하는 정보가 있다면 넣어준다  ###
+    private inner class FragmentPagerAdapter(val fragmentList: List<Fragment>,fragmentActivity: FragmentActivity): FragmentStateAdapter(fragmentActivity){
+        override fun getItemCount(): Int {
+            return fragmentList.size
         }
-        fragment.arguments = bundle
 
-        return fragment
+        override fun createFragment(position: Int): Fragment {
+            val fragment = fragmentList[position]
+
+
+            // 각 fragment에 전달할 데이터를 설정해준다
+            val bundle = Bundle().apply {
+                putInt("currentProgress",fragmentWriteBinding.progressBarWriteFragment.progress)
+            }
+            fragment.arguments = bundle
+
+            return fragment
+        }
+
     }
-
 }
