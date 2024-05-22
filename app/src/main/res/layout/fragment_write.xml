@@ -21,17 +21,18 @@
         android:layout_height="wrap_content"
         android:max="100"
         android:progress="20"
+        app:trackColor="@color/white"
 
         android:progressTint="@color/pointColor"
-        android:progressBackgroundTint="@color/white"
-
         app:layout_constraintTop_toBottomOf="@id/toolbar_writeFragment"/>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout_writeFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/tabLayout_background"
+
+        android:backgroundTint="@color/white"
+        app:tabBackground="@color/white"
 
         app:tabTextColor="@color/textGray"
         app:tabSelectedTextColor="@color/pointColor"
