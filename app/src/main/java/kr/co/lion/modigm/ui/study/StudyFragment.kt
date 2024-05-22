@@ -33,6 +33,7 @@ class StudyFragment : Fragment() {
         // 바인딩
         with(binding){
 
+            // 툴바
 
         }
     }

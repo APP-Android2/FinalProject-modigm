@@ -35,7 +35,10 @@ class FilterSortFragment : Fragment() {
         with(binding){
 
             // 툴바
-            
+            with(toolbarStudy){
+
+
+            }
 
         }
     }
