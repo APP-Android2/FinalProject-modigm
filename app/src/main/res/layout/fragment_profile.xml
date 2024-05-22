@@ -36,7 +36,7 @@
                     android:paddingVertical="20dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/imageView"
+                        android:id="@+id/imageProfilePic"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
                         android:layout_gravity="center"
@@ -45,7 +45,7 @@
                         android:src="@drawable/image_loading_gray" />
 
                     <TextView
-                        android:id="@+id/textView"
+                        android:id="@+id/textViewProfileName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -55,7 +55,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/textView2"
+                        android:id="@+id/textViewProfileIntro"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
@@ -71,6 +71,7 @@
                         android:textSize="16dp" />
 
                     <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupProfile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp">
@@ -92,6 +93,7 @@
                         android:textSize="16dp" />
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerVIewProfileLink"
                         android:layout_width="match_parent"
                         android:layout_height="40dp" />
 
@@ -110,7 +112,7 @@
                     android:paddingVertical="20dp">
 
                     <TextView
-                        android:id="@+id/textView5"
+                        android:id="@+id/textViewProfilePartStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
@@ -118,12 +120,13 @@
                         android:textSize="16dp" />
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerViewProfilePartStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"/>
+                        android:layout_marginBottom="20dp" />
 
                     <TextView
-                        android:id="@+id/textView6"
+                        android:id="@+id/textViewProfileHostStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
@@ -131,6 +134,7 @@
                         android:text="홍길동님이 진행한 스터디" />
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerViewProfileHostStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
