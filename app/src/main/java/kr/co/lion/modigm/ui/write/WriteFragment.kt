@@ -73,7 +73,7 @@ class WriteFragment : Fragment() {
 
             // 각 fragment에 전달할 데이터를 설정해준다
             val bundle = Bundle().apply {
-                putInt("currentProgress",fragmentWriteBinding.progressBarWriteFragment.progress)
+
             }
             fragment.arguments = bundle
 
