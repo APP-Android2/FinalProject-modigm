@@ -67,6 +67,7 @@
                         android:id="@+id/textView3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
                         android:text="관심분야"
                         android:textSize="16dp" />
 
@@ -74,12 +75,13 @@
                         android:id="@+id/chipGroupProfile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp">
+                        android:layout_marginBottom="20dp">
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            app:chipMinTouchTargetSize="0dp"
                             app:chipBackgroundColor="@color/white" />
 
                     </com.google.android.material.chip.ChipGroup>
