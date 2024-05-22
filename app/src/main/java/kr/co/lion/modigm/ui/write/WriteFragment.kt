@@ -1,15 +1,13 @@
 package kr.co.lion.modigm.ui.write
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
-import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.ui.MainActivity
 
