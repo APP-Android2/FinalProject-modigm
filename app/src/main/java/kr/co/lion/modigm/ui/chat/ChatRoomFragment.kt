@@ -29,6 +29,7 @@ class ChatRoomFragment : Fragment() {
         // 채팅 방 - (툴바) 세팅
         settingToolbar()
 
+        // 채팅 입력 칸 (입력 여부에 따른) 버튼 세팅
         setupEditTextListener()
 
         return fragmentChatRoomBinding.root
@@ -46,6 +47,7 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
+    // 채팅 입력 칸 - 변경 관련 Listener
     fun setupEditTextListener() {
         fragmentChatRoomBinding.apply {
             editTextMessage.addTextChangedListener(object : TextWatcher {
@@ -65,6 +67,7 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
+    // 채팅 입력 칸 - 입력 상태 여부에 따라 설정
     fun updateEditTextInText() {
         fragmentChatRoomBinding.apply {
             if (editTextMessage.text.toString().isEmpty()){
