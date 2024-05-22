@@ -5,56 +5,83 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentWriteBinding
+import kr.co.lion.modigm.ui.MainActivity
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [WriteFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class WriteFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
-
+    private lateinit var mainActivity: MainActivity
+    lateinit var fragmentWriteBinding: FragmentWriteBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_write, container, false)
+
+        mainActivity = activity as MainActivity
+        fragmentWriteBinding = FragmentWriteBinding.inflate(layoutInflater)
+
+        viewPagerActivation()
+
+        return fragmentWriteBinding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment WriteFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            WriteFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+
+    // ViewPager 설정0
+    private fun viewPagerActivation(){
+        fragmentWriteBinding.apply {
+
+            // 1. 페이지 데이터를 로드
+            val fragmentList = listOf(
+                WriteFieldFragment(),
+                WritePeriodFragment(),
+                WriteProceedFragment(),
+                WriteSkillFragment(),
+                WriteIntroFragment()
+            )
+
+            // 2. Adapter 생성
+            val pagerAdapter = FragmentPagerAdapter(fragmentList, mainActivity)
+
+            // 3. Adapter와 ViewPager 연결
+            viewPagerWriteFragment.adapter = pagerAdapter
+
+            // 4. Tab Layout과 ViewPager 연결
+            TabLayoutMediator(tabLayoutWriteFragment, viewPagerWriteFragment){tab, position ->
+                tab.text = when(position){
+                    0 -> "분야"
+                    1 -> "기간"
+                    2 -> "진행방식"
+                    3 -> "기술"
+                    4 -> "소개"
+                    else -> throw IllegalArgumentException("Invalid postion : $position")
                 }
-            }
+            }.attach()
+        }
     }
+}
+
+private class FragmentPagerAdapter(val fragmentList: List<Fragment>,fragmentActivity: FragmentActivity): FragmentStateAdapter(fragmentActivity){
+    override fun getItemCount(): Int {
+        return fragmentList.size
+    }
+
+    override fun createFragment(position: Int): Fragment {
+        val fragment = fragmentList[position]
+
+
+        // 각 fragment에 전달할 데이터를 설정해준다
+        val bundle = Bundle().apply {
+            // ###  넣어줘야 하는 정보가 있다면 넣어준다  ###
+        }
+        fragment.arguments = bundle
+
+        return fragment
+    }
+
 }

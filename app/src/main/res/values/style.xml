@@ -30,4 +30,9 @@
         <item name="android:background">@android:color/white</item>
         <item name="android:textSize">16dp</item>
     </style>
+
+    <!-- Tab layout 배경색 -->
+    <style name="tabLayout_background" parent="android:Widget">
+        <item name="tabBackground">@drawable/tab_background</item>
+    </style>
 </resources>
