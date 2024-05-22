@@ -17,7 +17,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#40000000" />
+        android:background="#80000000" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -28,9 +28,9 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_marginStart="100dp"
-            android:layout_marginTop="150dp"
+            android:layout_marginTop="200dp"
             android:layout_marginEnd="100dp"
-            android:src="@drawable/img"
+            android:src="@drawable/logo_modigm"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,13 +40,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="48dp"
             android:text="모우다임"
             android:textColor="@color/white"
             android:textSize="40dp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.08"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewLoginLogo" />
 
@@ -54,10 +54,10 @@
             android:id="@+id/textViewLoginSecondTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:text="Modigm(슬로건자리)"
+            android:layout_marginStart="48dp"
+            android:text="개발자 스터디의 새로운 패러다임"
             android:textColor="@color/white"
-            android:textSize="26dp"
+            android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewLoginTitle" />
