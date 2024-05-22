@@ -3,5 +3,18 @@
     <style name="Base.Theme.Modigm" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+        <!-- Status bar color. -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/white</item>
+
+        <!--배경색-->
+        <item name="android:windowBackground">@color/white</item>
+
+        <!--텍스트컬러-->
+        <item name="android:textColor">@color/black</item>
+
+        <!--기본 색상-->
+        <item name="colorPrimary">#1A51C5</item>
     </style>
 </resources>
