@@ -1,60 +1,80 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kr.co.lion.modigm.R
+import androidx.viewpager2.widget.ViewPager2
+import kr.co.lion.modigm.databinding.FragmentJoinBinding
+import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [JoinFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class JoinFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    lateinit var binding: FragmentJoinBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_join, container, false)
+        binding = FragmentJoinBinding.inflate(inflater)
+        settingToolBar()
+        settingViewPagerAdapter()
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment JoinFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            JoinFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun settingToolBar(){
+        with(binding){
+            with(toolbarJoin){
+                title = "회원가입"
+                setNavigationIcon(com.google.android.material.R.drawable.ic_arrow_back_black_24)
+                setNavigationOnClickListener {
+                    if(viewPagerJoin.currentItem!=0){
+                        viewPagerJoin.currentItem -= 1
+                    }else{
+                        // JoinFragment 회원가입 종료, 확인 알림창 띄우기?
+                    }
                 }
             }
+        }
     }
+
+    private fun settingViewPagerAdapter(){
+
+        val viewPagerAdapter = JoinViewPagerAdapter(this)
+        viewPagerAdapter.addFragment(JoinStep1Fragment())
+        viewPagerAdapter.addFragment(JoinStep2Fragment())
+        viewPagerAdapter.addFragment(JoinStep3Fragment())
+
+        with(binding){
+            // 어댑터 설정
+            viewPagerJoin.adapter = viewPagerAdapter
+            // 전환 방향
+            viewPagerJoin.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            // 터치로 스크롤 막기
+            viewPagerJoin.isUserInputEnabled = false
+        }
+
+        // 다음 버튼 클릭 시 다음 화면으로 넘어가기
+        binding.buttonJoinNext.setOnClickListener {
+            when(binding.viewPagerJoin.currentItem){
+                // 이메일, 비밀번호 화면
+                0 -> {
+                    val fragment = viewPagerAdapter.createFragment(0) as JoinStep1Fragment
+                    val validation = fragment.validate()
+                    Log.d("test1234","$validation")
+                }
+                // 이름, 전화번호 인증 화면
+                1 -> Log.d("test1234","test1")
+                // 관심 분야 선택 화면
+                2 -> Log.d("test1234","test1")
+            }
+            binding.viewPagerJoin.currentItem += 1
+        }
+
+    }
+
 }
