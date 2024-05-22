@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatBinding
 import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
@@ -43,7 +44,43 @@ class ChatRoomFragment : Fragment() {
                 setNavigationOnClickListener {
                     mainActivity.removeFragment(MainFragmentName.CHAT_ROOM)
                 }
+                // 오른쪽 툴바 버튼(More_Vert, 수직 점 세개)
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        // 점 세개 클릭 시
+                        R.id.chatroom_toolbar_more_dot -> {
+                            showPopupMenu()
+                        }
+                    }
+                    true
+                }
             }
+        }
+    }
+
+    // 팝업 메뉴 세팅 - 툴바의 점 세개 버튼 누르면 나오는 팝업 메뉴
+    private fun showPopupMenu() {
+        fragmentChatRoomBinding.apply {
+            // 툴바의 점 세개 버튼 위치에 팝업 메뉴를 표시
+            val view = toolbarChatRoom.findViewById<View>(R.id.chatroom_toolbar_more_dot) ?: return
+            val popupMenu = PopupMenu(requireContext(), view)
+            popupMenu.menuInflater.inflate(R.menu.popup_menu_chatroom_more_vert, popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.item1 -> {
+                        mainActivity.removeFragment(MainFragmentName.CHAT_ROOM)
+                        true
+                    }
+                    R.id.item2 -> {
+                        true
+                    }
+                    R.id.item3 -> {
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popupMenu.show()
         }
     }
 

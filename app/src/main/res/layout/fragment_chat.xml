@@ -12,15 +12,13 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbarChat"
-            android:layout_width="409dp"
             style="@style/CustomToolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
             app:titleTextAppearance="@style/toolbarText"
-            app:menu="@menu/menu_chat_toolbar"
-            tools:layout_editor_absoluteX="1dp"
-            tools:layout_editor_absoluteY="2dp" />
+            app:menu="@menu/menu_chat_toolbar" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabsChat"
