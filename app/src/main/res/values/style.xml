@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--탭 레이아웃 텍스트 설정-->
+    <style name="tab_text" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">16dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!--툴바 텍스트 사이즈 고정-->
+    <style name="toolbarText" parent="">
+        <item name="android:textSize">24dp</item>
+    </style>
+
+    <!--툴바 색상-->
+    <style name="CustomToolbar" parent="">
+        <item name="backgroundColor">#fff</item>
+    </style>
+
+    <!--searchBar textsize-->
+    <style name="searchbarText" parent="">
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <!--dialog textsize-->
+    <style name="dialogText" parent="">
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <style name="dialogColor" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textSize">16dp</item>
+    </style>
+</resources>
