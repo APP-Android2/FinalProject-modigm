@@ -17,5 +17,5 @@
     <color name="editUserSelected">#ff0000</color>
 
     <!-- 포인트 color -->
-    <color name="pointColor">1A51C5</color>
+    <color name="pointColor">#1A51C5</color>
 </resources>
