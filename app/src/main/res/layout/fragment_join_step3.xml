@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingTop="40dp"
+    android:paddingRight="16dp"
+    android:transitionGroup="true"
+    tools:context=".ui.join.JoinStep3Fragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="관심있는 분야를 \n선택해주세요"
+        android:textSize="26dp" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroup_join_interest"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="40dp"
+        app:chipSpacingHorizontal="8dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="미선택"
+            android:textColor="@color/textGray"
+            app:chipBackgroundColor="@color/white"
+            app:chipStrokeColor="@color/buttonGray" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="선택한 칩"
+            android:textColor="@color/white"
+            app:checkedIconVisible="true"
+            app:chipBackgroundColor="#1A51C5" />
+    </com.google.android.material.chip.ChipGroup>
+
+</LinearLayout>
