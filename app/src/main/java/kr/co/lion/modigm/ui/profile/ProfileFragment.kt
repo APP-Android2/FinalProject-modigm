@@ -58,3 +58,5 @@ class ProfileFragment : Fragment() {
             }
     }
 }
+
+// layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
