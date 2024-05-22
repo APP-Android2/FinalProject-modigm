@@ -8,6 +8,7 @@
     android:paddingLeft="16dp"
     android:paddingTop="40dp"
     android:paddingRight="16dp"
+    android:transitionGroup="true"
     tools:context=".ui.join.JoinStep3Fragment">
 
     <TextView

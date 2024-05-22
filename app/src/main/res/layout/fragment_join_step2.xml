@@ -8,6 +8,7 @@
     android:paddingLeft="16dp"
     android:paddingTop="40dp"
     android:paddingRight="16dp"
+    android:transitionGroup="true"
     tools:context=".ui.join.JoinStep2Fragment">
 
     <TextView
@@ -28,13 +29,17 @@
         android:id="@+id/textInputLayout_join_userName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:endIconMode="clear_text">
+        app:endIconMode="clear_text"
+        app:hintAnimationEnabled="false"
+        app:hintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textinput_join_userName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text|textEmailAddress" />
+            android:hint="이름 입력"
+            android:inputType="text|textEmailAddress"
+            android:textSize="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -55,13 +60,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textinput_join_userPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="phone" />
+                android:hint="전화번호 입력"
+                android:inputType="phone"
+                android:textSize="16dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -95,13 +104,17 @@
             android:id="@+id/textInputLayout_join_phoneAuth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:endIconMode="clear_text">
+            app:endIconMode="clear_text"
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textinput_join_phoneAuth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:hint="인증번호 입력"
+                android:inputType="text"
+                android:textSize="16dp" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 

@@ -8,6 +8,7 @@
     android:paddingLeft="16dp"
     android:paddingTop="40dp"
     android:paddingRight="16dp"
+    android:transitionGroup="true"
     tools:context=".ui.join.JoinStep1Fragment">
 
     <TextView
@@ -28,13 +29,17 @@
         android:id="@+id/textInputLayout_join_userEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:endIconMode="clear_text">
+        app:endIconMode="clear_text"
+        app:hintAnimationEnabled="false"
+        app:hintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textInput_join_userEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text|textEmailAddress" />
+            android:hint="이메일 입력"
+            android:inputType="text|textEmailAddress"
+            android:textSize="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -49,13 +54,17 @@
         android:id="@+id/textInputLayout_join_userPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:endIconMode="password_toggle">
+        app:endIconMode="password_toggle"
+        app:hintAnimationEnabled="false"
+        app:hintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textInput_join_userPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text|textPassword" />
+            android:hint="비밀번호 입력"
+            android:inputType="text|textPassword"
+            android:textSize="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -70,12 +79,16 @@
         android:id="@+id/textInputLayout_join_userPasswordCheck"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:endIconMode="password_toggle">
+        app:endIconMode="password_toggle"
+        app:hintAnimationEnabled="false"
+        app:hintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textInput_join_userPasswordCheck"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text|textPassword" />
+            android:hint="비밀번호 확인 입력"
+            android:inputType="text|textPassword"
+            android:textSize="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>
