@@ -6,11 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.ChatRoomItem
+import kr.co.lion.modigm.util.MainFragmentName
 
 class ChatRoomAdapter(
     private val roomList: List<ChatRoomItem>,
-    private val onItemClick: (ChatRoomItem) -> Unit
+    private val onItemClick: (ChatRoomItem) -> Unit,
+    private val mainActivity: MainActivity
 ) : RecyclerView.Adapter<ChatRoomAdapter.ChatRoomViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatRoomViewHolder {
@@ -35,6 +38,7 @@ class ChatRoomAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val room = roomList[position]
                     onItemClick(room)
+                    mainActivity.replaceFragment(MainFragmentName.CHAT_ROOM, true, true, null)
                 }
             }
         }

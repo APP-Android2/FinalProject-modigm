@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.chat
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -39,28 +40,28 @@ class ChatOnetoOneFragment : Fragment() {
             ChatRoomItem(
                 chatIdx = 1,
                 chatTitle = "그룹 채팅방 1",
-                chatMemberList = listOf("uid1", "uid2", "uid3"),
-                participantCount = 3,
+                chatMemberList = listOf("currentUser", "sonUser", "iuUser", "ryuUser"),
+                participantCount = 4,
                 isGroupChat = true
             ),
             ChatRoomItem(
                 chatIdx = 2,
-                chatTitle = "그룹 채팅방 2",
-                chatMemberList = listOf("uid4", "uid5"),
+                chatTitle = "류현진",
+                chatMemberList = listOf("currentUser", "ryuUser"),
                 participantCount = 2,
-                isGroupChat = true
+                isGroupChat = false
             ),
             ChatRoomItem(
                 chatIdx = 3,
-                chatTitle = "1:1 채팅방 (사용자 1)",
-                chatMemberList = listOf("uid1"),
+                chatTitle = "아이유",
+                chatMemberList = listOf("currentUser", "iuUser"),
                 participantCount = 2,
                 isGroupChat = false
             ),
             ChatRoomItem(
                 chatIdx = 4,
-                chatTitle = "1:1 채팅방 (사용자 2)",
-                chatMemberList = listOf("uid2"),
+                chatTitle = "손흥민",
+                chatMemberList = listOf("currentUser", "sonUser"),
                 participantCount = 2,
                 isGroupChat = false
             )
@@ -69,11 +70,10 @@ class ChatOnetoOneFragment : Fragment() {
         // 대화방 목록 RecyclerView 설정
         fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = ChatRoomAdapter(roomList) { roomItem ->
+            adapter = ChatRoomAdapter(roomList, { roomItem ->
                 // 대화방 선택 시 동작
-                // 여기서는 간단하게 로그를 출력하도록 하겠습니다.
-                // Log.d("ChatRoomListFragment", "Selected Room: ${roomItem.chatTitle}")
-            }
+                Log.d("test1234", "Selected Room: ${roomItem.chatTitle}")
+            }, mainActivity)
         }
 
         // Recycler 뷰
