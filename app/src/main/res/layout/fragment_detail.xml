@@ -159,6 +159,34 @@
                                 android:text="Lorem ipsum dolor sit amet consectetur. \n\nTurpis id orci vitae pellentesque neque ut eu elit. \n\nMattis mauris ornare ut eget diam. \n\nCursus massa quam molestie lacus pellentesque lectus. \n\nAdipiscing tincidunt vestibulum morbi magna sed integer faucibus orci. \n\nMaecenas non in mattis turpis sit leo porttitor a. \n\nNunc urna est id iaculis a sapien placerat. \n\nMauris tristique in risus integer imperdiet. Lorem ipsum dolor sit amet consectetur. \n\nTurpis id orci vitae pellentesque neque ut eu elit. \n\nMattis mauris ornare ut eget diam. \n\nCursus massa quam molestie lacus pellentesque lectus. \n\nAdipiscing tincidunt vestibulum morbi magna sed integer faucibus orci. \n\nMaecenas non in mattis turpis sit leo porttitor a. \n\nNunc urna est id iaculis a sapien placerat. \n\nMauris tristique in risus integer imperdiet."
                                 android:textSize="16dp" />
 
+                            <com.google.android.material.chip.ChipGroup
+                                android:id="@+id/chipGroup_join_interest"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="20dp"
+                                app:chipSpacingHorizontal="8dp">
+
+                                <com.google.android.material.chip.Chip
+                                    android:id="@+id/chip"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="JAVA"
+                                    android:textSize="16dp"
+                                    android:textColor="@color/textGray"
+                                    app:chipBackgroundColor="@color/white"
+                                    app:chipStrokeColor="@color/buttonGray" />
+
+                                <com.google.android.material.chip.Chip
+                                    android:id="@+id/chip2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="KOTLIN"
+                                    android:textSize="16dp"
+                                    android:textColor="@color/textGray"
+                                    app:chipBackgroundColor="@color/white"
+                                    app:chipStrokeColor="@color/buttonGray" />
+                            </com.google.android.material.chip.ChipGroup>
+
 
                             <TextView
                                 android:layout_width="wrap_content"
