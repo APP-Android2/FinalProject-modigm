@@ -13,7 +13,7 @@ import kr.co.lion.modigm.databinding.FragmentChatOnetoOneBinding
 import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
-import kr.co.lion.modigm.util.MainFragmentName
+import kr.co.lion.modigm.util.FragmentName
 
 // 대화방 아이템을 나타내는 데이터 클래스
 data class ChatRoomItem(

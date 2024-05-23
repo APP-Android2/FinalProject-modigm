@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.ChatRoomItem
-import kr.co.lion.modigm.util.MainFragmentName
+import kr.co.lion.modigm.util.FragmentName
 
 class ChatRoomAdapter(
     private val roomList: List<ChatRoomItem>,
@@ -38,7 +38,7 @@ class ChatRoomAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val room = roomList[position]
                     onItemClick(room)
-                    mainActivity.replaceFragment(MainFragmentName.CHAT_ROOM, true, true, null)
+                    mainActivity.replaceFragment(FragmentName.CHAT_ROOM, true, true, null)
                 }
             }
         }

@@ -17,7 +17,7 @@ import kr.co.lion.modigm.databinding.FragmentChatBinding
 import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
-import kr.co.lion.modigm.util.MainFragmentName
+import kr.co.lion.modigm.util.FragmentName
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -62,7 +62,7 @@ class ChatRoomFragment : Fragment() {
             toolbarChatRoom.apply {
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
-                    mainActivity.removeFragment(MainFragmentName.CHAT_ROOM)
+                    mainActivity.removeFragment(FragmentName.CHAT_ROOM)
                 }
                 // 오른쪽 툴바 버튼(More_Vert, 수직 점 세개)
                 setOnMenuItemClickListener {
@@ -88,7 +88,7 @@ class ChatRoomFragment : Fragment() {
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.item1 -> {
-                        mainActivity.removeFragment(MainFragmentName.CHAT_ROOM)
+                        mainActivity.removeFragment(FragmentName.CHAT_ROOM)
                         true
                     }
                     R.id.item2 -> {

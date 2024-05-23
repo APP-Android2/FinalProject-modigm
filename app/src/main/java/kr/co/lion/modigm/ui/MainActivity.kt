@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 채팅 화면 띄우기 (테스트) - 원빈
-        replaceFragment(FragmentName.CHAT, false, false, null)
+        // replaceFragment(FragmentName.CHAT, false, false, null)
     }
 
     // 지정한 Fragment를 보여주는 메서드
