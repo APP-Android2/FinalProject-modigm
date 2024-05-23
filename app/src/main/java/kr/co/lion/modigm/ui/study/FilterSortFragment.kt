@@ -6,16 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentFilterSortBinding
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
 
-class StudyFragment : Fragment() {
+class FilterSortFragment : Fragment() {
 
-    private lateinit var binding : FragmentStudyBinding
+    private lateinit var binding : FragmentFilterSortBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         // 바인딩
-        binding = FragmentStudyBinding.inflate(inflater,container, false)
+        binding = FragmentFilterSortBinding.inflate(inflater,container, false)
 
         return binding.root
     }
@@ -34,8 +35,11 @@ class StudyFragment : Fragment() {
         with(binding){
 
             // 툴바
+            with(toolbarStudy){
+
+
+            }
 
         }
     }
-
 }
