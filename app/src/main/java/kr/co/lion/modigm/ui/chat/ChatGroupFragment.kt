@@ -70,7 +70,7 @@ class ChatGroupFragment : Fragment() {
         }
 
         override fun getItemCount(): Int {
-            return 10
+            return 6
         }
 
         override fun onBindViewHolder(holder: ChatGroupViewHolder, position: Int) {

@@ -61,13 +61,15 @@ class ChatOnetoOneFragment : Fragment() {
         }
 
         override fun getItemCount(): Int {
-            return 5
+            return 2
         }
 
         override fun onBindViewHolder(holder: ChatOnetoOneViewHolder, position: Int) {
             holder.rowChatroomFiledBinding.root.setOnClickListener {
                 mainActivity.replaceFragment(MainFragmentName.CHAT_ROOM, true, true, null)
             }
+            
+            holder.rowChatroomFiledBinding.textViewRowChatroomFiledRoomTitle.text = "홍길동"
         }
     }
 }
