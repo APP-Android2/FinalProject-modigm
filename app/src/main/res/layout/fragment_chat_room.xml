@@ -5,7 +5,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:transitionGroup="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbarChatRoom"
@@ -14,11 +15,11 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
+            app:menu="@menu/menu_chatroom_toolbar"
             app:navigationIcon="@drawable/icon_back_24px"
             app:title="스터디 제목"
             app:titleCentered="true"
-            app:titleTextAppearance="@style/toolbarText"
-            app:menu="@menu/menu_chatroom_toolbar" />
+            app:titleTextAppearance="@style/toolbarText" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
