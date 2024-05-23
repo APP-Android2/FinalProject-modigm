@@ -11,6 +11,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.util.MainFragmentName
 
 
 class WriteFragment : Fragment() {
@@ -26,10 +27,25 @@ class WriteFragment : Fragment() {
         mainActivity = activity as MainActivity
 
         viewPagerActivation()
+        settingEvent()
 
         return fragmentWriteBinding.root
     }
 
+    fun settingEvent(){
+        fragmentWriteBinding.apply {
+
+            // Toolbar
+            toolbarWriteFragment.apply {
+                setNavigationOnClickListener {
+                    // 뒤로가기
+                    mainActivity.removeFragment(MainFragmentName.WRITE)
+                }
+            }
+
+
+        }
+    }
 
     // ViewPager 설정0
      fun viewPagerActivation(){
