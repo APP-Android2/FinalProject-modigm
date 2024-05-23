@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
 import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
 
@@ -33,7 +34,7 @@ class JoinFragment : Fragment() {
     private fun settingToolBar(){
         with(binding.toolbarJoin){
             title = "회원가입"
-            setNavigationIcon(com.google.android.material.R.drawable.ic_arrow_back_black_24)
+            setNavigationIcon(R.drawable.arrow_back_24px)
             setNavigationOnClickListener {
                 if(binding.viewPagerJoin.currentItem!=0){
                     binding.viewPagerJoin.currentItem -= 1
