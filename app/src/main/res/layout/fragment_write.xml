@@ -1,14 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.write.WriteFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <Toolbar
+        android:id="@+id/toolbar_writeFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
 
-</FrameLayout>
+        android:navigationIcon="@drawable/arrow_back_24px"
+        android:title="@string/toolbarTitle_WriteFragment"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressBar_writeFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="20"
+        app:trackColor="@color/white"
+
+        android:progressTint="@color/pointColor"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_writeFragment"/>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout_writeFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:backgroundTint="@color/white"
+        app:tabBackground="@color/white"
+
+        app:tabTextColor="@color/textGray"
+        app:tabSelectedTextColor="@color/pointColor"
+
+        app:tabIndicatorFullWidth="true"
+        app:tabIndicatorColor="@color/pointColor"
+        app:layout_constraintTop_toBottomOf="@id/progressBar_writeFragment">
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager_writeFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+
+        app:layout_constraintTop_toBottomOf="@id/tabLayout_writeFragment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

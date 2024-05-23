@@ -30,4 +30,5 @@
         <item name="android:background">@android:color/white</item>
         <item name="android:textSize">16dp</item>
     </style>
+
 </resources>
