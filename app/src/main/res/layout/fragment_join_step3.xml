@@ -17,30 +17,24 @@
         android:text="관심있는 분야를 \n선택해주세요"
         android:textSize="26dp" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
+    <TextView
+        android:id="@+id/textView_join_alert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="관심있는 분야를 선택해주세요"
+        android:textColor="#FF0000"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroup_join_interest"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="40dp"
-        app:chipSpacingHorizontal="8dp">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="미선택"
-            android:textColor="@color/textGray"
-            app:chipBackgroundColor="@color/white"
-            app:chipStrokeColor="@color/buttonGray" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="선택한 칩"
-            android:textColor="@color/white"
-            app:checkedIconVisible="true"
-            app:chipBackgroundColor="#1A51C5" />
-    </com.google.android.material.chip.ChipGroup>
+        app:chipSpacingHorizontal="12dp"
+        app:chipSpacingVertical="8dp" />
 
 </LinearLayout>
