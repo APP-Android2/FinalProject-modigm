@@ -12,7 +12,7 @@
         tools:context=".ui.profile.ProfileFragment">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/materialToolbar"
+            android:id="@+id/toolbarProfile"
             style="@style/CustomToolbar"
             android:layout_width="409dp"
             android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
             android:layout_height="match_parent">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/floatingActionButton"
+                android:id="@+id/fabProfile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
