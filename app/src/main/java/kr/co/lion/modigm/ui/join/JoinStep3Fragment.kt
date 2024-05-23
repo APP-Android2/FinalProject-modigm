@@ -11,7 +11,7 @@ import kr.co.lion.modigm.databinding.FragmentJoinStep3Binding
 
 class JoinStep3Fragment : Fragment() {
 
-    val binding: FragmentJoinStep3Binding by lazy {
+    private val binding: FragmentJoinStep3Binding by lazy {
         FragmentJoinStep3Binding.inflate(layoutInflater)
     }
 
@@ -62,6 +62,12 @@ class JoinStep3Fragment : Fragment() {
             false
         }else{
             true
+        }
+    }
+
+    fun getInterests(): List<String>{
+        return binding.chipGroupJoinInterest.checkedChipIds.map {
+            binding.chipGroupJoinInterest.findViewById<Chip>(it).text.toString()
         }
     }
 

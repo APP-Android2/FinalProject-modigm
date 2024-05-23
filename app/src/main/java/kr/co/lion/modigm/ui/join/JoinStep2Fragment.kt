@@ -114,4 +114,12 @@ class JoinStep2Fragment : Fragment() {
         return result
     }
 
+    fun getUserName(): String {
+        return binding.textinputJoinUserName.text.toString()
+    }
+
+    fun getUserPhone(): String {
+        return binding.textinputJoinUserPhone.text.toString()
+    }
+
 }

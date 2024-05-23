@@ -62,4 +62,16 @@ class JoinStep1Fragment : Fragment() {
         return result
     }
 
+    fun getJoinUserEmail(): String {
+        return binding.textInputJoinUserEmail.text.toString()
+    }
+
+    fun getJoinUserPassword(): String {
+        return binding.textInputJoinUserPassword.text.toString()
+    }
+
+    fun getJoinUserPasswordCheck(): String {
+        return binding.textInputJoinUserPasswordCheck.text.toString()
+    }
+
 }
