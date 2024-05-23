@@ -26,7 +26,7 @@ class JoinStep3Fragment : Fragment() {
 
     private fun settingChips(){
         // 데이터는 추후 수정
-        val interestList = arrayListOf<String>(
+        val interestList = arrayListOf(
             "웹", "서버", "임베디드", "프론트 엔드", "백 엔드",
             "iOS", "안드로이드", "C, C++", "파이썬", "하드웨어",
             "머신러닝", "빅데이터", "Node.js", ".NET", "블록체인",
@@ -37,6 +37,9 @@ class JoinStep3Fragment : Fragment() {
                 Chip(requireContext()).apply {
                     text = chipName
                     isCheckable = true
+                    textSize = 18f
+                    // setEnsureMinTouchTargetSize(false)
+
                     setTextColor(resources.getColor(R.color.textGray, null))
                     setChipBackgroundColorResource(R.color.white)
                     setChipStrokeColorResource(R.color.buttonGray)

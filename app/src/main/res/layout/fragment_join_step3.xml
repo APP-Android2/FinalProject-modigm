@@ -17,11 +17,14 @@
         android:text="관심있는 분야를 \n선택해주세요"
         android:textSize="26dp" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
     <TextView
         android:id="@+id/textView_join_alert"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
         android:text="관심있는 분야를 선택해주세요"
         android:textColor="#FF0000"
         android:visibility="gone"
@@ -31,7 +34,7 @@
         android:id="@+id/chipGroup_join_interest"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        app:chipSpacingHorizontal="8dp"/>
+        app:chipSpacingHorizontal="12dp"
+        app:chipSpacingVertical="8dp" />
 
 </LinearLayout>
