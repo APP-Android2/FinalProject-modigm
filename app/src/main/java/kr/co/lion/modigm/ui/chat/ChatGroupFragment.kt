@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.FragmentChatGroupBinding
 import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
 import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.util.MainFragmentName
+import kr.co.lion.modigm.util.FragmentName
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -75,7 +75,7 @@ class ChatGroupFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ChatGroupViewHolder, position: Int) {
             holder.rowChatroomFiledBinding.root.setOnClickListener {
-                mainActivity.replaceFragment(MainFragmentName.CHAT_ROOM, true, true, null)
+                mainActivity.replaceFragment(FragmentName.CHAT_ROOM, true, true, null)
             }
         }
     }
