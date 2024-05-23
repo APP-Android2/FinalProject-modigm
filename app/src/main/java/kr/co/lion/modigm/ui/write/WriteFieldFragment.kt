@@ -112,6 +112,7 @@ class WriteFieldFragment : Fragment() {
                 }
             }
 
+
             buttonWriteFieldNext.setOnClickListener {
                 // 다음 탭으로 이동
                 fragmentWriteBinding.apply {
