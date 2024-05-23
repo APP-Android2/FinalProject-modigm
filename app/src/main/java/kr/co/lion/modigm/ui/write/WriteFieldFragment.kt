@@ -18,8 +18,11 @@ class WriteFieldFragment : Fragment() {
     private lateinit var mainActivity: MainActivity
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
+        // Progress Bar 변경을 위한 바인딩 불러오기
+        fragmentWriteBinding = FragmentWriteBinding.inflate(inflater)
+
         mainActivity = activity as MainActivity
-        fragmentWriteFieldBinding = FragmentWriteFieldBinding.inflate(layoutInflater)
+        fragmentWriteFieldBinding = FragmentWriteFieldBinding.inflate(inflater)
 
         settingView()
         settingEvent()
