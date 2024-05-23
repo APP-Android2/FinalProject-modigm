@@ -10,4 +10,6 @@ enum class MainFragmentName(var str: String) {
     CHAT_GROUP("ChatGroupFragment"),
     CHAT_ONE_TO_ONE("ChatOnetoOneFragment"),
     CHAT_ROOM("ChatRoomFragment"),
+    WRITE("WriteFragment"),
+
 }
