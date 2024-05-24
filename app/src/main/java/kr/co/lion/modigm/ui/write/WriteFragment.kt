@@ -39,7 +39,7 @@ class WriteFragment : Fragment() {
             toolbarWriteFragment.apply {
                 setNavigationOnClickListener {
                     // 뒤로가기
-                    mainActivity.removeFragment(MainFragmentName.WRITE)
+//                    mainActivity.removeFragment(MainFragmentName.WRITE)
                 }
             }
 
