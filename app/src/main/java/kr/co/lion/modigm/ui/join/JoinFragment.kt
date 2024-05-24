@@ -6,20 +6,37 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.viewpager2.widget.ViewPager2
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
+import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
+import kr.co.lion.modigm.util.FragmentName
 
 class JoinFragment : Fragment() {
 
-    lateinit var binding: FragmentJoinBinding
+    private lateinit var binding: FragmentJoinBinding
+
+    private val fragmentList : ArrayList<Fragment> by lazy {
+        arrayListOf(
+            JoinStep1Fragment(),
+            JoinStep2Fragment(),
+            JoinStep3Fragment()
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+
+        // 키보드가 올려올때 다음 버튼이 같이 올라와 텍스트필드를 막는 부분을 아래 코드로 셋팅하여 다음 버튼이 가려지게 함
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
         binding = FragmentJoinBinding.inflate(inflater)
+
         settingToolBar()
         settingViewPagerAdapter()
 
@@ -27,27 +44,23 @@ class JoinFragment : Fragment() {
     }
 
     private fun settingToolBar(){
-        with(binding){
-            with(toolbarJoin){
-                title = "회원가입"
-                setNavigationIcon(com.google.android.material.R.drawable.ic_arrow_back_black_24)
-                setNavigationOnClickListener {
-                    if(viewPagerJoin.currentItem!=0){
-                        viewPagerJoin.currentItem -= 1
-                    }else{
-                        // JoinFragment 회원가입 종료, 확인 알림창 띄우기?
-                    }
+        with(binding.toolbarJoin){
+            title = "회원가입"
+            setNavigationIcon(R.drawable.arrow_back_24px)
+            setNavigationOnClickListener {
+                if(binding.viewPagerJoin.currentItem!=0){
+                    binding.viewPagerJoin.currentItem -= 1
+                }else{
+                    // JoinFragment 회원가입 종료, 확인 알림창 띄우기?
                 }
             }
         }
     }
 
     private fun settingViewPagerAdapter(){
-
         val viewPagerAdapter = JoinViewPagerAdapter(this)
-        viewPagerAdapter.addFragment(JoinStep1Fragment())
-        viewPagerAdapter.addFragment(JoinStep2Fragment())
-        viewPagerAdapter.addFragment(JoinStep3Fragment())
+
+        viewPagerAdapter.addFragments(fragmentList)
 
         with(binding){
             // 어댑터 설정
@@ -56,23 +69,69 @@ class JoinFragment : Fragment() {
             viewPagerJoin.orientation = ViewPager2.ORIENTATION_HORIZONTAL
             // 터치로 스크롤 막기
             viewPagerJoin.isUserInputEnabled = false
-        }
 
-        // 다음 버튼 클릭 시 다음 화면으로 넘어가기
-        binding.buttonJoinNext.setOnClickListener {
-            when(binding.viewPagerJoin.currentItem){
-                // 이메일, 비밀번호 화면
-                0 -> {
-                    val fragment = viewPagerAdapter.createFragment(0) as JoinStep1Fragment
-                    val validation = fragment.validate()
-                    Log.d("test1234","$validation")
+            // 프로그래스바 설정
+            progressBarJoin.max = viewPagerAdapter.itemCount
+
+            viewPagerJoin.registerOnPageChangeCallback(
+                object: ViewPager2.OnPageChangeCallback(){
+                    override fun onPageSelected(position: Int) {
+                        binding.progressBarJoin.progress = position + 1
+                    }
                 }
-                // 이름, 전화번호 인증 화면
-                1 -> Log.d("test1234","test1")
-                // 관심 분야 선택 화면
-                2 -> Log.d("test1234","test1")
+            )
+
+            // 다음 버튼 클릭 시 다음 화면으로 넘어가기
+            buttonJoinNext.setOnClickListener {
+
+                // 화면별로 유효성 검사 먼저 하고
+                when(viewPagerJoin.currentItem){
+                    // 이메일, 비밀번호 화면
+                    0 -> {
+                        val step1 = viewPagerAdapter.createFragment(0) as JoinStep1Fragment
+                        // 유효성 검사
+                        val validation = step1.validate()
+                        if(!validation) return@setOnClickListener
+                        // 응답값
+                        val email = step1.getJoinUserEmail()
+                        val password = step1.getJoinUserPassword()
+                        Log.d("JoinFragment", "email : $email")
+                        Log.d("JoinFragment", "password : $password")
+                    }
+                    // 이름, 전화번호 인증 화면
+                    1 -> {
+                        val step2 = viewPagerAdapter.createFragment(1) as JoinStep2Fragment
+                        // 유효성 검사
+                        val validation = step2.validate()
+                        if(!validation) return@setOnClickListener
+                        // 응답값
+                        val name = step2.getUserName()
+                        val phoneNumber = step2.getUserPhone()
+                        Log.d("JoinFragment", "name : $name")
+                        Log.d("JoinFragment", "phoneNumber : $phoneNumber")
+
+                        // 중복 계정 여부 확인
+                        val isDup = phoneNumber == "010-1234-5678"
+                        if(isDup){
+                            // 중복 확인 프래그먼트로 이동
+                            (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, null)
+                            return@setOnClickListener
+                        }
+                    }
+                    // 관심 분야 선택 화면
+                    2 -> {
+                        val step3 = viewPagerAdapter.createFragment(2) as JoinStep3Fragment
+                        // 유효성 검사
+                        val validation = step3.validate()
+                        if(!validation) return@setOnClickListener
+                        // 응답값
+                        val interest = step3.getInterests()
+                        Log.d("JoinFragment", "interest : $interest")
+                    }
+                }
+                // 다음 페이지로 이동
+                viewPagerJoin.currentItem += 1
             }
-            binding.viewPagerJoin.currentItem += 1
         }
 
     }
