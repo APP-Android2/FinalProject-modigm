@@ -13,6 +13,7 @@ import kr.co.lion.modigm.ui.chat.ChatGroupFragment
 import kr.co.lion.modigm.ui.chat.ChatOnetoOneFragment
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
+import kr.co.lion.modigm.ui.detail.DetailMemberFragment
 import kr.co.lion.modigm.ui.join.JoinDuplicateFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
@@ -37,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 채팅 화면 띄우기 (테스트) - 원빈
-        // replaceFragment(FragmentName.CHAT, false, false, null)
+         replaceFragment(FragmentName.DETAIL, false, false, null)
     }
 
     // 지정한 Fragment를 보여주는 메서드
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
             // 글 상세보기
             FragmentName.DETAIL -> DetailFragment()
+            FragmentName.DETAIL_MEMBER -> DetailMemberFragment()
 
             // 회원가입
             FragmentName.JOIN -> JoinFragment()
