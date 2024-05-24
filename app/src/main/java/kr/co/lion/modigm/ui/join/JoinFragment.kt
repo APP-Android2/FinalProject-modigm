@@ -10,7 +10,9 @@ import android.view.WindowManager
 import androidx.viewpager2.widget.ViewPager2
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
+import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
+import kr.co.lion.modigm.util.FragmentName
 
 class JoinFragment : Fragment() {
 
@@ -112,7 +114,7 @@ class JoinFragment : Fragment() {
                         val isDup = phoneNumber == "010-1234-5678"
                         if(isDup){
                             // 중복 확인 프래그먼트로 이동
-                            replaceFragment(Bundle())
+                            (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, null)
                             return@setOnClickListener
                         }
                     }
@@ -134,13 +136,4 @@ class JoinFragment : Fragment() {
 
     }
 
-    private fun replaceFragment(bundle: Bundle){
-        // 추후 수정
-        val supportFragmentManager = parentFragmentManager.beginTransaction()
-        val newFragment = JoinDuplicateFragment()
-        newFragment.arguments = bundle
-        supportFragmentManager.replace(R.id.containerMain, newFragment)
-            .addToBackStack("JoinDuplicateFragment")
-        supportFragmentManager.commit()
-    }
 }
