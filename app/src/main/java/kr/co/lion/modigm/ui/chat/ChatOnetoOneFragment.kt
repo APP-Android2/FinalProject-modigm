@@ -36,6 +36,12 @@ class ChatOnetoOneFragment : Fragment() {
         return fragmentChatOnetoOneBinding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 프래그먼트가 다시 활성화될 때 데이터 갱신
+        gettingOneToOneChatRoomData()
+    }
+
     // RecyclerView 초기화
     private fun setupRecyclerView() {
 

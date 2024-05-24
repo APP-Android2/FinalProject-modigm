@@ -1,20 +1,15 @@
 package kr.co.lion.modigm.ui.chat
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuHost
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -97,9 +92,10 @@ class ChatFragment : Fragment() {
             val participantCount = 4
             val groupChat = true
             val lastChatMessage = "마지막 메세지"
+            val lastChatFullTime = 0L
             val lastChatTime = "00:00"
 
-            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatTime)
+            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
 
             // 채팅 방 생성
             ChatRoomDao.insertChatRoomData(chatRoomData)

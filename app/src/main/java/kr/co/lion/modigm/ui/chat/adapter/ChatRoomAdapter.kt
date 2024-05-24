@@ -65,7 +65,7 @@ class ChatRoomAdapter(
             if ((room.lastChatMessage).isNotEmpty()) {
                 // 마지막 대화 내용
                 roomLastTextView.text = room.lastChatMessage
-                // 마지막 채팅 시간 ( 적용이 안되는 오류 / 왜지..? )
+                // 마지막 채팅 시간
                 roomTimeTextView.text = room.lastChatTime
             }
         }

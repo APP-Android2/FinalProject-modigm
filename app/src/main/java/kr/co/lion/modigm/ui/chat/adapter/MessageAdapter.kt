@@ -6,16 +6,19 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.chat.Message
+import kr.co.lion.modigm.model.ChatMessagesData
 
-class MessageAdapter(private val userId: String, private val messages: MutableList<Message>) :
+class MessageAdapter(
+    private val loginUserId: String,
+    private val messages: MutableList<ChatMessagesData>,
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val VIEW_TYPE_SENT = 1
     private val VIEW_TYPE_RECEIVED = 2
 
     override fun getItemViewType(position: Int): Int {
-        return if (messages[position].userId == userId) {
+        return if (messages[position].chatSenderId == loginUserId) {
             VIEW_TYPE_SENT
         } else {
             VIEW_TYPE_RECEIVED
@@ -45,13 +48,19 @@ class MessageAdapter(private val userId: String, private val messages: MutableLi
         return messages.size
     }
 
+    fun updateMessages(updatedMessages: List<ChatMessagesData>) {
+        messages.clear()
+        messages.addAll(updatedMessages)
+        notifyDataSetChanged()
+    }
+
     class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
 
-        fun bind(message: Message) {
-            messageBody.text = message.text
-            messageTime.text = message.timestamp
+        fun bind(message: ChatMessagesData) {
+            messageBody.text = message.chatMessage
+            messageTime.text = message.chatTime
         }
     }
 
@@ -59,10 +68,10 @@ class MessageAdapter(private val userId: String, private val messages: MutableLi
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
-        fun bind(message: Message) {
-            messageBody.text = message.text
-            messageTime.text = message.timestamp
-            messageSender.text = message.senderName
+        fun bind(message: ChatMessagesData) {
+            messageBody.text = message.chatMessage
+            messageTime.text = message.chatTime
+            messageSender.text = message.chatSenderId
         }
     }
 }

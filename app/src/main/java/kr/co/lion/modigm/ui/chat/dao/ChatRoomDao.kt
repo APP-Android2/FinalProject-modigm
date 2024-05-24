@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.chat.dao
 
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,6 +63,7 @@ class ChatRoomDao {
                 val querySnapshot = collectionReference
                     .whereIn("chatIdx", listOf(1, 2, 3, 4, 5, 6, 7, 8))
                     .whereEqualTo("groupChat", true)
+                    .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
                     .get()
                     .await()
 
@@ -89,6 +91,7 @@ class ChatRoomDao {
                 val querySnapshot = collectionReference
                     .whereIn("chatIdx", listOf(1, 2, 3, 4, 5, 6, 7, 8))
                     .whereEqualTo("groupChat", false)
+                    .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
                     .get()
                     .await()
 
@@ -97,6 +100,36 @@ class ChatRoomDao {
                     chatRoom?.let {
                         chatRooms.add(it)
                     }
+                }
+            }
+            coroutine1.join()
+
+            return chatRooms
+        }
+
+        // 해당 채팅방 마지막 메세지, 마지막 메세지 시간 저장
+        suspend fun updateChatRoomLastMessageAndTime(chatIdx: Int, chatMessage: String, chatFullTime: Long, chatTime: String): MutableList<ChatRoomData> {
+            var chatRooms = mutableListOf<ChatRoomData>()
+
+            val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
+                val collectionReference = Firebase.firestore.collection("ChatRoomData")
+
+                // 내 아이디의 chatIdx 와 groupChat이 true인 경우 필터링
+                // chatIdx는 UserData가 있다면 그 Data에서 아이디 별 소속해있는 채팅방 int형 list를 가져와야함.
+                val querySnapshot = collectionReference
+                    .whereEqualTo("chatIdx", chatIdx)
+                    .get()
+                    .await()
+
+                for (document in querySnapshot.documents) {
+                    val documentReference = document.reference
+                    documentReference.update(
+                        mapOf(
+                            "lastChatMessage" to chatMessage,
+                            "lastChatFullTime" to chatFullTime,
+                            "lastChatTime" to chatTime
+                        )
+                    ).await()
                 }
             }
             coroutine1.join()
