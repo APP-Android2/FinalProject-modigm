@@ -13,6 +13,7 @@ import kr.co.lion.modigm.ui.chat.ChatGroupFragment
 import kr.co.lion.modigm.ui.chat.ChatOnetoOneFragment
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
+import kr.co.lion.modigm.ui.join.JoinDuplicateFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
 
             // 회원가입
             FragmentName.JOIN -> JoinFragment()
+            FragmentName.JOIN_DUPLICATE -> JoinDuplicateFragment()
 
             // 찜
             FragmentName.LIKE -> LikeFragment()
