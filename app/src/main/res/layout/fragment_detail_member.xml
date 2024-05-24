@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.detail.DetailMemberFragment">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolBarDetailMember"
+        style="@style/CustomToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:titleTextAppearance="@style/toolbarText" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabIndicatorFullWidth="true"
+        app:tabSelectedTextColor="?attr/colorPrimary"
+        app:tabRippleColor="#CCCCCC"
+        app:tabTextAppearance="@style/tab_text"
+        app:tabTextColor="@color/textGray"/>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"/>
+
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerDetail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
