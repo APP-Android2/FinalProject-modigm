@@ -161,6 +161,7 @@ class DetailFragment : Fragment() {
         // 각 메뉴 아이템에 대한 클릭 리스너 설정
         popupView.findViewById<TextView>(R.id.menuItem1).setOnClickListener {
             // 화면이동 로직 추가
+//            mainActivity.replaceFragment(FragmentName.DETAIL_MEMBER, true, false, null)
             popupWindow.dismiss()
         }
         popupView.findViewById<TextView>(R.id.menuItem2).setOnClickListener {
