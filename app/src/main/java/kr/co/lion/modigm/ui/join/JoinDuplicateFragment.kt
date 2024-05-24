@@ -1,19 +1,14 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
-import android.os.SystemClock
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinDuplicateBinding
 import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class JoinDuplicateFragment : Fragment() {
@@ -33,26 +28,20 @@ class JoinDuplicateFragment : Fragment() {
         return binding.root
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
-            android.R.id.home -> {
-                // 추후 수정
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     private fun settingToolBar(){
-        binding.toolbarJoinDup.title = ""
-        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbarJoinDup)
-        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        with(binding.toolbarJoinDup){
+            setNavigationIcon(R.drawable.arrow_back_24px)
+            setNavigationOnClickListener {
+                (requireActivity() as MainActivity).removeFragment(FragmentName.JOIN_DUPLICATE)
+            }
+        }
     }
 
     private fun settingButtonJoinDupLogin(){
         // 로그인 화면으로 돌아가거나 추후 가능할 경우 sns로그인 api 연동 예정
         binding.buttonJoinDupLogin.setOnClickListener {
-            (requireActivity() as MainActivity).removeFragment(FragmentName.JOIN)
+            // popBackStack에서 name값을 null로 넣어주면 기존의 backstack을 모두 없애준다.
+            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             (requireActivity() as MainActivity).replaceFragment(FragmentName.LOGIN, false, true, null)
         }
     }
