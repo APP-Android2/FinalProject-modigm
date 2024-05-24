@@ -205,7 +205,21 @@ class ChatRoomFragment : Fragment() {
         ChatMessagesDao.addChatMessagesListener(chatIdx) { updatedMessages ->
             // 업데이트된 메시지로 어댑터의 메시지 리스트 업데이트
             messageAdapter.updateMessages(updatedMessages)
+            // RecyclerView 최하단 표시
+            scrollToBottom()
         }
+    }
+
+    // RecyclerView (대화 맨 마지막 기준)으로 설정
+    private fun scrollToBottom() {
+        // 만약 메시지가 하나도 없다면 스크롤 할 필요가 없음 -> 함수 바로 종료
+        if (messages.isEmpty()) return
+
+        // 메시지가 하나 이상 있다면 마지막 아이템의 인덱스를 구한다
+        val lastIndex = messages.size - 1
+
+        // RecyclerView를 마지막 아이템으로 스크롤합니다.
+        fragmentChatRoomBinding.recyclerView.scrollToPosition(lastIndex)
     }
 
     // 채팅 입력 칸 - 변경 관련 Listener
