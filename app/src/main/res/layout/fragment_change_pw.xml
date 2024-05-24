@@ -13,16 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:transitionGroup="false"
         tools:context=".fragment.userinfo.ChangePwFragment">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/changePWToolbar"
+            style="@style/CustomToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/CustomToolbar"
-            app:titleTextAppearance="@style/toolbarText"
             android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme"/>
+            android:theme="?attr/actionBarTheme"
+            app:titleTextAppearance="@style/toolbarText" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,9 +62,9 @@
                     android:id="@+id/changePWInputPW"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16dp"
-                    android:hint="비밀번호 입력"
-                    android:inputType="text|textPassword" />
+                    android:hint="현재 비밀번호 입력"
+                    android:inputType="text|textPassword"
+                    android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -79,17 +80,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                app:endIconMode="password_toggle"
                 app:hintAnimationEnabled="false"
-                app:hintEnabled="false"
-                app:endIconMode="password_toggle">
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/changePWInputNewPW"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="새 비밀번호 입력"
-                    android:textSize="16dp"
-                    android:inputType="text|textPassword" />
+                    android:inputType="text|textPassword"
+                    android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -104,17 +105,17 @@
                 android:id="@+id/changePWTextFieldCheck"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconMode="password_toggle"
                 app:hintAnimationEnabled="false"
-                app:hintEnabled="false"
-                app:endIconMode="password_toggle">
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/changePWInputCheck"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="비밀번호 확인"
-                    android:textSize="16dp"
-                    android:inputType="text|textPassword" />
+                    android:inputType="text|textPassword"
+                    android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout

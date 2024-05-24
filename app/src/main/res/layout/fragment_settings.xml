@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:transitionGroup="true">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarSettings"
+        style="@style/CustomToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CustomToolbar"
-        app:titleTextAppearance="@style/toolbarText"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:theme="?attr/actionBarTheme"
+        app:titleTextAppearance="@style/toolbarText" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -28,9 +29,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:paddingHorizontal="16dp"
                 android:paddingTop="20dp"
-                android:paddingBottom="8dp"
-                android:paddingHorizontal="16dp">
+                android:paddingBottom="8dp">
 
                 <TextView
                     android:id="@+id/textViewSettings1"
@@ -46,8 +47,8 @@
                     android:id="@+id/layoutSettingsEditInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="16dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:paddingVertical="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -66,8 +67,8 @@
                     android:id="@+id/layoutSettingsEditPw"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="16dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:paddingVertical="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"

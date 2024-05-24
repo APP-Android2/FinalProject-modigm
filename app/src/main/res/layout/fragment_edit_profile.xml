@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.profile.EditProfileFragment" >
+    android:transitionGroup="true"
+    tools:context=".ui.profile.EditProfileFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarEditProfile"
@@ -242,7 +243,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="수정"
-                android:textSize="14dp"/>
+                android:textSize="14dp" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
