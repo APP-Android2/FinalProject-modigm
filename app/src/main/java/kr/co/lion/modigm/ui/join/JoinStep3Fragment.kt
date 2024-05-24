@@ -15,6 +15,14 @@ class JoinStep3Fragment : Fragment() {
         FragmentJoinStep3Binding.inflate(layoutInflater)
     }
 
+    // 데이터는 추후 수정
+    val interestList = arrayListOf(
+        "웹", "서버", "임베디드", "프론트 엔드", "백 엔드",
+        "iOS", "안드로이드", "C, C++", "파이썬", "하드웨어",
+        "머신러닝", "빅데이터", "Node.js", ".NET", "블록체인",
+        "크로스플랫폼", "그래픽스", "VR"
+    )
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,13 +33,7 @@ class JoinStep3Fragment : Fragment() {
     }
 
     private fun settingChips(){
-        // 데이터는 추후 수정
-        val interestList = arrayListOf(
-            "웹", "서버", "임베디드", "프론트 엔드", "백 엔드",
-            "iOS", "안드로이드", "C, C++", "파이썬", "하드웨어",
-            "머신러닝", "빅데이터", "Node.js", ".NET", "블록체인",
-            "크로스플랫폼", "그래픽스", "VR"
-        )
+        binding.chipGroupJoinInterest.removeAllViews()
         for(chipName in interestList){
             binding.chipGroupJoinInterest.addView(
                 Chip(requireContext()).apply {
