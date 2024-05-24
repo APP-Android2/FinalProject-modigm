@@ -6,49 +6,69 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.study.StudyFragment" >
-
-    <com.google.android.material.appbar.AppBarLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/white">
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarStudy"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/CustomToolbar"
-            app:titleTextAppearance="@style/toolbarText"
-            app:title="모우다임"
-            app:titleCentered="true"
-            app:navigationIcon="@drawable/logo_toolbar_modigm"
-            />
-    </com.google.android.material.appbar.AppBarLayout>
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayoutStudy"
-        style="@style/Widget.Material3.TabLayout.Secondary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/white"
-        app:tabIndicatorColor="@color/pointColor"
-        app:tabIndicatorHeight="2dp"
-        app:tabTextColor="@color/textGray"
-        app:tabTextAppearance="@style/tab_text"
-        app:tabSelectedTextColor="@color/pointColor"
-        >
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
+            android:backgroundTint="@color/white">
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbarStudy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/CustomToolbar"
+                app:titleTextAppearance="@style/toolbarText"
+                app:title="모우다임"
+                app:titleCentered="true"
+                app:navigationIcon="@drawable/logo_toolbar_modigm"
+                />
+        </com.google.android.material.appbar.AppBarLayout>
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayoutStudy"
+            style="@style/Widget.Material3.TabLayout.Secondary"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="전체 스터디"
-            />
+            android:backgroundTint="@color/white"
+            app:tabIndicatorColor="@color/pointColor"
+            app:tabIndicatorHeight="2dp"
+            app:tabTextColor="@color/textGray"
+            app:tabTextAppearance="@style/tab_text"
+            app:tabSelectedTextColor="@color/pointColor"
+            >
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="내 스터디" />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="전체 스터디"
+                />
 
-    </com.google.android.material.tabs.TabLayout>
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPagerStudy"
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내 스터디" />
+
+        </com.google.android.material.tabs.TabLayout>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerStudy"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="80dp"
+        android:background="@color/white"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        app:itemActiveIndicatorStyle="@null"
+        app:itemBackground="@android:color/transparent"
+        app:itemIconSize="24dp"
+        app:itemIconTint="@color/black"
+        app:itemTextColor="@color/black"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_study_bottom_navi"/>
 </LinearLayout>
