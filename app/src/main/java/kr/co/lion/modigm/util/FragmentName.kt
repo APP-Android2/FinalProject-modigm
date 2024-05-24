@@ -28,6 +28,7 @@ enum class FragmentName (var str: String){
 
     // 프로필
     PROFILE("ProfileFragment"),
+    SETTINGS("SettingsFragment"),
 
     // 스터디
     STUDY("StudyFragment"),
