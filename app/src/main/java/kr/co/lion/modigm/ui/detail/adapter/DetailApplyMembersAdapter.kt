@@ -47,7 +47,7 @@ class DetailApplyMembersAdapter (private val members: List<Member>) : RecyclerVi
             // 승인 버튼
             acceptButton.setOnClickListener {
 
-                val snackbar = Snackbar.make(itemView, "승인되었습니다: ${member.name}", Snackbar.LENGTH_LONG)
+                val snackbar = Snackbar.make(itemView, "${member.name}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
 
                 // 스낵바의 뷰를 가져옵니다.
                 val snackbarView = snackbar.view
