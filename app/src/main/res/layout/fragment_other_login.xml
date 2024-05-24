@@ -113,10 +113,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="계정이 없으신가요? "
-            app:insetTop="0dp"
-            app:insetBottom="0dp"
-            app:insetStart="0dp"
-            app:insetEnd="0dp"
             android:padding="0dp"
             />
         <com.google.android.material.button.MaterialButton
@@ -128,10 +124,6 @@
             android:textColor="@color/black"
             android:textStyle="bold"
             android:padding="0dp"
-            app:insetTop="0dp"
-            app:insetBottom="0dp"
-            app:insetStart="0dp"
-            app:insetEnd="0dp"
             />
     </LinearLayout>
 

@@ -12,7 +12,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatBinding
 import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.util.MainFragmentName
+import kr.co.lion.modigm.util.FragmentName
 
 class ChatFragment : Fragment() {
 

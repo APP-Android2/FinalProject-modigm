@@ -2,10 +2,7 @@ package kr.co.lion.modigm.ui
 
 import android.os.Bundle
 import android.os.SystemClock
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.transition.MaterialSharedAxis
@@ -15,11 +12,18 @@ import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.chat.ChatGroupFragment
 import kr.co.lion.modigm.ui.chat.ChatOnetoOneFragment
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
-import kr.co.lion.modigm.util.MainFragmentName
+import kr.co.lion.modigm.ui.detail.DetailFragment
+import kr.co.lion.modigm.ui.join.JoinFragment
+import kr.co.lion.modigm.ui.like.LikeFragment
+import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.ui.study.StudyFragment
+import kr.co.lion.modigm.ui.write.WriteFragment
+import kr.co.lion.modigm.util.FragmentName
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var activityMainBinding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
 
     // 프레그먼트의 주소 값을 담을 프로퍼티
     var oldFragment: Fragment? = null
@@ -28,17 +32,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(activityMainBinding.root)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // 채팅 화면 띄우기 (테스트) - 원빈
-        replaceFragment(MainFragmentName.CHAT, false, false, null)
+        // replaceFragment(FragmentName.CHAT, false, false, null)
     }
 
     // 지정한 Fragment를 보여주는 메서드
-    fun replaceFragment(name: MainFragmentName, addToBackStack: Boolean, isAnimate: Boolean, data: Bundle?) {
-
-        // SystemClock.sleep(50)
+    fun replaceFragment(name: FragmentName, addToBackStack: Boolean, isAnimate: Boolean, data: Bundle?) {
 
         // Fragment를 교체할 수 있는 객체를 추출한다.
         val fragmentTransaction = supportFragmentManager.beginTransaction()
@@ -48,12 +50,34 @@ class MainActivity : AppCompatActivity() {
             oldFragment = newFragment
         }
 
-        when(name){
-            // 채팅 관련 Fragment 등록
-            MainFragmentName.CHAT -> newFragment = ChatFragment()
-            MainFragmentName.CHAT_GROUP -> newFragment = ChatGroupFragment()
-            MainFragmentName.CHAT_ONE_TO_ONE -> newFragment = ChatOnetoOneFragment()
-            MainFragmentName.CHAT_ROOM -> newFragment = ChatRoomFragment()
+        // 관련 Fragment 등록
+        newFragment = when(name){
+            // 채팅
+            FragmentName.CHAT -> ChatFragment()
+            FragmentName.CHAT_GROUP -> ChatGroupFragment()
+            FragmentName.CHAT_ONE_TO_ONE -> ChatOnetoOneFragment()
+            FragmentName.CHAT_ROOM -> ChatRoomFragment()
+
+            // 글 상세보기
+            FragmentName.DETAIL -> DetailFragment()
+
+            // 회원가입
+            FragmentName.JOIN -> JoinFragment()
+
+            // 찜
+            FragmentName.LIKE -> LikeFragment()
+
+            // 로그인
+            FragmentName.LOGIN -> LoginFragment()
+
+            // 프로필
+            FragmentName.PROFILE -> ProfileFragment()
+
+            // 스터디
+            FragmentName.STUDY -> StudyFragment()
+
+            // 글 작성
+            FragmentName.WRITE -> WriteFragment()
         }
 
         // 새로운 Fragment에 전달할 객체가 있다면 arguments 프로퍼티에 넣어준다.
@@ -100,7 +124,7 @@ class MainActivity : AppCompatActivity() {
 
 
     // BackStack에서 Fragment를 제거한다.
-    fun removeFragment(name: MainFragmentName){
+    fun removeFragment(name: FragmentName){
         SystemClock.sleep(50)
 
         // 지정한 이름으로 있는 Fragment를 BackStack에서 제거한다.
