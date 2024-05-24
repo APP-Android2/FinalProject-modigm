@@ -53,7 +53,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
                 android:text="이메일"
-                android:textColor="@color/black"
                 android:textSize="16dp" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -61,6 +60,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
+                app:helperTextTextColor="#1A51C5"
                 app:hintAnimationEnabled="false"
                 app:hintEnabled="false">
 
@@ -73,8 +73,7 @@
                     android:focusable="false"
                     android:padding="10dp"
                     android:text="@={editUserViewModel.editUserInputName}"
-                    android:textSize="16dp"
-                    app:helperTextColor="#1A51C5" />
+                    android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -83,7 +82,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
                 android:text="전화번호"
-                android:textColor="@color/black"
                 android:textSize="16dp" />
 
             <LinearLayout
@@ -109,8 +107,7 @@
                         android:focusable="false"
                         android:padding="10dp"
                         android:text="@={editUserViewModel.editUserInputName}"
-                        android:textSize="16dp"
-                        app:helperTextColor="#1A51C5" />
+                        android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -129,7 +126,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
                 android:text="자기소개"
-                android:textColor="@color/black"
                 android:textSize="16dp" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -150,8 +146,7 @@
                     android:inputType="text|textMultiLine"
                     android:padding="10dp"
                     android:text="@={editUserViewModel.editUserInputName}"
-                    android:textSize="16dp"
-                    app:helperTextColor="#1A51C5" />
+                    android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -195,7 +190,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
                 android:text="링크"
-                android:textColor="@color/black"
                 android:textSize="16dp" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -227,8 +221,7 @@
                         android:hint="https://"
                         android:padding="12dp"
                         android:text="@={editUserViewModel.editUserInputName}"
-                        android:textSize="16dp"
-                        app:helperTextColor="#1A51C5" />
+                        android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
