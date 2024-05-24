@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/main_bottom_navi_study"
+        android:enabled="true"
+        android:icon="@drawable/icon_study_book_24px"
+        android:title="스터디"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/main_bottom_navi_like"
+        android:enabled="true"
+        android:icon="@drawable/icon_favorite_full_24px"
+        android:title="찜"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/main_bottom_navi_chat"
+        android:enabled="true"
+        android:icon="@drawable/icon_chat_24px"
+        android:title="채팅"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/main_bottom_navi_profile"
+        android:enabled="true"
+        android:icon="@drawable/icon_person_24px"
+        android:title="프로필"
+        app:showAsAction="always" />
+</menu>
