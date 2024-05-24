@@ -91,6 +91,7 @@ class ChatRoomFragment : Fragment() {
         fragmentChatRoomBinding.apply {
             toolbarChatRoom.apply {
                 title = "$chatTitle"
+                if (isGroupChat == true) subtitle = "현재인원 ${chatMemberList.size}명"
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
                     mainActivity.removeFragment(FragmentName.CHAT_ROOM)
