@@ -11,7 +11,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.util.MainFragmentName
 
 
 class WriteFragment : Fragment() {
