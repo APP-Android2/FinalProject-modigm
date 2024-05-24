@@ -55,7 +55,6 @@ class MainActivity : AppCompatActivity() {
             MainFragmentName.CHAT_GROUP -> newFragment = ChatGroupFragment()
             MainFragmentName.CHAT_ONE_TO_ONE -> newFragment = ChatOnetoOneFragment()
             MainFragmentName.CHAT_ROOM -> newFragment = ChatRoomFragment()
-            MainFragmentName.WRITE -> newFragment = WriteFragment()
         }
 
         // 새로운 Fragment에 전달할 객체가 있다면 arguments 프로퍼티에 넣어준다.
