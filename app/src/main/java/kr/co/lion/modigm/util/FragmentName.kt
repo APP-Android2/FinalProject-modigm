@@ -18,6 +18,7 @@ enum class FragmentName (var str: String){
 
     // 회원가입
     JOIN("JoinFragment"),
+    JOIN_DUPLICATE("JoinDuplicateFragment"),
 
     // 찜
     LIKE("LikeFragment"),

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_item_profile_setting"
+        android:icon="@drawable/icon_settings_24px"
+        android:title="설정"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_item_profile_more"
+        android:icon="@drawable/icon_more_vert_24px"
+        android:title="더보기"
+        app:showAsAction="always" />
+</menu>
