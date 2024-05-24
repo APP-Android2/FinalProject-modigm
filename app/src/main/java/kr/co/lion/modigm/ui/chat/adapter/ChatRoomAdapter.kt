@@ -62,7 +62,7 @@ class ChatRoomAdapter(
             val rooms = roomList[position]
             // 채팅 방 제목
             roomTitleTextView.text = room.chatTitle
-            if ((room.lastChatMessage).isEmpty()) {
+            if ((room.lastChatMessage).isNotEmpty()) {
                 // 마지막 대화 내용
                 roomLastTextView.text = room.lastChatMessage
                 // 마지막 채팅 시간 ( 적용이 안되는 오류 / 왜지..? )
