@@ -60,7 +60,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:endIconMode="clear_text"
                 app:hintAnimationEnabled="false"
                 app:hintEnabled="false">
 
@@ -71,9 +70,7 @@
                     android:clickable="false"
                     android:cursorVisible="false"
                     android:focusable="false"
-                    android:hint="위아래 12dp"
-                    android:inputType="text|text"
-                    android:padding="12dp"
+                    android:padding="10dp"
                     android:text="@={editUserViewModel.editUserInputName}"
                     android:textSize="16dp"
                     app:helperTextColor="#1A51C5" />
@@ -99,7 +96,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:endIconMode="clear_text"
                     app:hintAnimationEnabled="false"
                     app:hintEnabled="false">
 
@@ -110,8 +106,7 @@
                         android:clickable="false"
                         android:cursorVisible="false"
                         android:focusable="false"
-                        android:inputType="text|text"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         android:text="@={editUserViewModel.editUserInputName}"
                         android:textSize="16dp"
                         app:helperTextColor="#1A51C5" />
@@ -149,11 +144,8 @@
                     android:id="@+id/editTextEditProfileIntro"
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
-                    android:clickable="false"
-                    android:cursorVisible="false"
-                    android:focusable="false"
                     android:inputType="text|text"
-                    android:padding="12dp"
+                    android:padding="10dp"
                     android:text="@={editUserViewModel.editUserInputName}"
                     android:textSize="16dp"
                     app:helperTextColor="#1A51C5" />
@@ -228,10 +220,7 @@
                         android:id="@+id/editTextEditProfileLink"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:clickable="false"
-                        android:cursorVisible="false"
-                        android:focusable="false"
-                        android:inputType="text|text"
+                        android:inputType="text|textUri"
                         android:padding="12dp"
                         android:text="@={editUserViewModel.editUserInputName}"
                         android:textSize="16dp"
@@ -247,6 +236,13 @@
                     android:text="등록"
                     android:textSize="14dp" />
             </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="수정"
+                android:textSize="14dp"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
