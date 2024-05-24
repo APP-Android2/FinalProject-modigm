@@ -51,9 +51,10 @@ class ChatRoomFragment : Fragment() {
             chatIdx = it.getInt("chatIdx")
             chatTitle = it.getString("chatTitle").toString()
             chatMemberList = it.getStringArrayList("chatMemberList")!!
-            isGroupChat = it.getBoolean("isGroupChat")
-            Log.d("test1234", "채팅방 번호, 이름, 그룹챗 여부 - ${chatIdx}, ${chatTitle}, ${isGroupChat}")
-            Log.d("test1234", "멤버 리스트 - $chatMemberList")
+            isGroupChat = it.getBoolean("groupChat")
+            // Log.d("test1234", "채팅방 번호, 이름, 그룹챗 여부 - ${chatIdx}, ${chatTitle}, ${isGroupChat}")
+            // Log.d("test1234", "멤버 리스트 - $chatMemberList")
+            // Log.d("test1234", "멤버 리스트: ${chatMemberList.size}명")
         }
 
         // 채팅 방 - (툴바) 세팅
@@ -140,7 +141,7 @@ class ChatRoomFragment : Fragment() {
                 messages.add(Message(userId = chatMemberList[2], text = "테스트 잘 되는거 같네요..?", timestamp = "02:13", senderName = "아이유"))
                 messages.add(Message(userId = chatMemberList[3], text = "혹시 OOO님도 채팅 한번 쳐주세요!", timestamp = "02:21", senderName = "류현진"))
             }
-            else
+            else if(chatIdx == 5)
             {
                 messages.add(Message(userId = chatMemberList[1], text = "안녕하세요!", timestamp = "01:11", senderName = "주성원"))
                 messages.add(Message(userId = userId, text = "안녕하세요~", timestamp = "01:13", senderName = "김원빈"))
@@ -148,6 +149,13 @@ class ChatRoomFragment : Fragment() {
                 messages.add(Message(userId = chatMemberList[3], text = "반갑습니다~!", timestamp = "01:21", senderName = "전희원"))
                 messages.add(Message(userId = chatMemberList[4], text = "안녕하세요!", timestamp = "01:22", senderName = "엄민식"))
                 messages.add(Message(userId = chatMemberList[5], text = "반갑습니다~!", timestamp = "01:36", senderName = "이승현"))
+            }
+            else {
+                messages.add(Message(userId = userId, text = "안녕하세요~", timestamp = "00:01", senderName = "김원빈"))
+                messages.add(Message(userId = chatMemberList[1], text = "안녕하세요!", timestamp = "00:03", senderName = "손흥민"))
+                messages.add(Message(userId = userId, text = "테스트 어때요?", timestamp = "01:04", senderName = "김원빈"))
+                messages.add(Message(userId = chatMemberList[2], text = "테스트 잘 되는거 같네요..?", timestamp = "02:13", senderName = "아이유"))
+                messages.add(Message(userId = chatMemberList[3], text = "혹시 OOO님도 채팅 한번 쳐주세요!", timestamp = "02:21", senderName = "류현진"))
             }
         }
         // 1:1 채팅방

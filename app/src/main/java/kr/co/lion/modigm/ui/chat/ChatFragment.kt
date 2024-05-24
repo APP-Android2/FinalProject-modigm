@@ -1,18 +1,29 @@
 package kr.co.lion.modigm.ui.chat
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuHost
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatBinding
+import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
 
 class ChatFragment : Fragment() {
 
@@ -24,29 +35,21 @@ class ChatFragment : Fragment() {
         fragmentChatBinding = FragmentChatBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
 
-        // 채팅 - (툴바, ViewPager) 세팅
-        settingToolbar()
+        // 옵션 메뉴가 있다는 것을 시스템에 알림
+        setHasOptionsMenu(true)
+
+        // 채팅 - (ViewPager) 세팅
         viewPagerActiviation()
 
         return fragmentChatBinding.root
     }
 
-    // 툴바 세팅
-    fun settingToolbar() {
-        fragmentChatBinding.apply {
-            toolbarChat.apply {
-                // 오른쪽 툴바 버튼(Search)
-                setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        // 검색 클릭 시
-                        R.id.chat_toolbar_search -> {
-                            Log.d("test1234", "검색 버튼 클릭")
-                        }
-                    }
-                    true
-                }
-            }
-        }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_chat_toolbar, menu)
+
+        // 현재 이게 실행이 안돼서 search 메뉴 개발 뒤로 미룸
+        Log.d("test1234", "onCreateOptionsMenu")
     }
 
     // ViewPager 설정
@@ -78,6 +81,28 @@ class ChatFragment : Fragment() {
 
         override fun createFragment(position: Int): Fragment {
             return fragmentList.get(position)
+        }
+    }
+
+    // 채팅 방 데이터 추가 (예시)
+    fun addChatRoomData() {
+        CoroutineScope(Dispatchers.Main).launch {
+
+            val chatRoomSequence = ChatRoomDao.getChatRoomSequence()
+            ChatRoomDao.updateChatRoomSequence(chatRoomSequence + 1)
+
+            val chatIdx = chatRoomSequence + 1
+            val chatTitle = "제 13회 해커톤 준비"
+            val chatMemberList = listOf("currentUser", "sonUser", "iuUser", "ryuUser")
+            val participantCount = 4
+            val groupChat = true
+            val lastChatMessage = "마지막 메세지"
+            val lastChatTime = "00:00"
+
+            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatTime)
+
+            // 채팅 방 생성
+            ChatRoomDao.insertChatRoomData(chatRoomData)
         }
     }
 }
