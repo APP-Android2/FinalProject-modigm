@@ -24,6 +24,7 @@ import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.dao.ChatMessagesDao
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.hideSoftInput
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -179,6 +180,9 @@ class ChatRoomFragment : Fragment() {
                     ChatMessagesDao.insertChatMessagesData(message, chatIdx, chatSenderName, chatFullTime)
                     // 메세지 전송 후 해당 채팅 방 마지막 메세지 및 시간 변경
                     ChatRoomDao.updateChatRoomLastMessageAndTime(chatIdx, chatMessage, chatFullTime, chatTime)
+
+                    // 전송 후 키보드 숨기기
+                    activity?.hideSoftInput()
                 }
             }
         }
