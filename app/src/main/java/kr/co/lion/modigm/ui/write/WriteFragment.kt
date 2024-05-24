@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.write
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.util.MainFragmentName
 
 
 class WriteFragment : Fragment() {
@@ -21,17 +23,32 @@ class WriteFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        fragmentWriteBinding = FragmentWriteBinding.inflate(inflater)
         mainActivity = activity as MainActivity
-        fragmentWriteBinding = FragmentWriteBinding.inflate(layoutInflater)
 
         viewPagerActivation()
+        settingEvent()
 
         return fragmentWriteBinding.root
     }
 
+    fun settingEvent(){
+        fragmentWriteBinding.apply {
+
+            // Toolbar
+            toolbarWriteFragment.apply {
+                setNavigationOnClickListener {
+                    // 뒤로가기
+//                    mainActivity.removeFragment(MainFragmentName.WRITE)
+                }
+            }
+
+
+        }
+    }
 
     // ViewPager 설정0
-    private fun viewPagerActivation(){
+     fun viewPagerActivation(){
         fragmentWriteBinding.apply {
 
             // 1. 페이지 데이터를 로드

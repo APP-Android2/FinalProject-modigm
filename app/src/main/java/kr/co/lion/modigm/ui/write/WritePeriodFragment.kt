@@ -5,56 +5,91 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.DialogWritePeriodFragmentBinding
+import kr.co.lion.modigm.databinding.FragmentWriteBinding
+import kr.co.lion.modigm.databinding.FragmentWritePeriodBinding
+import kr.co.lion.modigm.ui.MainActivity
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [WritePeriodFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class WritePeriodFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
-
+    lateinit var fragmentWritePeriodBinding: FragmentWritePeriodBinding
+    lateinit var fragmentWriteBinding: FragmentWriteBinding
+    lateinit var mainActity: MainActivity
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_write_period, container, false)
+
+        mainActity = activity as MainActivity
+        fragmentWritePeriodBinding = FragmentWritePeriodBinding.inflate(inflater, container, false)
+        fragmentWriteBinding = FragmentWriteBinding.inflate(inflater)
+
+        return fragmentWritePeriodBinding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment WritePeriodFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            WritePeriodFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        settingProgressBar()
+        settingEvent()
+    }
+
+    fun settingProgressBar(){
+        fragmentWriteBinding.progressBarWriteFragment.apply {
+            setProgress(40, true)
+        }
+    }
+
+    fun settingEvent(){
+        // 기간선택 클릭시
+        fragmentWritePeriodBinding.apply {
+            // 다이얼로그를 띄운다
+            textinputWritePeriod.setOnClickListener {
+                val builder = MaterialAlertDialogBuilder(mainActity).apply {
+
+                    // 뷰를 설정한다
+                     val dialogWritePeriodFragmentBinding = DialogWritePeriodFragmentBinding.inflate(layoutInflater)
+                    setView(dialogWritePeriodFragmentBinding.root)
+
+                    // 버튼 클릭 이벤트 처리
+                    dialogWritePeriodFragmentBinding.apply {
+                        textViewDialogWritePeriod01.setOnClickListener {
+
+                            clickAnimation(it)
+                            textinputWritePeriod.setText("1개월 이하")
+
+                        }
+
+                        textViewDialogWritePeriod02.setOnClickListener {
+                            clickAnimation(it)
+                            textinputWritePeriod.setText("1개월 이상")
+                        }
+
+                        textViewDialogWritePeriod03.setOnClickListener {
+                            clickAnimation(it)
+                            textinputWritePeriod.setText("3개월 이상")
+
+                        }
+
+                        textViewDialogWritePeriod04.setOnClickListener {
+                            clickAnimation(it)
+                            textinputWritePeriod.setText("6개월 이상")
+                        }
+                    }
                 }
+                builder.show()
             }
+        }
+    }
+
+    // textView 클릭 시 애니메이션 처리
+    private fun clickAnimation(view: View){
+        view.animate().scaleX(-1.2f).scaleY(1.2f).setDuration(300).withEndAction {
+            view.animate().scaleX(1f).scaleY(1f).setDuration(300)
+        }
     }
 }
