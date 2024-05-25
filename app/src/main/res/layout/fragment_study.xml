@@ -1,74 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.study.StudyFragment" >
+    tools:context=".ui.study.StudyFragment">
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="1">
-        <com.google.android.material.appbar.AppBarLayout
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/white">
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbarStudy"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/CustomToolbar"
-                app:titleTextAppearance="@style/toolbarText"
-                app:title="모우다임"
-                app:titleCentered="true"
-                app:navigationIcon="@drawable/logo_toolbar_modigm"
-                />
-        </com.google.android.material.appbar.AppBarLayout>
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayoutStudy"
-            style="@style/Widget.Material3.TabLayout.Secondary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
-            app:tabIndicatorColor="@color/pointColor"
-            app:tabIndicatorHeight="2dp"
-            app:tabTextColor="@color/textGray"
-            app:tabTextAppearance="@style/tab_text"
-            app:tabSelectedTextColor="@color/pointColor"
-            >
+                android:backgroundTint="@color/white">
 
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbarStudy"
+                    style="@style/CustomToolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:navigationIcon="@drawable/logo_toolbar_modigm"
+                    app:title="모우다임"
+                    app:titleCentered="true"
+                    app:titleTextAppearance="@style/toolbarText" />
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutStudy"
+                style="@style/Widget.Material3.TabLayout.Secondary"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="전체 스터디"
-                />
+                android:backgroundTint="@color/white"
+                app:tabIndicatorColor="@color/pointColor"
+                app:tabIndicatorHeight="2dp"
+                app:tabSelectedTextColor="@color/pointColor"
+                app:tabTextAppearance="@style/tab_text"
+                app:tabTextColor="@color/textGray">
 
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="내 스터디" />
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="전체 스터디" />
 
-        </com.google.android.material.tabs.TabLayout>
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPagerStudy"
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="내 스터디" />
+
+            </com.google.android.material.tabs.TabLayout>
+
+            <FrameLayout
+                android:id="@+id/fragmentContainerStudy"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </FrameLayout>
+        </LinearLayout>
+
+
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="80dp"
+            android:background="@color/white"
+            android:paddingVertical="5dp"
+            app:itemActiveIndicatorStyle="@null"
+            app:itemBackground="@android:color/transparent"
+            app:itemIconSize="24dp"
+            app:itemIconTint="@color/black"
+            app:itemTextColor="@color/black"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/menu_study_bottom_navi" />
     </LinearLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="@color/white"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        app:itemActiveIndicatorStyle="@null"
-        app:itemBackground="@android:color/transparent"
-        app:itemIconSize="24dp"
-        app:itemIconTint="@color/black"
-        app:itemTextColor="@color/black"
-        app:labelVisibilityMode="labeled"
-        app:menu="@menu/menu_study_bottom_navi"/>
-</LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabStudyWrite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_edit_24px"
+        app:fabSize="normal"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="100dp"
+        android:backgroundTint="@color/pointColor"
+        app:tint="@color/white"/>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

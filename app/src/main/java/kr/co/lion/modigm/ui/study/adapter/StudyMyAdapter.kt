@@ -18,7 +18,7 @@ class StudyMyAdapter(
     }
 
     override fun getItemCount(): Int {
-        return 10
+        return 2
     }
 
     override fun onBindViewHolder(holder: StudyMyViewHolder, position: Int) {

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
@@ -30,10 +31,16 @@ class StudyFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 초기 프래그먼트 설정
+        if (savedInstanceState == null) {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerStudy, StudyAllFragment())
+                .commit()
+        }
+
         // 초기 뷰 세팅
         initView()
-        // 탭레이아웃에 뷰페이저 적용
-        setViewPager()
+        
     }
 
     // 초기 뷰 세팅
@@ -41,27 +48,32 @@ class StudyFragment : Fragment() {
 
         // 바인딩
         with(binding){
+            val tabLayout: TabLayout = tabLayoutStudy
 
-            // 툴바
+            // 탭 선택 리스너 설정
+            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    val fragment = when (tab.position) {
+                        0 -> StudyAllFragment()
+                        1 -> StudyMyFragment()
+                        else -> StudyAllFragment()
+                    }
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainerStudy, fragment)
+                        .commit()
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab) {
+                    // 필요시 구현
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab) {
+                    // 필요시 구현
+                }
+            })
 
 
 
-        }
-    }
-
-    // 뷰페이저 어댑터
-    fun setViewPager(){
-
-        val fragments = listOf(StudyAllFragment(), StudyMyFragment())
-        val titles = listOf("전체 스터디", "내 스터디")
-
-        val adapter = StudyViewPagerAdapter(fragments, childFragmentManager, viewLifecycleOwner.lifecycle)
-        with(binding){
-            viewPagerStudy.adapter = adapter
-            // TabLayout과 ViewPager2 연동
-            TabLayoutMediator(tabLayoutStudy, viewPagerStudy) { tab, position ->
-                tab.text = titles[position]
-            }.attach()
         }
     }
 }
