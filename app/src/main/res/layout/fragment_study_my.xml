@@ -29,6 +29,7 @@
             android:layout_weight="0.9"
             android:focusable="true"
             android:src="@drawable/icon_filter_24px"
+            app:tint="@color/black"
             android:layout_marginStart="5dp"
             android:clickable="true"/>
     </LinearLayout>

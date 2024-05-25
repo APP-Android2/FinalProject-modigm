@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
 import kr.co.lion.modigm.ui.study.adapter.StudyMyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 
 class StudyMyFragment : Fragment() {
@@ -43,6 +45,18 @@ class StudyMyFragment : Fragment() {
 
         with(binding){
 
+
+            // 필터 버튼
+            with(imageViewStudyMyFilter){
+                // 클릭 시
+                setOnClickListener {
+                    // 필터 및 정렬 화면으로 이동
+                    val supportFragmentManager = parentFragmentManager.beginTransaction()
+                    supportFragmentManager.replace(R.id.containerMain, FilterSortFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
+                }
+            }
 
             // 리사이클러뷰
             with(recyclerViewStudyMy) {
