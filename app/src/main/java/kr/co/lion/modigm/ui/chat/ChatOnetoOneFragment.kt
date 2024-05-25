@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,7 @@ import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
+import kr.co.lion.modigm.ui.chat.vm.ChatViewModel
 
 class ChatOnetoOneFragment : Fragment() {
 
@@ -27,6 +29,11 @@ class ChatOnetoOneFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentChatOnetoOneBinding = FragmentChatOnetoOneBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
+
+        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
+            gettingOneToOneChatRoomData()
+        }
 
         gettingOneToOneChatRoomData()
 
@@ -65,8 +72,10 @@ class ChatOnetoOneFragment : Fragment() {
             chatRoomDataList.clear()
             chatRoomDataList.addAll(newChatRoomDataList)
 
-            // RecyclerView 갱신
-            fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne.adapter?.notifyDataSetChanged()
+            // UI 스레드에서 RecyclerView를 갱신
+            activity?.runOnUiThread {
+                fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne.adapter?.notifyDataSetChanged()
+            }
         }
     }
 }

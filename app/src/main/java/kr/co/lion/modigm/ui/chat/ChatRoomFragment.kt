@@ -6,12 +6,17 @@ import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +28,7 @@ import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.dao.ChatMessagesDao
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
+import kr.co.lion.modigm.ui.chat.vm.ChatViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 import java.text.SimpleDateFormat
@@ -39,6 +45,8 @@ class ChatRoomFragment : Fragment() {
     private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정하세요
     private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정하세요
 
+    private lateinit var chatViewModel: ChatViewModel
+
     // 현재 방 번호, 제목, 그룹 채팅방 여부
     var chatIdx = 0
     var chatTitle = "채팅방 제목"
@@ -49,6 +57,8 @@ class ChatRoomFragment : Fragment() {
 
         fragmentChatRoomBinding = FragmentChatRoomBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
+
+        chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
 
         // Bundle로부터 데이터 가져오기
         arguments?.let {
@@ -75,6 +85,14 @@ class ChatRoomFragment : Fragment() {
 
         return fragmentChatRoomBinding.root
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("test1234", "ChatRoomFragment - onDestroy")
+        chatViewModel.triggerChatRoomDataUpdate()
+    }
+
+
 
 //    override fun onAttach(context: Context) {
 //        super.onAttach(context)
