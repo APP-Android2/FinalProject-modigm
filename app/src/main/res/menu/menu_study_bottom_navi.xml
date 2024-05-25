@@ -3,22 +3,22 @@
     <item
         android:id="@+id/bottomNaviStudy"
         android:enabled="true"
-        android:icon="@drawable/icon_heart"
+        android:icon="@drawable/icon_book_24px"
         android:title="스터디" />
     <item
         android:id="@+id/bottomNaviHeart"
         android:enabled="true"
-        android:icon="@drawable/icon_watch"
+        android:icon="@drawable/icon_favorite_full_24px"
         android:title="찜" />
     <item
         android:id="@+id/bottomNaviChat"
         android:enabled="true"
-        android:icon="@drawable/icon_person"
+        android:icon="@drawable/icon_chat_24px"
         android:title="채팅" />
     <item
         android:id="@+id/bottomNaviMy"
         android:enabled="true"
-        android:icon="@drawable/icon_back_24px"
+        android:icon="@drawable/icon_person_full_24px"
         android:title="마이" />
 
 </menu>

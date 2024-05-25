@@ -26,7 +26,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.9"
             android:focusable="true"
-            android:src="@drawable/icon_filter"
+            android:src="@drawable/icon_filter_24px"
             android:layout_marginStart="5dp"
             android:clickable="true"/>
     </LinearLayout>
