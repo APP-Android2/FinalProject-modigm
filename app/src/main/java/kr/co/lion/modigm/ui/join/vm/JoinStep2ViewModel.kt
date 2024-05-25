@@ -68,11 +68,11 @@ class JoinStep2ViewModel: ViewModel() {
         var result = true
 
         if(userPhone.value.isNullOrEmpty()){
-            userPhone.value = "전화번호를 입력해주세요."
+            phoneValidation.value = "전화번호를 입력해주세요."
             result = false
         }else{
             if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", userPhone.value)){
-                userPhone.value = "올바른 전화번호가 아닙니다."
+                phoneValidation.value = "올바른 전화번호가 아닙니다."
                 result = false
             }
         }
