@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
@@ -27,6 +28,8 @@ class ProfileFragment: Fragment() {
     lateinit var mainActivity: MainActivity
     private val addressViewModel: ProfileViewModel by viewModels()
 
+    var myProfile = true
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentProfileBinding = FragmentProfileBinding.inflate(inflater,container,false)
         // AddressModifyViewModel = AddressModifyViewModel()
@@ -40,11 +43,11 @@ class ProfileFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupToolbar()
+        setupFab()
+        setupMemberInfo()
         setupRecyclerViewLink()
         setupRecyclerViewPartStudy()
         setupRecyclerViewHostStudy()
-        //setupAddressList()
-        //setupButtonAdd()
     }
 
 
@@ -76,7 +79,7 @@ class ProfileFragment: Fragment() {
                 menu.findItem(R.id.menu_item_profile_more).isVisible = false
 
                 // 본인의 프로필일 때: 설정 아이콘
-                if (true) {
+                if (myProfile) {
                     // 설정 아이콘 표시
                     menu.findItem(R.id.menu_item_profile_setting).isVisible = true
                 } else {
@@ -91,6 +94,41 @@ class ProfileFragment: Fragment() {
                     menu.findItem(R.id.menu_item_profile_more).isVisible = true
                 }
             }
+        }
+    }
+
+    private fun setupFab() {
+        fragmentProfileBinding.apply {
+            fabProfile.apply {
+                if (myProfile) {
+                    // 본인의 프로필일 때
+                    visibility = View.INVISIBLE
+                }
+
+                setOnClickListener {
+                    mainActivity.replaceFragment(FragmentName.CHAT, true, true, null)
+                }
+            }
+        }
+    }
+
+    private fun setupMemberInfo() {
+        fragmentProfileBinding.apply {
+            // 프로필 이미지
+            imageProfilePic.setImageResource(R.drawable.image_loading_gray)
+            // 이름
+            textViewProfileName.text = "김철수"
+            // 자기소개
+            textViewProfileIntro.text = "gkgkgk"
+            // 관심분야
+            chipGroupProfile.addView(Chip(mainActivity).apply {
+                text = "Kotlin" // chip 텍스트 설정
+                setEnsureMinTouchTargetSize(false) // 자동 padding 없애기
+                setChipBackgroundColorResource(android.R.color.white) // 배경 흰색으로 지정
+                isCloseIconVisible = true // chip에서 X 버튼 보이게 하기
+                setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) } // X버튼 누르면 chip 없어지게 하기
+
+            })
         }
     }
 
