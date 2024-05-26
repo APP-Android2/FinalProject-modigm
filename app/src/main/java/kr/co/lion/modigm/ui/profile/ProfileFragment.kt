@@ -16,6 +16,7 @@ import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
+import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import java.net.URL
@@ -108,9 +109,10 @@ class ProfileFragment: Fragment() {
             }
         )
 
+        // 리사이클러뷰 구성
         fragmentProfileBinding.apply {
             recyclerVIewProfileLink.apply {
-                // 리사이클러뷰 어답터
+                // 리사이클러뷰 어댑터
                 adapter = linkAdapter
 
                 // 리사이클러뷰 레이아웃
@@ -121,7 +123,31 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupRecyclerViewPartStudy() {
-        // TODO("Not yet implemented")
+        // 어댑터 선언
+        val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
+            // 빈 리스트를 넣어 초기화
+            emptyList(),
+
+            // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
+            rowClickListener = { linkUrl ->
+                Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
+                    mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
+                }
+            }
+        )
+
+        // 리사이클러뷰 구성
+        fragmentProfileBinding.apply {
+            recyclerViewProfilePartStudy.apply {
+                // 리사이클러뷰 어댑터
+                adapter = partStudyAdapter
+
+                // 리사이클러뷰 레이아웃
+                layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
+            }
+        }
     }
 
     private fun setupRecyclerViewHostStudy() {
@@ -129,7 +155,7 @@ class ProfileFragment: Fragment() {
     }
 
     // URL에서 도메인을 추출하는 함수
-    fun extractDomain(url: String): String {
+    private fun extractDomain(url: String): String {
         return try {
             val uri = URL(url)
             val domain = uri.host
