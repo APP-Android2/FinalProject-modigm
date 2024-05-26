@@ -21,7 +21,7 @@ class HostStudyViewHolder(
             // 스터디 제목
             textViewRowHostStudyTitle.text = "[Kotlin] 파이쌤과 함께하는 python 30일 완성 스터디"
             // 스터디 분류
-            textViewRowHostStudyTime.text = "스터디"
+            textViewRowHostStudyCategory.text = "스터디"
             // 스터디 장소
             textViewRowHostStudyLocation.text = "온라인"
             // 스터디 인원
