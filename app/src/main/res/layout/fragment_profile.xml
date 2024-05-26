@@ -37,7 +37,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@drawable/icon_send_plane_24px" />
 
-            <ScrollView
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:layout_editor_absoluteY="667dp">
@@ -173,7 +173,7 @@
                             android:overScrollMode="never"/>
                     </LinearLayout>
                 </LinearLayout>
-            </ScrollView>
+            </androidx.core.widget.NestedScrollView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

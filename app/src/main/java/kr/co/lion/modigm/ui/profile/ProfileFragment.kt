@@ -15,6 +15,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
@@ -151,7 +152,31 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupRecyclerViewHostStudy() {
-        // TODO("Not yet implemented")
+        // 어댑터 선언
+        val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
+            // 빈 리스트를 넣어 초기화
+            emptyList(),
+
+            // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
+            rowClickListener = { linkUrl ->
+                Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
+                    mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
+                }
+            }
+        )
+
+        // 리사이클러뷰 구성
+        fragmentProfileBinding.apply {
+            recyclerViewProfileHostStudy.apply {
+                // 리사이클러뷰 어댑터
+                adapter = hostStudyAdapter
+
+                // 리사이클러뷰 레이아웃
+                layoutManager = LinearLayoutManager(mainActivity)
+            }
+        }
     }
 
     // URL에서 도메인을 추출하는 함수
