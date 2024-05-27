@@ -66,6 +66,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore:24.11.1")
     implementation("com.google.firebase:firebase-storage:20.3.0")
 
+    // Firebase Auth 등록
+    implementation("com.google.firebase:firebase-auth-ktx")
+
     // 원형 이미지 라이브러리
     implementation("de.hdodenhof:circleimageview:3.1.0")
 }
