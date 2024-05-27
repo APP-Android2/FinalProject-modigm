@@ -70,27 +70,24 @@ class ChatFragment : Fragment() {
 
     // 하단 바 홈으로 체크 표시 설정
     fun settingBottomTabs() {
-        /*
         fragmentChatBinding.apply {
-            val menuItemId = R.id.main_bottom_navi_chat
+            val menuItemId = R.id.bottomNaviChat
             fragmentChatBinding.mainBottomNavi.menu.findItem(menuItemId)?.isChecked = true
         }
-        */
     }
 
     // 하단 바 클릭 설정
     fun bottomSheetSetting() {
-        /*
         fragmentChatBinding.apply {
             mainBottomNavi.setOnItemSelectedListener { item ->
                 when(item.itemId) {
-                    R.id.main_bottom_navi_study -> {
+                    R.id.bottomNaviStudy -> {
                         mainActivity.replaceFragment(FragmentName.STUDY, false, false, null)
                     }
-                    R.id.main_bottom_navi_like -> {
+                    R.id.bottomNaviHeart -> {
                         mainActivity.replaceFragment(FragmentName.LIKE, false, false, null)
                     }
-                    R.id.main_bottom_navi_chat -> {
+                    R.id.bottomNaviChat -> {
                         mainActivity.replaceFragment(FragmentName.CHAT, false, false, null)
                     }
                     else -> {
@@ -100,7 +97,6 @@ class ChatFragment : Fragment() {
                 true
             }
         }
-        */
     }
 
     // ViewPager 설정
