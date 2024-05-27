@@ -19,5 +19,13 @@
 
     </style>
 
+    <style name="roundCornerBottomSheetDialogTheme" parent="Theme.Design.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/roundCornerModalStyle</item>
+    </style>
+    
+    <style name="roundCornerModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/style_bottom_sheet_round_top</item>
+    </style>
+
     <style name="Theme.Modigm" parent="Base.Theme.Modigm" />
 </resources>
