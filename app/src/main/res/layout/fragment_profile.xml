@@ -37,7 +37,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@drawable/icon_send_plane_24px" />
 
-            <ScrollView
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:layout_editor_absoluteY="667dp">
@@ -93,16 +93,7 @@
                         <com.google.android.material.chip.ChipGroup
                             android:id="@+id/chipGroupProfile"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <com.google.android.material.chip.Chip
-                                android:id="@+id/chip"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:chipBackgroundColor="@color/white"
-                                app:chipMinTouchTargetSize="0dp" />
-
-                        </com.google.android.material.chip.ChipGroup>
+                            android:layout_height="wrap_content"/>
 
                     </LinearLayout>
 
@@ -123,9 +114,10 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerVIewProfileLink"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
-                            android:layout_marginBottom="20dp" />
+                            android:layout_marginBottom="20dp"
+                            android:overScrollMode="never"/>
                     </LinearLayout>
 
                     <com.google.android.material.divider.MaterialDivider
@@ -152,8 +144,8 @@
                             android:id="@+id/recyclerViewProfilePartStudy"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginBottom="20dp" />
+                            android:layout_marginBottom="20dp"
+                            android:overScrollMode="never"/>
 
                         <TextView
                             android:id="@+id/textViewProfileHostStudy"
@@ -168,10 +160,11 @@
                             android:id="@+id/recyclerViewProfileHostStudy"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp" />
+                            android:layout_marginHorizontal="16dp"
+                            android:overScrollMode="never"/>
                     </LinearLayout>
                 </LinearLayout>
-            </ScrollView>
+            </androidx.core.widget.NestedScrollView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

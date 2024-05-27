@@ -20,7 +20,11 @@ import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+<<<<<<< HEAD
+import kr.co.lion.modigm.ui.profile.SettingsFragment
+=======
 import kr.co.lion.modigm.ui.study.FilterSortFragment
+>>>>>>> origin/develop
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -41,6 +45,9 @@ class MainActivity : AppCompatActivity() {
 
         // 채팅 화면 띄우기 (테스트) - 원빈
         replaceFragment(FragmentName.CHAT, false, false, null)
+
+        // 화면 테스트 - 희원
+        // replaceFragment(FragmentName.PROFILE, false, false, null)
     }
 
     // 지정한 Fragment를 보여주는 메서드
@@ -78,6 +85,7 @@ class MainActivity : AppCompatActivity() {
             FragmentName.OTHER_LOGIN -> OtherLoginFragment()
             // 프로필
             FragmentName.PROFILE -> ProfileFragment()
+            FragmentName.SETTINGS -> SettingsFragment()
 
             // 스터디
             FragmentName.STUDY -> StudyFragment()

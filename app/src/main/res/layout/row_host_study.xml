@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="20dp"
+    android:paddingBottom="20dp"
     android:orientation="vertical">
 
     <com.google.android.material.card.MaterialCardView
@@ -32,6 +32,9 @@
         android:layout_marginTop="6dp"
         android:text="TextView"
         android:textSize="16dp"
+        android:ems="14"
+        android:maxLines="1"
+        android:ellipsize="end"
         app:layout_constraintStart_toEndOf="@+id/materialCardView"
         app:layout_constraintTop_toTopOf="@+id/materialCardView" />
 
@@ -42,10 +45,10 @@
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="@+id/textViewRowHostStudyTitle"
         app:layout_constraintTop_toBottomOf="@+id/textViewRowHostStudyTitle"
-        app:srcCompat="@drawable/icon_schedule_24px" />
+        app:srcCompat="@drawable/icon_category_24px" />
 
     <TextView
-        android:id="@+id/textViewRowHostStudyTime"
+        android:id="@+id/textViewRowHostStudyCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
@@ -60,10 +63,10 @@
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textViewRowHostStudyTime"
-        app:layout_constraintStart_toEndOf="@+id/textViewRowHostStudyTime"
-        app:layout_constraintTop_toTopOf="@+id/textViewRowHostStudyTime"
+        android:layout_marginStart="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewRowHostStudyCategory"
+        app:layout_constraintStart_toEndOf="@+id/textViewRowHostStudyCategory"
+        app:layout_constraintTop_toTopOf="@+id/textViewRowHostStudyCategory"
         app:srcCompat="@drawable/icon_location_on_24px" />
 
     <TextView
@@ -82,7 +85,7 @@
         android:id="@+id/imageView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="10dp"
         app:layout_constraintBottom_toBottomOf="@+id/textViewRowHostStudyLocation"
         app:layout_constraintStart_toEndOf="@+id/textViewRowHostStudyLocation"
         app:layout_constraintTop_toTopOf="@+id/textViewRowHostStudyLocation"
