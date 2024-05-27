@@ -20,6 +20,7 @@ import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.ui.study.FilterSortFragment
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
             // 스터디
             FragmentName.STUDY -> StudyFragment()
-            FragmentName.FILTER_SORT -> StudyFragment()
+            FragmentName.FILTER_SORT -> FilterSortFragment()
 
 
             // 글 작성
