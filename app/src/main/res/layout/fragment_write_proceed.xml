@@ -117,11 +117,13 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="16dp"
 
-            android:hint="강남 xx카페"
+            android:hint="강남 XX카페"
             app:hintAnimationEnabled="false"
             app:hintTextColor="@color/textGray"
 
             android:visibility="gone"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
 
             app:endIconMode="clear_text"
             app:startIconDrawable="@drawable/icon_location_on_24px"
@@ -130,20 +132,23 @@
             <AutoCompleteTextView
                 android:id="@+id/textField_writeProceed_location"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/textView_wrtieProceed_question_numOfMember"
+            android:id="@+id/textView_writeProceed_question_numOfMember"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
             android:layout_marginStart="16dp"
             android:layout_marginTop="26dp"
 
-            android:layout_marginEnd="180dp"
-            android:text="몇 명이서 진행할까요?"
+            android:layout_marginEnd="90dp"
+            android:text="몇 명이서 진행할까요?(최대 30명)"
             android:textSize="18dp" />
 
         <com.google.android.material.textfield.TextInputLayout
