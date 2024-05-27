@@ -3,19 +3,24 @@ package kr.co.lion.modigm.ui.chat.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.chat.Message
+import kr.co.lion.modigm.model.ChatMessagesData
 
-class MessageAdapter(private val userId: String, private val messages: MutableList<Message>) :
+class MessageAdapter(
+    private val loginUserId: String,
+    private val messages: MutableList<ChatMessagesData>,
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val VIEW_TYPE_SENT = 1
     private val VIEW_TYPE_RECEIVED = 2
+    private val VIEW_TYPE_DATE = 3 // 날짜 아이템 뷰 홀더 추가 (00시 기준 날짜 바뀔 때마다 알려 줘야함) - 아직 미구현
 
     override fun getItemViewType(position: Int): Int {
-        return if (messages[position].userId == userId) {
+        return if (messages[position].chatSenderId == loginUserId) {
             VIEW_TYPE_SENT
         } else {
             VIEW_TYPE_RECEIVED
@@ -45,13 +50,19 @@ class MessageAdapter(private val userId: String, private val messages: MutableLi
         return messages.size
     }
 
+    fun updateMessages(updatedMessages: List<ChatMessagesData>) {
+        messages.clear()
+        messages.addAll(updatedMessages)
+        notifyDataSetChanged()
+    }
+
     class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
 
-        fun bind(message: Message) {
-            messageBody.text = message.text
-            messageTime.text = message.timestamp
+        fun bind(message: ChatMessagesData) {
+            messageBody.text = message.chatMessage
+            messageTime.text = message.chatTime
         }
     }
 
@@ -59,10 +70,20 @@ class MessageAdapter(private val userId: String, private val messages: MutableLi
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
-        fun bind(message: Message) {
-            messageBody.text = message.text
-            messageTime.text = message.timestamp
-            messageSender.text = message.senderName
+        private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatroomFiledImage)
+        fun bind(message: ChatMessagesData) {
+            messageBody.text = message.chatMessage
+            messageTime.text = message.chatTime
+            messageSender.text = message.chatSenderName
+
+            // chatSenderName에 따라서 이미지 변경
+            when (message.chatSenderName) {
+                "손흥민" -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image_son)
+                "류현진" -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image_ryu)
+                "아이유" -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image_iu)
+                // 기본 이미지 설정 또는 다른 케이스 추가
+                else -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image)
+            }
         }
     }
 }

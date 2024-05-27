@@ -17,6 +17,8 @@
             android:theme="?attr/actionBarTheme"
             app:menu="@menu/menu_chatroom_toolbar"
             app:navigationIcon="@drawable/icon_back_24px"
+            app:subtitleCentered="true"
+            app:subtitleTextColor="@color/textGray"
             app:title="스터디 제목"
             app:titleCentered="true"
             app:titleTextAppearance="@style/toolbarText" />
