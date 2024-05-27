@@ -1,94 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingTop="40dp"
-    android:paddingRight="16dp"
-    android:transitionGroup="true"
-    tools:context=".ui.join.JoinStep1Fragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
+    <data>
+        <variable
+            name="viewModel"
+            type="kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel" />
+    </data>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="사용하실 이메일과 \n비밀번호를 입력해주세요"
-        android:textSize="26dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingTop="40dp"
+        android:paddingRight="16dp"
+        android:transitionGroup="true"
+        tools:context=".ui.join.JoinStep1Fragment">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="이메일"
-        android:textSize="16dp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout_join_userEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        app:hintAnimationEnabled="false"
-        app:hintEnabled="false">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/textInput_join_userEmail"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="이메일 입력"
-            android:inputType="text|textEmailAddress"
-            android:textSize="16dp" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:text="사용하실 이메일과 \n비밀번호를 입력해주세요"
+            android:textSize="26dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="비밀번호"
-        android:textSize="16dp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout_join_userPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="password_toggle"
-        app:hintAnimationEnabled="false"
-        app:hintEnabled="false">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/textInput_join_userPassword"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="비밀번호 입력"
-            android:inputType="text|textPassword"
-            android:textSize="16dp" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="40dp"
+            android:text="이메일"
+            android:textSize="16dp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="비밀번호 확인"
-        android:textSize="16dp"
-        android:textStyle="bold" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout_join_userPasswordCheck"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:endIconMode="password_toggle"
-        app:hintAnimationEnabled="false"
-        app:hintEnabled="false">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/textInput_join_userPasswordCheck"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_join_userEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="비밀번호 확인 입력"
-            android:inputType="text|textPassword"
-            android:textSize="16dp" />
-    </com.google.android.material.textfield.TextInputLayout>
-</LinearLayout>
+            app:endIconMode="clear_text"
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_join_userEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="이메일 입력"
+                android:inputType="text|textEmailAddress"
+                android:textSize="16dp"
+                android:text="@={viewModel.userEmail}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="비밀번호"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_join_userPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:endIconMode="password_toggle"
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_join_userPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="비밀번호 입력"
+                android:inputType="text|textPassword"
+                android:textSize="16dp"
+                android:text="@={viewModel.userPassword}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="비밀번호 확인"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_join_userPasswordCheck"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:endIconMode="password_toggle"
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_join_userPasswordCheck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="비밀번호 확인 입력"
+                android:inputType="text|textPassword"
+                android:textSize="16dp"
+                android:text="@={viewModel.userPasswordCheck}" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+</layout>

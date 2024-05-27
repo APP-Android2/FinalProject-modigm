@@ -1,27 +1,24 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.google.android.material.chip.Chip
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep3Binding
+import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 
 class JoinStep3Fragment : Fragment() {
 
-    private val binding: FragmentJoinStep3Binding by lazy {
+    val binding: FragmentJoinStep3Binding by lazy {
         FragmentJoinStep3Binding.inflate(layoutInflater)
     }
 
-    // 데이터는 추후 수정
-    val interestList = arrayListOf(
-        "웹", "서버", "임베디드", "프론트 엔드", "백 엔드",
-        "iOS", "안드로이드", "C, C++", "파이썬", "하드웨어",
-        "머신러닝", "빅데이터", "Node.js", ".NET", "블록체인",
-        "크로스플랫폼", "그래픽스", "VR"
-    )
+    val joinStep3ViewModel: JoinStep3ViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,46 +30,44 @@ class JoinStep3Fragment : Fragment() {
     }
 
     private fun settingChips(){
-        binding.chipGroupJoinInterest.removeAllViews()
-        for(chipName in interestList){
-            binding.chipGroupJoinInterest.addView(
-                Chip(requireContext()).apply {
-                    text = chipName
-                    isCheckable = true
-                    textSize = 18f
-                    // setEnsureMinTouchTargetSize(false)
+        joinStep3ViewModel.interestList.observe(viewLifecycleOwner){
+            for(chipName in it){
+                binding.chipGroupJoinInterest.addView(
+                    Chip(requireContext()).apply {
+                        text = chipName
+                        isCheckable = true
+                        textSize = 18f
+                        // setEnsureMinTouchTargetSize(false)
 
-                    setTextColor(resources.getColor(R.color.textGray, null))
-                    setChipBackgroundColorResource(R.color.white)
-                    setChipStrokeColorResource(R.color.buttonGray)
-                    setOnCheckedChangeListener { _, isChecked ->
-                        if(isChecked){
-                            setTextColor(resources.getColor(R.color.white, null))
-                            setChipBackgroundColorResource(R.color.pointColor)
-                        }else{
-                            setTextColor(resources.getColor(R.color.textGray, null))
-                            setChipBackgroundColorResource(R.color.white)
+                        setTextColor(resources.getColor(R.color.textGray, null))
+                        setChipBackgroundColorResource(R.color.white)
+                        setChipStrokeColorResource(R.color.buttonGray)
+                        setOnCheckedChangeListener { it, isChecked ->
+                            if(isChecked){
+                                setTextColor(resources.getColor(R.color.white, null))
+                                setChipBackgroundColorResource(R.color.pointColor)
+                                Log.d("test1234",it.text.toString())
+                                joinStep3ViewModel.addInterest(it.text.toString())
+                            }else{
+                                setTextColor(resources.getColor(R.color.textGray, null))
+                                setChipBackgroundColorResource(R.color.white)
+                                joinStep3ViewModel.removeInterest(it.text.toString())
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 
     // 입력한 내용 유효성 검사
     fun validate(): Boolean {
         binding.textViewJoinAlert.visibility = View.GONE
-        return if(binding.chipGroupJoinInterest.checkedChipIds.isEmpty()){
+        return if(joinStep3ViewModel.validate()){
             binding.textViewJoinAlert.visibility = View.VISIBLE
             false
         }else{
             true
-        }
-    }
-
-    fun getInterests(): List<String>{
-        return binding.chipGroupJoinInterest.checkedChipIds.map {
-            binding.chipGroupJoinInterest.findViewById<Chip>(it).text.toString()
         }
     }
 
