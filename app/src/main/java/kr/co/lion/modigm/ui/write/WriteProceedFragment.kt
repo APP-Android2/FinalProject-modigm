@@ -36,16 +36,65 @@ class WriteProceedFragment : Fragment() {
 
     fun settingEvent(){
         fragmentWriteProceedBinding.apply {
+
+            // 오프라인 chip 클릭 이벤트
+            chipWriteProceedOffline.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked){ // checked
+                    // 보여주기
+                    textInputLayoutWriteProceedOfflineClicked.visibility = View.VISIBLE
+
+                    // 체크 상태 조정
+                    chipWriteProceedOnline.isChecked = false
+                    chipWriteProceedMix.isChecked = false
+
+                }
+                else {
+                    // 가리기
+                    if (chipWriteProceedMix.isChecked){
+                        textInputLayoutWriteProceedOfflineClicked.visibility = View.VISIBLE
+                    }
+                    else {
+                        textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
+                    }
+                }
+            }
+
+            // 온라인, 오프라인 혼합 chip 클릭 이벤트
+            chipWriteProceedMix.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked){ // checked
+                    // 보여주기
+                    textInputLayoutWriteProceedOfflineClicked.visibility = View.VISIBLE
+
+                    // 체크 상태 조정
+                    chipWriteProceedOffline.isChecked = false
+                    chipWriteProceedOnline.isChecked = false
+
+
+                }
+                else { // unchecked
+                    // 가리기
+                    if (chipWriteProceedOffline.isChecked){
+                        textInputLayoutWriteProceedOfflineClicked.visibility = View.VISIBLE
+                    }
+                    else {
+                        textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
+                    }
+
+                }
+            }
+
+
+
+            // 몇 명이서 진행할까요?
             textFieldWriteProceedNumOfMember.apply {
 
+                // 포커스 받으면 hint 삭제
                 setOnFocusChangeListener { _, hasFocus ->
                     if (hasFocus) {
                         // 포커스 on
-                        Log.d("TedMoon", "focus on")
                         textInputLayoutWriteProceed.hint = ""
                     } else {
                         // 포커스 off
-                        Log.d("TedMoon", "focus off")
                         textInputLayoutWriteProceed.hint = "인원 수 입력"
                     }
                 }
@@ -62,26 +111,6 @@ class WriteProceedFragment : Fragment() {
 
     fun settingView(){
         // 칩 클릭 시 효과 설정
-        chipViewEffect()
-    }
 
-    // 칩 클릭시 효과 설정
-    fun chipViewEffect(){
-        // 칩 클릭시 효과 설정
-        fragmentWriteProceedBinding.apply {
-            chipWriteProceedOffline.apply {
-                setOnCheckedChangeListener { buttonView, isChecked ->
-                    if (isChecked) {
-                        val color = ContextCompat.getColorStateList(mainActivity,R.color.pointColor)
-                        this.chipBackgroundColor = color
-                        this.invalidate()  // 강제로 UI 갱신
-                    } else {
-                        val defaultColor = context.getColor(R.color.textGray)
-                        this.chipStrokeColor = ColorStateList.valueOf(defaultColor)
-                        this.invalidate()  // 강제로 UI 갱신
-                    }
-                }
-            }
-        }
     }
 }
