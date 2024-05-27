@@ -43,14 +43,6 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
 
 
             textFieldWriteProceedBottomSheetSearch.apply {
-                // hint 제거
-                setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        textInputLayoutWriteProceedBottomSheet.hint = ""
-                    } else {
-                        textInputLayoutWriteProceedBottomSheet.hint = "장소 검색"
-                    }
-                }
 
                 // 키보드에서 return 클릭 시 키보드 없애기
                 setOnEditorActionListener { v, actionId, event ->

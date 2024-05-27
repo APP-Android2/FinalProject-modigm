@@ -155,14 +155,12 @@
             android:id="@+id/textInputLayout_writeProceed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:hint="인원 수 입력"
-
             app:endIconMode="clear_text"
             app:hintAnimationEnabled="false"
+            app:hintEnabled="false"
             app:hintTextColor="@color/textGray">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -170,6 +168,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="number"
+                android:hint="인원 수 입력"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         </com.google.android.material.textfield.TextInputLayout>

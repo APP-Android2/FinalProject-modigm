@@ -23,15 +23,18 @@
         android:layout_height="wrap_content"
         android:background="@drawable/style_searchview_write_proceed"
         app:startIconDrawable="@drawable/icon_search_24px"
-        android:hint="장소 검색"
+
         app:startIconTint="@color/black"
         app:hintTextColor="@color/black"
+        app:hintAnimationEnabled="false"
+        app:hintEnabled="false"
         app:endIconMode="clear_text">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textField_writeProceed_bottomSheet_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="주소 검색"
             android:background="@drawable/style_searchview_write_proceed"
             android:singleLine="true"/>
 
