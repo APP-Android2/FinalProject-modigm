@@ -36,6 +36,7 @@
             android:layout_height="match_parent"
             android:hint="주소 검색"
             android:inputType="text"
+            android:textSize="16dp"
             android:background="@drawable/style_searchview_write_proceed"
             android:singleLine="true"/>
 

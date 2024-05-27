@@ -133,6 +133,7 @@
                 android:id="@+id/textField_writeProceed_location"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textSize="16dp"
 
                 android:focusable="false"
                 android:focusableInTouchMode="false"/>
@@ -168,6 +169,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:inputType="number"
+                android:textSize="16dp"
                 android:hint="인원 수 입력"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
