@@ -36,16 +36,27 @@ class WriteProceedFragment : Fragment() {
 
     fun settingEvent(){
         fragmentWriteProceedBinding.apply {
-            // 키보드 엔터시 키보드 제거
-            textFieldWriteProceedNumOfMember.setOnEditorActionListener { v, actionId, event ->
+            textFieldWriteProceedNumOfMember.apply {
 
-                // 엔터키를 누르면 다음 View로 포커스 이동
-                false
+                setOnFocusChangeListener { _, hasFocus ->
+                    if (hasFocus) {
+                        // 포커스 on
+                        Log.d("TedMoon", "focus on")
+                        textInputLayoutWriteProceed.hint = ""
+                    } else {
+                        // 포커스 off
+                        Log.d("TedMoon", "focus off")
+                        textInputLayoutWriteProceed.hint = "인원 수 입력"
+                    }
+                }
+
+                // 키보드 엔터시 키보드 제거
+                setOnEditorActionListener { v, actionId, event ->
+
+                    // 엔터키를 누르면 다음 View로 포커스 이동
+                    false
+                }
             }
-
-            // 선택된 chip 강조 효과
-
-
         }
     }
 
