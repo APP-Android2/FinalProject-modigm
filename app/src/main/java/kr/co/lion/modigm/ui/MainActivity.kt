@@ -12,6 +12,7 @@ import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.chat.ChatGroupFragment
 import kr.co.lion.modigm.ui.chat.ChatOnetoOneFragment
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
+import kr.co.lion.modigm.ui.detail.DetailEditFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.detail.DetailMemberFragment
 import kr.co.lion.modigm.ui.join.JoinDuplicateFragment
@@ -20,11 +21,8 @@ import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
-<<<<<<< HEAD
 import kr.co.lion.modigm.ui.profile.SettingsFragment
-=======
 import kr.co.lion.modigm.ui.study.FilterSortFragment
->>>>>>> origin/develop
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -72,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             // 글 상세보기
             FragmentName.DETAIL -> DetailFragment()
             FragmentName.DETAIL_MEMBER -> DetailMemberFragment()
+            FragmentName.DETAIL_EDIT -> DetailEditFragment()
 
             // 회원가입
             FragmentName.JOIN -> JoinFragment()

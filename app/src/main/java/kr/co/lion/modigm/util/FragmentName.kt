@@ -15,6 +15,7 @@ enum class FragmentName (var str: String){
     // 글 상세보기
     DETAIL("DetailFragment"),
     DETAIL_MEMBER("DetailMemberFragment"),
+    DETAIL_EDIT("DetailEditFragment"),
 
 
     // 회원가입
