@@ -20,11 +20,8 @@ import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
-<<<<<<< HEAD
 import kr.co.lion.modigm.ui.profile.SettingsFragment
-=======
 import kr.co.lion.modigm.ui.study.FilterSortFragment
->>>>>>> origin/develop
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
