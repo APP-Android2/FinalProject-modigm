@@ -14,5 +14,4 @@ class ChatViewModel : ViewModel() {
     fun triggerChatRoomDataUpdate() {
         _updateChatRoomData.value = Unit
     }
-
 }

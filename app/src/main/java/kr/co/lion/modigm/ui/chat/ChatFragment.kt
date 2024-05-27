@@ -144,6 +144,7 @@ class ChatFragment : Fragment() {
 
             val chatIdx = chatRoomSequence + 1
             val chatTitle = "제 13회 해커톤 준비"
+            val chatRoomImage = ""
             val chatMemberList = listOf("currentUser", "sonUser", "iuUser", "ryuUser")
             val participantCount = 4
             val groupChat = true
@@ -151,7 +152,7 @@ class ChatFragment : Fragment() {
             val lastChatFullTime = 0L
             val lastChatTime = "00:00"
 
-            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
+            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
 
             // 채팅 방 생성
             ChatRoomDao.insertChatRoomData(chatRoomData)
