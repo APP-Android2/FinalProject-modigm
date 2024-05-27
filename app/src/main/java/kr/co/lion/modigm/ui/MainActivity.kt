@@ -18,8 +18,13 @@ import kr.co.lion.modigm.ui.join.JoinDuplicateFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+<<<<<<< HEAD
 import kr.co.lion.modigm.ui.profile.SettingsFragment
+=======
+import kr.co.lion.modigm.ui.study.FilterSortFragment
+>>>>>>> origin/develop
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -39,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 채팅 화면 띄우기 (테스트) - 원빈
-//         replaceFragment(FragmentName.CHAT, false, false, null)
+        replaceFragment(FragmentName.CHAT, false, false, null)
 
         // 화면 테스트 - 희원
         // replaceFragment(FragmentName.PROFILE, false, false, null)
@@ -77,13 +82,15 @@ class MainActivity : AppCompatActivity() {
 
             // 로그인
             FragmentName.LOGIN -> LoginFragment()
-
+            FragmentName.OTHER_LOGIN -> OtherLoginFragment()
             // 프로필
             FragmentName.PROFILE -> ProfileFragment()
             FragmentName.SETTINGS -> SettingsFragment()
 
             // 스터디
             FragmentName.STUDY -> StudyFragment()
+            FragmentName.FILTER_SORT -> FilterSortFragment()
+
 
             // 글 작성
             FragmentName.WRITE -> WriteFragment()

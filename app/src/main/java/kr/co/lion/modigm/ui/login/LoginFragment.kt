@@ -14,11 +14,9 @@ import kr.co.lion.modigm.util.FragmentName
 class LoginFragment : Fragment() {
 
     lateinit var binding : FragmentLoginBinding
-    lateinit var mainActivity: MainActivity
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentLoginBinding.inflate(inflater,container,false)
-        mainActivity = activity as MainActivity
 
         return binding.root
     }
@@ -53,10 +51,10 @@ class LoginFragment : Fragment() {
                 setOnClickListener{
 
                     // 다른 방법으로 로그인 화면으로 이동
-//                    val supportFragmentManager = parentFragmentManager.beginTransaction()
-//                    supportFragmentManager.replace(R.id.containerMain, OtherLoginFragment())
-//                        .addToBackStack(FragmentName.OTHER_LOGIN.str)
-//                        .commit()
+                    val supportFragmentManager = parentFragmentManager.beginTransaction()
+                    supportFragmentManager.replace(R.id.containerMain, OtherLoginFragment())
+                        .addToBackStack(FragmentName.OTHER_LOGIN.str)
+                        .commit()
                 }
             }
         }

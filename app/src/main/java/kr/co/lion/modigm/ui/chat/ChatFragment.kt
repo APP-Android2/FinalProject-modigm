@@ -1,29 +1,29 @@
 package kr.co.lion.modigm.ui.chat
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
+import androidx.lifecycle.Observer
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuHost
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatBinding
+import kr.co.lion.modigm.databinding.FragmentChatGroupBinding
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
+import kr.co.lion.modigm.ui.chat.vm.ChatViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 class ChatFragment : Fragment() {
 
@@ -38,10 +38,26 @@ class ChatFragment : Fragment() {
         // 옵션 메뉴가 있다는 것을 시스템에 알림
         setHasOptionsMenu(true)
 
+        return fragmentChatBinding.root
+    }
+
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 하단 바 체크 설정(채팅에 체크) 및 하단 바 이동 설정
+        settingBottomTabs()
+        bottomSheetSetting()
+
         // 채팅 - (ViewPager) 세팅
         viewPagerActiviation()
+    }
 
-        return fragmentChatBinding.root
+    override fun onResume() {
+        super.onResume()
+        Log.d("test1234", "ChatFragment - onResume")
+        // 채팅 방 데이터 갱신 (임시)
+        // viewPagerActiviation()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -49,7 +65,42 @@ class ChatFragment : Fragment() {
         inflater.inflate(R.menu.menu_chat_toolbar, menu)
 
         // 현재 이게 실행이 안돼서 search 메뉴 개발 뒤로 미룸
-        Log.d("test1234", "onCreateOptionsMenu")
+        Log.d("test1234", "onCreateOptionsMenu 실행 됨")
+    }
+
+    // 하단 바 홈으로 체크 표시 설정
+    fun settingBottomTabs() {
+        /*
+        fragmentChatBinding.apply {
+            val menuItemId = R.id.main_bottom_navi_chat
+            fragmentChatBinding.mainBottomNavi.menu.findItem(menuItemId)?.isChecked = true
+        }
+        */
+    }
+
+    // 하단 바 클릭 설정
+    fun bottomSheetSetting() {
+        /*
+        fragmentChatBinding.apply {
+            mainBottomNavi.setOnItemSelectedListener { item ->
+                when(item.itemId) {
+                    R.id.main_bottom_navi_study -> {
+                        mainActivity.replaceFragment(FragmentName.STUDY, false, false, null)
+                    }
+                    R.id.main_bottom_navi_like -> {
+                        mainActivity.replaceFragment(FragmentName.LIKE, false, false, null)
+                    }
+                    R.id.main_bottom_navi_chat -> {
+                        mainActivity.replaceFragment(FragmentName.CHAT, false, false, null)
+                    }
+                    else -> {
+                        mainActivity.replaceFragment(FragmentName.PROFILE, false, false, null)
+                    }
+                }
+                true
+            }
+        }
+        */
     }
 
     // ViewPager 설정
@@ -73,14 +124,14 @@ class ChatFragment : Fragment() {
         }
     }
 
-    private inner class FragmentPagerAdapter(val fragmentList: List<Fragment>, fragmentActivity: FragmentActivity):
-        FragmentStateAdapter(fragmentActivity){
+    private inner class FragmentPagerAdapter(val fragmentList: List<Fragment>, fragmentActivity: FragmentActivity) :
+        FragmentStateAdapter(fragmentActivity) {
         override fun getItemCount(): Int {
             return fragmentList.size
         }
 
         override fun createFragment(position: Int): Fragment {
-            return fragmentList.get(position)
+            return fragmentList[position]
         }
     }
 
@@ -97,9 +148,10 @@ class ChatFragment : Fragment() {
             val participantCount = 4
             val groupChat = true
             val lastChatMessage = "마지막 메세지"
+            val lastChatFullTime = 0L
             val lastChatTime = "00:00"
 
-            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatTime)
+            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
 
             // 채팅 방 생성
             ChatRoomDao.insertChatRoomData(chatRoomData)

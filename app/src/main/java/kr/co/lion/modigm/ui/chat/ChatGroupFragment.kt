@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,7 @@ import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
+import kr.co.lion.modigm.ui.chat.vm.ChatViewModel
 
 class ChatGroupFragment : Fragment() {
 
@@ -29,12 +31,25 @@ class ChatGroupFragment : Fragment() {
         fragmentChatGroupBinding = FragmentChatGroupBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
 
-        gettingGroupChatRoomData()
+        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
+            gettingGroupChatRoomData()
+        }
 
         // Recycler 뷰
         setupRecyclerView()
 
+        // 내가 속한 그룹 채팅 방(RecyclerView)
+        gettingGroupChatRoomData()
+
         return fragmentChatGroupBinding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 프래그먼트가 다시 활성화될 때 데이터 갱신
+        Log.d("test1234", "ChatGroupFragment - onResume")
+        // gettingGroupChatRoomData()
     }
 
     // RecyclerView 초기화
@@ -44,7 +59,7 @@ class ChatGroupFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
                 // 대화방 선택 시 동작
-                Log.d("test1234", "Selected Room: ${roomItem.chatTitle}")
+                Log.d("test1234", "${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
             }, mainActivity)
         }
     }
@@ -60,7 +75,9 @@ class ChatGroupFragment : Fragment() {
             chatRoomDataList.addAll(newChatRoomDataList)
 
             // RecyclerView 갱신
-            fragmentChatGroupBinding.recyclerViewChatGroup.adapter?.notifyDataSetChanged()
+            activity?.runOnUiThread {
+                fragmentChatGroupBinding.recyclerViewChatGroup.adapter?.notifyDataSetChanged()
+            }
         }
     }
 }

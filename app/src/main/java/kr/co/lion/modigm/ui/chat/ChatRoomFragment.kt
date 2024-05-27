@@ -1,39 +1,51 @@
 package kr.co.lion.modigm.ui.chat
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.ViewPager2
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
+import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
+import kr.co.lion.modigm.ui.chat.dao.ChatMessagesDao
+import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
+import kr.co.lion.modigm.ui.chat.vm.ChatViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.hideSoftInput
 import java.text.SimpleDateFormat
 import java.util.Date
-
-data class Message(
-    val userId: String = "",
-    val text: String = "",
-    val timestamp: String = "",
-    val senderName: String,
-)
 
 class ChatRoomFragment : Fragment() {
 
     lateinit var fragmentChatRoomBinding: FragmentChatRoomBinding
     lateinit var mainActivity: MainActivity
     private lateinit var messageAdapter: MessageAdapter
-    private val messages = mutableListOf<Message>()
-    private val userId = "currentUser" // 현재 사용자의 ID를 설정하세요
+
+    // 보낼 메세지를 담고 있을 리스트
+    private val messages = mutableListOf<ChatMessagesData>()
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정하세요
+    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정하세요
+
+    private lateinit var chatViewModel: ChatViewModel
 
     // 현재 방 번호, 제목, 그룹 채팅방 여부
     var chatIdx = 0
@@ -45,6 +57,8 @@ class ChatRoomFragment : Fragment() {
 
         fragmentChatRoomBinding = FragmentChatRoomBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
+
+        chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
 
         // Bundle로부터 데이터 가져오기
         arguments?.let {
@@ -72,11 +86,30 @@ class ChatRoomFragment : Fragment() {
         return fragmentChatRoomBinding.root
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("test1234", "ChatRoomFragment - onDestroy")
+        chatViewModel.triggerChatRoomDataUpdate()
+    }
+
+
+
+//    override fun onAttach(context: Context) {
+//        super.onAttach(context)
+//        mainActivity = context as MainActivity
+//    }
+//
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        mainActivity.updateChatFragments() // MainActivity의 콜백 메서드 호출
+//    }
+
     // 툴바 세팅
     fun settingToolbar() {
         fragmentChatRoomBinding.apply {
             toolbarChatRoom.apply {
                 title = "$chatTitle"
+                if (isGroupChat == true) subtitle = "현재인원 ${chatMemberList.size}명"
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
                     mainActivity.removeFragment(FragmentName.CHAT_ROOM)
@@ -125,79 +158,87 @@ class ChatRoomFragment : Fragment() {
     private fun setupRecyclerView() {
         fragmentChatRoomBinding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-            messageAdapter = MessageAdapter(userId, messages)
+            messageAdapter = MessageAdapter(loginUserId, messages)
             adapter = messageAdapter
+        }
+    }
+
+    // 메세지 전송
+    fun addChatMessagesData() {
+        CoroutineScope(Dispatchers.Main).launch {
+            fragmentChatRoomBinding.apply {
+
+                val text = editTextMessage.text.toString().trim()
+                // 현재 시간
+                val now = System.currentTimeMillis()
+                val currentTimeText = SimpleDateFormat("HH:mm").format(Date())
+
+                val chatIdx = chatIdx
+                // 현재 로그인 한 계정의 아이디
+                val chatSenderId = loginUserId
+                val chatSenderName = loginUserName
+                val chatMessage = text
+                val chatFullTime = now
+                val chatTime = currentTimeText.toString()
+
+                if (text.isNotEmpty()) {
+                    val message = ChatMessagesData(
+                        chatIdx,
+                        chatSenderId,
+                        chatSenderName,
+                        chatMessage,
+                        chatFullTime,
+                        chatTime,
+                    )
+                    messages.add(message)
+                    messageAdapter.notifyItemInserted(messages.size - 1)
+                    fragmentChatRoomBinding.recyclerView.scrollToPosition(messages.size - 1)
+                    editTextMessage.text.clear()
+
+                    // 메세지 전송 후 저장
+                    ChatMessagesDao.insertChatMessagesData(message, chatIdx, chatSenderName, chatFullTime)
+                    // 메세지 전송 후 해당 채팅 방 마지막 메세지 및 시간 변경
+                    ChatRoomDao.updateChatRoomLastMessageAndTime(chatIdx, chatMessage, chatFullTime, chatTime)
+
+                    // 전송 후 키보드 숨기기
+                    activity?.hideSoftInput()
+                }
+            }
         }
     }
 
     // 테스트 메시지 추가 - (DB 연동하면 나중에 삭제해야함)
     private fun addTestMessages() {
-        // 그룹 채팅방
-        if (isGroupChat == true) {
-            if (chatIdx % 2 == 0) {
-                messages.add(Message(userId = userId, text = "안녕하세요~", timestamp = "00:01", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[1], text = "안녕하세요!", timestamp = "00:03", senderName = "손흥민"))
-                messages.add(Message(userId = userId, text = "테스트 어때요?", timestamp = "01:04", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[2], text = "테스트 잘 되는거 같네요..?", timestamp = "02:13", senderName = "아이유"))
-                messages.add(Message(userId = chatMemberList[3], text = "혹시 OOO님도 채팅 한번 쳐주세요!", timestamp = "02:21", senderName = "류현진"))
-            }
-            else if(chatIdx == 5)
-            {
-                messages.add(Message(userId = chatMemberList[1], text = "안녕하세요!", timestamp = "01:11", senderName = "주성원"))
-                messages.add(Message(userId = userId, text = "안녕하세요~", timestamp = "01:13", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[2], text = "안녕하세요!", timestamp = "01:17", senderName = "문태진"))
-                messages.add(Message(userId = chatMemberList[3], text = "반갑습니다~!", timestamp = "01:21", senderName = "전희원"))
-                messages.add(Message(userId = chatMemberList[4], text = "안녕하세요!", timestamp = "01:22", senderName = "엄민식"))
-                messages.add(Message(userId = chatMemberList[5], text = "반갑습니다~!", timestamp = "01:36", senderName = "이승현"))
-            }
-            else {
-                messages.add(Message(userId = userId, text = "안녕하세요~", timestamp = "00:01", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[1], text = "안녕하세요!", timestamp = "00:03", senderName = "손흥민"))
-                messages.add(Message(userId = userId, text = "테스트 어때요?", timestamp = "01:04", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[2], text = "테스트 잘 되는거 같네요..?", timestamp = "02:13", senderName = "아이유"))
-                messages.add(Message(userId = chatMemberList[3], text = "혹시 OOO님도 채팅 한번 쳐주세요!", timestamp = "02:21", senderName = "류현진"))
-            }
-        }
-        // 1:1 채팅방
-        else {
-            if (chatIdx % 2 == 0) {
-                messages.add(Message(userId = userId, text = "안녕하세요~", timestamp = "00:01", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[1], text = "안녕하세요!", timestamp = "00:03", senderName = chatTitle))
-                messages.add(Message(userId = userId, text = "여기 1:1 대화방이죠??", timestamp = "01:04", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[1], text = "네 맞아요!!", timestamp = "02:13", senderName = chatTitle))
-                messages.add(Message(userId = chatMemberList[1], text = "좋네요~", timestamp = "02:21", senderName = chatTitle))
-            }
-            else {
-                messages.add(Message(userId = userId, text = "안녕하세요~", timestamp = "22:48", senderName = "김원빈"))
-                messages.add(Message(userId = userId, text = "모우다임 어플을 처음 이용해 보는데.. 알려주실수 있나요?", timestamp = "22:49", senderName = "김원빈"))
-                messages.add(Message(userId = chatMemberList[1], text = "안녕하세요!", timestamp = "22:59", senderName = chatTitle))
-                messages.add(Message(userId = chatMemberList[1], text = "네 알려드릴게요!! 어떤게 궁금하신가요?", timestamp = "23:00", senderName = chatTitle))
-            }
-        }
+        /*
+        CoroutineScope(Dispatchers.Main).launch {
+            val messagesList = ChatMessagesDao.getChatMessages(chatIdx)
 
-        // 어댑터에 데이터 변경을 알림
-        messageAdapter.notifyDataSetChanged()
+            messages.clear()
+            messages.addAll(messagesList)
+
+            // 어댑터에 데이터 변경을 알림
+            messageAdapter.notifyDataSetChanged()
+        }
+        */
+        // Firestore 실시간 업데이트 리스너 등록
+        ChatMessagesDao.addChatMessagesListener(chatIdx) { updatedMessages ->
+            // 업데이트된 메시지로 어댑터의 메시지 리스트 업데이트
+            messageAdapter.updateMessages(updatedMessages)
+            // RecyclerView 최하단 표시
+            scrollToBottom()
+        }
     }
 
-    // 메시지 전송
-    private fun sendMessage() {
-        fragmentChatRoomBinding.apply {
-            val text = editTextMessage.text.toString().trim()
-            // 현재 시간
-            val currentTimeText = SimpleDateFormat("HH:mm").format(Date())
-            if (text.isNotEmpty()) {
-                val message = Message(
-                    userId = userId,
-                    text = text,
-                    timestamp = currentTimeText,
-                    senderName = "김원빈"
-                )
-                messages.add(message)
-                messageAdapter.notifyItemInserted(messages.size - 1)
-                fragmentChatRoomBinding.recyclerView.scrollToPosition(messages.size - 1)
-                editTextMessage.text.clear()
-            }
-        }
+    // RecyclerView (대화 맨 마지막 기준)으로 설정
+    private fun scrollToBottom() {
+        // 만약 메시지가 하나도 없다면 스크롤 할 필요가 없음 -> 함수 바로 종료
+        if (messages.isEmpty()) return
+
+        // 메시지가 하나 이상 있다면 마지막 아이템의 인덱스를 구한다
+        val lastIndex = messages.size - 1
+
+        // RecyclerView를 마지막 아이템으로 스크롤합니다.
+        fragmentChatRoomBinding.recyclerView.scrollToPosition(lastIndex)
     }
 
     // 채팅 입력 칸 - 변경 관련 Listener
@@ -219,7 +260,7 @@ class ChatRoomFragment : Fragment() {
             })
             // 전송 버튼 클릭 시 메시지 전송
             imageButtonChatRoomSend.setOnClickListener {
-                sendMessage()
+                addChatMessagesData()
             }
         }
     }

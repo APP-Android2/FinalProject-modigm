@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp">
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/searchBarStudyAll"
+            style="@style/Widget.Material3.SearchBar.Outlined"
+            android:layout_width="match_parent"
+            android:layout_weight="0.1"
+            android:layout_height="36dp"
+            app:strokeColor="@color/textGray"
+            android:backgroundTint="@color/white"
+            app:defaultMarginsEnabled="false"
+            android:layout_marginEnd="5dp" />
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imageViewStudyAllFilter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.9"
+            android:focusable="true"
+            app:tint="@color/black"
+            android:src="@drawable/icon_filter_24px"
+            android:layout_marginStart="5dp"
+            android:clickable="true"/>
+    </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewStudyAll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"/>
+</LinearLayout>

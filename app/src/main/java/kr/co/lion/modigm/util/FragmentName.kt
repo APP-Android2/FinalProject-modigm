@@ -26,6 +26,7 @@ enum class FragmentName (var str: String){
 
     // 로그인
     LOGIN("LoginFragment"),
+    OTHER_LOGIN("OtherLoginFragment"),
 
     // 프로필
     PROFILE("ProfileFragment"),
@@ -33,6 +34,7 @@ enum class FragmentName (var str: String){
 
     // 스터디
     STUDY("StudyFragment"),
+    FILTER_SORT("FilterSortFragment"),
 
     // 글 작성
     WRITE("WriteFragment"),
