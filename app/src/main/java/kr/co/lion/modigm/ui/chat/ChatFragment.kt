@@ -46,8 +46,10 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 하단 바 체크 설정(채팅에 체크) 및 하단 바 이동 설정
+        /*
         settingBottomTabs()
         bottomSheetSetting()
+        */
 
         // 채팅 - (ViewPager) 세팅
         viewPagerActiviation()
@@ -69,6 +71,7 @@ class ChatFragment : Fragment() {
     }
 
     // 하단 바 홈으로 체크 표시 설정
+    /*
     fun settingBottomTabs() {
         fragmentChatBinding.apply {
             val menuItemId = R.id.bottomNaviChat
@@ -98,6 +101,7 @@ class ChatFragment : Fragment() {
             }
         }
     }
+    */
 
     // ViewPager 설정
     private fun viewPagerActiviation(){
