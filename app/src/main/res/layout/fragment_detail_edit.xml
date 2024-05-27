@@ -18,9 +18,9 @@
             android:theme="?attr/actionBarTheme"
             app:titleTextAppearance="@style/toolbarText" />
 
-        <!--    <com.google.android.material.divider.MaterialDivider-->
-        <!--        android:layout_width="match_parent"-->
-        <!--        android:layout_height="0.5dp"/>-->
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"/>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -71,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="제목 입력"
-                        android:inputType="text|textEmailAddress"
+                        android:inputType="text"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -95,10 +95,10 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editTextDetailEditContext"
                         android:layout_width="match_parent"
-                        android:layout_height="100dp"
+                        android:layout_height="200dp"
                         android:gravity="top"
                         android:hint="소개글 입력(최대한 자세히 입력해주세요)"
-                        android:inputType="text|textEmailAddress"
+                        android:inputType="textMultiLine"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
