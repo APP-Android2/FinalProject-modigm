@@ -39,13 +39,14 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="50dp">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_writeProceed_offline"
                 style="@style/Widget.Material3.Chip.Suggestion"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                app:chipCornerRadius="8dp"
 
                 android:backgroundTint="@color/white"
                 app:chipStrokeColor="@color/textGray"
@@ -64,7 +65,8 @@
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_writeProceed_online"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                app:chipCornerRadius="8dp"
 
                 android:backgroundTint="@color/white"
                 app:chipStrokeColor="@color/textGray"
@@ -85,8 +87,9 @@
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_writeProceed_mix"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginStart="14dp"
+                app:chipCornerRadius="8dp"
 
 
                 android:backgroundTint="@color/white"
@@ -126,6 +129,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
+        app:hintAnimationEnabled="false"
         android:hint="인원 수 입력"
         app:hintTextColor="@color/textGray"
         app:endIconMode="clear_text"
