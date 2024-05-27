@@ -18,7 +18,9 @@ import kr.co.lion.modigm.ui.join.JoinDuplicateFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.ui.study.FilterSortFragment
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -73,12 +75,14 @@ class MainActivity : AppCompatActivity() {
 
             // 로그인
             FragmentName.LOGIN -> LoginFragment()
-
+            FragmentName.OTHER_LOGIN -> OtherLoginFragment()
             // 프로필
             FragmentName.PROFILE -> ProfileFragment()
 
             // 스터디
             FragmentName.STUDY -> StudyFragment()
+            FragmentName.FILTER_SORT -> FilterSortFragment()
+
 
             // 글 작성
             FragmentName.WRITE -> WriteFragment()
