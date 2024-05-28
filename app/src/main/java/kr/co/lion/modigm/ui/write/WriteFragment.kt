@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -41,6 +42,25 @@ class WriteFragment : Fragment() {
 //                    mainActivity.removeFragment(MainFragmentName.WRITE)
                 }
             }
+            buttonWriteNext.setOnClickListener {
+                // 다음 탭으로 이동
+                fragmentWriteBinding.apply {
+                    val currentItem = viewPagerWriteFragment.currentItem
+
+                    if (currentItem < viewPagerWriteFragment.adapter!!.itemCount - 1){
+                        // 최종 탭이 아니라면~
+                        viewPagerWriteFragment.currentItem = currentItem + 1
+                        this.buttonWriteNext.text = "다음"
+                        Log.d("TedMoon", "다음 페이지${currentItem}")
+                        Log.d("TedMoon", "최종 페이지${viewPagerWriteFragment.adapter!!.itemCount}")
+                    }
+                    if (currentItem == viewPagerWriteFragment.adapter!!.itemCount-2) {
+                        // 최종 탭이라면~
+                        Log.d("TedMoon", "마지막 페이지${currentItem}")
+                        buttonWriteNext.text = "완료"
+                    }
+                }
+            }
 
 
         }
@@ -49,6 +69,11 @@ class WriteFragment : Fragment() {
     // ViewPager 설정0
      fun viewPagerActivation(){
         fragmentWriteBinding.apply {
+
+            // ViewPager 스와이프(제거)
+            this.viewPagerWriteFragment.isUserInputEnabled = false
+
+            //
 
             // 1. 페이지 데이터를 로드
             val fragmentList = listOf(
@@ -95,6 +120,5 @@ class WriteFragment : Fragment() {
 
             return fragment
         }
-
     }
 }
