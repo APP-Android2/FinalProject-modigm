@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="end|bottom"
+    android:background="@drawable/style_custom_dialog_write_intro_example">
+
+    <TextView
+        android:id="@+id/btnClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="닫기"
+        android:textColor="@color/pointColor"
+        android:padding="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:textSize="16dp"/>
+
+</LinearLayout>
