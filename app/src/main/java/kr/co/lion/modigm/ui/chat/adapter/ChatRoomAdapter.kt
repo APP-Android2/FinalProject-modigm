@@ -1,11 +1,14 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.model.ChatRoomData
@@ -35,6 +38,7 @@ class ChatRoomAdapter(
         private val roomTitleTextView: TextView = itemView.findViewById(R.id.textViewRowChatroomFiledRoomTitle)
         private val roomLastTextView: TextView = itemView.findViewById(R.id.textViewRowChatroomFiledLastMessage)
         private val roomTimeTextView: TextView = itemView.findViewById(R.id.textViewRowChatroomFiledTime)
+        private val roomImageImageView: ImageView = itemView.findViewById(R.id.imageViewRowChatroomFiledImage)
 
         init {
             itemView.setOnClickListener {
@@ -62,6 +66,24 @@ class ChatRoomAdapter(
             val rooms = roomList[position]
             // 채팅 방 제목
             roomTitleTextView.text = room.chatTitle
+
+            // 프로필 설정(회원 아이디 별 사진으로) (아직 Firebase 정보 없음) - DB 연동해야함
+            if(rooms.groupChat == false){
+                if (rooms.chatMemberList.contains("iuUser")) {
+                    roomImageImageView.setImageResource(R.drawable.test_profile_image_iu)
+                } else if (rooms.chatMemberList.contains("sonUser")) {
+                    roomImageImageView.setImageResource(R.drawable.test_profile_image_son)
+                } else if (rooms.chatMemberList.contains("ryuUser")) {
+                    roomImageImageView.setImageResource(R.drawable.test_profile_image_ryu)
+                } else {
+                    roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                }
+            }
+            // 그룹 채팅 사진은 글 작성 -> 그 이미지로 설정 (아직 Firebase 정보 없음) - DB 연동해야함
+            else {
+                roomImageImageView.setImageResource(R.drawable.test_profile_image)
+            }
+
             if ((room.lastChatMessage).isNotEmpty()) {
                 // 마지막 대화 내용
                 roomLastTextView.text = room.lastChatMessage
