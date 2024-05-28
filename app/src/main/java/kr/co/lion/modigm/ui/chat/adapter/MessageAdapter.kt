@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,6 +54,7 @@ class MessageAdapter(
     fun updateMessages(updatedMessages: List<ChatMessagesData>) {
         messages.clear()
         messages.addAll(updatedMessages)
+        Log.d("test1234", "messages: ${messages}")
         notifyDataSetChanged()
     }
 

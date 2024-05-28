@@ -26,6 +26,8 @@ class ChatOnetoOneFragment : Fragment() {
     // 내가 속한 1:1 채팅 방들을 담고 있을 리스트
     var chatRoomDataList = mutableListOf<ChatRoomData>()
 
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentChatOnetoOneBinding = FragmentChatOnetoOneBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
@@ -58,7 +60,7 @@ class ChatOnetoOneFragment : Fragment() {
             adapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
                 // 대화방 선택 시 동작
                 Log.d("test1234", "Selected Room: ${roomItem.chatTitle}")
-            }, mainActivity)
+            }, mainActivity, loginUserId)
         }
     }
 

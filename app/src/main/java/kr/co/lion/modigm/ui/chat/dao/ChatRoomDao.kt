@@ -1,6 +1,9 @@
 package kr.co.lion.modigm.ui.chat.dao
 
+import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineScope
@@ -10,6 +13,36 @@ import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.ChatRoomData
 
 class ChatRoomDao {
+
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private var chatRoomListener: ListenerRegistration? = null
+
+    // 채팅방에 들어갔을 때 실시간 업데이트 설정
+    fun enterChatRoom(chatIdx: Int, userId: String) {
+        // 채팅방 정보를 가져온 후 해당 사용자의 읽은 상태를 업데이트합니다.
+        firestore.collection("ChatRoomData")
+            .document(chatIdx.toString())
+            .get()
+            .addOnSuccessListener { document ->
+                val chatRoom = document.toObject(ChatRoomData::class.java)
+                chatRoom?.let { room ->
+                    room.lastReadTimestamp[userId] = System.currentTimeMillis()
+                    room.unreadMessageCount[userId] = 0
+                    // 채팅방 정보를 업데이트합니다.
+                    document.reference.set(room)
+                }
+            }
+            .addOnFailureListener { exception ->
+                // 업데이트에 실패한 경우 예외 처리를 수행합니다.
+                Log.d("test1234", "Error updating chat room document", exception)
+            }
+    }
+
+    fun leaveChatRoom() {
+        // 채팅방을 나갈 때 실시간 업데이트 리스너를 해제합니다.
+        chatRoomListener?.remove()
+    }
+
     companion object{
 
         // 채팅 방 시퀀스 번호를 Get 후 Int 형으로 반환
@@ -156,5 +189,48 @@ class ChatRoomDao {
             }
             coroutine1.join()
         }
+
+        // 사용자가 메세지 읽음 처리
+        suspend fun chatRoomMessageAsRead(chatIdx: Int, loginUserId: String) {
+            val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
+                val chatRoomRef = Firebase.firestore.collection("ChatRoomData")
+                    .whereEqualTo("chatIdx", chatIdx)
+                val querySnapshot = chatRoomRef.get().await()
+                querySnapshot.forEach { document ->
+                    val chatRoom = document.toObject(ChatRoomData::class.java)
+                    chatRoom?.let {
+                        val now = System.currentTimeMillis()
+                        it.lastReadTimestamp[loginUserId] = now
+                        it.unreadMessageCount[loginUserId] = 0
+                        document.reference.set(it).await()
+                    }
+                }
+            }
+            coroutine1.join()
+        }
+
+        // 새로운 메시지 도착 시 안 읽은 메시지 개수 증가
+        suspend fun increaseUnreadMessageCount(chatIdx: Int, senderId: String) {
+            val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
+                val chatRoomRef = Firebase.firestore.collection("ChatRoomData")
+                    .whereEqualTo("chatIdx", chatIdx)
+                val querySnapshot = chatRoomRef.get().await()
+                querySnapshot.forEach { document ->
+                    val chatRoom = document.toObject(ChatRoomData::class.java)
+                    chatRoom?.let {
+                        val now = System.currentTimeMillis()
+                        for (participant in it.chatMemberList) {
+                            if (participant != senderId && (it.lastReadTimestamp[participant] ?: 0 < now)) {
+                                it.unreadMessageCount[participant] = it.unreadMessageCount.getOrDefault(participant, 0) + 1
+                            }
+                        }
+                        document.reference.set(it).await()
+                    }
+                }
+            }
+            coroutine1.join()
+        }
+
+
     }
 }

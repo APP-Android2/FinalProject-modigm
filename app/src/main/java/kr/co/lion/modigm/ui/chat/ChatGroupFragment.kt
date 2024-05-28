@@ -26,6 +26,8 @@ class ChatGroupFragment : Fragment() {
     // 내가 속한 그룹 채팅 방들을 담고 있을 리스트
     var chatRoomDataList = mutableListOf<ChatRoomData>()
 
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         fragmentChatGroupBinding = FragmentChatGroupBinding.inflate(layoutInflater)
@@ -60,7 +62,7 @@ class ChatGroupFragment : Fragment() {
             adapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
                 // 대화방 선택 시 동작
                 Log.d("test1234", "${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
-            }, mainActivity)
+            }, mainActivity, loginUserId)
         }
     }
 

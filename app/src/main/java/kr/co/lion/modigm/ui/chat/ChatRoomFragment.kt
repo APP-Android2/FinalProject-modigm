@@ -40,10 +40,12 @@ class ChatRoomFragment : Fragment() {
     lateinit var mainActivity: MainActivity
     private lateinit var messageAdapter: MessageAdapter
 
+    private lateinit var chatRoomDao: ChatRoomDao
+
     // 보낼 메세지를 담고 있을 리스트
     private val messages = mutableListOf<ChatMessagesData>()
-    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정하세요
-    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정하세요
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
     private lateinit var chatViewModel: ChatViewModel
 
@@ -68,6 +70,13 @@ class ChatRoomFragment : Fragment() {
             isGroupChat = it.getBoolean("groupChat")
         }
 
+        // 채팅방에 입장할 때 실시간 업데이트 설정
+        // chatRoomDao = ChatRoomDao()
+        // chatRoomDao.enterChatRoom(chatIdx, loginUserId)
+
+        // 메시지 읽음 처리
+        readMessage()
+
         // 채팅 방 - (툴바) 세팅
         settingToolbar()
 
@@ -85,8 +94,9 @@ class ChatRoomFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("test1234", "ChatRoomFragment - onDestroy")
+        Log.d("test1234", "ChatRoomFragment - onDestroy !!")
         chatViewModel.triggerChatRoomDataUpdate()
+        // chatRoomDao.leaveChatRoom()
     }
 
     // 툴바 세팅
@@ -191,6 +201,8 @@ class ChatRoomFragment : Fragment() {
 
                     // 전송 후 키보드 숨기기
                     activity?.hideSoftInput()
+
+                    ChatRoomDao.increaseUnreadMessageCount(chatIdx, chatSenderId)
                 }
             }
         }
@@ -269,6 +281,13 @@ class ChatRoomFragment : Fragment() {
     fun outChatRoom() {
         CoroutineScope(Dispatchers.Main).launch {
             ChatRoomDao.removeUserFromChatMemberList(chatIdx, loginUserId)
+        }
+    }
+
+    // 메세지 읽음 처리
+    fun readMessage() {
+        CoroutineScope(Dispatchers.Main).launch {
+            ChatRoomDao.chatRoomMessageAsRead(chatIdx, loginUserId)
         }
     }
 }
