@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "411401156247",
-    "project_id": "modigm-4afde",
-    "storage_bucket": "modigm-4afde.appspot.com"
+    "project_number": "345647357022",
+    "project_id": "modigm-202ab",
+    "storage_bucket": "modigm-202ab.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:411401156247:android:265756a66b4d5d59995bd2",
+        "mobilesdk_app_id": "1:345647357022:android:dc64a4c2f73ba4b2ffa8cf",
         "android_client_info": {
           "package_name": "kr.co.lion.modigm"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCchS6Upzia9Fx-5O53diFKzloz35aeO58"
+          "current_key": "AIzaSyDubDRLbCStzjCuZ2VhTAqXGvjk_b9DE0A"
         }
       ],
       "services": {
