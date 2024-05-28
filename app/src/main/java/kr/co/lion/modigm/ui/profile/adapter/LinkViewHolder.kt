@@ -11,6 +11,20 @@ class LinkViewHolder(
     private val rowLinkBinding: RowLinkBinding,
     private val rowClickListener: (String) -> Unit, ): RecyclerView.ViewHolder(rowLinkBinding.root) {
 
+    // 도메인에 따른 아이콘을 저장하는 Map
+    val domainIcons = mapOf(
+        "youtube.com" to R.drawable.icon_youtube_logo,
+        "github.com" to R.drawable.icon_github_logo,
+        "linkedin.com" to R.drawable.icon_linkedin_logo,
+        "facebook.com" to "📘",
+        "twitter.com" to "🐦",
+        "linkedin.com" to "🔗",
+
+        "default" to "🌐"  // 도메인을 찾을 수 없는 경우 기본 아이콘
+    )
+
+    val iconStr = domainIcons["youtube.com"] ?: domainIcons["default"]
+
     // 구성요소 세팅
     fun bind(data: String, rowClickListener: (String) -> Unit) {
         rowLinkBinding.apply {
