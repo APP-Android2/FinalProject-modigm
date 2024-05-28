@@ -1,14 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.write.WriteIntroFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-</FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textView_writeIntro_cover"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="158dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:textSize="18dp"
+                android:text="커버 사진을 선택해주세요"
+                android:textStyle="bold"/>
+
+            <com.google.android.material.circularreveal.cardview.CircularRevealCardView
+                android:id="@+id/cardview_writeIntro_cardCover"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                app:strokeColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@id/textView_writeIntro_cover"
+                app:layout_constraintStart_toStartOf="parent"
+
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp">
+
+                <ImageButton
+                    android:id="@+id/imageButton_writeIntro_coverImage"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:backgroundTint="@color/white"
+                    style="@style/Widget.Material3.MaterialTimePicker.ImageButton"
+                    app:srcCompat="@drawable/icon_photo_plus_24px"/>
+            </com.google.android.material.circularreveal.cardview.CircularRevealCardView>
+
+            <TextView
+                android:id="@+id/textView_writeIntro_intro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="158dp"
+                app:layout_constraintTop_toBottomOf="@id/cardview_writeIntro_cardCover"
+                app:layout_constraintStart_toStartOf="parent"
+                android:textSize="18dp"
+                android:text="모집 소개글을 작성해주세요"
+                android:textStyle="bold"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout_writeIntro_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/textView_writeIntro_intro"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:endIconMode="clear_text"
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInput_writeIntro_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:hint="제목입력"
+                    android:textSize="16dp"
+                    android:textColorHint="@color/black"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/textView_writeIntro_title_example"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/textInputLayout_writeIntro_title"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp"
+                android:text="ex. 개발자 북클럽 모집(최소 8자 이상)"
+                android:textSize="14dp"
+                android:textColor="@color/textGray"/>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout_writeIntro_content"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                app:layout_constraintTop_toBottomOf="@id/textView_writeIntro_title_example"
+                app:layout_constraintBottom_toTopOf="@id/textView_writeIntro_write_example"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                app:endIconMode="clear_text"
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInput_writeIntro_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:imeOptions="actionDone"
+                    android:textSize="16dp"
+                    android:hint="소개글 입력(자세히 입력해주세요)"
+                    android:gravity="top"
+                    android:textColorHint="@color/black"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/textView_writeIntro_write_example"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="작성예시보기"
+                android:textSize="14dp"
+                android:textColor="@color/pointColor"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
