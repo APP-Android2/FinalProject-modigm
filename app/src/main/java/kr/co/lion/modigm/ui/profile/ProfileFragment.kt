@@ -11,16 +11,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
+import kr.co.lion.modigm.datasource.UserDataSource
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.Interest
 import java.net.URL
 
 class ProfileFragment: Fragment() {
@@ -32,8 +36,6 @@ class ProfileFragment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentProfileBinding = FragmentProfileBinding.inflate(inflater,container,false)
-        // AddressModifyViewModel = AddressModifyViewModel()
-        // fragmentAddressModifyBinding.lifecycleOwner = this
         mainActivity = activity as MainActivity
 
         return fragmentProfileBinding.root
@@ -49,8 +51,6 @@ class ProfileFragment: Fragment() {
         setupRecyclerViewPartStudy()
         setupRecyclerViewHostStudy()
     }
-
-
 
     private fun setupToolbar() {
         fragmentProfileBinding.apply {
@@ -114,21 +114,32 @@ class ProfileFragment: Fragment() {
 
     private fun setupMemberInfo() {
         fragmentProfileBinding.apply {
-            // 프로필 이미지
-            imageProfilePic.setImageResource(R.drawable.image_loading_gray)
-            // 이름
-            textViewProfileName.text = "김철수"
-            // 자기소개
-            textViewProfileIntro.text = "gkgkgk"
-            // 관심분야
-            chipGroupProfile.addView(Chip(mainActivity).apply {
-                text = "Kotlin" // chip 텍스트 설정
-                setEnsureMinTouchTargetSize(false) // 자동 padding 없애기
-                setChipBackgroundColorResource(android.R.color.white) // 배경 흰색으로 지정
-                isCloseIconVisible = true // chip에서 X 버튼 보이게 하기
-                setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) } // X버튼 누르면 chip 없어지게 하기
+            CoroutineScope(Dispatchers.Main).launch {
+                val user = UserDataSource.loadUserDataByUid("thisisuid")
 
-            })
+                // 이름
+                textViewProfileName.text = user!!.userName
+                // 자기소개
+                textViewProfileIntro.text = user.userIntro
+                // 관심분야
+                for (interestNum in user.userInterestList) {
+                    chipGroupProfile.addView(Chip(mainActivity).apply {
+                        // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
+                        text = Interest.fromNum(interestNum)!!.str
+                        // 자동 padding 없애기
+                        setEnsureMinTouchTargetSize(false)
+                        // 배경 흰색으로 지정
+                        setChipBackgroundColorResource(android.R.color.white)
+                        // chip에서 X 버튼 보이게 하기
+                        isCloseIconVisible = true
+                        // X버튼 누르면 chip 없어지게 하기
+                        setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) }
+                    })
+                }
+
+                // 프로필 이미지
+                UserDataSource.loadUserProfilePic(mainActivity, user.userProfilePic, imageProfilePic)
+            }
         }
     }
 

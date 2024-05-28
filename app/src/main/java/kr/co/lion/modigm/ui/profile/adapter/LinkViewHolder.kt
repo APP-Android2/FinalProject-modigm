@@ -12,7 +12,7 @@ class LinkViewHolder(
     private val rowClickListener: (String) -> Unit, ): RecyclerView.ViewHolder(rowLinkBinding.root) {
 
     // 구성요소 세팅
-    fun bind(data: String, rowClickListener: (String) -> Unit) { // String 말고 모델이어야함
+    fun bind(data: String, rowClickListener: (String) -> Unit) {
         rowLinkBinding.apply {
             // 아이콘
             imageRowLink.setImageResource(R.drawable.icon_arrow_back_24px)
