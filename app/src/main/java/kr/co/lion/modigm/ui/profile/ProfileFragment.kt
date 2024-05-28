@@ -19,6 +19,8 @@ import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.datasource.UserDataSource
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.chat.ChatFragment
+import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
@@ -70,11 +72,14 @@ class ProfileFragment: Fragment() {
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.menu_item_profile_setting -> {
-                            mainActivity.replaceFragment(FragmentName.SETTINGS, true, true, null)
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.containerMain, SettingsFragment())
+                                .addToBackStack(FragmentName.FILTER_SORT.str)
+                                .commit()
                         }
 
                         R.id.menu_item_profile_more -> {
-                            // mainActivity.replaceFragment(FragmentName.CART_FRAGMENT, true, true, null)
+                            // TODO("신고하기 기능")
                         }
                     }
                     true
@@ -113,7 +118,10 @@ class ProfileFragment: Fragment() {
                 }
 
                 setOnClickListener {
-                    mainActivity.replaceFragment(FragmentName.CHAT, true, true, null)
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, ChatFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
                 }
             }
         }
@@ -164,9 +172,19 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
+                    // bundle 에 필요한 정보를 담는다
                     val bundle = Bundle()
                     bundle.putString("link", linkUrl)
-                    mainActivity.replaceFragment(FragmentName.PROFILE_WEB, true, false, bundle)
+
+                    // 이동할 프래그먼트로 bundle을 넘긴다
+                    val profileWebFragment = ProfileWebFragment()
+                    profileWebFragment.arguments = bundle
+
+                    // Fragment 교체
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, ProfileWebFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
                 }
             }
         )
@@ -179,7 +197,6 @@ class ProfileFragment: Fragment() {
 
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
-
             }
         }
     }
@@ -194,7 +211,10 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    mainActivity.replaceFragment(FragmentName.DETAIL, true, true, null)
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, DetailFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
                 }
             }
         )
@@ -221,7 +241,10 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    mainActivity.replaceFragment(FragmentName.DETAIL, true, true, null)
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, DetailFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
                 }
             }
         )
