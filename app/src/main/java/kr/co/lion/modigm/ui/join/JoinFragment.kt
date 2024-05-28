@@ -1,7 +1,5 @@
 package kr.co.lion.modigm.ui.join
 
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.translation.ViewTranslationResponse
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.FragmentManager
@@ -38,6 +37,15 @@ class JoinFragment : Fragment() {
 
     private val viewModel: JoinViewModel by viewModels()
 
+    private val viewPagerAdapter by lazy {
+        JoinViewPagerAdapter(this)
+    }
+
+//    private val joinType: String by lazy {
+//        arguments?.getString("joinType").toString()
+//    }
+    var joinType = "email"
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,6 +59,7 @@ class JoinFragment : Fragment() {
 
         settingToolBar()
         settingViewPagerAdapter()
+        observePhoneAuth()
 
         return binding.root
     }
@@ -73,8 +82,10 @@ class JoinFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // 회원가입 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-        viewModel.deleteUserAuth()
+        // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
+        if(!viewModel.joinCompleted){
+            viewModel.deleteCurrentUser()
+        }
     }
 
     private fun settingToolBar(){
@@ -116,7 +127,6 @@ class JoinFragment : Fragment() {
     }
 
     private fun settingViewPagerAdapter(){
-        val viewPagerAdapter = JoinViewPagerAdapter(this)
 
         viewPagerAdapter.addFragments(fragmentList)
 
@@ -145,48 +155,108 @@ class JoinFragment : Fragment() {
                 // 화면별로 유효성 검사 먼저 하고
                 when(viewPagerJoin.currentItem){
                     // 이메일, 비밀번호 화면
-                    0 -> {
-                        val step1 = viewPagerAdapter.createFragment(0) as JoinStep1Fragment
-                        // 유효성 검사
-                        val validation = step1.validate()
-                        if(!validation) return@setOnClickListener
-                        // 응답값
-                        val email = step1.joinStep1ViewModel.userEmail.value
-                        val password = step1.joinStep1ViewModel.userPassword.value
-                    }
+                    0 -> step1Process()
                     // 이름, 전화번호 인증 화면
-                    1 -> {
-                        val step2 = viewPagerAdapter.createFragment(1) as JoinStep2Fragment
-                        // 유효성 검사
-                        val validation = step2.validate()
-                        if(!validation) return@setOnClickListener
-                        // 응답값
-                        val name = step2.joinStep2ViewModel.userName.value
-                        val phoneNumber = step2.joinStep2ViewModel.userPhone.value
-
-                        // 중복 계정 여부 확인
-                        val isDup = phoneNumber == "010-1234-5678"
-                        if(isDup){
-                            // 중복 확인 프래그먼트로 이동
-                            (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, null)
-                            return@setOnClickListener
-                        }
-                    }
+                    1 -> step2Process()
                     // 관심 분야 선택 화면
-                    2 -> {
-                        val step3 = viewPagerAdapter.createFragment(2) as JoinStep3Fragment
-                        // 유효성 검사
-                        val validation = step3.validate()
-                        if(!validation) return@setOnClickListener
-                        // 응답값
-                        val interest = step3.joinStep3ViewModel.selectedInterestList
-                    }
+                    2 -> step3Process()
                 }
-                // 다음 페이지로 이동
-                viewPagerJoin.currentItem += 1
             }
         }
 
+    }
+
+    private fun step1Process(){
+        val step1 = viewPagerAdapter.createFragment(0) as JoinStep1Fragment
+        // 유효성 검사
+        val validation = step1.validate()
+        if(!validation) return
+
+        // 응답 받은 이메일, 비밀번호
+        viewModel.setEmailAndPw(
+            step1.joinStep1ViewModel.userEmail.value.toString(),
+            step1.joinStep1ViewModel.userPassword.value.toString()
+        )
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 처음 화면인 경우
+            if(viewModel.verifiedEmail.isEmpty()
+                // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
+                || (step1.joinStep1ViewModel.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty())
+                ){
+                if(step1.joinStep1ViewModel.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty()){
+                    // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
+                    viewModel.deleteCurrentUser()
+                }
+                // 계정 중복 확인
+                val isDup = viewModel.createEmailUser()
+                if(isDup.isNotEmpty()){
+                    step1.joinStep1ViewModel.emailValidation.value = isDup
+                    return@launch
+                }
+            }
+            // 다음 화면으로 이동
+            binding.viewPagerJoin.currentItem += 1
+        }
+    }
+
+    private fun step2Process(){
+        val step2 = viewPagerAdapter.createFragment(1) as JoinStep2Fragment
+        // 유효성 검사
+        val validation = step2.validate()
+        if(!validation) return
+        // 응답 받은 이름, 전화번호
+        viewModel.setUserNameAndPhoneNumber(
+            step2.joinStep2ViewModel.userName.value.toString(),
+            step2.joinStep2ViewModel.userPhone.value.toString()
+        )
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val isVerificated = step2.createPhoneUser()
+            if(isVerificated){
+                Log.d("test1234","${step2.joinStep2ViewModel.phoneCredential.value}")
+                step2.joinStep2ViewModel.phoneCredential.value?.let { viewModel.setPhoneCredential(it) }
+                step2.joinStep2ViewModel.phoneValidation
+            }
+            // 중복 계정 여부 확인
+            viewModel.setPhoneVerificated(isVerificated)
+        }
+    }
+
+    // 번호 인증 옵저버
+    private fun observePhoneAuth(){
+        viewModel.phoneVerification.observe(viewLifecycleOwner){
+            if(it){
+                // 인증이 되었으면 다음으로 이동
+                binding.viewPagerJoin.currentItem += 1
+            }else{
+                // 중복인 경우 중복 알림 프래그먼트로 이동
+                // (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, null)
+            }
+        }
+    }
+
+    private fun step3Process(){
+        val step3 = viewPagerAdapter.createFragment(2) as JoinStep3Fragment
+        // 유효성 검사
+        val validation = step3.validate()
+        if(!validation) return
+        // 응답값
+        step3.joinStep3ViewModel.selectedInterestList.value?.let { it1 ->
+            viewModel.setInterests(
+                it1
+            )
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            when(joinType){
+                "email" -> viewModel.completeJoinEmailUser()
+                "phone" -> viewModel.completeJoinSnsUser()
+            }
+            if(viewModel.joinCompleted){
+                (requireActivity() as MainActivity).replaceFragment(FragmentName.STUDY, false, true, null)
+            }
+        }
     }
 
 }

@@ -70,11 +70,14 @@ class JoinStep2Fragment : Fragment() {
             // 인증번호 입력 창 보여주기
             binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
             // 번호 인증 api 호출
-
+            joinStep2ViewModel.sendSmsCode(requireActivity())
         }
     }
 
     // 입력한 내용 유효성 검사
     fun validate(): Boolean = joinStep2ViewModel.validate()
+
+    // 입력한 인증번호 확인
+    suspend fun createPhoneUser(): Boolean = joinStep2ViewModel.createPhoneUser()
 
 }
