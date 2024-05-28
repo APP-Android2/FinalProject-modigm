@@ -38,15 +38,10 @@ class WriteSkillFragment : Fragment() {
 
     fun settingEvent(){
         binding.apply {
-            textFieldWriteSkill.setOnFocusChangeListener { _, hasFocus ->
-                if (hasFocus){
-                    // 포커스 On
-                    // 바텀시트를 띄운다
+            // 바텀시트를 띄운다
+            textFieldWriteSkill.setOnClickListener {
+                // 바텀시트 결정사항 미정 ... 보류
 
-                }
-                else {
-
-                }
             }
         }
 
@@ -62,14 +57,18 @@ class WriteSkillFragment : Fragment() {
             // 신청제 Card
             cardviewWriteSkillApplicationSystem.setOnClickListener {
                 cardviewWriteSkillApplicationSystem.apply {
+                    if (cardElevation == 20F && strokeColor == clickedStrokeColor){
+                        cardElevation = 0F
+                        strokeColor = unclickedStrokeColor
+                    } else {
 
-                    setOnCheckedChangeListener { cardView, isChecked ->
-                        if (isChecked){
-                            Log.d("TedMoon", "Card Clicked!")
-                        }
-                        else {
-                            Log.d("TedMoon", "Card unClicked!")
-                        }
+                        // Stroke 색상 변경
+                        strokeColor = clickedStrokeColor
+                        cardviewWriteSkillFirstCome.strokeColor = unclickedStrokeColor
+
+                        // Elevation 추가
+                        cardElevation = 20F
+                        cardviewWriteSkillFirstCome.cardElevation = 0F
                     }
                 }
 
@@ -77,9 +76,22 @@ class WriteSkillFragment : Fragment() {
 
             // 선착순 Card
             cardviewWriteSkillFirstCome.setOnClickListener {
+                cardviewWriteSkillFirstCome.apply {
+                    if (cardElevation == 20F && strokeColor == clickedStrokeColor){
+                        cardElevation = 0F
+                        strokeColor = unclickedStrokeColor
+                    } else {
 
+                        // Stroke 색상 변경
+                        strokeColor = clickedStrokeColor
+                        cardviewWriteSkillApplicationSystem.strokeColor = unclickedStrokeColor
+
+                        // Elevation 추가
+                        cardElevation = 20F
+                        cardviewWriteSkillApplicationSystem.cardElevation = 0F
+                    }
+                }
             }
         }
-
     }
 }
