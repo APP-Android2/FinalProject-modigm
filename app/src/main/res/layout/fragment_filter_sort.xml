@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.study.FilterSortFragment" >
+    tools:context=".ui.study.FilterSortFragment"
+    android:transitionGroup="true">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarFilter"
