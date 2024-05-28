@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLinkBinding
+import kr.co.lion.modigm.model.UserData
+import java.net.URL
 
 class LinkViewHolder(
     private val context: Context,
@@ -16,11 +18,13 @@ class LinkViewHolder(
         "youtube.com" to R.drawable.icon_youtube_logo,
         "github.com" to R.drawable.icon_github_logo,
         "linkedin.com" to R.drawable.icon_linkedin_logo,
-        "facebook.com" to "📘",
-        "twitter.com" to "🐦",
-        "linkedin.com" to "🔗",
-
-        "default" to "🌐"  // 도메인을 찾을 수 없는 경우 기본 아이콘
+        "velog.com" to R.drawable.icon_velog_logo,
+        "tistory.com" to R.drawable.icon_tistory_logo,
+        "instagram.com" to R.drawable.icon_instagram_logo,
+        "notion.com" to R.drawable.icon_notion_logo,
+        "facebook.com" to R.drawable.icon_facebook_logo,
+        "twitter.com" to R.drawable.icon_twitter_logo,
+        "default" to R.drawable.icon_link,  // 도메인을 찾을 수 없는 경우 기본 아이콘
     )
 
     val iconStr = domainIcons["youtube.com"] ?: domainIcons["default"]
@@ -28,8 +32,11 @@ class LinkViewHolder(
     // 구성요소 세팅
     fun bind(data: String, rowClickListener: (String) -> Unit) {
         rowLinkBinding.apply {
+            // 도메인 추출
+            val domain = extractDomain(data)
+
             // 아이콘
-            imageRowLink.setImageResource(R.drawable.icon_arrow_back_24px)
+            imageRowLink.setImageResource(domainIcons[domain] ?: domainIcons["default"]!!)
 
             // 항목에 대한 설정
             root.apply {
@@ -41,9 +48,21 @@ class LinkViewHolder(
 
                 // 클릭 리스너 설정: Url 전달..?
                 setOnClickListener {
-                    rowClickListener.invoke("https://github.com/orgs/APP-Android2/projects/25/views/1")
+                    rowClickListener.invoke(data)
                 }
             }
+        }
+    }
+
+    // URL에서 도메인을 추출하는 함수
+    private fun extractDomain(url: String): String {
+        return try {
+            val uri = URL(url)
+            val domain = uri.host
+            // www. 접두사를 제거
+            if (domain.startsWith("www.")) domain.substring(4) else domain
+        } catch (e: Exception) {
+            "invalid"
         }
     }
 }

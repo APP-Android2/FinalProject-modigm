@@ -29,11 +29,11 @@ class LinkAdapter(
     }
 
     override fun onBindViewHolder(holder: LinkViewHolder, position: Int) {
-        holder.bind("data", rowClickListener)
+        holder.bind(linkList[position], rowClickListener)
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<String>) { //바꿔야함
+    fun updateData(list: List<String>) {
         linkList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())

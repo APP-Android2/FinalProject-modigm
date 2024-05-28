@@ -153,8 +153,9 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
-
+                    val bundle = Bundle()
+                    bundle.putString("link", linkUrl)
+                    mainActivity.replaceFragment(FragmentName.PROFILE_WEB, true, false, bundle)
                 }
             }
         )
@@ -182,7 +183,6 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
                     mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
                 }
             }
@@ -210,7 +210,6 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
                     mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
                 }
             }
@@ -225,18 +224,6 @@ class ProfileFragment: Fragment() {
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(mainActivity)
             }
-        }
-    }
-
-    // URL에서 도메인을 추출하는 함수
-    private fun extractDomain(url: String): String {
-        return try {
-            val uri = URL(url)
-            val domain = uri.host
-            // www. 접두사를 제거
-            if (domain.startsWith("www.")) domain.substring(4) else domain
-        } catch (e: Exception) {
-            "invalid"
         }
     }
 }
