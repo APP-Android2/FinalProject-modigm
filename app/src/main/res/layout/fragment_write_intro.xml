@@ -27,7 +27,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:textSize="18dp"
-                android:text="커버 사진을 선택해주세요"
+                android:text="커버 사진을 선택해주세요(선택)"
                 android:textStyle="bold"/>
 
             <com.google.android.material.circularreveal.cardview.CircularRevealCardView
