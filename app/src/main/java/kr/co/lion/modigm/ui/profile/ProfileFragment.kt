@@ -183,7 +183,7 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
+                    mainActivity.replaceFragment(FragmentName.DETAIL, true, true, null)
                 }
             }
         )
@@ -210,7 +210,7 @@ class ProfileFragment: Fragment() {
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
+                    mainActivity.replaceFragment(FragmentName.DETAIL, true, true, null)
                 }
             }
         )
