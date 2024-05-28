@@ -15,9 +15,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.datasource.UserDataSource
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
@@ -25,14 +25,15 @@ import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
-import java.net.URL
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
     lateinit var mainActivity: MainActivity
     private val addressViewModel: ProfileViewModel by viewModels()
 
+    lateinit var user: UserData
     var myProfile = true
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentProfileBinding = FragmentProfileBinding.inflate(inflater,container,false)
@@ -44,12 +45,18 @@ class ProfileFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 전달받은 uid를 사용해 프로필 주인의 정보를 불러온다
+        CoroutineScope(Dispatchers.Main).launch {
+            user = UserDataSource.loadUserDataByUid("thisisuid")!!
+
+            setupMemberInfo(user)
+            setupRecyclerViewLink(user)
+            setupRecyclerViewPartStudy()
+            setupRecyclerViewHostStudy()
+        }
+
         setupToolbar()
         setupFab()
-        setupMemberInfo()
-        setupRecyclerViewLink()
-        setupRecyclerViewPartStudy()
-        setupRecyclerViewHostStudy()
     }
 
     private fun setupToolbar() {
@@ -112,42 +119,46 @@ class ProfileFragment: Fragment() {
         }
     }
 
-    private fun setupMemberInfo() {
+    private fun setupMemberInfo(user: UserData) {
         fragmentProfileBinding.apply {
+            // 이름
+            textViewProfileName.text = user.userName
+            // 자기소개
+            textViewProfileIntro.text = user.userIntro
+            // 관심분야
+            for (interestNum in user.userInterestList) {
+                chipGroupProfile.addView(Chip(mainActivity).apply {
+                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
+                    text = Interest.fromNum(interestNum)!!.str
+                    // 자동 padding 없애기
+                    setEnsureMinTouchTargetSize(false)
+                    // 배경 흰색으로 지정
+                    setChipBackgroundColorResource(android.R.color.white)
+                    // 클릭 불가
+                    isClickable = false
+                    // chip에서 X 버튼 보이게 하기
+                    //isCloseIconVisible = true
+                    // X버튼 누르면 chip 없어지게 하기
+                    //setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) }
+                })
+            }
+
+            // 프로필 이미지
             CoroutineScope(Dispatchers.Main).launch {
-                val user = UserDataSource.loadUserDataByUid("thisisuid")
-
-                // 이름
-                textViewProfileName.text = user!!.userName
-                // 자기소개
-                textViewProfileIntro.text = user.userIntro
-                // 관심분야
-                for (interestNum in user.userInterestList) {
-                    chipGroupProfile.addView(Chip(mainActivity).apply {
-                        // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
-                        text = Interest.fromNum(interestNum)!!.str
-                        // 자동 padding 없애기
-                        setEnsureMinTouchTargetSize(false)
-                        // 배경 흰색으로 지정
-                        setChipBackgroundColorResource(android.R.color.white)
-                        // chip에서 X 버튼 보이게 하기
-                        isCloseIconVisible = true
-                        // X버튼 누르면 chip 없어지게 하기
-                        setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) }
-                    })
-                }
-
-                // 프로필 이미지
-                UserDataSource.loadUserProfilePic(mainActivity, user.userProfilePic, imageProfilePic)
+                UserDataSource.loadUserProfilePic(
+                    mainActivity,
+                    user.userProfilePic,
+                    imageProfilePic
+                )
             }
         }
     }
 
-    private fun setupRecyclerViewLink() {
+    private fun setupRecyclerViewLink(user: UserData) {
         // 어댑터 선언
         val linkAdapter: LinkAdapter = LinkAdapter(
-            // 빈 리스트를 넣어 초기화
-            emptyList(),
+            // 사용자 정보 중 링크 목록
+            user.userLinkList,
 
             // 항목을 클릭: Url을 받아온다
             rowClickListener = { linkUrl ->

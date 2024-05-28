@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.profile.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
@@ -18,8 +19,7 @@ class LinkViewHolder(
         "youtube.com" to R.drawable.icon_youtube_logo,
         "github.com" to R.drawable.icon_github_logo,
         "linkedin.com" to R.drawable.icon_linkedin_logo,
-        "velog.com" to R.drawable.icon_velog_logo,
-        "tistory.com" to R.drawable.icon_tistory_logo,
+        "velog.io" to R.drawable.icon_velog_logo,
         "instagram.com" to R.drawable.icon_instagram_logo,
         "notion.com" to R.drawable.icon_notion_logo,
         "facebook.com" to R.drawable.icon_facebook_logo,
@@ -27,13 +27,12 @@ class LinkViewHolder(
         "default" to R.drawable.icon_link,  // 도메인을 찾을 수 없는 경우 기본 아이콘
     )
 
-    val iconStr = domainIcons["youtube.com"] ?: domainIcons["default"]
-
     // 구성요소 세팅
     fun bind(data: String, rowClickListener: (String) -> Unit) {
         rowLinkBinding.apply {
             // 도메인 추출
             val domain = extractDomain(data)
+            Log.d("test1234", domain)
 
             // 아이콘
             imageRowLink.setImageResource(domainIcons[domain] ?: domainIcons["default"]!!)

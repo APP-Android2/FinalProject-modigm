@@ -21,6 +21,7 @@ import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.ui.profile.ProfileWebFragment
 import kr.co.lion.modigm.ui.profile.SettingsFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.study.FilterSortFragment
@@ -83,8 +84,10 @@ class MainActivity : AppCompatActivity() {
             // 로그인
             FragmentName.LOGIN -> LoginFragment()
             FragmentName.OTHER_LOGIN -> OtherLoginFragment()
+
             // 프로필
             FragmentName.PROFILE -> ProfileFragment()
+            FragmentName.PROFILE_WEB -> ProfileWebFragment()
             FragmentName.SETTINGS -> SettingsFragment()
 
             // 스터디
