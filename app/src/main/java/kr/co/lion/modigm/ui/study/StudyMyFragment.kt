@@ -9,19 +9,38 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
+import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyMyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
-import kr.co.lion.modigm.util.FragmentName
 
 
 class StudyMyFragment : Fragment() {
 
+    // 바인딩
     private lateinit var binding: FragmentStudyMyBinding
+
+    // 뷰모델
     private val viewModel: StudyViewModel by viewModels()
 
+    // 어답터
     val studyMyAdapter: StudyMyAdapter = StudyMyAdapter(
-        rowClickListener = {
+        // 최초 리스트
+        emptyList(),
 
+        // 항목 클릭 시
+        rowClickListener = { studyIdx ->
+
+            // DetailFragment로 이동
+            val detailFragment = DetailFragment().apply {
+                arguments = Bundle().apply {
+                    putInt("studyIdx", studyIdx)
+                }
+            }
+
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, detailFragment)
+                .addToBackStack(null) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+                .commit()
         }
     )
 
@@ -51,10 +70,7 @@ class StudyMyFragment : Fragment() {
                 // 클릭 시
                 setOnClickListener {
                     // 필터 및 정렬 화면으로 이동
-                    val supportFragmentManager = parentFragmentManager.beginTransaction()
-                    supportFragmentManager.replace(R.id.containerMain, FilterSortFragment())
-                        .addToBackStack(FragmentName.FILTER_SORT.str)
-                        .commit()
+                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.containerMain, FilterSortFragment()).commit()
                 }
             }
 

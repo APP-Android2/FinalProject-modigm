@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".ui.write.BottomSheetWriteProceedFragment">
+    tools:context=".ui.write.more.BottomSheetWriteProceedFragment">
 
     <ImageButton
         android:id="@+id/imageButton_writeProceed_bottomSheet_close"

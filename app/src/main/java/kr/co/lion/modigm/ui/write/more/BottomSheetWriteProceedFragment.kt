@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.ui.write
+package kr.co.lion.modigm.ui.write.more
 
 import android.content.Context
 import android.os.Bundle
