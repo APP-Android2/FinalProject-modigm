@@ -81,7 +81,7 @@
             android:layout_height="wrap_content"
 
             android:textSize="16dp"
-            android:text="신청제"
+            android:text="선착순"
 
             android:layout_marginTop="12dp"
             android:layout_marginStart="16dp"
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
 
             android:textSize="14dp"
-            android:text="직접 멤버를 수락하거나 거절할 수 있어요"
+            android:text="신청과 동시에 참여가 완료돼요"
             android:textColor="@color/textGray"
 
             android:layout_marginTop="36dp"
