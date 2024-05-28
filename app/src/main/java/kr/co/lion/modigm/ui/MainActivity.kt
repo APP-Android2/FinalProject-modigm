@@ -21,6 +21,7 @@ import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.profile.SettingsFragment
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.study.FilterSortFragment
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 채팅 화면 띄우기 (테스트) - 원빈
-        replaceFragment(FragmentName.CHAT, false, false, null)
+        replaceFragment(FragmentName.BOTTOM_NAVI, false, false, null)
 
         // 화면 테스트 - 희원
         // replaceFragment(FragmentName.PROFILE, false, false, null)
@@ -87,6 +88,7 @@ class MainActivity : AppCompatActivity() {
             // 스터디
             FragmentName.STUDY -> StudyFragment()
             FragmentName.FILTER_SORT -> FilterSortFragment()
+            FragmentName.BOTTOM_NAVI -> BottomNaviFragment()
 
 
             // 글 작성
