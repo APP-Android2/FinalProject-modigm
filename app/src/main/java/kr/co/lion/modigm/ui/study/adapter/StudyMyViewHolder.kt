@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowStudyMyBinding
+import kr.co.lion.modigm.model.StudyData
 
 class StudyMyViewHolder(
     private val binding: RowStudyMyBinding,
@@ -14,7 +15,7 @@ class StudyMyViewHolder(
 
 
     // 전체 스터디 항목별 세팅
-    fun bind(rowClickListener: (Int) -> Unit) {
+    fun bind(studyData: StudyData, rowClickListener: (Int) -> Unit) {
 
         with(binding) {
             // 항목 하나
@@ -27,6 +28,7 @@ class StudyMyViewHolder(
 
                 // 클릭 리스너 설정.
                 setOnClickListener {
+                    rowClickListener.invoke(studyData.studyIdx)
                 }
 
 
