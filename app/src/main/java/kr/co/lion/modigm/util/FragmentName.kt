@@ -1,7 +1,5 @@
 package kr.co.lion.modigm.util
 
-import kr.co.lion.modigm.ui.like.LikeFragment
-
 // MainActivity에서 보여줄 프레그먼트들의 이름
 enum class FragmentName (var str: String){
 
@@ -36,6 +34,7 @@ enum class FragmentName (var str: String){
     // 스터디
     STUDY("StudyFragment"),
     FILTER_SORT("FilterSortFragment"),
+    BOTTOM_NAVI("BottomNaviFragment"),
 
     // 글 작성
     WRITE("WriteFragment"),

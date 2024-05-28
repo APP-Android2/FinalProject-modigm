@@ -1,38 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragmentContainerStudyFull"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.study.StudyFragment">
+    tools:context=".ui.study.StudyFragment"
+    android:transitionGroup="true">
 
-    <LinearLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/white">
 
-            <com.google.android.material.appbar.AppBarLayout
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbarStudy"
+                style="@style/CustomToolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/white">
-
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/toolbarStudy"
-                    style="@style/CustomToolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:navigationIcon="@drawable/logo_toolbar_modigm"
-                    app:title="모우다임"
-                    app:titleCentered="true"
-                    app:titleTextAppearance="@style/toolbarText" />
-            </com.google.android.material.appbar.AppBarLayout>
+                android:layout_height="?attr/actionBarSize"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:navigationIcon="@drawable/logo_toolbar_modigm"
+                app:title="모우다임"
+                app:titleCentered="true"
+                app:titleTextAppearance="@style/toolbarText" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayoutStudy"
@@ -40,6 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
+                app:layout_collapseMode="pin"
                 app:tabIndicatorColor="@color/pointColor"
                 app:tabIndicatorHeight="2dp"
                 app:tabSelectedTextColor="@color/pointColor"
@@ -58,42 +55,27 @@
 
             </com.google.android.material.tabs.TabLayout>
 
-            <FrameLayout
-                android:id="@+id/fragmentContainerStudy"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        </com.google.android.material.appbar.AppBarLayout>
 
-            </FrameLayout>
-        </LinearLayout>
-
-
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNavigationView"
+        <FrameLayout
+            android:id="@+id/fragmentContainerStudy"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:background="@color/white"
-            android:paddingVertical="5dp"
-            app:itemActiveIndicatorStyle="@null"
-            app:itemBackground="@android:color/transparent"
-            app:itemIconSize="24dp"
-            app:itemIconTint="@color/black"
-            app:itemTextColor="@color/black"
-            app:labelVisibilityMode="labeled"
-            app:menu="@menu/menu_study_bottom_navi" />
-    </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabStudyWrite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/icon_edit_24px"
-        app:fabSize="normal"
-        android:layout_gravity="end|bottom"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="100dp"
-        android:backgroundTint="@color/pointColor"
-        app:tint="@color/white"/>
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        </FrameLayout>
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabStudyWrite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="@color/pointColor"
+            android:src="@drawable/icon_edit_24px"
+            app:fabSize="normal"
+            app:tint="@color/white"
+            />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
