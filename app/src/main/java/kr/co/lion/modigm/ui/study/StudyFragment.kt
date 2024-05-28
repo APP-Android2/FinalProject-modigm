@@ -1,29 +1,26 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager2.widget.ViewPager2
+import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
-import kr.co.lion.modigm.ui.join.JoinStep1Fragment
-import kr.co.lion.modigm.ui.join.JoinStep2Fragment
-import kr.co.lion.modigm.ui.join.JoinStep3Fragment
-import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
-import kr.co.lion.modigm.ui.study.adapter.StudyViewPagerAdapter
+import kr.co.lion.modigm.ui.write.WriteFragment
 
 class StudyFragment : Fragment() {
 
+    // 바인딩
     private lateinit var binding : FragmentStudyBinding
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         // 바인딩
         binding = FragmentStudyBinding.inflate(inflater,container, false)
+
 
         return binding.root
     }
@@ -40,7 +37,7 @@ class StudyFragment : Fragment() {
 
         // 초기 뷰 세팅
         initView()
-        
+
     }
 
     // 초기 뷰 세팅
@@ -48,6 +45,8 @@ class StudyFragment : Fragment() {
 
         // 바인딩
         with(binding){
+
+            // 탭 레이아웃 설정
             val tabLayout: TabLayout = tabLayoutStudy
 
             // 탭 선택 리스너 설정
@@ -70,10 +69,15 @@ class StudyFragment : Fragment() {
                 override fun onTabReselected(tab: TabLayout.Tab) {
                     // 필요시 구현
                 }
+
             })
 
-
-
+            // FAB 설정
+            with(fabStudyWrite){
+                setOnClickListener{
+                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.containerMain, WriteFragment()).commit()
+                }
+            }
         }
     }
 }
