@@ -19,4 +19,5 @@ enum class InterestList(var str: String, var number: Int){
     CROSS_PLATFORM("크로스플랫폼", 15),
     GRAPHICS("그래픽스", 16),
     VR("VR", 17),
+    ETC("기타", 18),
 }
