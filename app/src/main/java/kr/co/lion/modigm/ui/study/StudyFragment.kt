@@ -37,7 +37,6 @@ class StudyFragment : Fragment() {
 
         // 초기 뷰 세팅
         initView()
-
     }
 
     // 초기 뷰 세팅
