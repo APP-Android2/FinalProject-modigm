@@ -137,6 +137,7 @@
             android:layout_height="wrap_content"
             android:focusableInTouchMode="false"
             android:focusable="false"
+            android:textSize="16dp"
             android:hint="필요한 기술"/>
 
     </com.google.android.material.textfield.TextInputLayout>
