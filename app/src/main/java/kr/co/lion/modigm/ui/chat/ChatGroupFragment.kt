@@ -68,7 +68,7 @@ class ChatGroupFragment : Fragment() {
     fun gettingGroupChatRoomData() {
         CoroutineScope(Dispatchers.Main).launch {
             // 대화방 목록 데이터 가져오기
-            val newChatRoomDataList = ChatRoomDao.getGroupChatRooms()
+            val newChatRoomDataList = ChatRoomDao.getGroupChatRooms("currentUser")
 
             // 새로운 목록으로 업데이트
             chatRoomDataList.clear()

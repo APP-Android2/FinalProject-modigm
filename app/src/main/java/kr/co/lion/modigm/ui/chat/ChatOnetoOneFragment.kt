@@ -66,7 +66,7 @@ class ChatOnetoOneFragment : Fragment() {
     fun gettingOneToOneChatRoomData() {
         CoroutineScope(Dispatchers.Main).launch {
             // 대화방 목록 데이터 가져오기
-            val newChatRoomDataList = ChatRoomDao.getOneToOneChatRooms()
+            val newChatRoomDataList = ChatRoomDao.getOneToOneChatRooms("currentUser")
 
             // 새로운 목록으로 업데이트
             chatRoomDataList.clear()

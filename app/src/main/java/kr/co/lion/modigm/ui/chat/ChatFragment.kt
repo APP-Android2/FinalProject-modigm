@@ -46,8 +46,10 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 하단 바 체크 설정(채팅에 체크) 및 하단 바 이동 설정
+        /*
         settingBottomTabs()
         bottomSheetSetting()
+        */
 
         // 채팅 - (ViewPager) 세팅
         viewPagerActiviation()
@@ -69,28 +71,26 @@ class ChatFragment : Fragment() {
     }
 
     // 하단 바 홈으로 체크 표시 설정
+    /*
     fun settingBottomTabs() {
-        /*
         fragmentChatBinding.apply {
-            val menuItemId = R.id.main_bottom_navi_chat
+            val menuItemId = R.id.bottomNaviChat
             fragmentChatBinding.mainBottomNavi.menu.findItem(menuItemId)?.isChecked = true
         }
-        */
     }
 
     // 하단 바 클릭 설정
     fun bottomSheetSetting() {
-        /*
         fragmentChatBinding.apply {
             mainBottomNavi.setOnItemSelectedListener { item ->
                 when(item.itemId) {
-                    R.id.main_bottom_navi_study -> {
+                    R.id.bottomNaviStudy -> {
                         mainActivity.replaceFragment(FragmentName.STUDY, false, false, null)
                     }
-                    R.id.main_bottom_navi_like -> {
+                    R.id.bottomNaviHeart -> {
                         mainActivity.replaceFragment(FragmentName.LIKE, false, false, null)
                     }
-                    R.id.main_bottom_navi_chat -> {
+                    R.id.bottomNaviChat -> {
                         mainActivity.replaceFragment(FragmentName.CHAT, false, false, null)
                     }
                     else -> {
@@ -100,8 +100,8 @@ class ChatFragment : Fragment() {
                 true
             }
         }
-        */
     }
+    */
 
     // ViewPager 설정
     private fun viewPagerActiviation(){
@@ -144,6 +144,7 @@ class ChatFragment : Fragment() {
 
             val chatIdx = chatRoomSequence + 1
             val chatTitle = "제 13회 해커톤 준비"
+            val chatRoomImage = ""
             val chatMemberList = listOf("currentUser", "sonUser", "iuUser", "ryuUser")
             val participantCount = 4
             val groupChat = true
@@ -151,7 +152,7 @@ class ChatFragment : Fragment() {
             val lastChatFullTime = 0L
             val lastChatTime = "00:00"
 
-            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
+            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
 
             // 채팅 방 생성
             ChatRoomDao.insertChatRoomData(chatRoomData)

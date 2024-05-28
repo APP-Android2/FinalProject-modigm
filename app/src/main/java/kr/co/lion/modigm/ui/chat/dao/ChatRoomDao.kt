@@ -52,7 +52,7 @@ class ChatRoomDao {
         }
 
         // 단체 채팅방 데이터 가져오기
-        suspend fun getGroupChatRooms(): MutableList<ChatRoomData> {
+        suspend fun getGroupChatRooms(userId: String): MutableList<ChatRoomData> {
             var chatRooms = mutableListOf<ChatRoomData>()
 
             val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
@@ -61,7 +61,7 @@ class ChatRoomDao {
                 // 내 아이디의 chatIdx 와 groupChat이 true인 경우 필터링
                 // chatIdx는 UserData가 있다면 그 Data에서 아이디 별 소속해있는 채팅방 int형 list를 가져와야함.
                 val querySnapshot = collectionReference
-                    .whereIn("chatIdx", listOf(1, 2, 3, 4, 5, 6, 7, 8))
+                    .whereArrayContains("chatMemberList", userId)
                     .whereEqualTo("groupChat", true)
                     .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
                     .get()
@@ -80,7 +80,7 @@ class ChatRoomDao {
         }
 
         // 1:1 채팅방 데이터 가져오기
-        suspend fun getOneToOneChatRooms(): MutableList<ChatRoomData> {
+        suspend fun getOneToOneChatRooms(userId: String): MutableList<ChatRoomData> {
             var chatRooms = mutableListOf<ChatRoomData>()
 
             val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
@@ -89,7 +89,7 @@ class ChatRoomDao {
                 // 내 아이디의 chatIdx 와 groupChat이 true인 경우 필터링
                 // chatIdx는 UserData가 있다면 그 Data에서 아이디 별 소속해있는 채팅방 int형 list를 가져와야함.
                 val querySnapshot = collectionReference
-                    .whereIn("chatIdx", listOf(1, 2, 3, 4, 5, 6, 7, 8))
+                    .whereArrayContains("chatMemberList", userId)
                     .whereEqualTo("groupChat", false)
                     .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
                     .get()
@@ -135,6 +135,26 @@ class ChatRoomDao {
             coroutine1.join()
 
             return chatRooms
+        }
+
+        // chatMemberList 배열에서 내 ID를 제거
+        suspend fun removeUserFromChatMemberList(chatIdx: Int, userId: String) {
+            val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
+                val collectionReference = Firebase.firestore.collection("ChatRoomData")
+
+                val querySnapshot = collectionReference
+                    .whereEqualTo("chatIdx", chatIdx)
+                    .get()
+                    .await()
+
+                for (document in querySnapshot.documents) {
+                    val documentReference = document.reference
+                    documentReference.update("chatMemberList",
+                        com.google.firebase.firestore.FieldValue.arrayRemove(userId)
+                    ).await()
+                }
+            }
+            coroutine1.join()
         }
     }
 }

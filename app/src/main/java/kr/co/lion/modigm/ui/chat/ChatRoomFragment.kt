@@ -66,9 +66,6 @@ class ChatRoomFragment : Fragment() {
             chatTitle = it.getString("chatTitle").toString()
             chatMemberList = it.getStringArrayList("chatMemberList")!!
             isGroupChat = it.getBoolean("groupChat")
-            // Log.d("test1234", "채팅방 번호, 이름, 그룹챗 여부 - ${chatIdx}, ${chatTitle}, ${isGroupChat}")
-            // Log.d("test1234", "멤버 리스트 - $chatMemberList")
-            // Log.d("test1234", "멤버 리스트: ${chatMemberList.size}명")
         }
 
         // 채팅 방 - (툴바) 세팅
@@ -91,18 +88,6 @@ class ChatRoomFragment : Fragment() {
         Log.d("test1234", "ChatRoomFragment - onDestroy")
         chatViewModel.triggerChatRoomDataUpdate()
     }
-
-
-
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//        mainActivity = context as MainActivity
-//    }
-//
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        mainActivity.updateChatFragments() // MainActivity의 콜백 메서드 호출
-//    }
 
     // 툴바 세팅
     fun settingToolbar() {
@@ -137,13 +122,17 @@ class ChatRoomFragment : Fragment() {
             popupMenu.menuInflater.inflate(R.menu.popup_menu_chatroom_more_vert, popupMenu.menu)
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
+                    // 채팅방 나가기
                     R.id.item1 -> {
+                        outChatRoom()
                         mainActivity.removeFragment(FragmentName.CHAT_ROOM)
                         true
                     }
+                    // 멤버 보기
                     R.id.item2 -> {
                         true
                     }
+                    // 공지
                     R.id.item3 -> {
                         true
                     }
@@ -273,6 +262,13 @@ class ChatRoomFragment : Fragment() {
             } else {
                 imageButtonChatRoomSend.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1A51C5"))
             }
+        }
+    }
+
+    // 대화방 나가기
+    fun outChatRoom() {
+        CoroutineScope(Dispatchers.Main).launch {
+            ChatRoomDao.removeUserFromChatMemberList(chatIdx, loginUserId)
         }
     }
 }
