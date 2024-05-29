@@ -34,14 +34,19 @@ class ChatGroupFragment : Fragment() {
         fragmentChatGroupBinding = FragmentChatGroupBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
 
+        return fragmentChatGroupBinding.root
+    }
+
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         // RecyclerView 초기화
         setupRecyclerView()
 
         // 내가 속한 그룹 채팅 방(RecyclerView)
         gettingGroupChatRoomData()
         updateChatRoomData()
-
-        return fragmentChatGroupBinding.root
     }
 
     // RecyclerView 초기화

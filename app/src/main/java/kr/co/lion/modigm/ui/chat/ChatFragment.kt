@@ -55,13 +55,6 @@ class ChatFragment : Fragment() {
         viewPagerActiviation()
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.d("test1234", "ChatFragment - onResume")
-        // 채팅 방 데이터 갱신 (임시)
-        // viewPagerActiviation()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_chat_toolbar, menu)
@@ -156,6 +149,7 @@ class ChatFragment : Fragment() {
 
             // 채팅 방 생성
             ChatRoomDao.insertChatRoomData(chatRoomData)
+            Log.d("test1234", "${chatTitle} 채팅방 생성 완료")
         }
     }
 }

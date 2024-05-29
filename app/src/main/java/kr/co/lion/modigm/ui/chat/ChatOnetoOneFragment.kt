@@ -32,10 +32,12 @@ class ChatOnetoOneFragment : Fragment() {
         fragmentChatOnetoOneBinding = FragmentChatOnetoOneBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
 
-        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
-        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
-            gettingOneToOneChatRoomData()
-        }
+        return fragmentChatOnetoOneBinding.root
+    }
+
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // RecyclerView 초기화
         setupRecyclerView()
@@ -43,16 +45,6 @@ class ChatOnetoOneFragment : Fragment() {
         // 내가 속한 그룹 채팅 방(RecyclerView)
         gettingOneToOneChatRoomData()
         updateChatRoomData()
-
-        return fragmentChatOnetoOneBinding.root
-    }
-
-    // 채팅방 변경시 업데이트
-    private fun updateChatRoomData(){
-        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
-        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
-            gettingOneToOneChatRoomData()
-        }
     }
 
     // RecyclerView 초기화
@@ -65,6 +57,14 @@ class ChatOnetoOneFragment : Fragment() {
                 // 대화방 선택 시 동작
                 Log.d("test1234", "Selected Room: ${roomItem.chatTitle}")
             }, mainActivity, loginUserId)
+        }
+    }
+
+    // 채팅방 변경시 업데이트
+    private fun updateChatRoomData(){
+        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
+            gettingOneToOneChatRoomData()
         }
     }
 
