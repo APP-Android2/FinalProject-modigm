@@ -70,9 +70,13 @@ class JoinStep2Fragment : Fragment() {
 
             // 응답한 전화번호로 인증번호 SMS 보내기
             joinStep2ViewModel.sendCode(requireActivity())
+        }
 
-            // 인증번호 입력 창 보여주기
-            binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+        // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
+        joinStep2ViewModel.phoneVerificated.observe(viewLifecycleOwner){
+            if(it){
+                binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+            }
         }
     }
 

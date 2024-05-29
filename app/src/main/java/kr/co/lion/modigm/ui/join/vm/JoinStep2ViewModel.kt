@@ -54,6 +54,9 @@ class JoinStep2ViewModel: ViewModel() {
             if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", userPhone.value)){
                 phoneValidation.value = "올바른 전화번호가 아닙니다."
                 result = false
+            }else if(!_isCodeSent){
+                phoneValidation.value = "인증하기 버튼을 눌러서 인증을 진행해주세요."
+                result = false
             }
         }
         if(inputSmsCode.value.isNullOrEmpty()){
@@ -98,10 +101,14 @@ class JoinStep2ViewModel: ViewModel() {
 
     // 인증문자 발송 여부
     private var _isCodeSent = false
-    // 인증 문자 내용
+    // 인증 ID(인증 코드 내용 아님)
     private var _verificationId = ""
     // 인증 여부
-    private var _phoneVerificated = false
+    private val _phoneVerificated = MutableLiveData(false)
+    val phoneVerificated: LiveData<Boolean> = _phoneVerificated
+
+    // 인증 에러 메시지
+    private var _errorMessage = ""
 
     // 나중에 이메일 계정과 합칠 때 필요한 credential
     private val _credential = MutableLiveData<PhoneAuthCredential>()
@@ -119,7 +126,6 @@ class JoinStep2ViewModel: ViewModel() {
     // 전화번호 인증
     suspend fun createPhoneUser(): String {
         // 오류 메시지
-        var error = ""
         if(_isCodeSent){
             try{
                 val credential = PhoneAuthProvider.getCredential(_verificationId, inputSmsCode.value!!)
@@ -129,7 +135,7 @@ class JoinStep2ViewModel: ViewModel() {
                 val signInResult = _auth.signInWithCredential(credential).await()
                 alreadyRegisteredUser = signInResult.additionalUserInfo?.isNewUser != true
                 if(alreadyRegisteredUser){
-                    error = "이미 해당 번호로 가입한 계정이 있습니다."
+                    _errorMessage = "이미 해당 번호로 가입한 계정이 있습니다."
 
                     // 프로바이더 확인
                     for(provider in signInResult.user?.providerData!!){
@@ -140,11 +146,11 @@ class JoinStep2ViewModel: ViewModel() {
                     }
                 }
             }catch (e: FirebaseAuthException){
-                error = e.message.toString()
-                inputSmsCodeValidation.value = error
+                _errorMessage = e.message.toString()
+                inputSmsCodeValidation.value = _errorMessage
             }
         }
-        return error
+        return _errorMessage
     }
 
     // 전화 인증 발송
@@ -164,16 +170,17 @@ class JoinStep2ViewModel: ViewModel() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    // 전화 인증 콜백
+    // 전화 인증코드 발송 콜백
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            // 전화번호 인증 성공
-            _phoneVerificated = true
+            // 인증코드 발송 성공
+            _phoneVerificated.value = true
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-            // 전화번호 인증 실패
-            _phoneVerificated = false
+            // 인증코드 발송 실패
+            _phoneVerificated.value = false
+            phoneValidation.value = e.message
         }
 
         override fun onCodeSent(
