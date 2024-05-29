@@ -34,6 +34,8 @@ enum class FragmentName (var str: String){
 
     // 스터디
     STUDY("StudyFragment"),
+    STUDY_ALL("StudyAllFragment"),
+    STUDY_MY("StudyMyFragment"),
     FILTER_SORT("FilterSortFragment"),
     BOTTOM_NAVI("BottomNaviFragment"),
 

@@ -57,12 +57,12 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <FrameLayout
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainerStudy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-        </FrameLayout>
+        </androidx.fragment.app.FragmentContainerView>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -25,7 +25,9 @@ import kr.co.lion.modigm.ui.profile.ProfileWebFragment
 import kr.co.lion.modigm.ui.profile.SettingsFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.study.FilterSortFragment
+import kr.co.lion.modigm.ui.study.StudyAllFragment
 import kr.co.lion.modigm.ui.study.StudyFragment
+import kr.co.lion.modigm.ui.study.StudyMyFragment
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
@@ -92,6 +94,8 @@ class MainActivity : AppCompatActivity() {
 
             // 스터디
             FragmentName.STUDY -> StudyFragment()
+            FragmentName.STUDY_ALL -> StudyAllFragment()
+            FragmentName.STUDY_MY -> StudyMyFragment()
             FragmentName.FILTER_SORT -> FilterSortFragment()
             FragmentName.BOTTOM_NAVI -> BottomNaviFragment()
 
