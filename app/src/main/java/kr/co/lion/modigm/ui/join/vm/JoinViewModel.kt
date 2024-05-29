@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 //import com.google.firebase.auth.FirebaseAuth
 //import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.model.UserInfoData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.UserInfoRepository
 
 class JoinViewModel : ViewModel() {
@@ -33,23 +33,23 @@ class JoinViewModel : ViewModel() {
     }
 
     // UserInfoData 객체 생성
-    fun createUserInfoData(): UserInfoData {
+    fun createUserInfoData(): UserData {
         // 각 화면에서 응답받은 정보 가져오기
 
         // 회원 정보 객체 생성
 
         // return
-        return UserInfoData()
+        return UserData()
     }
 
     // 이메일 계정 회원 가입 완료
-    fun completeJoinEmailUser(user: UserInfoData){
+    fun completeJoinEmailUser(user: UserData){
         // UserInfoData 객체 생성
 
         // 파이어 스토어에 저장
     }
     // SNS 계정 회원 가입 완료
-    fun completeJoinSnsUser(user: UserInfoData){
+    fun completeJoinSnsUser(user: UserData){
         // UserInfoData 객체 생성
 
         // 파이어 스토어에 저장
