@@ -17,12 +17,16 @@ class StudyViewModel : ViewModel() {
     private val _studyStateTrueDataList = MutableLiveData<List<StudyData>>()
     val studyStateTrueDataList: LiveData<List<StudyData>> = _studyStateTrueDataList
 
+    // 전체 스터디 로딩
 
 
 
     // 내 스터디 리스트
     private val _studyMyDataList = MutableLiveData<List<StudyData>>()
     val studyMyDataList: LiveData<List<StudyData>> = _studyMyDataList
+
+    // 내 스터디 로딩
+
 
 
     // 뷰모델 초기화 시
