@@ -114,7 +114,7 @@ class UserDataSource {
             return user
         }
 
-        // 영상 팁의 썸네일을 받아오는 메서드
+        // 사용자 프로필 사진을 받아오는 메서드
         suspend fun loadUserProfilePic(context: Context, imageFileName: String, imageView: ImageView){
             val job1 = CoroutineScope(Dispatchers.IO).launch {
                 // 이미지에 접근할 수 있는 객체를 가져온다.
