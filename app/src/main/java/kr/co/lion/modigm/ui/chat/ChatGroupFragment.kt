@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,25 +34,14 @@ class ChatGroupFragment : Fragment() {
         fragmentChatGroupBinding = FragmentChatGroupBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
 
-        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
-        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
-            gettingGroupChatRoomData()
-        }
-
-        // Recycler 뷰
+        // RecyclerView 초기화
         setupRecyclerView()
 
         // 내가 속한 그룹 채팅 방(RecyclerView)
         gettingGroupChatRoomData()
+        updateChatRoomData()
 
         return fragmentChatGroupBinding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // 프래그먼트가 다시 활성화될 때 데이터 갱신
-        Log.d("test1234", "ChatGroupFragment - onResume")
-        // gettingGroupChatRoomData()
     }
 
     // RecyclerView 초기화
@@ -60,9 +50,16 @@ class ChatGroupFragment : Fragment() {
         fragmentChatGroupBinding.recyclerViewChatGroup.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
-                // 대화방 선택 시 동작
                 Log.d("test1234", "${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
             }, mainActivity, loginUserId)
+        }
+    }
+
+    // 채팅방 변경시 업데이트
+    private fun updateChatRoomData(){
+        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
+            gettingGroupChatRoomData()
         }
     }
 

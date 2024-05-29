@@ -14,35 +14,6 @@ import kr.co.lion.modigm.model.ChatRoomData
 
 class ChatRoomDao {
 
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private var chatRoomListener: ListenerRegistration? = null
-
-    // 채팅방에 들어갔을 때 실시간 업데이트 설정
-    fun enterChatRoom(chatIdx: Int, userId: String) {
-        // 채팅방 정보를 가져온 후 해당 사용자의 읽은 상태를 업데이트합니다.
-        firestore.collection("ChatRoomData")
-            .document(chatIdx.toString())
-            .get()
-            .addOnSuccessListener { document ->
-                val chatRoom = document.toObject(ChatRoomData::class.java)
-                chatRoom?.let { room ->
-                    room.lastReadTimestamp[userId] = System.currentTimeMillis()
-                    room.unreadMessageCount[userId] = 0
-                    // 채팅방 정보를 업데이트합니다.
-                    document.reference.set(room)
-                }
-            }
-            .addOnFailureListener { exception ->
-                // 업데이트에 실패한 경우 예외 처리를 수행합니다.
-                Log.d("test1234", "Error updating chat room document", exception)
-            }
-    }
-
-    fun leaveChatRoom() {
-        // 채팅방을 나갈 때 실시간 업데이트 리스너를 해제합니다.
-        chatRoomListener?.remove()
-    }
-
     companion object{
 
         // 채팅 방 시퀀스 번호를 Get 후 Int 형으로 반환
@@ -199,8 +170,6 @@ class ChatRoomDao {
                 querySnapshot.forEach { document ->
                     val chatRoom = document.toObject(ChatRoomData::class.java)
                     chatRoom?.let {
-                        val now = System.currentTimeMillis()
-                        it.lastReadTimestamp[loginUserId] = now
                         it.unreadMessageCount[loginUserId] = 0
                         document.reference.set(it).await()
                     }
@@ -220,7 +189,11 @@ class ChatRoomDao {
                     chatRoom?.let {
                         val now = System.currentTimeMillis()
                         for (participant in it.chatMemberList) {
-                            if (participant != senderId && (it.lastReadTimestamp[participant] ?: 0 < now)) {
+                            // 현재 입장 여부 확인
+//                            if (participant != senderId && it.chatMemberState[participant] == false) {
+//                                it.unreadMessageCount[participant] = it.unreadMessageCount.getOrDefault(participant, 0) + 1
+//                            }
+                            if (participant != senderId) {
                                 it.unreadMessageCount[participant] = it.unreadMessageCount.getOrDefault(participant, 0) + 1
                             }
                         }
@@ -229,6 +202,23 @@ class ChatRoomDao {
                 }
             }
             coroutine1.join()
+        }
+
+        // 멤버 입장 여부 업데이트
+        suspend fun updateMemberState(chatIdx: Int, memberId: String, isPresent: Boolean) {
+            val coroutine = CoroutineScope(Dispatchers.IO).launch {
+                val collectionReference = Firebase.firestore.collection("ChatRoomData")
+                val chatRoomRef = collectionReference.whereEqualTo("chatIdx", chatIdx)
+                val querySnapshot = chatRoomRef.get().await()
+                querySnapshot.forEach { document ->
+                    val chatRoom = document.toObject(ChatRoomData::class.java)
+                    chatRoom?.let {
+                        it.chatMemberState[memberId] = isPresent
+                        document.reference.set(it).await()
+                    }
+                }
+            }
+            coroutine.join()
         }
 
 

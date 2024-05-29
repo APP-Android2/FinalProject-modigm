@@ -37,18 +37,22 @@ class ChatOnetoOneFragment : Fragment() {
             gettingOneToOneChatRoomData()
         }
 
-        gettingOneToOneChatRoomData()
-
         // RecyclerView 초기화
         setupRecyclerView()
+
+        // 내가 속한 그룹 채팅 방(RecyclerView)
+        gettingOneToOneChatRoomData()
+        updateChatRoomData()
 
         return fragmentChatOnetoOneBinding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 프래그먼트가 다시 활성화될 때 데이터 갱신
-        gettingOneToOneChatRoomData()
+    // 채팅방 변경시 업데이트
+    private fun updateChatRoomData(){
+        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
+            gettingOneToOneChatRoomData()
+        }
     }
 
     // RecyclerView 초기화
