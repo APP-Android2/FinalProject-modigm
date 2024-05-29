@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.join.vm
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,10 +8,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.model.UserInfoData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.UserInfoRepository
 
 class JoinViewModel : ViewModel() {
@@ -33,9 +31,17 @@ class JoinViewModel : ViewModel() {
     private var _phoneVerification: MutableLiveData<Boolean> = MutableLiveData()
     val phoneVerification: LiveData<Boolean> = _phoneVerification
 
+    // 이미 전화번호가 등록되었는지 여부
+    var isPhoneAlreadyRegistered = MutableLiveData(false)
+
     fun setPhoneVerificated(verificated:Boolean){
         _phoneVerification.value = verificated
     }
+
+    // 이미 등록된 전화번호 계정의 이메일
+    var alreadyRegisteredUserEmail = ""
+    // 이미 등록된 전화번호 계정의 프로바이더
+    var alreadyRegisteredUserProvider = ""
 
     private var _phoneCredential: MutableLiveData<PhoneAuthCredential> = MutableLiveData()
     val phoneCredential: LiveData<PhoneAuthCredential> = _phoneCredential
@@ -92,18 +98,14 @@ class JoinViewModel : ViewModel() {
     }
 
     // UserInfoData 객체 생성
-    fun createUserInfoData(): UserInfoData {
+    fun createUserInfoData(): UserData {
+        val user = UserData()
+        user.userName = _userName.value.toString()
+        user.userPhone = _phoneNumber.value.toString()
+        user.userInterestList = _interests.value?: mutableListOf()
+        user.userNumber = _uid.value.toString()
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
-        return UserInfoData(
-            _userName.value.toString(),
-            _phoneNumber.value.toString(),
-            "",
-            _interests.value!!,
-            "",
-            mutableListOf(),
-            _uid.value.toString(),
-            true,
-        )
+        return user
     }
 
     // 회원가입 완료 전에 이메일(SNS) 계정과 전화번호 계정을 통합

@@ -2,14 +2,23 @@ package kr.co.lion.modigm.ui.join.vm
 
 import android.app.Activity
 import android.text.InputFilter
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.PhoneAuthCredential
-import kr.co.lion.modigm.ui.join.PhoneAuth
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.tasks.await
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 class JoinStep2ViewModel: ViewModel() {
+
+    // ================1. 유효성 검사 관련==============================================================
 
     // 이름
     val userName = MutableLiveData<String>()
@@ -25,15 +34,6 @@ class JoinStep2ViewModel: ViewModel() {
     val inputSmsCode = MutableLiveData<String>()
     // 인증번호입력 유효성 검사
     val inputSmsCodeValidation = MutableLiveData("")
-
-    // 전화번호 인증 credential
-    private val _phoneCredential = MutableLiveData<PhoneAuthCredential>()
-    val phoneCredential: LiveData<PhoneAuthCredential>
-        get() = _phoneCredential
-
-    // 전화번호 인증 과정을 따로 클래스로 정리했음
-    private val phoneAuth = PhoneAuth()
-
 
     // 유효성 검사
     fun validate(): Boolean {
@@ -81,27 +81,6 @@ class JoinStep2ViewModel: ViewModel() {
         return result
     }
 
-    // 전화 인증번호 발송
-    fun sendSmsCode(mainActivity: Activity){
-        phoneAuth.sendCode(mainActivity, userPhone.value.toString())
-    }
-
-    // 인증 번호 확인 후 전화번호 계정 생성
-    suspend fun createPhoneUser(): Boolean {
-        val result: Boolean
-        // 인증 번호 입력을 확인
-        val authResult = phoneAuth.createPhoneUser(inputSmsCode.value.toString())
-        // authResult에는 인증번호가 안맞을 경우 에러 값이 담김
-        if(authResult != ""){
-            phoneValidation.value = authResult
-            result = false
-        }else{
-            _phoneCredential.value = phoneAuth.credential.value
-            result = true
-        }
-        return result
-    }
-
     // 이름을 한글만 입력 가능하게
     fun filterOnlyKorean(): InputFilter {
         return InputFilter { source, start, end, dest, dstart, dend ->
@@ -110,6 +89,100 @@ class JoinStep2ViewModel: ViewModel() {
                 return@InputFilter ""
             }
             null
+        }
+    }
+
+    // ================2. 전화번호 인증 관련==============================================================
+
+    private val _auth = FirebaseAuth.getInstance()
+
+    // 인증문자 발송 여부
+    private var _isCodeSent = false
+    // 인증 문자 내용
+    private var _verificationId = ""
+    // 인증 여부
+    private var _phoneVerificated = false
+
+    // 나중에 이메일 계정과 합칠 때 필요한 credential
+    private val _credential = MutableLiveData<PhoneAuthCredential>()
+    val credential: LiveData<PhoneAuthCredential> = _credential
+
+    // 이미 등록된 전화번호 계정이 있는지 여부
+    var alreadyRegisteredUser = false
+
+    // 이미 등록된 전화번호 계정의 이메일
+    var alreadyRegisteredUserEmail = ""
+
+    // 이미 등록된 전화번호 계정의 프로바이더
+    var alreadyRegisteredUserProvider = ""
+
+    // 전화번호 인증
+    suspend fun createPhoneUser(): String {
+        // 오류 메시지
+        var error = ""
+        if(_isCodeSent){
+            try{
+                val credential = PhoneAuthProvider.getCredential(_verificationId, inputSmsCode.value!!)
+                _credential.value = credential
+
+                // 로그인 결과를 담아서 이미 등록된 유저인지 확인한다.
+                val signInResult = _auth.signInWithCredential(credential).await()
+                alreadyRegisteredUser = signInResult.additionalUserInfo?.isNewUser != true
+                if(alreadyRegisteredUser){
+                    error = "이미 해당 번호로 가입한 계정이 있습니다."
+
+                    // 프로바이더 확인
+                    for(provider in signInResult.user?.providerData!!){
+                        if(provider.providerId == "password"){
+                            alreadyRegisteredUserProvider = "email"
+                            alreadyRegisteredUserEmail = provider.email!!
+                        }
+                    }
+                }
+            }catch (e: FirebaseAuthException){
+                error = e.message.toString()
+                inputSmsCodeValidation.value = error
+            }
+        }
+        return error
+    }
+
+    // 전화 인증 발송
+    fun sendCode(activity: Activity){
+        // 전화번호 앞에 "+82 " 국가코드 붙여주기
+        val setNumber = userPhone.value?.replaceRange(0,1,"+82 ")
+
+        _auth.setLanguageCode("kr")
+
+        if(setNumber == null) return
+        val options = PhoneAuthOptions.newBuilder(_auth)
+            .setPhoneNumber(setNumber) // Phone number to verify
+            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+            .setActivity(activity) // Activity (for callback binding)
+            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    // 전화 인증 콜백
+    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+            // 전화번호 인증 성공
+            _phoneVerificated = true
+        }
+
+        override fun onVerificationFailed(e: FirebaseException) {
+            // 전화번호 인증 실패
+            _phoneVerificated = false
+        }
+
+        override fun onCodeSent(
+            verificationId: String,
+            token: PhoneAuthProvider.ForceResendingToken
+        ) {
+            // verificationId는 문자로 받는 코드가 아니었다
+            _verificationId = verificationId
+            _isCodeSent = true
         }
     }
 }

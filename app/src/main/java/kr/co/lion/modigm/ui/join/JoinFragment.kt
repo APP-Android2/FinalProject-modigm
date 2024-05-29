@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.view.translation.ViewTranslationResponse
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.FragmentManager
@@ -178,7 +177,7 @@ class JoinFragment : Fragment() {
             step1.joinStep1ViewModel.userPassword.value.toString()
         )
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch {
             // 처음 화면인 경우
             if(viewModel.verifiedEmail.isEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
@@ -211,27 +210,43 @@ class JoinFragment : Fragment() {
             step2.joinStep2ViewModel.userPhone.value.toString()
         )
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            val isVerificated = step2.createPhoneUser()
-            if(isVerificated){
-                Log.d("test1234","${step2.joinStep2ViewModel.phoneCredential.value}")
-                step2.joinStep2ViewModel.phoneCredential.value?.let { viewModel.setPhoneCredential(it) }
-                step2.joinStep2ViewModel.phoneValidation
+        lifecycleScope.launch {
+            if(viewModel.phoneVerification.value==true) return@launch
+            val result = step2.createPhoneUser()
+            if(result.isEmpty()){
+                step2.joinStep2ViewModel.credential.value?.let { viewModel.setPhoneCredential(it) }
+                viewModel.setPhoneVerificated(true)
+            }else{
+                viewModel.setPhoneVerificated(false)
             }
-            // 중복 계정 여부 확인
-            viewModel.setPhoneVerificated(isVerificated)
+            if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
+                viewModel.alreadyRegisteredUserEmail = step2.joinStep2ViewModel.alreadyRegisteredUserEmail
+                viewModel.alreadyRegisteredUserProvider = step2.joinStep2ViewModel.alreadyRegisteredUserProvider
+                viewModel.isPhoneAlreadyRegistered.value = true
+            }
         }
     }
 
     // 번호 인증 옵저버
     private fun observePhoneAuth(){
+        val step2 = viewPagerAdapter.createFragment(1) as JoinStep2Fragment
+
+        // 인증이 확인 되었을 때
         viewModel.phoneVerification.observe(viewLifecycleOwner){
             if(it){
                 // 인증이 되었으면 다음으로 이동
                 binding.viewPagerJoin.currentItem += 1
-            }else{
+            }
+        }
+
+        // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때
+        viewModel.isPhoneAlreadyRegistered.observe(viewLifecycleOwner){
+            if(it){
                 // 중복인 경우 중복 알림 프래그먼트로 이동
-                // (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, null)
+                val bundle = Bundle()
+                bundle.putString("email", viewModel.alreadyRegisteredUserEmail)
+                bundle.putString("provider", viewModel.alreadyRegisteredUserProvider)
+                (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, bundle)
             }
         }
     }
@@ -248,7 +263,7 @@ class JoinFragment : Fragment() {
             )
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch {
             when(joinType){
                 "email" -> viewModel.completeJoinEmailUser()
                 "phone" -> viewModel.completeJoinSnsUser()
