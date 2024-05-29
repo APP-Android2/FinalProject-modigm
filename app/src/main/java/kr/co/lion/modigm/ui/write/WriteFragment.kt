@@ -9,9 +9,13 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.util.FragmentName
 
 
 class WriteFragment : Fragment() {
@@ -26,8 +30,9 @@ class WriteFragment : Fragment() {
         fragmentWriteBinding = FragmentWriteBinding.inflate(inflater)
         mainActivity = activity as MainActivity
 
-        viewPagerActivation()
+        settingView()
         settingEvent()
+        viewPagerActivation()
 
         return fragmentWriteBinding.root
     }
@@ -39,7 +44,12 @@ class WriteFragment : Fragment() {
             toolbarWriteFragment.apply {
                 setNavigationOnClickListener {
                     // 뒤로가기
-//                    mainActivity.removeFragment(MainFragmentName.WRITE)
+                    parentFragmentManager
+                        .beginTransaction()
+                        .remove(this@WriteFragment)
+                        .commit()
+
+                    parentFragmentManager.popBackStack()
                 }
             }
             buttonWriteNext.setOnClickListener {
@@ -50,7 +60,7 @@ class WriteFragment : Fragment() {
                     if (currentItem < viewPagerWriteFragment.adapter!!.itemCount - 1){
                         // 최종 탭이 아니라면~
                         viewPagerWriteFragment.currentItem = currentItem + 1
-                        this.buttonWriteNext.text = "다음"
+                        buttonWriteNext.text = "다음"
                         Log.d("TedMoon", "다음 페이지${currentItem}")
                         Log.d("TedMoon", "최종 페이지${viewPagerWriteFragment.adapter!!.itemCount}")
                     }
@@ -59,12 +69,65 @@ class WriteFragment : Fragment() {
                         Log.d("TedMoon", "마지막 페이지${currentItem}")
                         buttonWriteNext.text = "완료"
                     }
+
+
+                    tabLayoutWriteFragment.addOnTabSelectedListener(object : OnTabSelectedListener{
+                        override fun onTabSelected(p0: TabLayout.Tab?) {
+                            // 탭이 선택되었을 때
+
+                        }
+
+                        override fun onTabUnselected(p0: TabLayout.Tab?) {
+                            // 탭이 선택해제 되었을 때
+
+                        }
+
+                        override fun onTabReselected(p0: TabLayout.Tab?) {
+                            // 탭이 다시 선택되었을 때
+
+                        }
+
+                    })
                 }
             }
-
-
         }
     }
+    fun settingView(){
+        fragmentWriteBinding.apply {
+
+            // progress Bar 게이지 변경
+            viewPagerWriteFragment.registerOnPageChangeCallback(object: OnPageChangeCallback(){
+
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+
+                    progressBarWriteFragment.apply {
+                        when(position){
+                            0 -> {
+                                Log.d("TedMoon", "progress 20")
+                                setProgress(20, true)
+                            }
+                            1 -> {
+                                Log.d("TedMoon", "progress 40")
+                                setProgress(40, true)
+                            }
+                            2 -> {
+                                Log.d("TedMoon", "progress 60")
+                                setProgress(60, true)
+                            }
+                            3 -> {
+                                setProgress(80, true)
+                            }
+                            4 -> {
+                                setProgress(100, true)
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+
 
     // ViewPager 설정0
      fun viewPagerActivation(){
@@ -73,7 +136,7 @@ class WriteFragment : Fragment() {
             // ViewPager 스와이프(제거)
             this.viewPagerWriteFragment.isUserInputEnabled = false
 
-            //
+
 
             // 1. 페이지 데이터를 로드
             val fragmentList = listOf(
@@ -92,6 +155,7 @@ class WriteFragment : Fragment() {
 
             // 4. Tab Layout과 ViewPager 연결
             TabLayoutMediator(tabLayoutWriteFragment, viewPagerWriteFragment){tab, position ->
+                // tab 제목 설정
                 tab.text = when(position){
                     0 -> "분야"
                     1 -> "기간"
