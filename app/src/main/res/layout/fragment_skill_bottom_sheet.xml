@@ -46,7 +46,7 @@
 
             <com.google.android.material.chip.ChipGroup
                 android:layout_marginTop="8dp"
-                android:id="@+id/chip_group"
+                android:id="@+id/chipGroupSkill"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:singleSelection="true"
@@ -62,7 +62,7 @@
 
             <com.google.android.material.chip.ChipGroup
                 android:layout_marginTop="4dp"
-                android:id="@+id/sub_category_chip_group"
+                android:id="@+id/subCategoryChipGroupSkill"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:chipSpacing="8dp"/>
