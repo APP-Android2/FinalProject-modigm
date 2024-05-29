@@ -42,7 +42,7 @@ class DetailEditFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         settingToolbar()
-//        setupBottomSheet()
+        setupBottomSheet()
         setupButton()
         setupChipGroups()
         preselectChips()
@@ -174,14 +174,14 @@ class DetailEditFragment : Fragment() {
         chip.setTextColor(textColor)
     }
 
-//    fun setupBottomSheet() {
-//        fragmentDetailEditBinding.textInputLayoutDetailEditSkill.editText?.setOnClickListener {
-//            // bottom sheet
-//            val bottomSheet = DetailSkillBottomSheetFragment()
-//            bottomSheet.show(childFragmentManager, bottomSheet.tag)
-//        }
-//
-//    }
+    fun setupBottomSheet() {
+        fragmentDetailEditBinding.textInputLayoutDetailEditSkill.editText?.setOnClickListener {
+            // bottom sheet
+            val bottomSheet = SkillBottomSheetFragment()
+            bottomSheet.show(childFragmentManager, bottomSheet.tag)
+        }
+
+    }
 
     fun setupButton() {
         fragmentDetailEditBinding.buttonDetailEditDone.setOnClickListener {
