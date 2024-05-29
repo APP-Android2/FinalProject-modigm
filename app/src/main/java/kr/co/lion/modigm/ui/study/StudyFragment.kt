@@ -9,6 +9,7 @@ import com.google.android.material.tabs.TabLayout
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
 import kr.co.lion.modigm.ui.write.WriteFragment
+import kr.co.lion.modigm.util.FragmentName
 
 class StudyFragment : Fragment() {
 
@@ -32,6 +33,7 @@ class StudyFragment : Fragment() {
         if (savedInstanceState == null) {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerStudy, StudyAllFragment())
+                .addToBackStack(FragmentName.STUDY_ALL.str)
                 .commit()
         }
 
@@ -58,6 +60,7 @@ class StudyFragment : Fragment() {
                     }
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragmentContainerStudy, fragment)
+                        .addToBackStack(FragmentName.STUDY_MY.str) // 백스택 추적 시 사용할 이름.
                         .commit()
                 }
 
@@ -74,7 +77,10 @@ class StudyFragment : Fragment() {
             // FAB 설정
             with(fabStudyWrite){
                 setOnClickListener{
-                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.containerMain, WriteFragment()).commit()
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, WriteFragment())
+                        .addToBackStack(null)
+                        .commit()
                 }
             }
         }

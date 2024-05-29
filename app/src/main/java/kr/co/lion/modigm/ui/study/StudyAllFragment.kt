@@ -6,12 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAllAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 
 class StudyAllFragment : Fragment() {
@@ -23,7 +26,7 @@ class StudyAllFragment : Fragment() {
     private val viewModel: StudyViewModel by viewModels()
 
     // 어답터
-    val studyAllAdapter: StudyAllAdapter = StudyAllAdapter(
+    private val studyAllAdapter: StudyAllAdapter = StudyAllAdapter(
         // 최초 리스트
         emptyList(),
 
@@ -58,6 +61,7 @@ class StudyAllFragment : Fragment() {
 
         // 초기 뷰 세팅
         initView()
+        observeData()
     }
 
     // 초기 뷰 세팅
@@ -71,7 +75,10 @@ class StudyAllFragment : Fragment() {
                 // 클릭 시
                 setOnClickListener {
                     // 필터 및 정렬 화면으로 이동
-                    requireActivity().supportFragmentManager.beginTransaction().replace(R.id.containerMain, FilterSortFragment()).commit()
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, FilterSortFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
                 }
             }
 
@@ -87,6 +94,14 @@ class StudyAllFragment : Fragment() {
                 layoutManager = LinearLayoutManager(requireActivity())
             }
 
+        }
+    }
+    fun observeData() {
+        // 데이터 변경 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.studyStateTrueDataList.observe(viewLifecycleOwner) { studyList ->
+                studyAllAdapter.updateData(studyList)
+            }
         }
     }
 }
