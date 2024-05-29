@@ -1,22 +1,18 @@
 package kr.co.lion.modigm.ui.write
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.chip.Chip
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteProceedBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.write.more.BottomSheetWriteProceedFragment
 
 class WriteProceedFragment : Fragment() {
 
