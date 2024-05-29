@@ -20,6 +20,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
 import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.dao.ChatMessagesDao
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
@@ -75,7 +76,7 @@ class ChatRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 입장시 -> 메시지 읽음 처리
-        readMessage()
+        // readMessage()
 
         // 채팅 방 - (툴바) 세팅
         settingToolbar()
@@ -90,10 +91,12 @@ class ChatRoomFragment : Fragment() {
         getAndUpdateMessages()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("test1234", "ChatRoomFragment - onDestroy 실행")
-        chatViewModel.triggerChatRoomDataUpdate()
+
+    // Pause 상태 - 채팅방 나갈때도 포함되며 Destory에 안쓴 이유는 (onDestory 보다 먼저 실행되서...) 어차피 readMessage 처리 해야해서
+    override fun onPause() {
+        super.onPause()
+        Log.d("test1234", "ChatRoomFragment - onPause 실행")
+        readMessage()
     }
 
     // 툴바 세팅

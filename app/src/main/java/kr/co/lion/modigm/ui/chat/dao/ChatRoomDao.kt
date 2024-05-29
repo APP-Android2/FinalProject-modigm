@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.chat.dao
 
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineScope
@@ -54,56 +55,28 @@ class ChatRoomDao {
             coroutine1.join()
         }
 
-        // 단체 채팅방 데이터 가져옴 (Read)
-        suspend fun getGroupChatRooms(userId: String): MutableList<ChatRoomData> {
-            var chatRooms = mutableListOf<ChatRoomData>()
-
-            val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
-                // 내 아이디의 chatIdx 와 groupChat이 true인 경우 필터링
-                // chatIdx는 UserData가 있다면 그 Data에서 아이디 별 소속해있는 채팅방 int형 list를 가져와야함.
-                val querySnapshot = collectionReference
-                    .whereArrayContains("chatMemberList", userId)
-                    .whereEqualTo("groupChat", true)
-                    .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
-                    .get()
-                    .await()
-
-                for (document in querySnapshot.documents) {
-                    val chatRoom = document.toObject(ChatRoomData::class.java)
-                    chatRoom?.let {
-                        chatRooms.add(it)
+        // 리스너를 추가하고 데이터 변경 시에 실행하는 메서드로 변경
+        // 채팅방 데이터 가져옴 (Read) groupChat = true -> 그룹 / false -> 1:1
+        fun updateChatRoomsListener(userId: String, groupChat: Boolean , onUpdate: (List<ChatRoomData>) -> Unit) {
+            collectionReference
+                .whereArrayContains("chatMemberList", userId)
+                .whereEqualTo("groupChat", groupChat)
+                .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        // 에러 처리
+                        return@addSnapshotListener
                     }
-                }
-            }
-            coroutine1.join()
-
-            return chatRooms
-        }
-
-        // 1:1 채팅방 데이터 가져옴 (Read)
-        suspend fun getOneToOneChatRooms(userId: String): MutableList<ChatRoomData> {
-            var chatRooms = mutableListOf<ChatRoomData>()
-
-            val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
-                // 내 아이디의 chatIdx 와 groupChat이 true인 경우 필터링
-                // chatIdx는 UserData가 있다면 그 Data에서 아이디 별 소속해있는 채팅방 int형 list를 가져와야함.
-                val querySnapshot = collectionReference
-                    .whereArrayContains("chatMemberList", userId)
-                    .whereEqualTo("groupChat", false)
-                    .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
-                    .get()
-                    .await()
-
-                for (document in querySnapshot.documents) {
-                    val chatRoom = document.toObject(ChatRoomData::class.java)
-                    chatRoom?.let {
-                        chatRooms.add(it)
+                    val chatRooms = mutableListOf<ChatRoomData>()
+                    for (document in value!!) {
+                        val chatRoom = document.toObject(ChatRoomData::class.java)
+                        chatRoom?.let {
+                            chatRooms.add(it)
+                        }
                     }
+                    // Update 된 채팅 방을 콜백을 통해 전달
+                    onUpdate(chatRooms)
                 }
-            }
-            coroutine1.join()
-
-            return chatRooms
         }
 
         // 해당 채팅방 데이터 [마지막 메세지, 마지막 메세지 시간] 변경함 (Update)
@@ -168,7 +141,7 @@ class ChatRoomDao {
             coroutine1.join()
         }
 
-        // 메세지 전송시 해당 채팅 방 사용자에 안읽은 메세지 카운트 증가 
+        // 메세지 전송시 해당 채팅 방 사용자에 안읽은 메세지 카운트 증가
         suspend fun increaseUnreadMessageCount(chatIdx: Int, senderId: String) {
             val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
                 val chatRoomRef = collectionReference.whereEqualTo("chatIdx", chatIdx)
@@ -181,6 +154,7 @@ class ChatRoomDao {
 //                            if (participant != senderId && it.chatMemberState[participant] == false) {
 //                                it.unreadMessageCount[participant] = it.unreadMessageCount.getOrDefault(participant, 0) + 1
 //                            }
+                            // 로그인 사용자만 빼고 Count 증가
                             if (participant != senderId) {
                                 it.unreadMessageCount[participant] = it.unreadMessageCount.getOrDefault(participant, 0) + 1
                             }
@@ -191,23 +165,6 @@ class ChatRoomDao {
             }
             coroutine1.join()
         }
-
-        // 멤버 입장 여부 업데이트
-        suspend fun updateMemberState(chatIdx: Int, memberId: String, isPresent: Boolean) {
-            val coroutine = CoroutineScope(Dispatchers.IO).launch {
-                val chatRoomRef = collectionReference.whereEqualTo("chatIdx", chatIdx)
-                val querySnapshot = chatRoomRef.get().await()
-                querySnapshot.forEach { document ->
-                    val chatRoom = document.toObject(ChatRoomData::class.java)
-                    chatRoom?.let {
-                        it.chatMemberState[memberId] = isPresent
-                        document.reference.set(it).await()
-                    }
-                }
-            }
-            coroutine.join()
-        }
-
 
     }
 }

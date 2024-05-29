@@ -12,12 +12,13 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.util.FragmentName
 
 class ChatRoomAdapter(
-    private val roomList: List<ChatRoomData>,
+    private val roomList: MutableList<ChatRoomData>,
     private val onItemClick: (ChatRoomData) -> Unit,
     private val mainActivity: MainActivity,
     private val loginUserId: String // 현재 사용자의 ID를 추가
