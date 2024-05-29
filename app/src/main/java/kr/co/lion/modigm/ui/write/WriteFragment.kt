@@ -52,42 +52,15 @@ class WriteFragment : Fragment() {
                     parentFragmentManager.popBackStack()
                 }
             }
+            // 버튼 클릭 시 다음 탭으로 이동
             buttonWriteNext.setOnClickListener {
-                // 다음 탭으로 이동
                 fragmentWriteBinding.apply {
                     val currentItem = viewPagerWriteFragment.currentItem
 
                     if (currentItem < viewPagerWriteFragment.adapter!!.itemCount - 1){
                         // 최종 탭이 아니라면~
                         viewPagerWriteFragment.currentItem = currentItem + 1
-                        buttonWriteNext.text = "다음"
-                        Log.d("TedMoon", "다음 페이지${currentItem}")
-                        Log.d("TedMoon", "최종 페이지${viewPagerWriteFragment.adapter!!.itemCount}")
                     }
-                    if (currentItem == viewPagerWriteFragment.adapter!!.itemCount-2) {
-                        // 최종 탭이라면~
-                        Log.d("TedMoon", "마지막 페이지${currentItem}")
-                        buttonWriteNext.text = "완료"
-                    }
-
-
-                    tabLayoutWriteFragment.addOnTabSelectedListener(object : OnTabSelectedListener{
-                        override fun onTabSelected(p0: TabLayout.Tab?) {
-                            // 탭이 선택되었을 때
-
-                        }
-
-                        override fun onTabUnselected(p0: TabLayout.Tab?) {
-                            // 탭이 선택해제 되었을 때
-
-                        }
-
-                        override fun onTabReselected(p0: TabLayout.Tab?) {
-                            // 탭이 다시 선택되었을 때
-
-                        }
-
-                    })
                 }
             }
         }
@@ -95,31 +68,36 @@ class WriteFragment : Fragment() {
     fun settingView(){
         fragmentWriteBinding.apply {
 
-            // progress Bar 게이지 변경
+            // 탭 재선택 여부 판단
+            var isTabSelected = false
+
             viewPagerWriteFragment.registerOnPageChangeCallback(object: OnPageChangeCallback(){
 
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
 
+                    // progress Bar 게이지 변경
                     progressBarWriteFragment.apply {
                         when(position){
                             0 -> {
-                                Log.d("TedMoon", "progress 20")
                                 setProgress(20, true)
+                                buttonWriteNext.text = "다음"
                             }
                             1 -> {
-                                Log.d("TedMoon", "progress 40")
                                 setProgress(40, true)
+                                buttonWriteNext.text = "다음"
                             }
                             2 -> {
-                                Log.d("TedMoon", "progress 60")
                                 setProgress(60, true)
+                                buttonWriteNext.text = "다음"
                             }
                             3 -> {
                                 setProgress(80, true)
+                                buttonWriteNext.text = "다음"
                             }
                             4 -> {
                                 setProgress(100, true)
+                                buttonWriteNext.text = "완료"
                             }
                         }
                     }
