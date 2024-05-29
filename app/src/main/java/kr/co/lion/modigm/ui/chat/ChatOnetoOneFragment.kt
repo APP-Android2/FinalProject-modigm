@@ -26,27 +26,39 @@ class ChatOnetoOneFragment : Fragment() {
     // 내가 속한 1:1 채팅 방들을 담고 있을 리스트
     var chatRoomDataList = mutableListOf<ChatRoomData>()
 
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentChatOnetoOneBinding = FragmentChatOnetoOneBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
 
-        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
-        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
-            gettingOneToOneChatRoomData()
-        }
+        return fragmentChatOnetoOneBinding.root
+    }
 
-        gettingOneToOneChatRoomData()
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // RecyclerView 초기화
         setupRecyclerView()
 
-        return fragmentChatOnetoOneBinding.root
+        // 실시간 채팅 방 데이터 업데이트
+        getAndUpdateLiveChatRooms()
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 프래그먼트가 다시 활성화될 때 데이터 갱신
-        gettingOneToOneChatRoomData()
+    // 실시간 채팅 방 데이터 업데이트
+    private fun getAndUpdateLiveChatRooms(){
+        // 내가 속한 그룹 채팅 방(RecyclerView)를 실시간으로 업데이트
+        ChatRoomDao.updateChatRoomsListener(loginUserId, groupChat = false) { updatedChatRooms ->
+            chatRoomDataList.clear()
+            chatRoomDataList.addAll(updatedChatRooms)
+
+            // RecyclerView 갱신
+            activity?.runOnUiThread {
+                fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne.adapter?.notifyDataSetChanged()
+            }
+            Log.d("test1234", "실시간 업데이트 실행 - 1:1")
+        }
     }
 
     // RecyclerView 초기화
@@ -58,24 +70,7 @@ class ChatOnetoOneFragment : Fragment() {
             adapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
                 // 대화방 선택 시 동작
                 Log.d("test1234", "Selected Room: ${roomItem.chatTitle}")
-            }, mainActivity)
-        }
-    }
-
-    // 내가 속한 모든 그룹 채팅 방을 가져와 화면의 RecyclerView를 갱신한다.
-    fun gettingOneToOneChatRoomData() {
-        CoroutineScope(Dispatchers.Main).launch {
-            // 대화방 목록 데이터 가져오기
-            val newChatRoomDataList = ChatRoomDao.getOneToOneChatRooms("currentUser")
-
-            // 새로운 목록으로 업데이트
-            chatRoomDataList.clear()
-            chatRoomDataList.addAll(newChatRoomDataList)
-
-            // UI 스레드에서 RecyclerView를 갱신
-            activity?.runOnUiThread {
-                fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne.adapter?.notifyDataSetChanged()
-            }
+            }, mainActivity, loginUserId)
         }
     }
 }

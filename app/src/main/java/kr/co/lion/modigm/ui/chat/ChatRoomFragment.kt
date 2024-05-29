@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.chat
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -11,12 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,8 +38,12 @@ class ChatRoomFragment : Fragment() {
 
     // 보낼 메세지를 담고 있을 리스트
     private val messages = mutableListOf<ChatMessagesData>()
-    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정하세요
-    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정하세요
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+
+    // 테스트 아이디 바꾸기
+//    private val loginUserId = "iuUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+//    private val loginUserName = "아이유" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
     private lateinit var chatViewModel: ChatViewModel
 
@@ -68,6 +68,16 @@ class ChatRoomFragment : Fragment() {
             isGroupChat = it.getBoolean("groupChat")
         }
 
+        return fragmentChatRoomBinding.root
+    }
+
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 입장시 -> 메시지 읽음 처리
+        // readMessage()
+
         // 채팅 방 - (툴바) 세팅
         settingToolbar()
 
@@ -77,16 +87,16 @@ class ChatRoomFragment : Fragment() {
         // RecyclerView 초기화
         setupRecyclerView()
 
-        // 테스트 메시지 추가
-        addTestMessages()
-
-        return fragmentChatRoomBinding.root
+        // 메시지 가져오기 및 업데이트
+        getAndUpdateMessages()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("test1234", "ChatRoomFragment - onDestroy")
-        chatViewModel.triggerChatRoomDataUpdate()
+
+    // Pause 상태 - 채팅방 나갈때도 포함되며 Destory에 안쓴 이유는 (onDestory 보다 먼저 실행되서...) 어차피 readMessage 처리 해야해서
+    override fun onPause() {
+        super.onPause()
+        Log.d("test1234", "ChatRoomFragment - onPause 실행")
+        readMessage()
     }
 
     // 툴바 세팅
@@ -191,13 +201,15 @@ class ChatRoomFragment : Fragment() {
 
                     // 전송 후 키보드 숨기기
                     activity?.hideSoftInput()
+
+                    ChatRoomDao.increaseUnreadMessageCount(chatIdx, chatSenderId)
                 }
             }
         }
     }
 
-    // 테스트 메시지 추가 - (DB 연동하면 나중에 삭제해야함)
-    private fun addTestMessages() {
+    // 해당 채팅 방의 메시지 추가 및 가져오기 - (DB 연동하면 나중에 삭제해야함)
+    private fun getAndUpdateMessages() {
         /*
         CoroutineScope(Dispatchers.Main).launch {
             val messagesList = ChatMessagesDao.getChatMessages(chatIdx)
@@ -269,6 +281,13 @@ class ChatRoomFragment : Fragment() {
     fun outChatRoom() {
         CoroutineScope(Dispatchers.Main).launch {
             ChatRoomDao.removeUserFromChatMemberList(chatIdx, loginUserId)
+        }
+    }
+
+    // 메세지 읽음 처리
+    fun readMessage() {
+        CoroutineScope(Dispatchers.Main).launch {
+            ChatRoomDao.chatRoomMessageAsRead(chatIdx, loginUserId)
         }
     }
 }
