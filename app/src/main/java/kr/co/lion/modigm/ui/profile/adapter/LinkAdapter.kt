@@ -13,7 +13,7 @@ import java.util.Locale
 
 // 배송지 화면의 RecyclerView의 어뎁터
 class LinkAdapter(
-    private var LinkList: List<String>, // 바꿔야함
+    private var linkList: List<String>,
     private val rowClickListener: (String) -> Unit,
 ) : RecyclerView.Adapter<LinkViewHolder>() {
 
@@ -25,16 +25,16 @@ class LinkAdapter(
     }
 
     override fun getItemCount(): Int {
-        return 5 //deliveryList.size
+        return linkList.size
     }
 
     override fun onBindViewHolder(holder: LinkViewHolder, position: Int) {
-        holder.bind("data", rowClickListener)
+        holder.bind(linkList[position], rowClickListener)
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<String>) { //바꿔야함
-        LinkList = list
+    fun updateData(list: List<String>) {
+        linkList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())
     }

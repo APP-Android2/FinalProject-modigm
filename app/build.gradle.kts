@@ -69,6 +69,9 @@ dependencies {
     // Firebase Auth 등록
     implementation("com.google.firebase:firebase-auth-ktx")
 
+    // Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
     // 원형 이미지 라이브러리
     implementation("de.hdodenhof:circleimageview:3.1.0")
 }
