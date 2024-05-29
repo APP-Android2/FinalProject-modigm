@@ -1,5 +1,7 @@
 package kr.co.lion.modigm.model
 
+import androidx.databinding.adapters.AutoCompleteTextViewBindingAdapter.IsValid
+
 data class StudyData(
     val studyIdx: Int = -1,
     val studyTitle: String = "",
@@ -14,5 +16,6 @@ data class StudyData(
     val studyPic: String = "",
     val studyUserCnt: Int = 0,
     val studyUidList: List<String> = listOf(),
-    val chatIdx: Int = -1
+    val chatIdx: Int = -1,
+    val studyValid: Boolean = true,
 )
