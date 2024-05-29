@@ -29,6 +29,8 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
 
     private lateinit var selectedChips: MutableSet<String>  // 선택된 카테고리 관리
 
+    private var skillSelectedListener: OnSkillSelectedListener? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -82,11 +84,6 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    //    fun getScreenHeight(): Int {
-//        val displayMetrics = DisplayMetrics()
-//        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-//        return displayMetrics.heightPixels
-//    }
     fun getScreenHeight(context: Context): Int {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -108,6 +105,10 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
             // 화면의 전체 높이를 반환
             displayMetrics.heightPixels
         }
+    }
+
+    fun setOnSkillSelectedListener(listener: OnSkillSelectedListener) {
+        skillSelectedListener = listener
     }
 
 
@@ -249,6 +250,11 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
     // 바텀시트 하단 완료 버튼
     fun setupCompleteButton() {
         binding.buttonComplete.setOnClickListener {
+
+            val selectedSkills = selectedChips.toList()
+            // 인터페이스를 사용하여 부모 프래그먼트에 데이터 전달
+            skillSelectedListener?.onSkillSelected(selectedSkills)
+
             dismiss()
         }
     }
