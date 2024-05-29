@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,12 +13,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
+import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class JoinFragment : Fragment() {
@@ -82,8 +84,10 @@ class JoinFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-        if(!viewModel.joinCompleted){
-            viewModel.deleteCurrentUser()
+        if(!viewModel.joinCompleted.value!!){
+            CoroutineScope(Dispatchers.IO).launch {
+                viewModel.deleteCurrentUser()
+            }
         }
     }
 
@@ -103,7 +107,7 @@ class JoinFragment : Fragment() {
     }
 
     // 회원가입 취소 다이얼로그
-    fun showCancelJoinDialog() {
+    private fun showCancelJoinDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog, null)
         val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
             .setTitle("회원가입 취소")
@@ -268,8 +272,14 @@ class JoinFragment : Fragment() {
                 "email" -> viewModel.completeJoinEmailUser()
                 "phone" -> viewModel.completeJoinSnsUser()
             }
-            if(viewModel.joinCompleted){
-                (requireActivity() as MainActivity).replaceFragment(FragmentName.STUDY, false, true, null)
+        }
+
+        // 회원가입 완료 시 다음 화면으로 이동
+        viewModel.joinCompleted.observe(viewLifecycleOwner){
+            if(it){
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, StudyFragment())
+                    .commit()
             }
         }
     }
