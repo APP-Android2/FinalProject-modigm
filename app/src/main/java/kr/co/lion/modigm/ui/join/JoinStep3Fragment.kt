@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import com.google.android.material.chip.Chip
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep3Binding
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
+import kr.co.lion.modigm.util.InterestList
 
 class JoinStep3Fragment : Fragment() {
 
@@ -34,7 +34,7 @@ class JoinStep3Fragment : Fragment() {
             for(chipName in it){
                 binding.chipGroupJoinInterest.addView(
                     Chip(requireContext()).apply {
-                        text = chipName
+                        text = chipName.str
                         isCheckable = true
                         textSize = 18f
                         // setEnsureMinTouchTargetSize(false)
@@ -46,12 +46,12 @@ class JoinStep3Fragment : Fragment() {
                             if(isChecked){
                                 setTextColor(resources.getColor(R.color.white, null))
                                 setChipBackgroundColorResource(R.color.pointColor)
-                                Log.d("test1234",it.text.toString())
-                                joinStep3ViewModel.addInterest(it.text.toString())
+                                joinStep3ViewModel.addInterest(InterestList.valueOf(chipName.toString()).number)
+
                             }else{
                                 setTextColor(resources.getColor(R.color.textGray, null))
                                 setChipBackgroundColorResource(R.color.white)
-                                joinStep3ViewModel.removeInterest(it.text.toString())
+                                joinStep3ViewModel.removeInterest(InterestList.valueOf(chipName.toString()).number)
                             }
                         }
                     }

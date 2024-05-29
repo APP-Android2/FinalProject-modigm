@@ -67,14 +67,19 @@ class JoinStep2Fragment : Fragment() {
         binding.buttonJoinPhoneAuth.setOnClickListener {
             // 전화번호 유효성 검사 먼저 한 후
             if(!joinStep2ViewModel.checkPhoneValidation()) return@setOnClickListener
+
+            // 응답한 전화번호로 인증번호 SMS 보내기
+            joinStep2ViewModel.sendCode(requireActivity())
+
             // 인증번호 입력 창 보여주기
             binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
-            // 번호 인증 api 호출
-
         }
     }
 
     // 입력한 내용 유효성 검사
     fun validate(): Boolean = joinStep2ViewModel.validate()
+
+    // 입력한 인증번호 확인
+    suspend fun createPhoneUser(): String = joinStep2ViewModel.createPhoneUser()
 
 }
