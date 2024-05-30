@@ -51,7 +51,7 @@ class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
             ContextCompat.getDrawable(requireContext(), R.drawable.style_bottom_sheet_background)
 
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyA1g5zt54augc0j2X_ZIJg4ZwAdwPsgzfE")
+            Places.initialize(requireContext(), "AIzaSyCvwwUD0SngnM5gAhvdStSatfMHf03WvsI")
         }
         placesClient = Places.createClient(requireContext())
 
