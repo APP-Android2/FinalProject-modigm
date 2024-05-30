@@ -213,6 +213,12 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
             bottomSheet.show(childFragmentManager, bottomSheet.tag)
         }
 
+        // 프래그 먼트간 연결 설정
+        fragmentDetailEditBinding.textInputLayoutDetailEditPlace.editText?.setOnClickListener {
+            val bottomSheet = PlaceBottomSheetFragment()
+            bottomSheet.show(childFragmentManager,bottomSheet.tag)
+        }
+
     }
 
     fun setupButton() {
