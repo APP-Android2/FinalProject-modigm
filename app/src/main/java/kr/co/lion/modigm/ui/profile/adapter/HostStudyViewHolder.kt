@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowHostStudyBinding
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.StudyData
-import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.StudyCategory
 import kr.co.lion.modigm.util.StudyPlace
 
@@ -26,6 +26,13 @@ class HostStudyViewHolder(
                 RemoteStudyDataSource.loadStudyThumbnail(context, data.studyPic, imageRowHostStudy)
                 // 스터디 제목
                 textViewRowHostStudyTitle.text = data.studyTitle
+                // 스터디 분류 아이콘
+                when (StudyCategory.fromNum(data.studyType)) {
+                    StudyCategory.STUDY -> imageCategory.setImageResource(R.drawable.icon_closed_book_24px)
+                    StudyCategory.PROJECT -> imageCategory.setImageResource(R.drawable.icon_code_box_24px)
+                    StudyCategory.COMPETITION -> imageCategory.setImageResource(R.drawable.icon_trophy_24px)
+                    null -> imageCategory.setImageResource(R.drawable.icon_closed_book_24px)
+                }
                 // 스터디 분류
                 textViewRowHostStudyCategory.text = StudyCategory.fromNum(data.studyType)!!.str
                 // 스터디 장소

@@ -39,7 +39,7 @@
         app:layout_constraintTop_toTopOf="@+id/materialCardView" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/imageCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -51,13 +51,13 @@
         android:id="@+id/textViewRowHostStudyCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="2dp"
         android:text="TextView"
         android:textColor="@color/textGray"
         android:textSize="14dp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView2"
-        app:layout_constraintStart_toEndOf="@+id/imageView2"
-        app:layout_constraintTop_toTopOf="@+id/imageView2" />
+        app:layout_constraintBottom_toBottomOf="@+id/imageCategory"
+        app:layout_constraintStart_toEndOf="@+id/imageCategory"
+        app:layout_constraintTop_toTopOf="@+id/imageCategory" />
 
     <ImageView
         android:id="@+id/imageView3"
@@ -73,7 +73,7 @@
         android:id="@+id/textViewRowHostStudyLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="2dp"
         android:text="TextView"
         android:textColor="@color/textGray"
         android:textSize="14dp"
@@ -95,7 +95,7 @@
         android:id="@+id/textViewRowHostStudyMember"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="2dp"
         android:text="TextView"
         android:textColor="@color/textGray"
         android:textSize="14dp"
