@@ -18,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
-import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.study.StudyFragment
@@ -233,8 +232,6 @@ class JoinFragment : Fragment() {
 
     // 번호 인증 옵저버
     private fun observePhoneAuth(){
-        val step2 = viewPagerAdapter.createFragment(1) as JoinStep2Fragment
-
         // 인증이 확인 되었을 때
         viewModel.phoneVerification.observe(viewLifecycleOwner){
             if(it){
@@ -250,7 +247,12 @@ class JoinFragment : Fragment() {
                 val bundle = Bundle()
                 bundle.putString("email", viewModel.alreadyRegisteredUserEmail)
                 bundle.putString("provider", viewModel.alreadyRegisteredUserProvider)
-                (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, bundle)
+                val joinFragment = JoinDuplicateFragment()
+                joinFragment.arguments = bundle
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, joinFragment)
+                    .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
+                    .commit()
             }
         }
     }
