@@ -16,8 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
-import kr.co.lion.modigm.db.remote.UserDataSource
-import kr.co.lion.modigm.db.remote.StudyDataSource
+import kr.co.lion.modigm.db.user.RemoteUserDataSource
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
@@ -51,7 +51,7 @@ class ProfileFragment: Fragment() {
 
         // 전달받은 uid를 사용해 프로필 주인의 정보를 불러온다
         CoroutineScope(Dispatchers.Main).launch {
-            user = UserDataSource.loadUserDataByUid("fKdVSYNodxYgYJHq8MYKlAC2GCk1")!!
+            user = RemoteUserDataSource.loadUserDataByUid("fKdVSYNodxYgYJHq8MYKlAC2GCk1")!!
 
             setupMemberInfo(user)
             setupRecyclerViewLink(user)
@@ -155,7 +155,7 @@ class ProfileFragment: Fragment() {
 
             // 프로필 이미지
             CoroutineScope(Dispatchers.Main).launch {
-                UserDataSource.loadUserProfilePic(
+                RemoteUserDataSource.loadUserProfilePic(
                     mainActivity,
                     user.userProfilePic,
                     imageProfilePic
@@ -207,7 +207,7 @@ class ProfileFragment: Fragment() {
         // 참여한 스터디 리스트 불러오기
         lateinit var partStudyList: List<StudyData>
         CoroutineScope(Dispatchers.Main).launch {
-            partStudyList = StudyDataSource.loadUserPartStudy(user.userNumber)
+            partStudyList = RemoteStudyDataSource.loadUserPartStudy(user.userNumber)
 
             // 어댑터 선언
             val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
@@ -237,36 +237,40 @@ class ProfileFragment: Fragment() {
                 }
             }
         }
-
-
     }
 
     private fun setupRecyclerViewHostStudy() {
-        // 어댑터 선언
-        val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
-            // 빈 리스트를 넣어 초기화
-            emptyList(),
+        // 진행한 스터디 리스트 불러오기
+        lateinit var hostStudyList: List<StudyData>
+        CoroutineScope(Dispatchers.Main).launch {
+            hostStudyList = RemoteStudyDataSource.loadUserHostStudy(user.userNumber)
 
-            // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
-            rowClickListener = { linkUrl ->
-                Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
-                viewLifecycleOwner.lifecycleScope.launch {
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, DetailFragment())
-                        .addToBackStack(FragmentName.FILTER_SORT.str)
-                        .commit()
+            // 어댑터 선언
+            val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
+                // 빈 리스트를 넣어 초기화
+                hostStudyList,
+
+                // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
+                rowClickListener = { studyIdx ->
+                    Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, DetailFragment())
+                            .addToBackStack(FragmentName.FILTER_SORT.str)
+                            .commit()
+                    }
                 }
-            }
-        )
+            )
 
-        // 리사이클러뷰 구성
-        fragmentProfileBinding.apply {
-            recyclerViewProfileHostStudy.apply {
-                // 리사이클러뷰 어댑터
-                adapter = hostStudyAdapter
+            // 리사이클러뷰 구성
+            fragmentProfileBinding.apply {
+                recyclerViewProfileHostStudy.apply {
+                    // 리사이클러뷰 어댑터
+                    adapter = hostStudyAdapter
 
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(mainActivity)
+                    // 리사이클러뷰 레이아웃
+                    layoutManager = LinearLayoutManager(mainActivity)
+                }
             }
         }
     }

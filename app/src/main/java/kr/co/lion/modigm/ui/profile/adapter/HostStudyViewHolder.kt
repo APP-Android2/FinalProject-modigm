@@ -3,10 +3,15 @@ package kr.co.lion.modigm.ui.profile.adapter
 import android.content.Context
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import kr.co.lion.modigm.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.RowHostStudyBinding
-import kr.co.lion.modigm.databinding.RowLinkBinding
-import kr.co.lion.modigm.databinding.RowPartStudyBinding
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.util.Interest
+import kr.co.lion.modigm.util.StudyCategory
+import kr.co.lion.modigm.util.StudyPlace
 
 class HostStudyViewHolder(
     private val context: Context,
@@ -14,18 +19,20 @@ class HostStudyViewHolder(
     private val rowClickListener: (String) -> Unit, ): RecyclerView.ViewHolder(rowHostStudyBinding.root) {
 
     // 구성요소 세팅
-    fun bind(data: String, rowClickListener: (String) -> Unit) { // String 말고 모델이어야함
+    fun bind(data: StudyData, rowClickListener: (String) -> Unit) { // String 말고 모델이어야함
         rowHostStudyBinding.apply {
-            // 썸네일
-            imageRowHostStudy.setImageResource(R.drawable.image_loading_gray)
-            // 스터디 제목
-            textViewRowHostStudyTitle.text = "[Kotlin] 파이쌤과 함께하는 python 30일 완성 스터디"
-            // 스터디 분류
-            textViewRowHostStudyCategory.text = "스터디"
-            // 스터디 장소
-            textViewRowHostStudyLocation.text = "온라인"
-            // 스터디 인원
-            textViewRowHostStudyMember.text = "3/10"
+            CoroutineScope(Dispatchers.Main).launch {
+                // 데이터베이스로부터 썸네일을 불러온다
+                RemoteStudyDataSource.loadStudyThumbnail(context, data.studyPic, imageRowHostStudy)
+                // 스터디 제목
+                textViewRowHostStudyTitle.text = data.studyTitle
+                // 스터디 분류
+                textViewRowHostStudyCategory.text = StudyCategory.fromNum(data.studyType)!!.str
+                // 스터디 장소
+                textViewRowHostStudyLocation.text = StudyPlace.fromNum(data.studyMeet)!!.str
+                // 스터디 인원
+                textViewRowHostStudyMember.text = "${data.studyUidList.size}/${data.studyUserCnt}"
+            }
 
             // 항목에 대한 설정
             root.apply {

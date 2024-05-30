@@ -6,10 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.RowLinkBinding
 import kr.co.lion.modigm.databinding.RowPartStudyBinding
-import kr.co.lion.modigm.db.remote.StudyDataSource
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.StudyData
 
 class PartStudyViewHolder(
@@ -22,7 +20,7 @@ class PartStudyViewHolder(
         rowPartStudyBinding.apply {
             CoroutineScope(Dispatchers.Main).launch {
                 // 데이터베이스로부터 썸네일을 불러온다
-                StudyDataSource.loadStudyThumbnail(context, data.studyPic, imageRowPartStudy)
+                RemoteStudyDataSource.loadStudyThumbnail(context, data.studyPic, imageRowPartStudy)
                 // 스터디 제목
                 textViewRowPartStudy.text = data.studyTitle
             }

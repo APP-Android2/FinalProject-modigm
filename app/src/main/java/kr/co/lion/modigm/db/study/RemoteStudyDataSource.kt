@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.db.remote
+package kr.co.lion.modigm.db.study
 
 import android.content.Context
 import android.util.Log
@@ -11,9 +11,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 
-class UserDataSource {
+class RemoteStudyDataSource {
+    private val studyCollection = Firebase.firestore.collection("Study")
+
     companion object{
         // 사용자 번호 시퀀스값을 가져온다.
         suspend fun getUserSequence():Int{
@@ -113,13 +116,63 @@ class UserDataSource {
             return user
         }
 
+        // uid를 통해 특정 사용자가 참여한 스터디 목록을 불러온다
+        suspend fun loadUserPartStudy(uid: String) : MutableList<StudyData>{
+            // 사용자 정보를 담을 리스트
+            val studyList = mutableListOf<StudyData>()
+
+            val job1 = CoroutineScope(Dispatchers.IO).launch {
+                // Study 컬렉션 접근 객체를 가져온다.
+                val collectionReference = Firebase.firestore.collection("Study")
+                // studyUidList에 해당 uid가 포함된 문서들을 가져온다.
+                val querySnapshot = collectionReference.whereArrayContains("studyUidList", uid).get().await()
+                // 가져온 문서의 수 만큼 반복한다.
+                querySnapshot.forEach {
+                    // StudyData 객체에 담는다.
+                    val study = it.toObject(StudyData::class.java)
+                    // 리스트에 담는다.
+                    studyList.add(study)
+                }
+            }
+            job1.join()
+
+            return studyList
+        }
+
+        // uid를 통해 특정 사용자가 진행한 스터디 목록을 불러온다
+        suspend fun loadUserHostStudy(uid: String) : MutableList<StudyData>{
+            // 사용자 정보를 담을 리스트
+            val studyList = mutableListOf<StudyData>()
+
+            val job1 = CoroutineScope(Dispatchers.IO).launch {
+                // Study 컬렉션 접근 객체를 가져온다.
+                val collectionReference = Firebase.firestore.collection("Study")
+
+                // studyUidList에 해당 uid가 포함된 문서들을 가져온다.
+                val querySnapshot = collectionReference.whereArrayContains("studyUidList", uid).get().await()
+                // 가져온 문서의 수 만큼 반복한다.
+                querySnapshot.forEach { documentSnapshot ->
+                    // StudyData 객체에 담는다.
+                    val study = documentSnapshot.toObject(StudyData::class.java)
+                    // 첫 번째 요소(스터디 진행자)가 uid와 일치하는지 확인한다.
+                    if (study.studyUidList.isNotEmpty() && study.studyUidList[0] == uid) {
+                        // 리스트에 담는다.
+                        studyList.add(study)
+                    }
+                }
+            }
+            job1.join()
+
+            return studyList
+        }
+
         // 사용자 프로필 사진을 받아오는 메서드
-        suspend fun loadUserProfilePic(context: Context, imageFileName: String, imageView: ImageView){
+        suspend fun loadStudyThumbnail(context: Context, imageFileName: String, imageView: ImageView){
             // 이미지가 등록되어 있지 않으면 불러오지 않는다
             if (imageFileName.isNotEmpty()) {
                 val job1 = CoroutineScope(Dispatchers.IO).launch {
                     // 이미지에 접근할 수 있는 객체를 가져온다.
-                    val storageRef = Firebase.storage.reference.child("userProfile/$imageFileName")
+                    val storageRef = Firebase.storage.reference.child("studyPic/$imageFileName")
                     // 이미지의 주소를 가지고 있는 Uri 객체를 받아온다.
                     val imageUri = storageRef.downloadUrl.await()
                     // 이미지 데이터를 받아와 이미지 뷰에 보여준다.
@@ -201,4 +254,5 @@ class UserDataSource {
             job1.join()
         }
     }
+
 }

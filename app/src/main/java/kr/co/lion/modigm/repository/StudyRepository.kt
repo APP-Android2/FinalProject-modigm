@@ -1,8 +1,8 @@
 package kr.co.lion.modigm.repository
 
-import kr.co.lion.modigm.db.remote.StudyDataSource
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 
 class StudyRepository {
 
-    private val studyDataSource = StudyDataSource()
+    private val studyDataSource = RemoteStudyDataSource()
 }

@@ -7,8 +7,7 @@ enum class Interest(var num: Int, var str: String) {
 
     companion object {
         fun fromNum(num: Int): Interest? {
-            return values().find { it.num == num }
+            return entries.find { it.num == num }
         }
     }
-
 }
