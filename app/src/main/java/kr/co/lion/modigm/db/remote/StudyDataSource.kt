@@ -164,6 +164,7 @@ class StudyDataSource {
 
         // 사용자 프로필 사진을 받아오는 메서드
         suspend fun loadStudyThumbnail(context: Context, imageFileName: String, imageView: ImageView){
+            // 이미지가 등록되어 있지 않으면 불러오지 않는다
             if (imageFileName.isNotEmpty()) {
                 val job1 = CoroutineScope(Dispatchers.IO).launch {
                     // 이미지에 접근할 수 있는 객체를 가져온다.
