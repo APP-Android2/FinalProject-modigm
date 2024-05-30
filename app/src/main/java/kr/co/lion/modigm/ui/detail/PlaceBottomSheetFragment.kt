@@ -34,6 +34,8 @@ class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentPlaceBottomSheetBinding
     private lateinit var placesClient: PlacesClient
 
+    private var placeSelectedListener: OnPlaceSelectedListener? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -61,8 +63,14 @@ class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun setupSearchBar() {
+    // 선택된 주소 감지 이벤트 트리거
+    fun setOnPlaceSelectedListener(listener: OnPlaceSelectedListener) {
+        placeSelectedListener = listener
+    }
+
+    fun setupSearchBar() {
         val adapter = PlaceSearchResultsAdapter(mutableListOf()) { place ->
+            placeSelectedListener?.onPlaceSelected(place.name)
             dismiss()  // 바텀 시트 닫기
         }
         binding.recyclerViewSearchResults.adapter = adapter
@@ -95,13 +103,13 @@ class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private fun getScreenHeight(): Int {
+    fun getScreenHeight(): Int {
         val displayMetrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
         return displayMetrics.heightPixels
     }
 
-    private fun searchPlace(query: String, adapter: PlaceSearchResultsAdapter) {
+    fun searchPlace(query: String, adapter: PlaceSearchResultsAdapter) {
         val token = AutocompleteSessionToken.newInstance()
         val request = FindAutocompletePredictionsRequest.builder()
             .setSessionToken(token)
