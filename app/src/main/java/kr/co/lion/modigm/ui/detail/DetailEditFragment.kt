@@ -20,7 +20,7 @@ import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.util.FragmentName
 
 
-class DetailEditFragment : Fragment() {
+class DetailEditFragment : Fragment(), OnSkillSelectedListener {
 
     lateinit var fragmentDetailEditBinding: FragmentDetailEditBinding
 
@@ -42,7 +42,7 @@ class DetailEditFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         settingToolbar()
-//        setupBottomSheet()
+        setupBottomSheet()
         setupButton()
         setupChipGroups()
         preselectChips()
@@ -174,14 +174,46 @@ class DetailEditFragment : Fragment() {
         chip.setTextColor(textColor)
     }
 
-//    fun setupBottomSheet() {
-//        fragmentDetailEditBinding.textInputLayoutDetailEditSkill.editText?.setOnClickListener {
-//            // bottom sheet
-//            val bottomSheet = DetailSkillBottomSheetFragment()
-//            bottomSheet.show(childFragmentManager, bottomSheet.tag)
-//        }
-//
-//    }
+    override fun onSkillSelected(selectedSkills: List<String>) {
+        // ChipGroup에 칩 추가
+        addChipsToGroup(fragmentDetailEditBinding.ChipGroupDetailEdit, selectedSkills)
+    }
+
+    fun addChipsToGroup(chipGroup: ChipGroup, skills: List<String>) {
+        // 기존의 칩들을 삭제
+        chipGroup.removeAllViews()
+
+        // 전달받은 스킬 리스트를 이용하여 칩을 생성 및 추가
+        for (skill in skills) {
+            val chip = Chip(context).apply {
+                text = skill
+                isClickable = true
+                isCheckable = true
+                isCloseIconVisible=true
+                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
+                setTextColor(ContextCompat.getColor(context, R.color.black))
+                setTextAppearance(R.style.ChipTextStyle)
+                id = View.generateViewId()
+
+                // 'X' 아이콘 클릭시 해당 칩을 ChipGroup에서 제거
+                setOnCloseIconClickListener {
+                    chipGroup.removeView(this)  // 'this'는 현재 클릭된 Chip 인스턴스를 참조
+                }
+            }
+            chipGroup.addView(chip)
+        }
+    }
+
+    fun setupBottomSheet() {
+        fragmentDetailEditBinding.textInputLayoutDetailEditSkill.editText?.setOnClickListener {
+            // bottom sheet
+            val bottomSheet = SkillBottomSheetFragment().apply {
+                setOnSkillSelectedListener(this@DetailEditFragment)
+            }
+            bottomSheet.show(childFragmentManager, bottomSheet.tag)
+        }
+
+    }
 
     fun setupButton() {
         fragmentDetailEditBinding.buttonDetailEditDone.setOnClickListener {
