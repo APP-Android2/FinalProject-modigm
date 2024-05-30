@@ -2,7 +2,6 @@ package kr.co.lion.modigm.ui.join.vm
 
 import android.app.Activity
 import android.text.InputFilter
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -68,6 +67,8 @@ class JoinStep2ViewModel: ViewModel() {
 
     // 인증하기 버튼 눌렀을 때 유효성 검사
     fun checkPhoneValidation(): Boolean {
+        // 인증번호 입력칸 초기화
+        inputSmsCode.value = ""
         // 에러 표시 초기화
         phoneValidation.value =""
         var result = true
@@ -106,8 +107,8 @@ class JoinStep2ViewModel: ViewModel() {
     // 인증 ID(인증 코드 내용 아님)
     private var _verificationId = ""
     // 인증 여부
-    private val _phoneVerificated = MutableLiveData(false)
-    val phoneVerificated: LiveData<Boolean> = _phoneVerificated
+    private val _phoneVerified = MutableLiveData(false)
+    val phoneVerified: LiveData<Boolean> = _phoneVerified
 
     // 인증 에러 메시지
     private var _errorMessage = ""
@@ -183,12 +184,12 @@ class JoinStep2ViewModel: ViewModel() {
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
             // 전화번호 인증 성공
-            _phoneVerificated.value = true
+            _phoneVerified.value = true
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
             // 전화번호 인증 실패
-            _phoneVerificated.value = false
+            _phoneVerified.value = false
             phoneValidation.value = e.message
         }
 
@@ -199,6 +200,7 @@ class JoinStep2ViewModel: ViewModel() {
             // verificationId는 문자로 받는 코드가 아니었다
             _verificationId = verificationId
             _isCodeSent.value = true
+            inputSmsCode.value = ""
         }
     }
 }

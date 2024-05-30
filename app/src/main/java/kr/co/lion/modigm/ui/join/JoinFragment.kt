@@ -58,7 +58,6 @@ class JoinFragment : Fragment() {
         binding = FragmentJoinBinding.inflate(inflater)
 
         settingToolBar()
-        settingViewPagerAdapter()
         observePhoneAuth()
 
         return binding.root
@@ -66,6 +65,8 @@ class JoinFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        settingViewPagerAdapter()
 
         // 안드로이드 뒤로가기 기능에 뒤로가기 버튼 기능 추가
         lifecycleScope.launch {
@@ -214,7 +215,12 @@ class JoinFragment : Fragment() {
         )
 
         lifecycleScope.launch {
-            if(viewModel.phoneVerification.value==true) return@launch
+            // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
+            if(viewModel.phoneVerification.value==true){
+                binding.viewPagerJoin.currentItem += 1
+                return@launch
+            }
+
             val result = step2.createPhoneUser()
             if(result.isEmpty()){
                 step2.joinStep2ViewModel.credential.value?.let { viewModel.setPhoneCredential(it) }
