@@ -22,6 +22,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentPlaceBottomSheetBinding
 import kr.co.lion.modigm.ui.detail.adapter.PlaceSearchResultsAdapter
+import kr.co.lion.modigm.BuildConfig
 
 data class SimplePlace(
     val id: String,
@@ -46,12 +47,13 @@ class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         // bottomSheet 배경 설정
         view.background =
             ContextCompat.getDrawable(requireContext(), R.drawable.style_bottom_sheet_background)
 
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyCvwwUD0SngnM5gAhvdStSatfMHf03WvsI")
+            Places.initialize(requireContext(), BuildConfig.PLACE_API_KEY)
         }
         placesClient = Places.createClient(requireContext())
 

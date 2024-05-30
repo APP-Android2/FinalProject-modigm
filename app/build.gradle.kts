@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -15,8 +17,22 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        // Kotlin DSL에서는 아래와 같이 API 키를 추가합니다.
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
+        }
+        val placeApiKey = localProperties.getProperty("place_api_key") ?: ""
+
+        buildConfigField("String", "PLACE_API_KEY", "$placeApiKey")
+
+        // manifestPlaceholders 설정
+        manifestPlaceholders["PLACE_API_KEY"] = placeApiKey
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
 
     buildTypes {
         release {
@@ -38,6 +54,7 @@ android {
     buildFeatures {
         viewBinding = true
         dataBinding = true
+        buildConfig = true
     }
 }
 
