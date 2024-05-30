@@ -190,7 +190,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
                 isClickable = true
                 isCheckable = true
                 isCloseIconVisible=true
-                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
+                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
                 setTextColor(ContextCompat.getColor(context, R.color.black))
                 setTextAppearance(R.style.ChipTextStyle)
                 id = View.generateViewId()
