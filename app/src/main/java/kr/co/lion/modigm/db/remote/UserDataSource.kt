@@ -1,11 +1,10 @@
-package kr.co.lion.modigm.datasource
+package kr.co.lion.modigm.db.remote
 
 import android.content.Context
 import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.auth.User
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope

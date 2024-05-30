@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
-import kr.co.lion.modigm.datasource.UserDataSource
+import kr.co.lion.modigm.db.remote.UserDataSource
 import kr.co.lion.modigm.db.remote.StudyDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
