@@ -3,9 +3,14 @@ package kr.co.lion.modigm.ui.profile.adapter
 import android.content.Context
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLinkBinding
 import kr.co.lion.modigm.databinding.RowPartStudyBinding
+import kr.co.lion.modigm.db.remote.StudyDataSource
+import kr.co.lion.modigm.model.StudyData
 
 class PartStudyViewHolder(
     private val context: Context,
@@ -13,12 +18,14 @@ class PartStudyViewHolder(
     private val rowClickListener: (String) -> Unit, ): RecyclerView.ViewHolder(rowPartStudyBinding.root) {
 
     // 구성요소 세팅
-    fun bind(data: String, rowClickListener: (String) -> Unit) { // String 말고 모델이어야함
+    fun bind(data: StudyData, rowClickListener: (String) -> Unit) { // String 말고 모델이어야함
         rowPartStudyBinding.apply {
-            // 썸네일
-            imageRowPartStudy.setImageResource(R.drawable.image_loading_gray)
-            // 스터디 제목
-            textViewRowPartStudy.text = "[Kotlin] 파이쌤과 함께하는 python 30일 완성 스터디"
+            CoroutineScope(Dispatchers.Main).launch {
+                // 썸네일
+                imageRowPartStudy.setImageResource(R.drawable.image_loading_gray)
+                // 스터디 제목
+                textViewRowPartStudy.text = data.studyTitle
+            }
 
             // 항목에 대한 설정
             root.apply {
