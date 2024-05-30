@@ -31,22 +31,10 @@ class JoinFragment : Fragment() {
 
     private lateinit var binding: FragmentJoinBinding
 
-    private val fragmentList : ArrayList<Fragment> by lazy {
-        arrayListOf(
-            JoinStep1Fragment(),
-            JoinStep2Fragment(),
-            JoinStep3Fragment()
-        )
-    }
-
     private val viewModel: JoinViewModel by viewModels()
     private val viewModelStep1: JoinStep1ViewModel by activityViewModels()
     private val viewModelStep2: JoinStep2ViewModel by activityViewModels()
     private val viewModelStep3: JoinStep3ViewModel by activityViewModels()
-
-    private val viewPagerAdapter by lazy {
-        JoinViewPagerAdapter(this)
-    }
 
 //    private val joinType: String by lazy {
 //        arguments?.getString("joinType").toString()
@@ -137,8 +125,15 @@ class JoinFragment : Fragment() {
     }
 
     private fun settingViewPagerAdapter(){
+        val viewPagerAdapter = JoinViewPagerAdapter(this)
 
-        viewPagerAdapter.addFragments(fragmentList)
+        viewPagerAdapter.addFragments(
+            arrayListOf(
+                JoinStep1Fragment(),
+                JoinStep2Fragment(),
+                JoinStep3Fragment()
+            )
+        )
 
         with(binding){
             // 어댑터 설정
