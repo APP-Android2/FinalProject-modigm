@@ -14,7 +14,7 @@ class StudyMyViewHolder(
 
 
     // 전체 스터디 항목별 세팅
-    fun bind(studyData: StudyData, rowClickListener: (Int) -> Unit) {
+    fun bind(studyData: Pair<StudyData, Int>, rowClickListener: (Int) -> Unit) {
 
         with(binding) {
             // 항목 하나
@@ -27,7 +27,7 @@ class StudyMyViewHolder(
 
                 // 클릭 리스너 설정.
                 setOnClickListener {
-                    rowClickListener.invoke(studyData.studyIdx)
+                    rowClickListener.invoke(studyData.first.studyIdx)
                 }
 
                 // 스터디 이미지
@@ -40,7 +40,7 @@ class StudyMyViewHolder(
                 }
 
                 // 모집중, 모집완료
-                when (studyData.studyState) {
+                when (studyData.first.studyState) {
                     true -> {
                         textViewStudyMyState.text = "모집중"
                     }
@@ -50,7 +50,7 @@ class StudyMyViewHolder(
                 }
                 // 스터디 진행 방식
                 with(textViewStudyMyStateMeet){
-                    when (studyData.studyMeet){
+                    when (studyData.first.studyMeet){
                         1 -> {
                             text = "온라인"
                             setTextColor(android.graphics.Color.parseColor("#0FA981"))
@@ -66,10 +66,10 @@ class StudyMyViewHolder(
                     }
                 }
                 // 스터디 제목
-                textViewStudyMyTitle.text = studyData.studyTitle
+                textViewStudyMyTitle.text = studyData.first.studyTitle
                 // 스터디 기간
                 with(textViewStudyMyStatePeriod){
-                    when (studyData.studyPeriod) {
+                    when (studyData.first.studyPeriod) {
                         1 -> {
                             text = "단기"
                         }
@@ -83,7 +83,7 @@ class StudyMyViewHolder(
                 }
 
                 // 스터디 최대 인원수
-                textViewStudyMyStateInwon.text = studyData.studyUserCnt.toString()
+                textViewStudyMyStateInwon.text = studyData.second.toString()+"/"+studyData.first.studyUserCnt.toString()
 
                 // 찜 버튼
                 with(imageViewStudyMyHeart){

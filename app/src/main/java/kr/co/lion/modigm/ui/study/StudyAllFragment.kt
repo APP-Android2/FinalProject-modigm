@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
@@ -98,10 +96,8 @@ class StudyAllFragment : Fragment() {
     }
     fun observeData() {
         // 데이터 변경 관찰
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyStateTrueDataList.observe(viewLifecycleOwner) { studyList ->
-                studyAllAdapter.updateData(studyList)
-            }
+        viewModel.studyStateTrueDataList.observe(viewLifecycleOwner) { studyList ->
+            studyAllAdapter.updateData(studyList)
         }
     }
 }

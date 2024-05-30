@@ -42,7 +42,7 @@ class StudyMyFragment : Fragment() {
 
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.containerMain, detailFragment)
-                .addToBackStack(null) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+                .addToBackStack(FragmentName.DETAIL.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
                 .commit()
         }
     )
@@ -96,10 +96,8 @@ class StudyMyFragment : Fragment() {
 
     fun observeData() {
         // 데이터 변경 관찰
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyMyDataList.observe(viewLifecycleOwner) { studyList ->
-                studyMyAdapter.updateData(studyList)
-            }
+        viewModel.studyMyDataList.observe(viewLifecycleOwner) { studyList ->
+            studyMyAdapter.updateData(studyList)
         }
     }
 }
