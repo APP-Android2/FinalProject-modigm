@@ -74,4 +74,7 @@ dependencies {
 
     // 원형 이미지 라이브러리
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    // 구글 장소 api
+    implementation("com.google.android.libraries.places:places:3.3.0")
 }
