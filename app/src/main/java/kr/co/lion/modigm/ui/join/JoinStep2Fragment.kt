@@ -73,7 +73,7 @@ class JoinStep2Fragment : Fragment() {
         }
 
         // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
-        joinStep2ViewModel.phoneVerificated.observe(viewLifecycleOwner){
+        joinStep2ViewModel.isCodeSent.observe(viewLifecycleOwner){
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
             }

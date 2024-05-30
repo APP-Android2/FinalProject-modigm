@@ -54,7 +54,7 @@ class JoinStep2ViewModel: ViewModel() {
             if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", userPhone.value)){
                 phoneValidation.value = "올바른 전화번호가 아닙니다."
                 result = false
-            }else if(!_isCodeSent){
+            }else if(!_isCodeSent.value!!){
                 phoneValidation.value = "인증하기 버튼을 눌러서 인증을 진행해주세요."
                 result = false
             }
@@ -100,7 +100,9 @@ class JoinStep2ViewModel: ViewModel() {
     private val _auth = FirebaseAuth.getInstance()
 
     // 인증문자 발송 여부
-    private var _isCodeSent = false
+    private val _isCodeSent = MutableLiveData(false)
+    val isCodeSent: LiveData<Boolean> = _isCodeSent
+
     // 인증 ID(인증 코드 내용 아님)
     private var _verificationId = ""
     // 인증 여부
@@ -126,13 +128,12 @@ class JoinStep2ViewModel: ViewModel() {
     // 전화번호 인증
     suspend fun createPhoneUser(): String {
         // 오류 메시지
-        if(_isCodeSent){
+        if(_isCodeSent.value!!){
             try{
-                val credential = PhoneAuthProvider.getCredential(_verificationId, inputSmsCode.value!!)
-                _credential.value = credential
+                _credential.value = PhoneAuthProvider.getCredential(_verificationId, inputSmsCode.value!!)
 
                 // 로그인 결과를 담아서 이미 등록된 유저인지 확인한다.
-                val signInResult = _auth.signInWithCredential(credential).await()
+                val signInResult = _auth.signInWithCredential(_credential.value!!).await()
                 alreadyRegisteredUser = signInResult.additionalUserInfo?.isNewUser != true
                 if(alreadyRegisteredUser){
                     _errorMessage = "이미 해당 번호로 가입한 계정이 있습니다."
@@ -144,7 +145,15 @@ class JoinStep2ViewModel: ViewModel() {
                             alreadyRegisteredUserEmail = provider.email!!
                         }
                     }
+                    // 중복인 경우에는 이미 등록된 계정을 지우면 안되기 때문에 로그아웃만 하기
+                    _auth.signOut()
+                }else{
+                    // 중복이 아닐 경우에는 나중에 이메일 계정과 합칠 때
+                    // credential 사용하기 위해 signin된 계정을 다시 지워놓기
+                    signInResult.user?.delete()?.await()
                 }
+
+
             }catch (e: FirebaseAuthException){
                 _errorMessage = e.message.toString()
                 inputSmsCodeValidation.value = _errorMessage
@@ -173,12 +182,12 @@ class JoinStep2ViewModel: ViewModel() {
     // 전화 인증코드 발송 콜백
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            // 인증코드 발송 성공
+            // 전화번호 인증 성공
             _phoneVerificated.value = true
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-            // 인증코드 발송 실패
+            // 전화번호 인증 실패
             _phoneVerificated.value = false
             phoneValidation.value = e.message
         }
@@ -189,7 +198,7 @@ class JoinStep2ViewModel: ViewModel() {
         ) {
             // verificationId는 문자로 받는 코드가 아니었다
             _verificationId = verificationId
-            _isCodeSent = true
+            _isCodeSent.value = true
         }
     }
 }

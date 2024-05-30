@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.join.vm
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -99,10 +100,7 @@ class JoinViewModel : ViewModel() {
         if(verifiedEmail.isNotEmpty()){
             _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).await().user?.delete()
         }
-        // 전화번호 인증 정보 삭제
-        _phoneCredential.value?.let {
-            _auth.signInWithCredential(it).await().user?.delete()
-        }
+        // 전화번호 인증 정보는 이미 중복확인을 할 때 삭제해놓기 때문에 필요없음
     }
 
     // UserInfoData 객체 생성
@@ -117,12 +115,18 @@ class JoinViewModel : ViewModel() {
     }
 
     // 회원가입 완료 전에 이메일(SNS) 계정과 전화번호 계정을 통합
-    private suspend fun linkEmailAndPhone(){
-        // 이메일 계정 로그인
-        _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).await()
-
-        // 이메일 계정에 전화번호 계정 연결
-        _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.await()
+    private fun linkEmailAndPhone(){
+        _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).addOnCompleteListener { loginTask ->
+            if(loginTask.isSuccessful){
+                _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
+                    if(!linkTask.isSuccessful){
+                        Log.d("testError", "linkWithCredential : ${linkTask.exception}")
+                    }
+                }
+            }else{
+                Log.d("testError", "signInWithEmailAndPassword : ${loginTask.exception}")
+            }
+        }
     }
 
     // 이메일 계정 회원 가입 완료
