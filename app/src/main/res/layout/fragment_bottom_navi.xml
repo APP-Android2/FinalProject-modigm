@@ -15,14 +15,14 @@
         android:orientation="vertical">
 
 
-        <FrameLayout
-            android:id="@+id/bottomNaviContainer"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/containerBottomNavi"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="9"
             android:background="@color/white">
 
-        </FrameLayout>
+        </androidx.fragment.app.FragmentContainerView>
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"

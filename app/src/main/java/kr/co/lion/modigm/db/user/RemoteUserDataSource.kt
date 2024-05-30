@@ -14,6 +14,20 @@ import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
 
 class RemoteUserDataSource {
+    private val db = Firebase.firestore
+    private val userCollection = db.collection("User")
+
+    //사용자 정보 저장
+    suspend fun insetUserData(userInfoData: UserData): Boolean{
+        return try {
+            userCollection.add(userInfoData).await()
+            true
+        }catch (error: Exception){
+            Log.e("Modigm_Error","insetUserData() error : $error")
+            false
+        }
+    }
+
     companion object{
         // 사용자 번호 시퀀스값을 가져온다.
         suspend fun getUserSequence():Int{

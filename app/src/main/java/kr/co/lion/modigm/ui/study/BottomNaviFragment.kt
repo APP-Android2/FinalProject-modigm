@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.util.FragmentName
 
 
 class BottomNaviFragment : Fragment() {
@@ -26,14 +28,26 @@ class BottomNaviFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initView()
+
+        // 뒤로 가기 콜백 설정
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (childFragmentManager.backStackEntryCount > 0) {
+                    childFragmentManager.popBackStack()
+                } else {
+                    requireActivity().finish()
+                }
+            }
+        })
     }
 
     fun initView(){
 
         // 최초 화면이 null 이라면 스터디 목록을 띄운다.
-        if(childFragmentManager.findFragmentById(R.id.bottomNaviContainer) == null){
+        if(childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null){
             childFragmentManager.beginTransaction()
-                .replace(R.id.bottomNaviContainer, StudyFragment())
+                .replace(R.id.containerBottomNavi, StudyFragment())
+                .addToBackStack(FragmentName.STUDY.str)
                 .commit()
         }
 
@@ -50,28 +64,32 @@ class BottomNaviFragment : Fragment() {
                         // 스터디 클릭 시
                         R.id.bottomNaviStudy -> {
                             childFragmentManager.beginTransaction()
-                                .replace(R.id.bottomNaviContainer, StudyFragment())
+                                .replace(R.id.containerBottomNavi, StudyFragment())
+                                .addToBackStack(FragmentName.STUDY.str)
                                 .commit()
                         }
 
                         // 찜 클릭 시
                         R.id.bottomNaviHeart -> {
                             childFragmentManager.beginTransaction()
-                                .replace(R.id.bottomNaviContainer, LikeFragment())
+                                .replace(R.id.containerBottomNavi, LikeFragment())
+                                .addToBackStack(FragmentName.LIKE.str)
                                 .commit()
                         }
 
                         // 채팅 클릭 시
                         R.id.bottomNaviChat -> {
                             childFragmentManager.beginTransaction()
-                                .replace(R.id.bottomNaviContainer, ChatFragment())
+                                .replace(R.id.containerBottomNavi, ChatFragment())
+                                .addToBackStack(FragmentName.CHAT.str)
                                 .commit()
                         }
 
                         // 마이 클릭 시
                         R.id.bottomNaviMy -> {
                             childFragmentManager.beginTransaction()
-                                .replace(R.id.bottomNaviContainer, ProfileFragment())
+                                .replace(R.id.containerBottomNavi, ProfileFragment())
+                                .addToBackStack(FragmentName.PROFILE.str)
                                 .commit()
                         }
 

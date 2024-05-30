@@ -1,13 +1,12 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kr.co.lion.modigm.R
+import androidx.fragment.app.Fragment
 import kr.co.lion.modigm.databinding.FragmentFilterSortBinding
-import kr.co.lion.modigm.databinding.FragmentStudyBinding
+import kr.co.lion.modigm.util.FragmentName
 
 class FilterSortFragment : Fragment() {
 
@@ -37,6 +36,10 @@ class FilterSortFragment : Fragment() {
             // 툴바
             with(toolbarFilter){
 
+                // 뒤로가기 내비게이션 아이콘 클릭 시
+                setNavigationOnClickListener{
+                    parentFragmentManager.popBackStack(FragmentName.BOTTOM_NAVI.str, 0)
+                }
             }
 
         }
