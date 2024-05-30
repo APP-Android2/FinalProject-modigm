@@ -6,17 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep1Binding
 import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
-import java.util.regex.Pattern
 
 class JoinStep1Fragment : Fragment() {
 
     lateinit var binding: FragmentJoinStep1Binding
 
-    val joinStep1ViewModel: JoinStep1ViewModel by viewModels()
+    private val joinStep1ViewModel: JoinStep1ViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,8 +43,5 @@ class JoinStep1Fragment : Fragment() {
             binding.textInputLayoutJoinUserPasswordCheck.error = it
         }
     }
-
-    // 입력한 내용 유효성 검사
-    fun validate(): Boolean = joinStep1ViewModel.validate()
 
 }
