@@ -21,8 +21,8 @@ class PartStudyViewHolder(
     fun bind(data: StudyData, rowClickListener: (String) -> Unit) { // String 말고 모델이어야함
         rowPartStudyBinding.apply {
             CoroutineScope(Dispatchers.Main).launch {
-                // 썸네일
-                imageRowPartStudy.setImageResource(R.drawable.image_loading_gray)
+                // 데이터베이스로부터 썸네일을 불러온다
+                StudyDataSource.loadStudyThumbnail(context, data.studyPic, imageRowPartStudy)
                 // 스터디 제목
                 textViewRowPartStudy.text = data.studyTitle
             }
