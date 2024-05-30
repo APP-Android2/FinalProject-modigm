@@ -56,6 +56,10 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
         setupCompleteButton()
         setupScrollView()
 
+        // ScrollViewSkillSelect에 대한 스크롤바 설정
+        setupSkillSelectScrollView()
+        ScrollViewSkillSelectVisibility()
+
         // ImageView 클릭 시 BottomSheet 닫기
         binding.imageViewSkillBottomSheetClose.setOnClickListener {
             dismiss()
@@ -112,6 +116,7 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
 
+    // 카테고리 스크롤뷰 스크롤바
     fun setupScrollView() {
         val scrollView = binding.ScrollViewSkill
 
@@ -123,7 +128,7 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
             // 스크롤바 커스텀 Drawable 생성 및 적용
             val thumbDrawable = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(ContextCompat.getColor(requireContext(), R.color.pointColor)) // 스크롤바 색상
+                setColor(ContextCompat.getColor(requireContext(), R.color.buttonGray)) // 스크롤바 색상
                 setSize(dpToPx(requireContext(), 4f).toInt(), -1) // 스크롤바 너비
                 cornerRadius = dpToPx(requireContext(), 4f) // 스크롤바 모서리 둥글기
             }
@@ -132,9 +137,41 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    // 스낵바 글시 크기 설정을 위해 dp를 px로 변환
+    // 선택된 칩을 보여주는 스크롤 뷰 스크롤 바 설정
+    fun setupSkillSelectScrollView() {
+        val scrollViewSkillSelect = binding.ScrollViewSkillSelect
+        // 스크롤바가 항상 보이도록 설정
+        scrollViewSkillSelect.isVerticalScrollBarEnabled = true
+        scrollViewSkillSelect.isScrollbarFadingEnabled = false
+
+        // 스크롤바의 커스텀 스타일 적용
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val thumbDrawable = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(ContextCompat.getColor(requireContext(), R.color.buttonGray)) // 스크롤바 색상 지정
+                setSize(dpToPx(requireContext(), 4f).toInt(), -1) // 너비 4dp
+                cornerRadius = dpToPx(requireContext(), 2f) // 모서리 둥글기 2dp
+            }
+            scrollViewSkillSelect.verticalScrollbarThumbDrawable = thumbDrawable
+        }
+    }
+
+    // 스낵바 글씨 크기 설정을 위해 dp를 px로 변환
     fun dpToPx(context: Context, dp: Float): Float {
         return dp * context.resources.displayMetrics.density
+    }
+
+    // 선택된 칩 스크롤뷰 가시성 설정
+    fun ScrollViewSkillSelectVisibility() {
+        val scrollViewSkillSelect = binding.ScrollViewSkillSelect
+
+        // 선택된 칩이 있을 경우 ScrollViewSkillSelect를 보이게 함
+        scrollViewSkillSelect.visibility = if (selectedChips.isNotEmpty()) View.VISIBLE else View.GONE
+
+        // 스크롤뷰 스킬 선택이 보이면 스크롤뷰 스킬의 스크롤을 맨 아래로 이동
+        if (scrollViewSkillSelect.visibility == View.VISIBLE) {
+            scrollToBottom()
+        }
     }
 
     fun initializeCategoryChips() {
@@ -186,13 +223,19 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     fun showSubCategories(show: Boolean, category: String = "") {
-        if (show && category.isNotEmpty() && category != "전체" && category != "기타") {
-            // 해당 카테고리에 맞는 서브 카테고리를 표시
-            displaySubCategories(category)
+        if (show) {
+            if (category == "전체" || category == "기타" ) {
+                // "전체" 선택 시 서브 카테고리는 표시하지 않지만 ScrollView를 보이게 함
+                binding.subCategoryChipGroupSkill.removeAllViews()
+            } else if (category.isNotEmpty() && category != "기타") {
+                displaySubCategories(category)
+            }
         } else {
-            // ChipGroup의 모든 뷰를 제거
+            // 서브 카테고리가 숨겨지거나 없는 경우
             binding.subCategoryChipGroupSkill.removeAllViews()
         }
+        // 가시성 업데이트 호출을 모든 조건문 밖으로 이동
+        ScrollViewSkillSelectVisibility()
     }
 
 
@@ -225,6 +268,9 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
             // 칩 추가
             binding.chipGroupSelectedItems.addView(chip)
         }
+
+        // 선택된 칩 스크롤뷰 가시성 설정
+        ScrollViewSkillSelectVisibility()
     }
 
     fun updateCategoryChipState(category: String, isSelected: Boolean) {
@@ -305,9 +351,32 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
                 }
                 updateSelectedChipsUI()  // 선택된 칩 목록 UI 업데이트
 
+                // 선택된 칩 스크롤뷰 가시성 설정
+                ScrollViewSkillSelectVisibility()
             }
             // 칩추가
             binding.subCategoryChipGroupSkill.addView(chip)
+        }
+        scrollToSubCategories()
+    }
+
+    // 서브카테고리 위치로 스크롤 이동
+    fun scrollToSubCategories() {
+        binding.ScrollViewSkill.post {
+            val scrollView = binding.ScrollViewSkill
+            val subCategoryChipGroup = binding.subCategoryChipGroupSkill
+            val location = IntArray(2)
+            subCategoryChipGroup.getLocationOnScreen(location)
+            val scrollY = location[1] - scrollView.scrollY - scrollView.height / 3 // 스크롤 위치를 서브 카테고리 그룹의 상단으로 조정, 조금 더 시각적 중앙에 오도록 함
+            scrollView.smoothScrollTo(0, scrollY)
+        }
+    }
+
+    // 선택된 칩이 있는 경우 스크롤 맨 아래로
+    fun scrollToBottom() {
+        binding.ScrollViewSkill.post {
+            val scrollView = binding.ScrollViewSkill
+            scrollView.fullScroll(View.FOCUS_DOWN)
         }
     }
 
