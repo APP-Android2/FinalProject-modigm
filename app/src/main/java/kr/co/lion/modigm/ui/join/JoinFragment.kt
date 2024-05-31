@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,35 +9,32 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
-import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
+import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
+import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class JoinFragment : Fragment() {
 
     private lateinit var binding: FragmentJoinBinding
 
-    private val fragmentList : ArrayList<Fragment> by lazy {
-        arrayListOf(
-            JoinStep1Fragment(),
-            JoinStep2Fragment(),
-            JoinStep3Fragment()
-        )
-    }
-
     private val viewModel: JoinViewModel by viewModels()
-
-    private val viewPagerAdapter by lazy {
-        JoinViewPagerAdapter(this)
-    }
+    private val viewModelStep1: JoinStep1ViewModel by activityViewModels()
+    private val viewModelStep2: JoinStep2ViewModel by activityViewModels()
+    private val viewModelStep3: JoinStep3ViewModel by activityViewModels()
 
 //    private val joinType: String by lazy {
 //        arguments?.getString("joinType").toString()
@@ -57,7 +53,6 @@ class JoinFragment : Fragment() {
         binding = FragmentJoinBinding.inflate(inflater)
 
         settingToolBar()
-        settingViewPagerAdapter()
         observePhoneAuth()
 
         return binding.root
@@ -65,6 +60,8 @@ class JoinFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        settingViewPagerAdapter()
 
         // 안드로이드 뒤로가기 기능에 뒤로가기 버튼 기능 추가
         lifecycleScope.launch {
@@ -82,8 +79,10 @@ class JoinFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-        if(!viewModel.joinCompleted){
-            viewModel.deleteCurrentUser()
+        if(!viewModel.joinCompleted.value!!){
+            CoroutineScope(Dispatchers.IO).launch {
+                viewModel.deleteCurrentUser()
+            }
         }
     }
 
@@ -103,7 +102,7 @@ class JoinFragment : Fragment() {
     }
 
     // 회원가입 취소 다이얼로그
-    fun showCancelJoinDialog() {
+    private fun showCancelJoinDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog, null)
         val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
             .setTitle("회원가입 취소")
@@ -126,8 +125,15 @@ class JoinFragment : Fragment() {
     }
 
     private fun settingViewPagerAdapter(){
+        val viewPagerAdapter = JoinViewPagerAdapter(this)
 
-        viewPagerAdapter.addFragments(fragmentList)
+        viewPagerAdapter.addFragments(
+            arrayListOf(
+                JoinStep1Fragment(),
+                JoinStep2Fragment(),
+                JoinStep3Fragment()
+            )
+        )
 
         with(binding){
             // 어댑터 설정
@@ -166,31 +172,30 @@ class JoinFragment : Fragment() {
     }
 
     private fun step1Process(){
-        val step1 = viewPagerAdapter.createFragment(0) as JoinStep1Fragment
         // 유효성 검사
-        val validation = step1.validate()
+        val validation = viewModelStep1.validate()
         if(!validation) return
 
         // 응답 받은 이메일, 비밀번호
         viewModel.setEmailAndPw(
-            step1.joinStep1ViewModel.userEmail.value.toString(),
-            step1.joinStep1ViewModel.userPassword.value.toString()
+            viewModelStep1.userEmail.value.toString(),
+            viewModelStep1.userPassword.value.toString()
         )
 
         lifecycleScope.launch {
             // 처음 화면인 경우
             if(viewModel.verifiedEmail.isEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
-                || (step1.joinStep1ViewModel.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty())
+                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty())
                 ){
-                if(step1.joinStep1ViewModel.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty()){
+                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty()){
                     // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
                     viewModel.deleteCurrentUser()
                 }
                 // 계정 중복 확인
                 val isDup = viewModel.createEmailUser()
                 if(isDup.isNotEmpty()){
-                    step1.joinStep1ViewModel.emailValidation.value = isDup
+                    viewModelStep1.emailValidation.value = isDup
                     return@launch
                 }
             }
@@ -200,28 +205,32 @@ class JoinFragment : Fragment() {
     }
 
     private fun step2Process(){
-        val step2 = viewPagerAdapter.createFragment(1) as JoinStep2Fragment
         // 유효성 검사
-        val validation = step2.validate()
+        val validation = viewModelStep2.validate()
         if(!validation) return
         // 응답 받은 이름, 전화번호
         viewModel.setUserNameAndPhoneNumber(
-            step2.joinStep2ViewModel.userName.value.toString(),
-            step2.joinStep2ViewModel.userPhone.value.toString()
+            viewModelStep2.userName.value.toString(),
+            viewModelStep2.userPhone.value.toString()
         )
 
         lifecycleScope.launch {
-            if(viewModel.phoneVerification.value==true) return@launch
-            val result = step2.createPhoneUser()
+            // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
+            if(viewModel.phoneVerification.value==true){
+                binding.viewPagerJoin.currentItem += 1
+                return@launch
+            }
+
+            val result = viewModelStep2.createPhoneUser()
             if(result.isEmpty()){
-                step2.joinStep2ViewModel.credential.value?.let { viewModel.setPhoneCredential(it) }
+                viewModelStep2.credential.value?.let { viewModel.setPhoneCredential(it) }
                 viewModel.setPhoneVerificated(true)
             }else{
                 viewModel.setPhoneVerificated(false)
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
-                viewModel.alreadyRegisteredUserEmail = step2.joinStep2ViewModel.alreadyRegisteredUserEmail
-                viewModel.alreadyRegisteredUserProvider = step2.joinStep2ViewModel.alreadyRegisteredUserProvider
+                viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail
+                viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider
                 viewModel.isPhoneAlreadyRegistered.value = true
             }
         }
@@ -229,8 +238,6 @@ class JoinFragment : Fragment() {
 
     // 번호 인증 옵저버
     private fun observePhoneAuth(){
-        val step2 = viewPagerAdapter.createFragment(1) as JoinStep2Fragment
-
         // 인증이 확인 되었을 때
         viewModel.phoneVerification.observe(viewLifecycleOwner){
             if(it){
@@ -246,18 +253,22 @@ class JoinFragment : Fragment() {
                 val bundle = Bundle()
                 bundle.putString("email", viewModel.alreadyRegisteredUserEmail)
                 bundle.putString("provider", viewModel.alreadyRegisteredUserProvider)
-                (requireActivity() as MainActivity).replaceFragment(FragmentName.JOIN_DUPLICATE, true, true, bundle)
+                val joinFragment = JoinDuplicateFragment()
+                joinFragment.arguments = bundle
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, joinFragment)
+                    .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
+                    .commit()
             }
         }
     }
 
     private fun step3Process(){
-        val step3 = viewPagerAdapter.createFragment(2) as JoinStep3Fragment
         // 유효성 검사
-        val validation = step3.validate()
+        val validation = viewModelStep3.validate()
         if(!validation) return
         // 응답값
-        step3.joinStep3ViewModel.selectedInterestList.value?.let { it1 ->
+        viewModelStep3.selectedInterestList.value?.let { it1 ->
             viewModel.setInterests(
                 it1
             )
@@ -268,8 +279,14 @@ class JoinFragment : Fragment() {
                 "email" -> viewModel.completeJoinEmailUser()
                 "phone" -> viewModel.completeJoinSnsUser()
             }
-            if(viewModel.joinCompleted){
-                (requireActivity() as MainActivity).replaceFragment(FragmentName.STUDY, false, true, null)
+        }
+
+        // 회원가입 완료 시 다음 화면으로 이동
+        viewModel.joinCompleted.observe(viewLifecycleOwner){
+            if(it){
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, StudyFragment())
+                    .commit()
             }
         }
     }

@@ -12,6 +12,10 @@ class JoinStep3ViewModel: ViewModel() {
         InterestList.values()
     )
 
+    // 유효성 검사 여부
+    private val _isValidate = MutableLiveData<Boolean>()
+    val isValidate: LiveData<Boolean> = _isValidate
+
     private val _selectedInterestList = MutableLiveData<MutableList<Int>>(mutableListOf())
     val selectedInterestList: LiveData<MutableList<Int>> = _selectedInterestList
 
@@ -25,6 +29,7 @@ class JoinStep3ViewModel: ViewModel() {
 
     // 유효성 검사
     fun validate(): Boolean {
-        return selectedInterestList.value.isNullOrEmpty()
+        _isValidate.value = !selectedInterestList.value.isNullOrEmpty()
+        return isValidate.value!!
     }
 }

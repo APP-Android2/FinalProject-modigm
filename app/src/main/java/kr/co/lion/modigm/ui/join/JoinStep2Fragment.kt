@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
@@ -17,7 +17,7 @@ class JoinStep2Fragment : Fragment() {
 
     lateinit var binding: FragmentJoinStep2Binding
 
-    val joinStep2ViewModel: JoinStep2ViewModel by viewModels()
+    private val joinStep2ViewModel: JoinStep2ViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,16 +70,14 @@ class JoinStep2Fragment : Fragment() {
 
             // 응답한 전화번호로 인증번호 SMS 보내기
             joinStep2ViewModel.sendCode(requireActivity())
+        }
 
-            // 인증번호 입력 창 보여주기
-            binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+        // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
+        joinStep2ViewModel.isCodeSent.observe(viewLifecycleOwner){
+            if(it){
+                binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+            }
         }
     }
-
-    // 입력한 내용 유효성 검사
-    fun validate(): Boolean = joinStep2ViewModel.validate()
-
-    // 입력한 인증번호 확인
-    suspend fun createPhoneUser(): String = joinStep2ViewModel.createPhoneUser()
 
 }
