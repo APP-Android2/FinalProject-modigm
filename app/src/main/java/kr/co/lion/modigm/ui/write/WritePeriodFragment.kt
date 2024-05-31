@@ -18,15 +18,12 @@ class WritePeriodFragment : Fragment() {
 
     lateinit var fragmentWritePeriodBinding: FragmentWritePeriodBinding
     lateinit var fragmentWriteBinding: FragmentWriteBinding
-    lateinit var mainActity: MainActivity
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        mainActity = activity as MainActivity
         fragmentWritePeriodBinding = FragmentWritePeriodBinding.inflate(inflater, container, false)
-        fragmentWriteBinding = FragmentWriteBinding.inflate(inflater)
 
         return fragmentWritePeriodBinding.root
     }
@@ -34,22 +31,17 @@ class WritePeriodFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        settingProgressBar()
         settingEvent()
     }
 
-    fun settingProgressBar(){
-        fragmentWriteBinding.progressBarWriteFragment.apply {
-            setProgress(40, true)
-        }
-    }
 
     fun settingEvent(){
         // 기간선택 클릭시
         fragmentWritePeriodBinding.apply {
             // 다이얼로그를 띄운다
             textinputWritePeriod.setOnClickListener {
-                val builder = MaterialAlertDialogBuilder(mainActity).apply {
+                val context = requireContext() // 이 Fragment의 context가져오기
+                val builder = MaterialAlertDialogBuilder(context).apply {
 
                     // 뷰를 설정한다
                      val dialogWritePeriodFragmentBinding = DialogWritePeriodFragmentBinding.inflate(layoutInflater)
