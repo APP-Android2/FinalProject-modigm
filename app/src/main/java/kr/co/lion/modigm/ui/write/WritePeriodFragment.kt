@@ -6,18 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.DialogWritePeriodFragmentBinding
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWritePeriodBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
 
 class WritePeriodFragment : Fragment() {
 
     lateinit var fragmentWritePeriodBinding: FragmentWritePeriodBinding
-    lateinit var fragmentWriteBinding: FragmentWriteBinding
+    private val viewModel: WriteViewModel by activityViewModels()
+    val tabName = "period"
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -31,7 +34,23 @@ class WritePeriodFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initData()
         settingEvent()
+    }
+
+    fun initData(){
+        // 입력 초기화
+        viewModel.userDidNotAnswer(tabName)
+
+        // 전에 받은 입력이 있다면~
+        if (viewModel.periodClicked.value == true){
+            // 버튼을 활성화
+            viewModel.activateButton()
+        } else {
+            // 버튼을 비활성화
+            viewModel.deactivateButton()
+        }
+
     }
 
 
@@ -53,6 +72,8 @@ class WritePeriodFragment : Fragment() {
 
                             clickAnimation(it)
                             textinputWritePeriod.setText("1개월 이하")
+                            viewModel.userDidAnswer(tabName)
+
 
                         }
 
