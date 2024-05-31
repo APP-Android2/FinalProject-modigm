@@ -16,7 +16,7 @@ class WriteFieldFragment : Fragment() {
     lateinit var fragmentWriteFieldBinding: FragmentWriteFieldBinding
     private val viewModel: WriteViewModel by activityViewModels()
 
-    val fragmentName = "field"
+    val tabName = "field"
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         fragmentWriteFieldBinding = FragmentWriteFieldBinding.inflate(inflater)
@@ -28,10 +28,7 @@ class WriteFieldFragment : Fragment() {
     }
 
     fun settingView(){
-        fragmentWriteFieldBinding.apply {
-
-
-        }
+        // 필요 시 작성
     }
     fun settingEvent(){
 
@@ -55,8 +52,7 @@ class WriteFieldFragment : Fragment() {
                         strokeColor = unclickedStrokeColor
 
                         // 사용자 입력 해제
-                        viewModel.userDidNotAnswer(fragmentName)
-                        viewModel.deactivateButton() // buttonState -> false
+                        viewModel.userDidNotAnswer(tabName)
                     } else {
 
                         // Stroke 색상 변경
@@ -70,8 +66,7 @@ class WriteFieldFragment : Fragment() {
                         cardviewWriteFieldProject.cardElevation = 0F
 
                         // 사용자 입력 추가
-                        viewModel.userDidAnswer(fragmentName)
-                        viewModel.activateButton() // buttonState -> false
+                        viewModel.userDidAnswer(tabName)
                     }
                 }
             }
@@ -85,8 +80,7 @@ class WriteFieldFragment : Fragment() {
                         strokeColor = unclickedStrokeColor
 
                         // 사용자 입력 해제
-                        viewModel.userDidNotAnswer(fragmentName)
-                        viewModel.deactivateButton()
+                        viewModel.userDidNotAnswer(tabName)
                     } else {
                         // Stroke 색상 변경
                         strokeColor = clickedStrokeColor
@@ -99,9 +93,7 @@ class WriteFieldFragment : Fragment() {
                         cardviewWriteFieldProject.cardElevation = 0F
 
                         // 사용자 입력 추가
-                        viewModel.userDidAnswer(fragmentName)
-                        viewModel.activateButton()
-                        viewModel.deactivateButton()
+                        viewModel.userDidAnswer(tabName)
                     }
                 }
             }
@@ -115,7 +107,7 @@ class WriteFieldFragment : Fragment() {
                         strokeColor = unclickedStrokeColor
 
                         // 사용자 입력 해제
-                        viewModel.userDidNotAnswer(fragmentName)
+                        viewModel.userDidNotAnswer(tabName)
                     } else {
 
                         // Stroke 색상 변경
@@ -129,8 +121,7 @@ class WriteFieldFragment : Fragment() {
                         cardviewWriteFieldStudy.cardElevation = 0F
 
                         // 사용자 입력 추가
-                        viewModel.userDidAnswer(fragmentName)
-                        viewModel.activateButton()
+                        viewModel.userDidAnswer(tabName)
                     }
                 }
             }
