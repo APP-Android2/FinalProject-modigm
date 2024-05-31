@@ -17,7 +17,7 @@
         android:text="모우다임"
         android:fontFamily="@font/one_mobile_pop_otf"
         android:textColor="@color/black"
-        android:textSize="50dp"
+        android:textSize="55dp"
         android:textStyle="normal" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -27,8 +27,9 @@
         android:text="개발자 스터디의 새로운 패러다임"
         android:fontFamily="@font/one_mobile_pop_otf"
         android:textColor="@color/black"
-        android:textSize="18dp"
-        android:textStyle="normal" />
+        android:textSize="22dp"
+        android:textStyle="normal"
+        android:layout_marginTop="10dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/TextInputLayoutOtherEmail"
