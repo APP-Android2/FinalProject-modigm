@@ -39,6 +39,10 @@ class JoinFragment : Fragment() {
     private val joinType: JoinType? by lazy {
         JoinType.getType(arguments?.getString("joinType")?:"")
     }
+
+    private val customToken: String? by lazy {
+        arguments?.getString("customToken")
+    }
 //    var joinType = "email"
 
     override fun onCreateView(
@@ -302,7 +306,7 @@ class JoinFragment : Fragment() {
         lifecycleScope.launch {
             when(joinType){
                 JoinType.EMAIL -> viewModel.completeJoinEmailUser()
-                JoinType.KAKAO -> viewModel.completeJoinSnsUser()
+                JoinType.KAKAO -> customToken?.let { viewModel.completeJoinSnsUser(it) }
                 else -> {}
             }
         }
