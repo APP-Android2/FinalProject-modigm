@@ -20,6 +20,7 @@ class WriteProceedFragment : Fragment() {
 
     lateinit var fragmentWriteProceedBinding: FragmentWriteProceedBinding
     private val viewModel: WriteViewModel by activityViewModels()
+    val tabName = "proceed"
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -31,10 +32,25 @@ class WriteProceedFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initData()
         settingView()
         settingEvent()
     }
 
+    fun initData(){
+        // 입력 초기화
+        viewModel.userDidNotAnswer(tabName)
+
+        // 전에 받은 입력이 있다면~
+        if (viewModel.proceedClicked.value == true){
+            // 버튼을 활성화
+            viewModel.activateButton()
+        } else {
+            // 버튼을 비활성화
+            viewModel.deactivateButton()
+        }
+
+    }
 
 
 

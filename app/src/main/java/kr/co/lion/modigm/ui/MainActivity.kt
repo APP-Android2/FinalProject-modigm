@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 채팅 화면 띄우기 (테스트) - 원빈
-        replaceFragment(FragmentName.CHAT, false, false, null)
+        replaceFragment(FragmentName.WRITE, false, false, null)
 
         // 화면 테스트 - 희원
         // replaceFragment(FragmentName.PROFILE, false, false, null)

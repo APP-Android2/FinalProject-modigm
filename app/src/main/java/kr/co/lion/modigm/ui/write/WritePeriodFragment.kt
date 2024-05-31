@@ -80,17 +80,19 @@ class WritePeriodFragment : Fragment() {
                         textViewDialogWritePeriod02.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("1개월 이상")
+                            viewModel.userDidAnswer(tabName)
                         }
 
                         textViewDialogWritePeriod03.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("3개월 이상")
-
+                            viewModel.userDidAnswer(tabName)
                         }
 
                         textViewDialogWritePeriod04.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("6개월 이상")
+                            viewModel.userDidAnswer(tabName)
                         }
                     }
                 }
