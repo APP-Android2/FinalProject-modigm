@@ -82,7 +82,7 @@ class ChatRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 입장시 -> 메시지 읽음 처리
-        // readMessage()
+        readMessage()
 
         // 채팅 방 - (툴바) 세팅
         settingToolbar()
@@ -141,7 +141,7 @@ class ChatRoomFragment : Fragment() {
             requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
             val width = displayMetrics.widthPixels
             val params = navigationViewContent.layoutParams
-            params.width = (width * 0.75).toInt() // 화면 폭의 75%로 설정
+            params.width = (width * 0.8).toInt() // 화면 폭의 80%로 설정
             navigationViewContent.layoutParams = params
         }
     }
