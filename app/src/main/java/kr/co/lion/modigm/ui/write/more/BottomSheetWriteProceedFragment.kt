@@ -2,18 +2,22 @@ package kr.co.lion.modigm.ui.write.more
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kr.co.lion.modigm.databinding.FragmentBottomSheetWriteProceedBinding
+import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
 class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentBottomSheetWriteProceedBinding
+    val viewModel: WriteViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,9 +39,9 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
         binding.apply {
             // 닫기 종료
             imageButtonWriteProceedBottomSheetClose.setOnClickListener {
-                textFieldWriteProceedBottomSheetSearch.addTextChangedListener {
-
-                }
+                val location = textFieldWriteProceedBottomSheetSearch.text.toString()
+                viewModel.settingLocation(location)
+                Log.d("TedMoon", "text Bottom : ${viewModel.writeProceedLocation.value}")
                 dismiss()
             }
 
