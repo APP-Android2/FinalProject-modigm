@@ -50,7 +50,7 @@ class StudyMyViewHolder(
                 }
                 // 스터디 진행 방식
                 with(textViewStudyMyStateMeet){
-                    when (studyData.studyMeet){
+                    when (studyData.studyOnOffline){
                         1 -> {
                             text = "온라인"
                             setTextColor(android.graphics.Color.parseColor("#0FA981"))
@@ -83,7 +83,7 @@ class StudyMyViewHolder(
                 }
 
                 // 스터디 최대 인원수
-                textViewStudyMyStateInwon.text = studyData.studyUserCnt.toString()
+                textViewStudyMyStateInwon.text = studyData.studyMaxMember.toString()
 
                 // 찜 버튼
                 with(imageViewStudyMyHeart){
