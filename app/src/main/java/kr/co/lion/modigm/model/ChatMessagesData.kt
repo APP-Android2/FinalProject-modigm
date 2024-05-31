@@ -7,7 +7,6 @@ data class ChatMessagesData(
     val chatMessage: String, // 채팅 메세지 내용
     val chatFullTime : Long, // 메시지 고유 Index
     val chatTime: String, // 채팅 전송한 시간
-    var read: Boolean = false // 읽음/안 읽음 상태를 나타내는 플래그
 ) {
     constructor(): this(0,"", "", "",0L, "")
 }

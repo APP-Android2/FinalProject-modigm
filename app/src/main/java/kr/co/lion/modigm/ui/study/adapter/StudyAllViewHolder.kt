@@ -15,7 +15,7 @@ class StudyAllViewHolder(
 
 
     // 전체 스터디 항목별 세팅
-    fun bind(studyData: StudyData, rowClickListener: (Int) -> Unit) {
+    fun bind(studyData: Pair<StudyData, Int>, rowClickListener: (Int) -> Unit) {
 
         with(binding) {
             // 항목 하나
@@ -28,45 +28,94 @@ class StudyAllViewHolder(
 
                 // 클릭 리스너 설정.
                 setOnClickListener {
-                    rowClickListener.invoke(studyData.studyIdx)
+                    rowClickListener.invoke(studyData.first.studyIdx)
                 }
 
+                // 스터디 이미지
+                with(imageViewStudyAllPic){
 
-                with(imageViewStudyAllHeart){
+                    // 이미지 클릭 시
                     setOnClickListener {
-                        toggleLikeButton()
+
+                    }
+                }
+
+                // 모집중, 모집완료
+                when (studyData.first.studyState) {
+                    true -> {
+                        textViewStudyAllState.text = "모집중"
+                    }
+                    false -> {
+                        textViewStudyAllState.text = "모집완료"
+                    }
+                }
+                // 스터디 진행 방식
+                with(textViewStudyAllStateMeet){
+
+                    when (studyData.first.studyOnOffline){
+
+                        1 -> {
+                            text = "온라인"
+                            setTextColor(Color.parseColor("#0FA981"))
+                        }
+                        2 -> {
+                            text = "오프라인"
+                            setTextColor(Color.parseColor("#EB9C58"))
+                        }
+                        3 -> {
+                            text = "온오프혼합"
+                            setTextColor(Color.parseColor("#0096FF"))
+                        }
+                    }
+                }
+                // 스터디 제목
+                textViewStudyAllTitle.text = studyData.first.studyTitle
+                // 스터디 기간
+                with(textViewStudyAllStatePeriod){
+                    when (studyData.first.studyPeriod) {
+                        1 -> {
+                            text = "단기"
+                        }
+                        2 -> {
+                            text = "정규"
+                        }
+                        else -> {
+                            text = "도전"
+                        }
+                    }
+                }
+
+                // 스터디 최대 인원수
+                textViewStudyAllStateInwon.text = studyData.second.toString()+"/"+studyData.first.studyMaxMember.toString()
+
+                // 찜 버튼
+                with(imageViewStudyAllHeart){
+
+                    // 클릭 시
+                    setOnClickListener {
+                        val currentIconResId = tag as? Int ?: R.drawable.icon_favorite_24px
+
+                        if (currentIconResId == R.drawable.icon_favorite_24px) {
+                            // 좋아요 채워진 아이콘으로 변경
+                            setImageResource(R.drawable.icon_favorite_full_24px)
+                            // 상태 태그 업데이트
+                            tag = R.drawable.icon_favorite_full_24px
+
+                            // 새 색상을 사용하여 틴트 적용
+                            setColorFilter(Color.parseColor("#D73333"))
+
+                        } else {
+                            // 기본 아이콘으로 변경
+                            setImageResource(R.drawable.icon_favorite_24px)
+                            // 상태 태그 업데이트
+                            tag = R.drawable.icon_favorite_24px
+
+                            // 틴트 제거 (원래 아이콘 색상으로 복원)
+                            clearColorFilter()
+                        }
                     }
                 }
             }
         }
-    }
-
-    // 좋아요 버튼 상태 토글
-    fun toggleLikeButton() {
-        with(binding){
-            with(imageViewStudyAllHeart){
-                val currentIconResId = tag as? Int ?: R.drawable.icon_favorite_24px
-
-                if (currentIconResId == R.drawable.icon_favorite_24px) {
-                    // 좋아요 채워진 아이콘으로 변경
-                    setImageResource(R.drawable.icon_favorite_full_24px)
-                    // 상태 태그 업데이트
-                    tag = R.drawable.icon_favorite_full_24px
-
-                    // 새 색상을 사용하여 틴트 적용
-                    setColorFilter(Color.parseColor("#D73333"))
-
-                } else {
-                    // 기본 아이콘으로 변경
-                    setImageResource(R.drawable.icon_favorite_24px)
-                    // 상태 태그 업데이트
-                    tag = R.drawable.icon_favorite_24px
-
-                    // 틴트 제거 (원래 아이콘 색상으로 복원)
-                    clearColorFilter()
-                }
-            }
-        }
-
     }
 }

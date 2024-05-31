@@ -18,4 +18,7 @@
 
     <!-- 포인트 color -->
     <color name="pointColor">#1A51C5</color>
+
+    <!-- TextView 클릭 시 -->
+    <color name="textViewClickGray">#ddd</color>
 </resources>

@@ -29,10 +29,13 @@ enum class FragmentName (var str: String){
 
     // 프로필
     PROFILE("ProfileFragment"),
+    PROFILE_WEB("ProfileWebFragment"),
     SETTINGS("SettingsFragment"),
 
     // 스터디
     STUDY("StudyFragment"),
+    STUDY_ALL("StudyAllFragment"),
+    STUDY_MY("StudyMyFragment"),
     FILTER_SORT("FilterSortFragment"),
     BOTTOM_NAVI("BottomNaviFragment"),
 

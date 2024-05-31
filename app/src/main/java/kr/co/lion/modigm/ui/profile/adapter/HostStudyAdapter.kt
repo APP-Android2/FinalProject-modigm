@@ -7,9 +7,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowHostStudyBinding
 import kr.co.lion.modigm.databinding.RowPartStudyBinding
+import kr.co.lion.modigm.model.StudyData
 
 class HostStudyAdapter(
-    private var hostStudyList: List<String>, // 바꿔야함
+    private var hostStudyList: List<StudyData>,
     private val rowClickListener: (String) -> Unit,
 ) : RecyclerView.Adapter<HostStudyViewHolder>() {
 
@@ -21,15 +22,15 @@ class HostStudyAdapter(
     }
 
     override fun getItemCount(): Int {
-        return 5 //deliveryList.size
+        return hostStudyList.size
     }
 
     override fun onBindViewHolder(holder: HostStudyViewHolder, position: Int) {
-        holder.bind("data", rowClickListener)
+        holder.bind(hostStudyList[position], rowClickListener)
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<String>) { //바꿔야함
+    fun updateData(list: List<StudyData>) {
         hostStudyList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())

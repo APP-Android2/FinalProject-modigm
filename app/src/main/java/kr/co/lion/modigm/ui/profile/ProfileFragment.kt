@@ -11,29 +11,36 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
+import kr.co.lion.modigm.db.user.RemoteUserDataSource
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.chat.ChatFragment
+import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
-import java.net.URL
+import kr.co.lion.modigm.util.Interest
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
     lateinit var mainActivity: MainActivity
     private val addressViewModel: ProfileViewModel by viewModels()
 
+    lateinit var user: UserData
     var myProfile = true
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentProfileBinding = FragmentProfileBinding.inflate(inflater,container,false)
-        // AddressModifyViewModel = AddressModifyViewModel()
-        // fragmentAddressModifyBinding.lifecycleOwner = this
         mainActivity = activity as MainActivity
 
         return fragmentProfileBinding.root
@@ -42,15 +49,19 @@ class ProfileFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 전달받은 uid를 사용해 프로필 주인의 정보를 불러온다
+        CoroutineScope(Dispatchers.Main).launch {
+            user = RemoteUserDataSource.loadUserDataByUid("fKdVSYNodxYgYJHq8MYKlAC2GCk1")!!
+
+            setupMemberInfo(user)
+            setupRecyclerViewLink(user)
+            setupRecyclerViewPartStudy()
+            setupRecyclerViewHostStudy()
+        }
+
         setupToolbar()
         setupFab()
-        setupMemberInfo()
-        setupRecyclerViewLink()
-        setupRecyclerViewPartStudy()
-        setupRecyclerViewHostStudy()
     }
-
-
 
     private fun setupToolbar() {
         fragmentProfileBinding.apply {
@@ -63,11 +74,14 @@ class ProfileFragment: Fragment() {
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.menu_item_profile_setting -> {
-                            mainActivity.replaceFragment(FragmentName.SETTINGS, true, true, null)
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.containerMain, SettingsFragment())
+                                .addToBackStack(FragmentName.FILTER_SORT.str)
+                                .commit()
                         }
 
                         R.id.menu_item_profile_more -> {
-                            // mainActivity.replaceFragment(FragmentName.CART_FRAGMENT, true, true, null)
+                            // TODO("신고하기 기능")
                         }
                     }
                     true
@@ -106,44 +120,73 @@ class ProfileFragment: Fragment() {
                 }
 
                 setOnClickListener {
-                    mainActivity.replaceFragment(FragmentName.CHAT, true, true, null)
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, ChatFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
                 }
             }
         }
     }
 
-    private fun setupMemberInfo() {
+    private fun setupMemberInfo(user: UserData) {
         fragmentProfileBinding.apply {
-            // 프로필 이미지
-            imageProfilePic.setImageResource(R.drawable.image_loading_gray)
             // 이름
-            textViewProfileName.text = "김철수"
+            textViewProfileName.text = user.userName
             // 자기소개
-            textViewProfileIntro.text = "gkgkgk"
+            textViewProfileIntro.text = user.userIntro
             // 관심분야
-            chipGroupProfile.addView(Chip(mainActivity).apply {
-                text = "Kotlin" // chip 텍스트 설정
-                setEnsureMinTouchTargetSize(false) // 자동 padding 없애기
-                setChipBackgroundColorResource(android.R.color.white) // 배경 흰색으로 지정
-                isCloseIconVisible = true // chip에서 X 버튼 보이게 하기
-                setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) } // X버튼 누르면 chip 없어지게 하기
+            for (interestNum in user.userInterestList) {
+                chipGroupProfile.addView(Chip(mainActivity).apply {
+                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
+                    text = Interest.fromNum(interestNum)!!.str
+                    // 자동 padding 없애기
+                    setEnsureMinTouchTargetSize(false)
+                    // 배경 흰색으로 지정
+                    setChipBackgroundColorResource(android.R.color.white)
+                    // 클릭 불가
+                    isClickable = false
+                    // chip에서 X 버튼 보이게 하기
+                    //isCloseIconVisible = true
+                    // X버튼 누르면 chip 없어지게 하기
+                    //setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) }
+                })
+            }
 
-            })
+            // 프로필 이미지
+            CoroutineScope(Dispatchers.Main).launch {
+                RemoteUserDataSource.loadUserProfilePic(
+                    mainActivity,
+                    user.userProfilePic,
+                    imageProfilePic
+                )
+            }
         }
     }
 
-    private fun setupRecyclerViewLink() {
+    private fun setupRecyclerViewLink(user: UserData) {
         // 어댑터 선언
         val linkAdapter: LinkAdapter = LinkAdapter(
-            // 빈 리스트를 넣어 초기화
-            emptyList(),
+            // 사용자 정보 중 링크 목록
+            user.userLinkList,
 
             // 항목을 클릭: Url을 받아온다
             rowClickListener = { linkUrl ->
                 Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
                 viewLifecycleOwner.lifecycleScope.launch {
-                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
+                    // bundle 에 필요한 정보를 담는다
+                    val bundle = Bundle()
+                    bundle.putString("link", linkUrl)
 
+                    // 이동할 프래그먼트로 bundle을 넘긴다
+                    val profileWebFragment = ProfileWebFragment()
+                    profileWebFragment.arguments = bundle
+
+                    // Fragment 교체
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, ProfileWebFragment())
+                        .addToBackStack(FragmentName.FILTER_SORT.str)
+                        .commit()
                 }
             }
         )
@@ -156,76 +199,79 @@ class ProfileFragment: Fragment() {
 
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
-
             }
         }
     }
 
     private fun setupRecyclerViewPartStudy() {
-        // 어댑터 선언
-        val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
-            // 빈 리스트를 넣어 초기화
-            emptyList(),
+        // 참여한 스터디 리스트 불러오기
+        lateinit var partStudyList: List<StudyData>
+        CoroutineScope(Dispatchers.Main).launch {
+            partStudyList = RemoteStudyDataSource.loadUserPartStudy(user.userUid)
 
-            // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
-            rowClickListener = { linkUrl ->
-                Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
-                viewLifecycleOwner.lifecycleScope.launch {
-                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
-                    mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
+            // 어댑터 선언
+            val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
+                // 빈 리스트를 넣어 초기화
+                partStudyList,
+
+                // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
+                rowClickListener = { studyIdx ->
+                    Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, DetailFragment())
+                            .addToBackStack(FragmentName.FILTER_SORT.str)
+                            .commit()
+                    }
                 }
-            }
-        )
+            )
 
-        // 리사이클러뷰 구성
-        fragmentProfileBinding.apply {
-            recyclerViewProfilePartStudy.apply {
-                // 리사이클러뷰 어댑터
-                adapter = partStudyAdapter
+            // 리사이클러뷰 구성
+            fragmentProfileBinding.apply {
+                recyclerViewProfilePartStudy.apply {
+                    // 리사이클러뷰 어댑터
+                    adapter = partStudyAdapter
 
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
+                    // 리사이클러뷰 레이아웃
+                    layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
+                }
             }
         }
     }
 
     private fun setupRecyclerViewHostStudy() {
-        // 어댑터 선언
-        val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
-            // 빈 리스트를 넣어 초기화
-            emptyList(),
+        // 진행한 스터디 리스트 불러오기
+        lateinit var hostStudyList: List<StudyData>
+        CoroutineScope(Dispatchers.Main).launch {
+            hostStudyList = RemoteStudyDataSource.loadUserHostStudy(user.userUid)
 
-            // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
-            rowClickListener = { linkUrl ->
-                Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
-                viewLifecycleOwner.lifecycleScope.launch {
-                    Log.d("테스트 rowClickListener deliveryIdx", extractDomain(linkUrl))
-                    mainActivity.replaceFragment(FragmentName.STUDY, true, true, null)
+            // 어댑터 선언
+            val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
+                // 빈 리스트를 넣어 초기화
+                hostStudyList,
+
+                // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
+                rowClickListener = { studyIdx ->
+                    Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, DetailFragment())
+                            .addToBackStack(FragmentName.FILTER_SORT.str)
+                            .commit()
+                    }
+                }
+            )
+
+            // 리사이클러뷰 구성
+            fragmentProfileBinding.apply {
+                recyclerViewProfileHostStudy.apply {
+                    // 리사이클러뷰 어댑터
+                    adapter = hostStudyAdapter
+
+                    // 리사이클러뷰 레이아웃
+                    layoutManager = LinearLayoutManager(mainActivity)
                 }
             }
-        )
-
-        // 리사이클러뷰 구성
-        fragmentProfileBinding.apply {
-            recyclerViewProfileHostStudy.apply {
-                // 리사이클러뷰 어댑터
-                adapter = hostStudyAdapter
-
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(mainActivity)
-            }
-        }
-    }
-
-    // URL에서 도메인을 추출하는 함수
-    private fun extractDomain(url: String): String {
-        return try {
-            val uri = URL(url)
-            val domain = uri.host
-            // www. 접두사를 제거
-            if (domain.startsWith("www.")) domain.substring(4) else domain
-        } catch (e: Exception) {
-            "invalid"
         }
     }
 }

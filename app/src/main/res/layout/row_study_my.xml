@@ -18,6 +18,7 @@
             android:orientation="horizontal"
             android:padding="16dp">
             <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imageViewStudyMyPic"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/logo_modigm"/>
@@ -40,7 +41,7 @@
                         android:textStyle="bold"
                         android:textSize="14dp"/>
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyMyStateJangso"
+                        android:id="@+id/textViewStudyMyStateMeet"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" 온라인"
@@ -64,7 +65,7 @@
                         android:src="@drawable/icon_watch"
                         />
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyMyStateGigan"
+                        android:id="@+id/textViewStudyMyStatePeriod"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" 단기 "

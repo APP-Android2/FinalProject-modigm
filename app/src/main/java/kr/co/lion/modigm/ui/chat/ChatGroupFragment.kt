@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,6 +17,7 @@ import kr.co.lion.modigm.databinding.FragmentChatGroupBinding
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
+import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
 import kr.co.lion.modigm.ui.chat.vm.ChatViewModel
 
@@ -22,34 +25,46 @@ class ChatGroupFragment : Fragment() {
 
     lateinit var fragmentChatGroupBinding: FragmentChatGroupBinding
     lateinit var mainActivity: MainActivity
+    private lateinit var chatRoomAdapter: ChatRoomAdapter
 
     // 내가 속한 그룹 채팅 방들을 담고 있을 리스트
     var chatRoomDataList = mutableListOf<ChatRoomData>()
+
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+//    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         fragmentChatGroupBinding = FragmentChatGroupBinding.inflate(layoutInflater)
         mainActivity = activity as MainActivity
 
-        val chatViewModel = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
-        chatViewModel.updateChatRoomData.observe(viewLifecycleOwner) {
-            gettingGroupChatRoomData()
-        }
-
-        // Recycler 뷰
-        setupRecyclerView()
-
-        // 내가 속한 그룹 채팅 방(RecyclerView)
-        gettingGroupChatRoomData()
-
         return fragmentChatGroupBinding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 프래그먼트가 다시 활성화될 때 데이터 갱신
-        Log.d("test1234", "ChatGroupFragment - onResume")
-        // gettingGroupChatRoomData()
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // RecyclerView 초기화
+        setupRecyclerView()
+
+        // 실시간 채팅 방 데이터 업데이트
+        getAndUpdateLiveChatRooms()
+    }
+
+    // 실시간 채팅 방 데이터 업데이트
+    private fun getAndUpdateLiveChatRooms(){
+        // 내가 속한 그룹 채팅 방(RecyclerView)를 실시간으로 업데이트
+        ChatRoomDao.updateChatRoomsListener(loginUserId, groupChat = true) { updatedChatRooms ->
+            chatRoomDataList.clear()
+            chatRoomDataList.addAll(updatedChatRooms)
+
+            // RecyclerView 갱신
+            activity?.runOnUiThread {
+                fragmentChatGroupBinding.recyclerViewChatGroup.adapter?.notifyDataSetChanged()
+            }
+            Log.d("test1234", "실시간 Update - GroupList")
+        }
     }
 
     // RecyclerView 초기화
@@ -57,27 +72,10 @@ class ChatGroupFragment : Fragment() {
         // 대화방 목록 RecyclerView 설정
         fragmentChatGroupBinding.recyclerViewChatGroup.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
-                // 대화방 선택 시 동작
+            chatRoomAdapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
                 Log.d("test1234", "${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
-            }, mainActivity)
-        }
-    }
-
-    // 내가 속한 모든 그룹 채팅 방을 가져와 화면의 RecyclerView를 갱신한다.
-    fun gettingGroupChatRoomData() {
-        CoroutineScope(Dispatchers.Main).launch {
-            // 대화방 목록 데이터 가져오기
-            val newChatRoomDataList = ChatRoomDao.getGroupChatRooms("currentUser")
-
-            // 새로운 목록으로 업데이트
-            chatRoomDataList.clear()
-            chatRoomDataList.addAll(newChatRoomDataList)
-
-            // RecyclerView 갱신
-            activity?.runOnUiThread {
-                fragmentChatGroupBinding.recyclerViewChatGroup.adapter?.notifyDataSetChanged()
-            }
+            }, mainActivity, loginUserId)
+            adapter = chatRoomAdapter
         }
     }
 }

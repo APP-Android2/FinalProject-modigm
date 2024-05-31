@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,12 +18,22 @@ class JoinDuplicateFragment : Fragment() {
         FragmentJoinDuplicateBinding.inflate(layoutInflater)
     }
 
+    val provider by lazy {
+        arguments?.getString("provider")
+    }
+
+    val email by lazy {
+        arguments?.getString("email")
+    }
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         settingToolBar()
+        settingExistingUserInfo()
         settingButtonJoinDupLogin()
 
         return binding.root
@@ -33,6 +44,18 @@ class JoinDuplicateFragment : Fragment() {
             setNavigationIcon(R.drawable.arrow_back_24px)
             setNavigationOnClickListener {
                 (requireActivity() as MainActivity).removeFragment(FragmentName.JOIN_DUPLICATE)
+            }
+        }
+    }
+
+    private fun settingExistingUserInfo(){
+        binding.textViewJoinDupUser.text = email
+        when(provider){
+            "kakao" -> {
+                binding.imageViewJoinDupServiceType.setImageResource(R.drawable.kakaotalk_sharing_btn_small)
+            }
+            "email" -> {
+                binding.imageViewJoinDupServiceType.setImageResource(R.drawable.email_login_logo)
             }
         }
     }

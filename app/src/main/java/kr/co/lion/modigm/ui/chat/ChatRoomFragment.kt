@@ -1,22 +1,21 @@
 package kr.co.lion.modigm.ui.chat
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,6 +24,7 @@ import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
 import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
+import kr.co.lion.modigm.ui.chat.adapter.ChatRoomMemberAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.dao.ChatMessagesDao
 import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
@@ -39,11 +39,17 @@ class ChatRoomFragment : Fragment() {
     lateinit var fragmentChatRoomBinding: FragmentChatRoomBinding
     lateinit var mainActivity: MainActivity
     private lateinit var messageAdapter: MessageAdapter
+    private lateinit var chatRoomMemberAdapter: ChatRoomMemberAdapter
+
 
     // 보낼 메세지를 담고 있을 리스트
     private val messages = mutableListOf<ChatMessagesData>()
-    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정하세요
-    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정하세요
+    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+
+    // 테스트 아이디 바꾸기
+//    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+//    private val loginUserName = "주성원" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
     private lateinit var chatViewModel: ChatViewModel
 
@@ -68,6 +74,16 @@ class ChatRoomFragment : Fragment() {
             isGroupChat = it.getBoolean("groupChat")
         }
 
+        return fragmentChatRoomBinding.root
+    }
+
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 입장시 -> 메시지 읽음 처리
+        readMessage()
+
         // 채팅 방 - (툴바) 세팅
         settingToolbar()
 
@@ -76,35 +92,40 @@ class ChatRoomFragment : Fragment() {
 
         // RecyclerView 초기화
         setupRecyclerView()
+        setupMemberRecyclerView()
 
-        // 테스트 메시지 추가
-        addTestMessages()
+        // 메시지 가져오기 및 업데이트
+        getAndUpdateMessages()
 
-        return fragmentChatRoomBinding.root
+        // 사이드 네비게이션 클릭 Event
+        sideNavigationTextViewClickEvent()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("test1234", "ChatRoomFragment - onDestroy")
-        chatViewModel.triggerChatRoomDataUpdate()
+
+    // Pause 상태 - 채팅방 나갈때도 포함되며 Destory에 안쓴 이유는 (onDestory 보다 먼저 실행되서...) 어차피 readMessage 처리 해야해서
+    override fun onPause() {
+        super.onPause()
+        Log.d("test1234", "ChatRoomFragment - onPause 실행")
+        readMessage()
     }
 
     // 툴바 세팅
     fun settingToolbar() {
         fragmentChatRoomBinding.apply {
             toolbarChatRoom.apply {
+                setNavigationViewWidth()
                 title = "$chatTitle"
                 if (isGroupChat == true) subtitle = "현재인원 ${chatMemberList.size}명"
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
-                    mainActivity.removeFragment(FragmentName.CHAT_ROOM)
+                    parentFragmentManager.popBackStack()
+                    // mainActivity.removeFragment(FragmentName.CHAT_ROOM)
                 }
-                // 오른쪽 툴바 버튼(More_Vert, 수직 점 세개)
+                // 오른쪽 툴바 버튼(Menu)
                 setOnMenuItemClickListener {
                     when (it.itemId) {
-                        // 점 세개 클릭 시
-                        R.id.chatroom_toolbar_more_dot -> {
-                            showPopupMenu()
+                        R.id.chatroom_toolbar_menu -> {
+                            drawerLayoutContent.openDrawer(GravityCompat.END)
                         }
                     }
                     true
@@ -113,33 +134,24 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
-    // 팝업 메뉴 세팅 - 툴바의 점 세개 버튼 누르면 나오는 팝업 메뉴
-    private fun showPopupMenu() {
+    // 네비게이션 뷰의 너비를 동적으로 설정하는 함수
+    private fun setNavigationViewWidth() {
         fragmentChatRoomBinding.apply {
-            // 툴바의 점 세개 버튼 위치에 팝업 메뉴를 표시
-            val view = toolbarChatRoom.findViewById<View>(R.id.chatroom_toolbar_more_dot) ?: return
-            val popupMenu = PopupMenu(requireContext(), view)
-            popupMenu.menuInflater.inflate(R.menu.popup_menu_chatroom_more_vert, popupMenu.menu)
-            popupMenu.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    // 채팅방 나가기
-                    R.id.item1 -> {
-                        outChatRoom()
-                        mainActivity.removeFragment(FragmentName.CHAT_ROOM)
-                        true
-                    }
-                    // 멤버 보기
-                    R.id.item2 -> {
-                        true
-                    }
-                    // 공지
-                    R.id.item3 -> {
-                        true
-                    }
-                    else -> false
-                }
-            }
-            popupMenu.show()
+            val displayMetrics = DisplayMetrics()
+            requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+            val width = displayMetrics.widthPixels
+            val params = navigationViewContent.layoutParams
+            params.width = (width * 0.8).toInt() // 화면 폭의 80%로 설정
+            navigationViewContent.layoutParams = params
+        }
+    }
+
+    // 네비게이션 뷰의 멤버 RecyclerView 초기화
+    private fun setupMemberRecyclerView() {
+        fragmentChatRoomBinding.recyclerViewChatRoomMemeberList.apply {
+            layoutManager = LinearLayoutManager(context)
+            chatRoomMemberAdapter = ChatRoomMemberAdapter(chatMemberList)
+            adapter = chatRoomMemberAdapter
         }
     }
 
@@ -191,13 +203,15 @@ class ChatRoomFragment : Fragment() {
 
                     // 전송 후 키보드 숨기기
                     activity?.hideSoftInput()
+
+                    ChatRoomDao.increaseUnreadMessageCount(chatIdx, chatSenderId)
                 }
             }
         }
     }
 
-    // 테스트 메시지 추가 - (DB 연동하면 나중에 삭제해야함)
-    private fun addTestMessages() {
+    // 해당 채팅 방의 메시지 추가 및 가져오기 - (DB 연동하면 나중에 삭제해야함)
+    private fun getAndUpdateMessages() {
         /*
         CoroutineScope(Dispatchers.Main).launch {
             val messagesList = ChatMessagesDao.getChatMessages(chatIdx)
@@ -265,10 +279,49 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
+    // 사이드 네비게이션 클릭 Event
+    fun sideNavigationTextViewClickEvent() {
+        fragmentChatRoomBinding.apply {
+
+            // 공지 클릭 시
+            textViewSpeaker.setOnClickListener {
+                // 눌렸을 때의 효과
+                it.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textViewClickGray))
+
+                // 잠시 후 기본 상태로 돌아가기
+                it.postDelayed({
+                    it.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+                }, 30)
+            }
+
+            // 대화방 나가기 클릭 시
+            textViewLeaveChat.setOnClickListener {
+                // 눌렸을 때의 효과
+                it.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textViewClickGray))
+
+                // 잠시 후 기본 상태로 돌아가기
+                it.postDelayed({
+                    it.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+                }, 30)
+                
+                // 해당 채팅방 멤버 리스트 제거 및 나가기
+                outChatRoom()
+            }
+        }
+    }
+
     // 대화방 나가기
     fun outChatRoom() {
         CoroutineScope(Dispatchers.Main).launch {
             ChatRoomDao.removeUserFromChatMemberList(chatIdx, loginUserId)
+        }
+        parentFragmentManager.popBackStack()
+    }
+
+    // 메세지 읽음 처리
+    fun readMessage() {
+        CoroutineScope(Dispatchers.Main).launch {
+            ChatRoomDao.chatRoomMessageAsRead(chatIdx, loginUserId)
         }
     }
 }

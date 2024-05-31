@@ -10,8 +10,10 @@ data class ChatRoomData(
     val lastChatMessage: String = "",
     val lastChatFullTime: Long = 0,
     val lastChatTime: String = "",
-    val lastReadTimestamp: Map<String, Long> = mutableMapOf("1" to 0L), // 각 참여자의 마지막으로 읽은 메시지의 타임스탬프
-    var unreadMessageCount: Int = 0 // 안 읽은 메시지 개수를 추적하는 필드
+    val unreadMessageCount: MutableMap<String, Int> = mutableMapOf() // 사용자별 안 읽은 메시지 개수를 추적하는 필드
 ) {
-    constructor(): this(0,"", "", listOf(), 2, false, "", 0, "", mutableMapOf("1" to 0L), 0)
+    constructor(): this(
+        0,"", "", listOf(), 2, false,
+        "", 0, "",
+    )
 }
