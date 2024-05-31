@@ -48,8 +48,8 @@ class ChatRoomFragment : Fragment() {
     private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
     // 테스트 아이디 바꾸기
-//    private val loginUserId = "iuUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-//    private val loginUserName = "아이유" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+//    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+//    private val loginUserName = "주성원" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
     private lateinit var chatViewModel: ChatViewModel
 
