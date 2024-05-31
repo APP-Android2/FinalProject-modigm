@@ -207,7 +207,7 @@ class ProfileFragment: Fragment() {
         // 참여한 스터디 리스트 불러오기
         lateinit var partStudyList: List<StudyData>
         CoroutineScope(Dispatchers.Main).launch {
-            partStudyList = RemoteStudyDataSource.loadUserPartStudy(user.userNumber)
+            partStudyList = RemoteStudyDataSource.loadUserPartStudy(user.userUid)
 
             // 어댑터 선언
             val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
@@ -243,7 +243,7 @@ class ProfileFragment: Fragment() {
         // 진행한 스터디 리스트 불러오기
         lateinit var hostStudyList: List<StudyData>
         CoroutineScope(Dispatchers.Main).launch {
-            hostStudyList = RemoteStudyDataSource.loadUserHostStudy(user.userNumber)
+            hostStudyList = RemoteStudyDataSource.loadUserHostStudy(user.userUid)
 
             // 어댑터 선언
             val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
