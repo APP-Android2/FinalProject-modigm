@@ -138,9 +138,11 @@ class WriteFragment : Fragment() {
                         if (didAnswer) {
                             btn.setBackgroundColor(Color.parseColor("#1A51C5"))
                             btn.setTextColor(Color.parseColor("#FFFFFF"))
+                            viewModel.activateButton() // 버튼 활성화
                         } else {
                             btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
                             btn.setTextColor(Color.parseColor("#777777"))
+                            viewModel.deactivateButton() // 버튼 비활성화
                         }
                     }
                 }
@@ -154,9 +156,11 @@ class WriteFragment : Fragment() {
                         if (didAnswer) {
                             btn.setBackgroundColor(Color.parseColor("#1A51C5"))
                             btn.setTextColor(Color.parseColor("#FFFFFF"))
+                            viewModel.activateButton() // 버튼 활성화
                         } else {
                             btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
                             btn.setTextColor(Color.parseColor("#777777"))
+                            viewModel.deactivateButton() // 버튼 비활성화
                         }
                     }
                 }
@@ -171,10 +175,12 @@ class WriteFragment : Fragment() {
                             Log.d("TedMoon", "Did Clicked? : ${viewModel.proceedClicked}")
                             btn.setBackgroundColor(Color.parseColor("#1A51C5"))
                             btn.setTextColor(Color.parseColor("#FFFFFF"))
+                            viewModel.activateButton() // 버튼 활성화
                         } else {
                             Log.d("TedMoon", "Did Clicked? : ${viewModel.proceedClicked}")
                             btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
                             btn.setTextColor(Color.parseColor("#777777"))
+                            viewModel.deactivateButton() // 버튼 비활성화
                         }
                     }
                 }
@@ -188,9 +194,11 @@ class WriteFragment : Fragment() {
                         if (didAnswer) {
                             btn.setBackgroundColor(Color.parseColor("#1A51C5"))
                             btn.setTextColor(Color.parseColor("#FFFFFF"))
+                            viewModel.activateButton() // 버튼 활성화
                         } else {
                             btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
                             btn.setTextColor(Color.parseColor("#777777"))
+                            viewModel.deactivateButton() // 버튼 비활성화
                         }
                     }
                 }
@@ -204,9 +212,11 @@ class WriteFragment : Fragment() {
                         if (didAnswer) {
                             btn.setBackgroundColor(Color.parseColor("#1A51C5"))
                             btn.setTextColor(Color.parseColor("#FFFFFF"))
+                            viewModel.activateButton() // 버튼 활성화
                         } else {
                             btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
                             btn.setTextColor(Color.parseColor("#777777"))
+                            viewModel.deactivateButton() // 버튼 비활성화
                         }
                     }
                 }
