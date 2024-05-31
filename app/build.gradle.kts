@@ -94,4 +94,7 @@ dependencies {
 
     // 구글 장소 api
     implementation("com.google.android.libraries.places:places:3.3.0")
+
+    // 카카오 로그인 api
+    implementation("com.kakao.sdk:v2-user:2.20.1")
 }
