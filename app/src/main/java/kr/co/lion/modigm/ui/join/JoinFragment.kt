@@ -26,6 +26,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.JoinType
 
 class JoinFragment : Fragment() {
 
@@ -36,10 +37,10 @@ class JoinFragment : Fragment() {
     private val viewModelStep2: JoinStep2ViewModel by activityViewModels()
     private val viewModelStep3: JoinStep3ViewModel by activityViewModels()
 
-//    private val joinType: String by lazy {
-//        arguments?.getString("joinType").toString()
-//    }
-    var joinType = "email"
+    private val joinType: JoinType? by lazy {
+        JoinType.getType(arguments?.getString("joinType")?:"")
+    }
+//    var joinType = "email"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -127,13 +128,27 @@ class JoinFragment : Fragment() {
     private fun settingViewPagerAdapter(){
         val viewPagerAdapter = JoinViewPagerAdapter(this)
 
-        viewPagerAdapter.addFragments(
-            arrayListOf(
-                JoinStep1Fragment(),
-                JoinStep2Fragment(),
-                JoinStep3Fragment()
-            )
-        )
+        when(joinType){
+            // 이메일로 회원가입할 때
+            JoinType.EMAIL -> {
+                viewPagerAdapter.addFragments(
+                    arrayListOf(
+                        JoinStep1Fragment(),
+                        JoinStep2Fragment(),
+                        JoinStep3Fragment()
+                    )
+                )
+            }
+            // SNS계정으로 회원가입할 때
+            else -> {
+                viewPagerAdapter.addFragments(
+                    arrayListOf(
+                        JoinStep2Fragment(),
+                        JoinStep3Fragment()
+                    )
+                )
+            }
+        }
 
         with(binding){
             // 어댑터 설정
@@ -157,15 +172,29 @@ class JoinFragment : Fragment() {
             // 다음 버튼 클릭 시 다음 화면으로 넘어가기
             buttonJoinNext.setOnClickListener {
 
-                // 화면별로 유효성 검사 먼저 하고
-                when(viewPagerJoin.currentItem){
-                    // 이메일, 비밀번호 화면
-                    0 -> step1Process()
-                    // 이름, 전화번호 인증 화면
-                    1 -> step2Process()
-                    // 관심 분야 선택 화면
-                    2 -> step3Process()
+                when(joinType){
+                    // 이메일로 회원가입할 때
+                    JoinType.EMAIL -> {
+                        when(viewPagerJoin.currentItem){
+                            // 이메일, 비밀번호 화면
+                            0 -> step1Process()
+                            // 이름, 전화번호 인증 화면
+                            1 -> step2Process()
+                            // 관심 분야 선택 화면
+                            2 -> step3Process()
+                        }
+                    }
+                    // SNS계정으로 회원가입할 때
+                    else -> {
+                        when(viewPagerJoin.currentItem){
+                            // 이름, 전화번호 인증 화면
+                            0 -> step2Process()
+                            // 관심 분야 선택 화면
+                            1 -> step3Process()
+                        }
+                    }
                 }
+
             }
         }
 
@@ -276,8 +305,9 @@ class JoinFragment : Fragment() {
 
         lifecycleScope.launch {
             when(joinType){
-                "email" -> viewModel.completeJoinEmailUser()
-                "phone" -> viewModel.completeJoinSnsUser()
+                JoinType.EMAIL -> viewModel.completeJoinEmailUser()
+                JoinType.KAKAO -> viewModel.completeJoinSnsUser()
+                else -> {}
             }
         }
 
