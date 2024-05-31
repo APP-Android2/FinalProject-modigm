@@ -9,15 +9,17 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteProceedBinding
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.write.more.BottomSheetWriteProceedFragment
+import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
 class WriteProceedFragment : Fragment() {
 
     lateinit var fragmentWriteProceedBinding: FragmentWriteProceedBinding
-    lateinit var mainActivity: MainActivity
+    private val viewModel: WriteViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,7 +27,6 @@ class WriteProceedFragment : Fragment() {
         // Inflate the layout for this fragment
 
         fragmentWriteProceedBinding = FragmentWriteProceedBinding.inflate(inflater)
-        mainActivity = activity as MainActivity
         return fragmentWriteProceedBinding.root
     }
 
@@ -33,6 +34,8 @@ class WriteProceedFragment : Fragment() {
         settingView()
         settingEvent()
     }
+
+
 
 
     fun settingEvent(){
