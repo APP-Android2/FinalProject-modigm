@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.join.vm
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -43,15 +44,15 @@ class JoinViewModel : ViewModel() {
     // 이미 등록된 전화번호 계정의 프로바이더
     var alreadyRegisteredUserProvider = ""
 
-    private var _phoneCredential: MutableLiveData<PhoneAuthCredential> = MutableLiveData()
-    val phoneCredential: LiveData<PhoneAuthCredential> = _phoneCredential
+    private val _phoneCredential: MutableLiveData<PhoneAuthCredential> = MutableLiveData()
 
     fun setPhoneCredential(credential: PhoneAuthCredential){
         _phoneCredential.value = credential
     }
 
     // 회원가입 완료 여부
-    var joinCompleted = false
+    private var _joinCompleted = MutableLiveData(false)
+    val joinCompleted: LiveData<Boolean> = _joinCompleted
 
     // 회원 객체 생성을 위한 정보
     private val _uid = MutableLiveData<String>()
@@ -79,8 +80,9 @@ class JoinViewModel : ViewModel() {
         // 오류 메시지
         var error = ""
         try {
-            val userCredential = _auth.createUserWithEmailAndPassword(_email.value!!, _password.value!!).await()
-            _uid.value = userCredential.user?.uid!!
+            val authResult = _auth.createUserWithEmailAndPassword(_email.value!!, _password.value!!).await()
+            _user.value = authResult.user
+            _uid.value = authResult.user?.uid!!
             verifiedEmail = _email.value!!
             //userCredential.user?.delete()
             //_auth.signOut()
@@ -93,8 +95,12 @@ class JoinViewModel : ViewModel() {
     }
 
     // 회원가입 이탈 시 이미 Auth에 등록되어있는 인증 정보 삭제
-    fun deleteCurrentUser(){
-        _auth.currentUser?.delete()
+    suspend fun deleteCurrentUser(){
+        // 이메일 인증 정보 삭제
+        if(verifiedEmail.isNotEmpty()){
+            _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).await().user?.delete()
+        }
+        // 전화번호 인증 정보는 이미 중복확인을 할 때 삭제해놓기 때문에 필요없음
     }
 
     // UserInfoData 객체 생성
@@ -109,12 +115,18 @@ class JoinViewModel : ViewModel() {
     }
 
     // 회원가입 완료 전에 이메일(SNS) 계정과 전화번호 계정을 통합
-    private suspend fun linkEmailAndPhone(){
-        // 이메일 계정 로그인
-        _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).await()
-
-        // 이메일 계정에 전화번호 계정 연결
-        _auth.currentUser?.linkWithCredential(phoneCredential.value!!)?.await()
+    private fun linkEmailAndPhone(){
+        _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).addOnCompleteListener { loginTask ->
+            if(loginTask.isSuccessful){
+                _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
+                    if(!linkTask.isSuccessful){
+                        Log.d("testError", "linkWithCredential : ${linkTask.exception}")
+                    }
+                }
+            }else{
+                Log.d("testError", "signInWithEmailAndPassword : ${loginTask.exception}")
+            }
+        }
     }
 
     // 이메일 계정 회원 가입 완료
@@ -127,7 +139,7 @@ class JoinViewModel : ViewModel() {
         // 파이어스토어에 데이터 저장
         _userInfoRepository.insetUserData(user)
 
-        joinCompleted = true
+        _joinCompleted.value = true
     }
 
     // SNS 계정 회원 가입 완료
@@ -142,6 +154,6 @@ class JoinViewModel : ViewModel() {
             _userInfoRepository.insetUserData(user)
         }
 
-        joinCompleted = true
+        _joinCompleted.value = true
     }
 }

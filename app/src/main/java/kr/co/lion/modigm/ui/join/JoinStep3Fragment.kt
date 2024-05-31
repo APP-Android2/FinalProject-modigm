@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep3Binding
@@ -18,7 +18,7 @@ class JoinStep3Fragment : Fragment() {
         FragmentJoinStep3Binding.inflate(layoutInflater)
     }
 
-    val joinStep3ViewModel: JoinStep3ViewModel by viewModels()
+    private val joinStep3ViewModel: JoinStep3ViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,6 +26,7 @@ class JoinStep3Fragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         settingChips()
+        settingObserver()
         return binding.root
     }
 
@@ -60,14 +61,13 @@ class JoinStep3Fragment : Fragment() {
         }
     }
 
-    // 입력한 내용 유효성 검사
-    fun validate(): Boolean {
-        binding.textViewJoinAlert.visibility = View.GONE
-        return if(joinStep3ViewModel.validate()){
-            binding.textViewJoinAlert.visibility = View.VISIBLE
-            false
-        }else{
-            true
+    private fun settingObserver(){
+        joinStep3ViewModel.isValidate.observe(viewLifecycleOwner){
+            if(it){
+                binding.textViewJoinAlert.visibility = View.GONE
+            }else{
+                binding.textViewJoinAlert.visibility = View.VISIBLE
+            }
         }
     }
 
