@@ -45,7 +45,7 @@ class LikeFragment : Fragment() {
         // 비어있는 화면 확인 임시 데이터
 //        val dummyData = listOf<StudyData>()
 
-        // 임시 확인 데이터 (StudyData 기반으로)
+        // 임시 확인 데이터
         val dummyData = listOf(
             StudyData(
                 studyIdx = 1,

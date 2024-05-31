@@ -22,8 +22,6 @@ class LikeAdapter(private val studyList: List<StudyData>) : RecyclerView.Adapter
 
     override fun getItemCount(): Int = studyList.size
 
-
-
     inner class StudyViewHolder(private val binding: RowLikeBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(study: StudyData) {
             binding.apply {
