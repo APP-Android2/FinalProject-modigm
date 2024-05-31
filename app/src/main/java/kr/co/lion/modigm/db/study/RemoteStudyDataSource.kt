@@ -189,7 +189,7 @@ class RemoteStudyDataSource {
                 // User 컬렉션 접근 객체를 가져온다.
                 val collectionReference = Firebase.firestore.collection("User")
                 // Members 필드가 매개변수로 들어오는 Members 같은 문서들을 가져온다.
-                val querySnapshot = collectionReference.whereEqualTo("userNumber", uid).get().await()
+                val querySnapshot = collectionReference.whereEqualTo("userUid", uid).get().await()
                 // 만약 가져온 것이 있다면
                 if(querySnapshot.isEmpty == false){
                     // 가져온 문서객체들이 들어 있는 리스트에서 첫 번째 객체를 추출한다.
@@ -303,7 +303,7 @@ class RemoteStudyDataSource {
                 val collectionReference = Firebase.firestore.collection("User")
 
                 // 컬렉션이 가지고 있는 문서들 중에 수정할 사용자 정보를 가져온다.
-                val query = collectionReference.whereEqualTo("userNumber", user.userNumber).get().await()
+                val query = collectionReference.whereEqualTo("userUid", user.userUid).get().await()
 
                 // 저장할 데이터를 담을 HashMap을 만들어준다.
                 val map = mutableMapOf<String, Any?>()
@@ -313,7 +313,7 @@ class RemoteStudyDataSource {
                 map["userIntro"] = user.userIntro
                 map["userInterestList"] = user.userInterestList
                 map["userLinkList"] = user.userLinkList
-                map["userNumber"] = user.userNumber
+                map["userUid"] = user.userUid
 
                 // 저장한다.
                 // 가져온 문서 중 첫 번째 문서에 접근하여 데이터를 수정한다.

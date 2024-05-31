@@ -51,7 +51,9 @@ class StudyAllViewHolder(
                 }
                 // 스터디 진행 방식
                 with(textViewStudyAllStateMeet){
-                    when (studyData.first.studyMeet){
+
+                    when (studyData.first.studyOnOffline){
+
                         1 -> {
                             text = "온라인"
                             setTextColor(Color.parseColor("#0FA981"))
@@ -84,7 +86,7 @@ class StudyAllViewHolder(
                 }
 
                 // 스터디 최대 인원수
-                textViewStudyAllStateInwon.text = studyData.second.toString()+"/"+studyData.first.studyUserCnt
+                textViewStudyAllStateInwon.text = studyData.second.toString()+"/"+studyData.first.studyMaxMember.toString()
 
                 // 찜 버튼
                 with(imageViewStudyAllHeart){

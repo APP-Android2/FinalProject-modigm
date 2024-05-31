@@ -109,7 +109,7 @@ class JoinViewModel : ViewModel() {
         user.userName = _userName.value.toString()
         user.userPhone = _phoneNumber.value.toString()
         user.userInterestList = _interests.value?: mutableListOf()
-        user.userNumber = _uid.value.toString()
+        user.userUid = _uid.value.toString()
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return user
     }

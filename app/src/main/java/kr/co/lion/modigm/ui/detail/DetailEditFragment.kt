@@ -20,7 +20,7 @@ import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.util.FragmentName
 
 
-class DetailEditFragment : Fragment(), OnSkillSelectedListener {
+class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedListener {
 
     lateinit var fragmentDetailEditBinding: FragmentDetailEditBinding
 
@@ -47,6 +47,13 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
         setupChipGroups()
         preselectChips()
     }
+
+    // 인터페이스 구현
+    // bottomSheet에서 선택한 항목의 제목
+    override fun onPlaceSelected(placeName: String) {
+        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(placeName)
+    }
+
     // 툴바 설정
     fun settingToolbar() {
         fragmentDetailEditBinding.apply {
@@ -211,6 +218,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
                 setOnSkillSelectedListener(this@DetailEditFragment)
             }
             bottomSheet.show(childFragmentManager, bottomSheet.tag)
+        }
+
+        // 프래그 먼트간 연결 설정
+        fragmentDetailEditBinding.textInputLayoutDetailEditPlace.editText?.setOnClickListener {
+            val bottomSheet = PlaceBottomSheetFragment().apply {
+                setOnPlaceSelectedListener(this@DetailEditFragment)
+            }
+            bottomSheet.show(childFragmentManager,bottomSheet.tag)
         }
 
     }

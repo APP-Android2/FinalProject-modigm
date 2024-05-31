@@ -177,7 +177,7 @@ class RemoteUserDataSource {
                 val collectionReference = Firebase.firestore.collection("User")
 
                 // 컬렉션이 가지고 있는 문서들 중에 수정할 사용자 정보를 가져온다.
-                val query = collectionReference.whereEqualTo("userNumber", user.userNumber).get().await()
+                val query = collectionReference.whereEqualTo("userNumber", user.userUid).get().await()
 
                 // 저장할 데이터를 담을 HashMap을 만들어준다.
                 val map = mutableMapOf<String, Any?>()
@@ -187,7 +187,7 @@ class RemoteUserDataSource {
                 map["userIntro"] = user.userIntro
                 map["userInterestList"] = user.userInterestList
                 map["userLinkList"] = user.userLinkList
-                map["userNumber"] = user.userNumber
+                map["userNumber"] = user.userUid
 
                 // 저장한다.
                 // 가져온 문서 중 첫 번째 문서에 접근하여 데이터를 수정한다.

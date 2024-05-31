@@ -79,6 +79,28 @@ class ChatRoomDao {
                 }
         }
 
+        // 리스너를 추가하고 데이터 변경 시에 실행하는 메서드로 변경
+        fun updateChatAllRoomsListener(userId: String, onUpdate: (List<ChatRoomData>) -> Unit) {
+            collectionReference
+                .whereArrayContains("chatMemberList", userId)
+                .orderBy("lastChatFullTime", Query.Direction.DESCENDING)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        // 에러 처리
+                        return@addSnapshotListener
+                    }
+                    val chatRooms = mutableListOf<ChatRoomData>()
+                    for (document in value!!) {
+                        val chatRoom = document.toObject(ChatRoomData::class.java)
+                        chatRoom?.let {
+                            chatRooms.add(it)
+                        }
+                    }
+                    // Update 된 채팅 방을 콜백을 통해 전달
+                    onUpdate(chatRooms)
+                }
+        }
+
         // 해당 채팅방 데이터 [마지막 메세지, 마지막 메세지 시간] 변경함 (Update)
         suspend fun updateChatRoomLastMessageAndTime(chatIdx: Int, chatMessage: String, chatFullTime: Long, chatTime: String): MutableList<ChatRoomData> {
             var chatRooms = mutableListOf<ChatRoomData>()

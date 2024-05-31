@@ -1,0 +1,69 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp">
+        <ImageView
+            android:id="@+id/imageViewPlaceBottomSheetClose"
+            android:layout_marginTop="20dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            app:tint="@color/black"
+            android:src="@drawable/icon_close_24"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="16dp"
+            android:id="@+id/textInputLayoutSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:endIconMode="clear_text"
+            app:hintEnabled="false"
+            app:startIconDrawable="@drawable/icon_search_24px"
+            android:textSize="16dp"
+            app:hintAnimationEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="장소 검색"
+                android:textSize="16dp"
+                android:inputType="text"
+                android:imeOptions="actionSearch"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+        <LinearLayout
+            android:id="@+id/LayoutPlaceBlank"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="40dp"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/icon_maps_location_24px"
+                app:tint="@color/textGray"
+                android:layout_marginTop="100dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="진행할 장소를 선택해주세요"
+                android:textColor="@color/textGray"
+                android:textSize="18dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</layout>

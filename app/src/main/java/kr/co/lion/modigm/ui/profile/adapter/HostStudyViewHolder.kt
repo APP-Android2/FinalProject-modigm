@@ -35,10 +35,10 @@ class HostStudyViewHolder(
                 }
                 // 스터디 분류
                 textViewRowHostStudyCategory.text = StudyCategory.fromNum(data.studyType)!!.str
-                // 스터디 장소
-                textViewRowHostStudyLocation.text = StudyPlace.fromNum(data.studyMeet)!!.str
+                // 스터디 진행 방식
+                textViewRowHostStudyLocation.text = StudyPlace.fromNum(data.studyOnOffline)!!.str
                 // 스터디 인원
-                textViewRowHostStudyMember.text = "${data.studyUidList.size}/${data.studyUserCnt}"
+                textViewRowHostStudyMember.text = "${data.studyUidList.size}/${data.studyMaxMember}"
             }
 
             // 항목에 대한 설정
