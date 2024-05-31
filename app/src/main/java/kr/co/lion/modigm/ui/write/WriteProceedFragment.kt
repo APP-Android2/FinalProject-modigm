@@ -2,6 +2,7 @@ package kr.co.lion.modigm.ui.write
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -115,39 +116,17 @@ class WriteProceedFragment : Fragment() {
 
             // 어디서 진행할까요? textField 클릭 이벤트
             textFieldWriteProceedLocation.apply {
-                // 포커스 받으면 hint 삭제
-                setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus){
-                        // 포커스 on
-                        textInputLayoutWriteProceedOfflineClicked.hint = ""
-                    } else {
-                        // 포커스 off
-                        textInputLayoutWriteProceedOfflineClicked.hint = "강남 XX카페"
-                    }
-                }
 
                 // 클릭 시 바텀Sheet를 띄워준다
                 textFieldWriteProceedLocation.setOnClickListener {
-
                     showBottomSheet()
+                    Log.d("TedMoon", "text Fragment : ${viewModel.writeProceedLocation.value}")
+                    setText(viewModel.writeProceedLocation.value)
                 }
             }
 
-
-
             // 몇 명이서 진행할까요? textField 클릭 이벤트
             textFieldWriteProceedNumOfMember.apply {
-
-                // 포커스 받으면 hint 삭제
-                setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        // 포커스 on
-                        textInputLayoutWriteProceed.hint = ""
-                    } else {
-                        // 포커스 off
-                        textInputLayoutWriteProceed.hint = "인원 수 입력"
-                    }
-                }
 
                 // 키보드에서 return 클릭 시 키보드 없애기
                 setOnEditorActionListener { v, actionId, event ->
@@ -166,8 +145,12 @@ class WriteProceedFragment : Fragment() {
     }
 
     fun settingView(){
-        // 칩 클릭 시 효과 설정
+        // 입력을 받았으면 버튼 세팅
+        isThereInput()
+    }
 
+    fun settingLocationInput(){
+        fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(viewModel.writeProceedLocation.value)
     }
 
     private fun showBottomSheet(){
@@ -175,4 +158,15 @@ class WriteProceedFragment : Fragment() {
         modal.setStyle(DialogFragment.STYLE_NORMAL, R.style.roundCornerBottomSheetDialogTheme)
         modal.show(parentFragmentManager, modal.tag)
     }
+
+    fun isThereInput(){
+        fragmentWriteProceedBinding.apply {
+            if (!textFieldWriteProceedNumOfMember.text.isNullOrBlank() && textFieldWriteProceedLocation.text.isNullOrBlank()){
+                viewModel.userDidAnswer(tabName)
+            } else {
+                viewModel.userDidNotAnswer(tabName)
+            }
+        }
+    }
+
 }
