@@ -88,7 +88,8 @@
         android:layout_height="wrap_content"
         android:text="이메일   |"
         android:padding="0dp"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        app:rippleColor="#00FFFFFF"/>
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:id="@+id/buttonOtherSearchPassword"
@@ -96,7 +97,8 @@
         android:layout_height="wrap_content"
         android:text="비밀번호 찾기"
         android:padding="0dp"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        app:rippleColor="#00FFFFFF"/>
 
 
 </LinearLayout>
