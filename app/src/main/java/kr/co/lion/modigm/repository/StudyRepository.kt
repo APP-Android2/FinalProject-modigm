@@ -1,11 +1,9 @@
 package kr.co.lion.modigm.repository
 
-import kr.co.lion.modigm.db.remote.StudyDataSource
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 
 class StudyRepository {
-
-    private val studyDataSource = StudyDataSource()
-
+    private val studyDataSource = RemoteStudyDataSource()
 
     // 전체 스터디 목록을 가져온다.
     suspend fun getStudyAllData() = studyDataSource.getStudyAllData()
@@ -15,5 +13,4 @@ class StudyRepository {
 
     // 내 스터디 목록을 가져온다. (홈화면 내 스터디 접근 시)
     suspend fun getStudyMyData() = studyDataSource.getStudyMyData()
-
 }
