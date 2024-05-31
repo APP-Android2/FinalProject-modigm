@@ -27,6 +27,7 @@ class ChatOnetoOneFragment : Fragment() {
     var chatRoomDataList = mutableListOf<ChatRoomData>()
 
     private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+//    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentChatOnetoOneBinding = FragmentChatOnetoOneBinding.inflate(layoutInflater)
@@ -57,7 +58,7 @@ class ChatOnetoOneFragment : Fragment() {
             activity?.runOnUiThread {
                 fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne.adapter?.notifyDataSetChanged()
             }
-            Log.d("test1234", "실시간 업데이트 실행 - 1:1")
+            Log.d("test1234", "실시간 Update - 1:1 List")
         }
     }
 
