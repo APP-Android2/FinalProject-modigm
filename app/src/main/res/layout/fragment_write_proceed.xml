@@ -117,8 +117,8 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="16dp"
 
-            android:hint="강남 XX카페"
             app:hintAnimationEnabled="false"
+            app:hintEnabled="false"
             app:hintTextColor="@color/textGray"
 
             android:visibility="gone"
@@ -133,6 +133,7 @@
                 android:id="@+id/textField_writeProceed_location"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:hint="강남 XX카페"
                 android:textSize="16dp"
 
                 android:focusable="false"
