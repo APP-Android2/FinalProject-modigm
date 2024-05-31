@@ -80,6 +80,9 @@ class JoinFragment : Fragment() {
         if(!viewModel.joinCompleted.value!!){
             viewModel.deleteCurrentUser()
         }
+        viewModelStep1.reset()
+        viewModelStep2.reset()
+        viewModelStep3.reset()
     }
 
     private fun settingToolBar(){
@@ -255,8 +258,8 @@ class JoinFragment : Fragment() {
                 viewModel.setPhoneVerificated(false)
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
-                viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail
-                viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider
+                viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail.value.toString()
+                viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider.value.toString()
                 viewModel.isPhoneAlreadyRegistered.value = true
             }
         }

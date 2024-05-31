@@ -87,7 +87,7 @@ class JoinStep2ViewModel: ViewModel() {
 
     // 이름을 한글만 입력 가능하게
     fun filterOnlyKorean(): InputFilter {
-        return InputFilter { source, start, end, dest, dstart, dend ->
+        return InputFilter { source, _, _, _, _, _ ->
             val ps = Pattern.compile("^[ㄱ-ㅣ가-힣]*$")
             if (!ps.matcher(source).matches()) {
                 return@InputFilter ""
@@ -105,45 +105,50 @@ class JoinStep2ViewModel: ViewModel() {
     val isCodeSent: LiveData<Boolean> = _isCodeSent
 
     // 인증 ID(인증 코드 내용 아님)
-    private var _verificationId = ""
+    private val _verificationId = MutableLiveData("")
+    val verificationId: LiveData<String> = _verificationId
+
     // 인증 여부
     private val _phoneVerified = MutableLiveData(false)
     val phoneVerified: LiveData<Boolean> = _phoneVerified
 
     // 인증 에러 메시지
-    private var _errorMessage = ""
+    private val _errorMessage = MutableLiveData("")
+    val errorMessage: LiveData<String> = _errorMessage
 
-    // 나중에 이메일 계정과 합칠 때 필요한 credential
-    private val _credential = MutableLiveData<PhoneAuthCredential>()
+    // 나중에 이메일 계정과 합칠 때 필요한 전화번호 인증 credential
+    private var _credential = MutableLiveData<PhoneAuthCredential>()
     val credential: LiveData<PhoneAuthCredential> = _credential
 
     // 이미 등록된 전화번호 계정이 있는지 여부
-    var alreadyRegisteredUser = false
+    private val _alreadyRegisteredUser = MutableLiveData(false)
 
     // 이미 등록된 전화번호 계정의 이메일
-    var alreadyRegisteredUserEmail = ""
+    private val _alreadyRegisteredUserEmail = MutableLiveData("")
+    val alreadyRegisteredUserEmail: LiveData<String> = _alreadyRegisteredUserEmail
 
     // 이미 등록된 전화번호 계정의 프로바이더
-    var alreadyRegisteredUserProvider = ""
+    private val _alreadyRegisteredUserProvider = MutableLiveData("")
+    val alreadyRegisteredUserProvider: LiveData<String> = _alreadyRegisteredUserProvider
 
     // 전화번호 인증
     suspend fun createPhoneUser(): String {
         // 오류 메시지
         if(_isCodeSent.value!!){
             try{
-                _credential.value = PhoneAuthProvider.getCredential(_verificationId, inputSmsCode.value!!)
+                _credential.value = PhoneAuthProvider.getCredential(verificationId.value!!, inputSmsCode.value!!)
 
                 // 로그인 결과를 담아서 이미 등록된 유저인지 확인한다.
                 val signInResult = _auth.signInWithCredential(_credential.value!!).await()
-                alreadyRegisteredUser = signInResult.additionalUserInfo?.isNewUser != true
-                if(alreadyRegisteredUser){
-                    _errorMessage = "이미 해당 번호로 가입한 계정이 있습니다."
+                _alreadyRegisteredUser.value = signInResult.additionalUserInfo?.isNewUser != true
+                if(_alreadyRegisteredUser.value == true){
+                    _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
 
                     // 프로바이더 확인
                     for(provider in signInResult.user?.providerData!!){
                         if(provider.providerId == "password"){
-                            alreadyRegisteredUserProvider = "email"
-                            alreadyRegisteredUserEmail = provider.email!!
+                            _alreadyRegisteredUserProvider.value = "email"
+                            _alreadyRegisteredUserEmail.value = provider.email!!
                         }
                     }
                     // 중복인 경우에는 이미 등록된 계정을 지우면 안되기 때문에 로그아웃만 하기
@@ -156,11 +161,11 @@ class JoinStep2ViewModel: ViewModel() {
 
 
             }catch (e: FirebaseAuthException){
-                _errorMessage = e.message.toString()
-                inputSmsCodeValidation.value = _errorMessage
+                _errorMessage.value = e.message.toString()
+                inputSmsCodeValidation.value = _errorMessage.value
             }
         }
-        return _errorMessage
+        return _errorMessage.value?:""
     }
 
     // 전화 인증 발송
@@ -198,9 +203,29 @@ class JoinStep2ViewModel: ViewModel() {
             token: PhoneAuthProvider.ForceResendingToken
         ) {
             // verificationId는 문자로 받는 코드가 아니었다
-            _verificationId = verificationId
+            _verificationId.value = verificationId
             _isCodeSent.value = true
             inputSmsCode.value = ""
         }
+    }
+
+
+    // ================3. 초기화 ==============================================================
+    fun reset(){
+        userName.value = ""
+        nameValidation.value = ""
+        userPhone.value = ""
+        phoneValidation.value = ""
+        inputSmsCode.value = ""
+        inputSmsCodeValidation.value = ""
+
+        _isCodeSent.value = false
+        _verificationId.value = ""
+        _phoneVerified.value = false
+        _errorMessage.value = ""
+        _credential = MutableLiveData<PhoneAuthCredential>()
+        _alreadyRegisteredUser.value = false
+        _alreadyRegisteredUserEmail.value = ""
+        _alreadyRegisteredUserProvider.value = ""
     }
 }
