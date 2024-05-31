@@ -32,6 +32,7 @@ class JoinStep2Fragment : Fragment() {
         settingTextInputUserName()
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
+        settingObserver()
 
         return binding.root
     }
@@ -71,11 +72,15 @@ class JoinStep2Fragment : Fragment() {
             // 응답한 전화번호로 인증번호 SMS 보내기
             joinStep2ViewModel.sendCode(requireActivity())
         }
+    }
 
+    private fun settingObserver(){
         // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
         joinStep2ViewModel.isCodeSent.observe(viewLifecycleOwner){
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+            }else{
+                binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
             }
         }
     }

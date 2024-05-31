@@ -51,7 +51,7 @@ class JoinFragment : Fragment() {
         binding = FragmentJoinBinding.inflate(inflater)
 
         settingToolBar()
-        observePhoneAuth()
+        settingObservers()
 
         return binding.root
     }
@@ -123,6 +123,7 @@ class JoinFragment : Fragment() {
     private fun settingViewPagerAdapter(){
         val viewPagerAdapter = JoinViewPagerAdapter(this)
 
+        // 뷰페이저에 보여줄 프래그먼트를 회원가입 유형에 따라 다르게 셋팅해준다.
         when(joinType){
             // 이메일로 회원가입할 때
             JoinType.EMAIL -> {
@@ -154,12 +155,13 @@ class JoinFragment : Fragment() {
             viewPagerJoin.isUserInputEnabled = false
 
             // 프로그래스바 설정
-            progressBarJoin.max = viewPagerAdapter.itemCount
+            progressBarJoin.max = 100
 
             viewPagerJoin.registerOnPageChangeCallback(
                 object: ViewPager2.OnPageChangeCallback(){
                     override fun onPageSelected(position: Int) {
-                        binding.progressBarJoin.progress = position + 1
+                        val progress = (position + 1) * 100 / viewPagerAdapter.itemCount
+                        binding.progressBarJoin.setProgress(progress, true)
                     }
                 }
             )
@@ -260,8 +262,28 @@ class JoinFragment : Fragment() {
         }
     }
 
-    // 번호 인증 옵저버
-    private fun observePhoneAuth(){
+    private fun step3Process(){
+        // 유효성 검사
+        val validation = viewModelStep3.validate()
+        if(!validation) return
+        // 응답값
+        viewModelStep3.selectedInterestList.value?.let { it1 ->
+            viewModel.setInterests(
+                it1
+            )
+        }
+
+        lifecycleScope.launch {
+            when(joinType){
+                JoinType.EMAIL -> viewModel.completeJoinEmailUser()
+                JoinType.KAKAO -> customToken?.let { viewModel.completeJoinSnsUser(it) }
+                else -> {}
+            }
+        }
+    }
+
+    // 회원가입 절차 옵저버 세팅
+    private fun settingObservers(){
         // 인증이 확인 되었을 때
         viewModel.phoneVerification.observe(viewLifecycleOwner){
             if(it){
@@ -283,26 +305,6 @@ class JoinFragment : Fragment() {
                     .replace(R.id.containerMain, joinFragment)
                     .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
                     .commit()
-            }
-        }
-    }
-
-    private fun step3Process(){
-        // 유효성 검사
-        val validation = viewModelStep3.validate()
-        if(!validation) return
-        // 응답값
-        viewModelStep3.selectedInterestList.value?.let { it1 ->
-            viewModel.setInterests(
-                it1
-            )
-        }
-
-        lifecycleScope.launch {
-            when(joinType){
-                JoinType.EMAIL -> viewModel.completeJoinEmailUser()
-                JoinType.KAKAO -> customToken?.let { viewModel.completeJoinSnsUser(it) }
-                else -> {}
             }
         }
 
