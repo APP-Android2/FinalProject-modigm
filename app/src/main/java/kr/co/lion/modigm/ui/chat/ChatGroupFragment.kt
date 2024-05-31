@@ -62,7 +62,7 @@ class ChatGroupFragment : Fragment() {
             activity?.runOnUiThread {
                 fragmentChatGroupBinding.recyclerViewChatGroup.adapter?.notifyDataSetChanged()
             }
-            Log.d("test1234", "실시간 업데이트 실행 - Group")
+            Log.d("test1234", "실시간 Update - GroupList")
         }
     }
 
