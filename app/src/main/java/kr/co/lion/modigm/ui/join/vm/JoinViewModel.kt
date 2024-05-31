@@ -95,10 +95,10 @@ class JoinViewModel : ViewModel() {
     }
 
     // 회원가입 이탈 시 이미 Auth에 등록되어있는 인증 정보 삭제
-    suspend fun deleteCurrentUser(){
+    fun deleteCurrentUser(){
         // 이메일 인증 정보 삭제
         if(verifiedEmail.isNotEmpty()){
-            _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).await().user?.delete()
+            _user.value?.delete()
         }
         // 전화번호 인증 정보는 이미 중복확인을 할 때 삭제해놓기 때문에 필요없음
     }

@@ -13,8 +13,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
@@ -43,7 +41,6 @@ class JoinFragment : Fragment() {
     private val customToken: String? by lazy {
         arguments?.getString("customToken")
     }
-//    var joinType = "email"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,9 +78,7 @@ class JoinFragment : Fragment() {
         super.onDestroy()
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
         if(!viewModel.joinCompleted.value!!){
-            CoroutineScope(Dispatchers.IO).launch {
-                viewModel.deleteCurrentUser()
-            }
+            viewModel.deleteCurrentUser()
         }
     }
 
