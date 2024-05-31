@@ -1,9 +1,7 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import kr.co.lion.modigm.R
@@ -14,20 +12,16 @@ import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 
 
-class BottomNaviFragment : Fragment() {
-
-    private lateinit var binding: FragmentBottomNaviBinding
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // 바인딩
-        binding = FragmentBottomNaviBinding.inflate(inflater,container,false)
-        return binding.root
-    }
+class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initView()
+        // 바인딩
+        val binding = FragmentBottomNaviBinding.bind(view)
+
+        // 초기 뷰 세팅
+        initView(binding)
 
         // 뒤로 가기 콜백 설정
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
@@ -41,13 +35,12 @@ class BottomNaviFragment : Fragment() {
         })
     }
 
-    fun initView(){
+    private fun initView(binding: FragmentBottomNaviBinding) {
 
         // 최초 화면이 null 이라면 스터디 목록을 띄운다.
         if(childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null){
             childFragmentManager.beginTransaction()
                 .replace(R.id.containerBottomNavi, StudyFragment())
-                .addToBackStack(FragmentName.STUDY.str)
                 .commit()
         }
 
@@ -65,7 +58,6 @@ class BottomNaviFragment : Fragment() {
                         R.id.bottomNaviStudy -> {
                             childFragmentManager.beginTransaction()
                                 .replace(R.id.containerBottomNavi, StudyFragment())
-                                .addToBackStack(FragmentName.STUDY.str)
                                 .commit()
                         }
 
@@ -73,7 +65,6 @@ class BottomNaviFragment : Fragment() {
                         R.id.bottomNaviHeart -> {
                             childFragmentManager.beginTransaction()
                                 .replace(R.id.containerBottomNavi, LikeFragment())
-                                .addToBackStack(FragmentName.LIKE.str)
                                 .commit()
                         }
 
@@ -81,7 +72,6 @@ class BottomNaviFragment : Fragment() {
                         R.id.bottomNaviChat -> {
                             childFragmentManager.beginTransaction()
                                 .replace(R.id.containerBottomNavi, ChatFragment())
-                                .addToBackStack(FragmentName.CHAT.str)
                                 .commit()
                         }
 
@@ -89,7 +79,6 @@ class BottomNaviFragment : Fragment() {
                         R.id.bottomNaviMy -> {
                             childFragmentManager.beginTransaction()
                                 .replace(R.id.containerBottomNavi, ProfileFragment())
-                                .addToBackStack(FragmentName.PROFILE.str)
                                 .commit()
                         }
 

@@ -1,14 +1,11 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
@@ -17,10 +14,7 @@ import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
 
 
-class StudyMyFragment : Fragment() {
-
-    // 바인딩
-    private lateinit var binding: FragmentStudyMyBinding
+class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
     // 뷰모델
     private val viewModel: StudyViewModel by viewModels()
@@ -40,31 +34,26 @@ class StudyMyFragment : Fragment() {
                 }
             }
 
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.containerMain, detailFragment)
-                .addToBackStack(FragmentName.DETAIL.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
-                .commit()
+            requireActivity().supportFragmentManager.commit {
+                replace(R.id.containerMain, detailFragment)
+                addToBackStack(FragmentName.DETAIL.str)
+            }
+
         }
     )
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        // 바인딩
-        binding = FragmentStudyMyBinding.inflate(inflater,container,false)
-
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val binding = FragmentStudyMyBinding.bind(view)
+
         // 초기 뷰 세팅
-        initView()
+        initView(binding)
         observeData()
     }
 
     // 초기 뷰 세팅
-    fun initView(){
+    fun initView(binding: FragmentStudyMyBinding) {
 
         with(binding){
 
@@ -74,10 +63,10 @@ class StudyMyFragment : Fragment() {
                 // 클릭 시
                 setOnClickListener {
                     // 필터 및 정렬 화면으로 이동
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, FilterSortFragment())
-                        .addToBackStack(FragmentName.FILTER_SORT.str)
-                        .commit()
+                    requireActivity().supportFragmentManager.commit {
+                        replace(R.id.containerMain, FilterSortFragment())
+                        addToBackStack(FragmentName.FILTER_SORT.str)
+                    }
                 }
             }
 
@@ -94,7 +83,7 @@ class StudyMyFragment : Fragment() {
         }
     }
 
-    fun observeData() {
+    private fun observeData() {
         // 데이터 변경 관찰
         viewModel.studyMyDataList.observe(viewLifecycleOwner) { studyList ->
             studyMyAdapter.updateData(studyList)
