@@ -15,7 +15,7 @@ class StudyAllViewHolder(
 
 
     // 전체 스터디 항목별 세팅
-    fun bind(studyData: StudyData, rowClickListener: (Int) -> Unit) {
+    fun bind(studyData: Pair<StudyData, Int>, rowClickListener: (Int) -> Unit) {
 
         with(binding) {
             // 항목 하나
@@ -28,7 +28,7 @@ class StudyAllViewHolder(
 
                 // 클릭 리스너 설정.
                 setOnClickListener {
-                    rowClickListener.invoke(studyData.studyIdx)
+                    rowClickListener.invoke(studyData.first.studyIdx)
                 }
 
                 // 스터디 이미지
@@ -41,7 +41,7 @@ class StudyAllViewHolder(
                 }
 
                 // 모집중, 모집완료
-                when (studyData.studyState) {
+                when (studyData.first.studyState) {
                     true -> {
                         textViewStudyAllState.text = "모집중"
                     }
@@ -51,7 +51,9 @@ class StudyAllViewHolder(
                 }
                 // 스터디 진행 방식
                 with(textViewStudyAllStateMeet){
-                    when (studyData.studyOnOffline){
+
+                    when (studyData.first.studyOnOffline){
+
                         1 -> {
                             text = "온라인"
                             setTextColor(Color.parseColor("#0FA981"))
@@ -67,10 +69,10 @@ class StudyAllViewHolder(
                     }
                 }
                 // 스터디 제목
-                textViewStudyAllTitle.text = studyData.studyTitle
+                textViewStudyAllTitle.text = studyData.first.studyTitle
                 // 스터디 기간
                 with(textViewStudyAllStatePeriod){
-                    when (studyData.studyPeriod) {
+                    when (studyData.first.studyPeriod) {
                         1 -> {
                             text = "단기"
                         }
@@ -84,7 +86,7 @@ class StudyAllViewHolder(
                 }
 
                 // 스터디 최대 인원수
-                textViewStudyAllStateInwon.text = studyData.studyMaxMember.toString()
+                textViewStudyAllStateInwon.text = studyData.second.toString()+"/"+studyData.first.studyMaxMember.toString()
 
                 // 찜 버튼
                 with(imageViewStudyAllHeart){

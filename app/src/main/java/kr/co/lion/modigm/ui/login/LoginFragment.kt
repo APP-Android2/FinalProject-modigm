@@ -1,37 +1,30 @@
 package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
-import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
+import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
 
 
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(R.layout.fragment_login) {
 
-    lateinit var binding : FragmentLoginBinding
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentLoginBinding.inflate(inflater,container,false)
-
-        return binding.root
-    }
-
-    // view
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val binding = FragmentLoginBinding.bind(view)
+
         // 초기 뷰 세팅
-        initView()
+        initView(binding)
     }
 
 
     // 초기 뷰 세팅
-    fun initView(){
+    private fun initView(binding: FragmentLoginBinding) {
 
         // 바인딩
         with(binding){
@@ -42,7 +35,13 @@ class LoginFragment : Fragment() {
             // 카카오 로그인 버튼
             with(imageButtonLoginKakao){
                 setOnClickListener{
+                    parentFragmentManager.commit {
 
+                        // 스터디 목록 화면으로 이동 (임시)
+                        parentFragmentManager.commit {
+                            replace(R.id.containerMain, BottomNaviFragment())
+                        }
+                    }
                 }
             }
 
@@ -51,10 +50,10 @@ class LoginFragment : Fragment() {
                 setOnClickListener{
 
                     // 다른 방법으로 로그인 화면으로 이동
-                    val supportFragmentManager = parentFragmentManager.beginTransaction()
-                    supportFragmentManager.replace(R.id.containerMain, OtherLoginFragment())
-                        .addToBackStack(FragmentName.OTHER_LOGIN.str)
-                        .commit()
+                    parentFragmentManager.commit {
+                        replace(R.id.containerMain, OtherLoginFragment())
+                        addToBackStack(FragmentName.OTHER_LOGIN.str)
+                    }
                 }
             }
         }

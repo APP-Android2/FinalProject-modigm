@@ -1,48 +1,36 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.google.android.material.tabs.TabLayout
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class StudyFragment : Fragment() {
+class StudyFragment : Fragment(R.layout.fragment_study) {
 
-    // 바인딩
-    private lateinit var binding : FragmentStudyBinding
-
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        // 바인딩
-        binding = FragmentStudyBinding.inflate(inflater,container, false)
-
-
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val binding = FragmentStudyBinding.bind(view)
+
         // 초기 프래그먼트 설정
         if (savedInstanceState == null) {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainerStudy, StudyAllFragment())
-                .addToBackStack(FragmentName.STUDY_ALL.str)
-                .commit()
+            parentFragmentManager.commit {
+                replace(R.id.fragmentContainerStudy, StudyAllFragment())
+            }
         }
 
         // 초기 뷰 세팅
-        initView()
+        initView(binding)
     }
 
     // 초기 뷰 세팅
-    fun initView(){
+    private fun initView(binding: FragmentStudyBinding) {
 
         // 바인딩
         with(binding){
@@ -58,10 +46,10 @@ class StudyFragment : Fragment() {
                         1 -> StudyMyFragment()
                         else -> StudyAllFragment()
                     }
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainerStudy, fragment)
-                        .addToBackStack(FragmentName.STUDY_MY.str) // 백스택 추적 시 사용할 이름.
-                        .commit()
+                    parentFragmentManager.commit {
+                        replace(R.id.fragmentContainerStudy, fragment)
+                    }
+
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -77,10 +65,11 @@ class StudyFragment : Fragment() {
             // FAB 설정
             with(fabStudyWrite){
                 setOnClickListener{
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, WriteFragment())
-                        .addToBackStack(null)
-                        .commit()
+                    requireActivity().supportFragmentManager.commit {
+                        replace(R.id.containerMain, WriteFragment())
+                        addToBackStack(FragmentName.WRITE.str)
+                    }
+
                 }
             }
         }
