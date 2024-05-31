@@ -114,7 +114,7 @@ class JoinViewModel : ViewModel() {
         return user
     }
 
-    // 회원가입 완료 전에 이메일(SNS) 계정과 전화번호 계정을 통합
+    // 회원가입 완료 전에 이메일 계정과 전화번호 계정을 통합
     private fun linkEmailAndPhone(){
         _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).addOnCompleteListener { loginTask ->
             if(loginTask.isSuccessful){
@@ -142,13 +142,28 @@ class JoinViewModel : ViewModel() {
         _joinCompleted.value = true
     }
 
+    // 회원가입 완료 전에 SNS 계정과 전화번호 계정을 통합
+    private fun linkSnsAndPhone(customToken: String){
+        _auth.signInWithCustomToken(customToken).addOnCompleteListener { loginTask ->
+            if(loginTask.isSuccessful){
+                _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
+                    if(!linkTask.isSuccessful){
+                        Log.d("testError", "linkWithCredential : ${linkTask.exception}")
+                    }
+                }
+            }else{
+                Log.d("testError", "signInWithCustomToken : ${loginTask.exception}")
+            }
+        }
+    }
+
     // SNS 계정 회원 가입 완료
-    fun completeJoinSnsUser(){
+    fun completeJoinSnsUser(customToken: String){
         // UserInfoData 객체 생성
         val user = createUserInfoData()
 
         // SNS 계정과 전화번호 계정을 연결
-
+        linkSnsAndPhone(customToken)
         // 파이어 스토어에 저장
         viewModelScope.launch {
             _userInfoRepository.insetUserData(user)
