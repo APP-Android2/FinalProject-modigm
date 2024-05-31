@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 app:strokeWidth="0dp"
                 android:elevation="0dp">
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imageViewLikeCover"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
@@ -42,7 +42,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewLikeState"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -52,15 +52,15 @@
                         android:text="모집중"
                         android:textColor="@color/pointColor"
                         android:textSize="14dp"/>
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:text="·"
-                        android:textColor="@color/textGray"
+                        android:textColor="@color/dividerView"
                         android:textStyle="bold"
                         android:textSize="20dp"/>
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewLikeStateMeet"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                         android:textColor="#0FA981"
                         android:textSize="14dp"/>
                 </LinearLayout>
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/textViewLikeTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -94,7 +94,7 @@
                         app:tint="@color/textGray"
                         android:src="@drawable/icon_clock_24px"
                         />
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewLikeStatePeriod"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
                         app:tint="@color/textGray"
                         android:src="@drawable/icon_group_24px"
                         />
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewLikeJoinMember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
                         android:text="1"
                         android:textSize="14dp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="2dp"
@@ -130,7 +130,7 @@
                         android:text="/"
                         android:textSize="16dp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewLikeTotalMember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -140,7 +140,7 @@
                         android:text="20"
                         android:textSize="14dp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
@@ -148,7 +148,7 @@
                         android:layout_gravity="center"
                         android:text="명"
                         android:textSize="14dp" />
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="2dp"
@@ -157,7 +157,7 @@
                         android:text="("
                         android:textSize="14dp" />
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewLikeApplyType"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -166,7 +166,7 @@
                         android:layout_gravity="center"
                         android:text="신청제"
                         android:textSize="14dp" />
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -175,7 +175,7 @@
                         android:layout_gravity="center"
                         android:text=")"
                         android:textSize="14dp" />
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/imageViewLikeHeart"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
