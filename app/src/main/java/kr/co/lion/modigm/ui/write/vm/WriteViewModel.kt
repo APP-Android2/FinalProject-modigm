@@ -13,6 +13,8 @@ class WriteViewModel : ViewModel() {
     private val _introClicked = MutableLiveData<Boolean>()
     private val _buttonState = MutableLiveData<Boolean>()
 
+    private val _writeProceedLocation = MutableLiveData<String>()
+
     val fieldClicked: LiveData<Boolean> = _fieldClicked
     val periodClicked: LiveData<Boolean> = _periodClicked
     val proceedClicked: LiveData<Boolean> = _proceedClicked
@@ -20,6 +22,8 @@ class WriteViewModel : ViewModel() {
     val introClicked: LiveData<Boolean> = _introClicked
 
     val buttonState: LiveData<Boolean> = _buttonState
+
+    val writeProceedLocation: LiveData<String> = _writeProceedLocation
 
     fun userDidAnswer(tabName: String) {
         when (tabName){
@@ -67,5 +71,10 @@ class WriteViewModel : ViewModel() {
 
     fun deactivateButton(){
         _buttonState.value = false
+    }
+
+    // WriteProceedFragment BottomSheet에서 사용
+    fun settingLocation(location: String){
+        _writeProceedLocation.value = location
     }
 }
