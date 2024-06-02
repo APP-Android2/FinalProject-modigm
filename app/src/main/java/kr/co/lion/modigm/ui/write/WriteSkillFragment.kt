@@ -14,7 +14,6 @@ import kr.co.lion.modigm.ui.MainActivity
 class WriteSkillFragment : Fragment() {
 
     private lateinit var binding: FragmentWriteSkillBinding
-    lateinit var mainActivity: MainActivity
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -22,7 +21,6 @@ class WriteSkillFragment : Fragment() {
         // Inflate the layout for this fragment
 
         binding = FragmentWriteSkillBinding.inflate(inflater)
-        mainActivity = activity as MainActivity
 
         return binding.root
     }
@@ -51,8 +49,9 @@ class WriteSkillFragment : Fragment() {
     fun settingView(){
         // cardView 클릭 시 Stroke 색상 변경
         binding.apply {
-            val clickedStrokeColor = ContextCompat.getColor(mainActivity, R.color.pointColor)
-            val unclickedStrokeColor = ContextCompat.getColor(mainActivity, R.color.textGray)
+            val context = requireContext()
+            val clickedStrokeColor = ContextCompat.getColor(context, R.color.pointColor)
+            val unclickedStrokeColor = ContextCompat.getColor(context, R.color.textGray)
 
             // 신청제 Card
             cardviewWriteSkillApplicationSystem.setOnClickListener {
@@ -60,6 +59,7 @@ class WriteSkillFragment : Fragment() {
                     if (cardElevation == 20F && strokeColor == clickedStrokeColor){
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
+
                     } else {
 
                         // Stroke 색상 변경
