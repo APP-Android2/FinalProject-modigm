@@ -10,17 +10,22 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.internal.ViewUtils.hideKeyboard
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
 import kr.co.lion.modigm.ui.write.more.CustomDialogWriteIntroExample
@@ -80,6 +85,21 @@ class WriteIntroFragment : Fragment() {
                 val dialog = CustomDialogWriteIntroExample(context)
                 dialog.show()
             }
+
+            // 제목 완료 처리 이벤트
+            textInputWriteIntroTitle.apply {
+                addTextChangedListener {
+                    validateInput()
+                }
+            }
+
+            // 내용 완료 처리 이벤트
+            textInputWriteIntroContent.apply{
+                addTextChangedListener {
+                    validateInput()
+                }
+
+            }
         }
 
     }
@@ -112,6 +132,8 @@ class WriteIntroFragment : Fragment() {
                 file.delete()
             }
 
+            // 입력상태 초기화
+            viewModel.userDidNotAnswer(tabName)
 
         }
 
@@ -160,12 +182,7 @@ class WriteIntroFragment : Fragment() {
     }
 
     fun settingView() {
-        // 입력 유효시 버튼 활성화
-        if (validateInput()) {
-            viewModel.userDidAnswer(tabName)
-        } else {
-            viewModel.userDidNotAnswer(tabName)
-        }
+
     }
 
     // 입력 유효성 검사
@@ -176,6 +193,7 @@ class WriteIntroFragment : Fragment() {
         // 제목이 비어있거나 너무 짧은 경우 검사
         if (title.isEmpty() || title.length < 8) {
             fragmentWriteIntroBinding.textInputWriteIntroTitle.error = "제목은 최소 8자 이상이어야 합니다."
+            viewModel.userDidNotAnswer(tabName)
             return false
         } else {
             fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
@@ -185,10 +203,14 @@ class WriteIntroFragment : Fragment() {
         if (description.isEmpty() || description.length < 10) {
             fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error =
                 "소개글은 최소 10자 이상이어야 합니다."
+            viewModel.userDidNotAnswer(tabName)
             return false
         } else {
             fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
         }
+
+        viewModel.userDidAnswer(tabName)
+        Log.d("TedMoon", "Write Skill : ${viewModel.introClicked.value}")
         return true
     }
 
@@ -314,6 +336,7 @@ class WriteIntroFragment : Fragment() {
 
             popupWindow.dismiss()
         }
+
         // 앨범에서 사진 등록
         popupView.findViewById<TextView>(R.id.textView_albumLauncher).setOnClickListener {
 
