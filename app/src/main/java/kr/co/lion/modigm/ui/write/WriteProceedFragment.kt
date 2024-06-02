@@ -22,6 +22,9 @@ class WriteProceedFragment : Fragment() {
     lateinit var fragmentWriteProceedBinding: FragmentWriteProceedBinding
     private val viewModel: WriteViewModel by activityViewModels()
     val tabName = "proceed"
+    var didAnswer1 = 0
+    var didAnswer2 = 0
+    var didAnswer = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -118,9 +121,9 @@ class WriteProceedFragment : Fragment() {
             textFieldWriteProceedLocation.apply {
 
                 // 클릭 시 바텀Sheet를 띄워준다
-                textFieldWriteProceedLocation.setOnClickListener {
+                textInputLayoutWriteProceedOfflineClicked.editText?.setOnClickListener {
                     showBottomSheet()
-                    Log.d("TedMoon", "text Fragment : ${viewModel.writeProceedLocation.value}")
+
                     setText(viewModel.writeProceedLocation.value)
                 }
             }
@@ -159,11 +162,14 @@ class WriteProceedFragment : Fragment() {
         modal.show(parentFragmentManager, modal.tag)
     }
 
+    // 입력 유효성 검사
     fun isThereInput(){
         fragmentWriteProceedBinding.apply {
             if (!textFieldWriteProceedNumOfMember.text.isNullOrBlank() && textFieldWriteProceedLocation.text.isNullOrBlank()){
+                Log.d("TedMoon", "Input exist")
                 viewModel.userDidAnswer(tabName)
             } else {
+                Log.d("TedMoon", "Input does not exist")
                 viewModel.userDidNotAnswer(tabName)
             }
         }
