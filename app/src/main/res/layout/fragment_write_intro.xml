@@ -81,8 +81,10 @@
                     android:id="@+id/textInput_writeIntro_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:imeOptions="actionNext"
                     android:hint="제목입력"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:imeOptions="actionDone"
                     android:textSize="16dp"
                     android:textColorHint="@color/black"/>
 
@@ -117,6 +119,8 @@
                     android:id="@+id/textInput_writeIntro_content"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:inputType="text"
+                    android:maxLines="1"
                     android:imeOptions="actionDone"
                     android:textSize="16dp"
                     android:hint="소개글 입력(자세히 입력해주세요)"
