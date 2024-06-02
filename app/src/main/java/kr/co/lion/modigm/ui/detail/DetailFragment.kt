@@ -25,8 +25,6 @@ class DetailFragment : Fragment() {
 
     lateinit var fragmentDetailBinding: FragmentDetailBinding
 
-    lateinit var mainActivity: MainActivity
-
     lateinit var detailViewModel: DetailViewModel
 
     private var isPopupShown = false
@@ -38,8 +36,6 @@ class DetailFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         fragmentDetailBinding = FragmentDetailBinding.inflate(inflater, container, false)
-        mainActivity = activity as MainActivity
-
 
         return fragmentDetailBinding.root
 
@@ -65,18 +61,6 @@ class DetailFragment : Fragment() {
         setupStatePopup()
     }
 
-    // 옵션 메뉴 아이템 선택 이벤트 처리
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            // 뒤로가기 버튼
-            android.R.id.home -> {
-                mainActivity.removeFragment(FragmentName.DETAIL)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     // 툴바 설정
     fun settingToolbar() {
         (activity as AppCompatActivity).setSupportActionBar(fragmentDetailBinding.toolbar)
@@ -87,6 +71,11 @@ class DetailFragment : Fragment() {
             collapsingToolbarDetail.apply {
                 title = fragmentDetailBinding.textviewDetailTilte.text.toString()
             }
+        }
+
+        // 뒤로 가기
+        fragmentDetailBinding.toolbar.setNavigationOnClickListener {
+            parentFragmentManager.popBackStack()
         }
     }
 
@@ -164,14 +153,21 @@ class DetailFragment : Fragment() {
         // 멤버목록
         popupView.findViewById<TextView>(R.id.menuItem1).setOnClickListener {
             // 화면이동 로직 추가
-            mainActivity.replaceFragment(FragmentName.DETAIL_MEMBER, true, false, null)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, DetailMemberFragment())
+                .addToBackStack(FragmentName.DETAIL_MEMBER.str)
+                .commit()
+
             popupWindow.dismiss()
         }
 
         // 글 편집
         popupView.findViewById<TextView>(R.id.menuItem2).setOnClickListener {
             // 화면이동 로직 추가
-            mainActivity.replaceFragment(FragmentName.DETAIL_EDIT, true,false,null)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, DetailEditFragment())
+                .addToBackStack(FragmentName.DETAIL_EDIT.str)
+                .commit()
             popupWindow.dismiss()
         }
 
