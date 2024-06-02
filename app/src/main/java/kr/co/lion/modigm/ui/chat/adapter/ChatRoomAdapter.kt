@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,10 +8,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.util.FragmentName
@@ -58,7 +55,7 @@ class ChatRoomAdapter(
                         putStringArrayList("chatMemberList", ArrayList(room.chatMemberList))
                         putInt("participantCount", room.participantCount)
                         putBoolean("groupChat", room.groupChat)
-                        Log.d("test1234", "${room}")
+                        Log.d("chatLog1", "Room Adapter - ${room}")
                     }
                     mainActivity.replaceFragment(FragmentName.CHAT_ROOM, true, true, bundle)
                 }

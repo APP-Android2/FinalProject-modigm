@@ -2,7 +2,6 @@ package kr.co.lion.modigm.ui.chat
 
 import android.os.Bundle
 import android.util.Log
-import androidx.lifecycle.Observer
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -10,6 +9,7 @@ import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
@@ -20,22 +20,28 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatBinding
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.adapter.ChatSearchResultsAdapter
-import kr.co.lion.modigm.ui.chat.dao.ChatRoomDao
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.util.hideSoftInput
 
 class ChatFragment : Fragment() {
 
     lateinit var fragmentChatBinding: FragmentChatBinding
     lateinit var mainActivity: MainActivity
+    
+    // 어댑터
     private lateinit var chatSearchResultsAdapter: ChatSearchResultsAdapter
+
+    // 뷰 모델
+    private val chatRoomViewModel: ChatRoomViewModel by viewModels()
 
     // 내가 속하며 검색 필터에 맞는 그룹 채팅 방들을 담고 있을 리스트
     var chatSearchRoomDataList = mutableListOf<ChatRoomData>()
 
+    // 현재 로그인 한 사용자 정보
     private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-//    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -49,12 +55,6 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 하단 바 체크 설정(채팅에 체크) 및 하단 바 이동 설정
-        /*
-        settingBottomTabs()
-        bottomSheetSetting()
-        */
-
         // 툴바 관련 세팅
         setupToolbar()
 
@@ -66,6 +66,9 @@ class ChatFragment : Fragment() {
 
         // 실시간 채팅 방 데이터 업데이트
         getAndUpdateLiveChatRooms()
+
+        // 데이터 변경 관찰
+        observeData()
     }
 
     // 툴바 관련 기본 세팅
@@ -86,7 +89,7 @@ class ChatFragment : Fragment() {
         fragmentChatBinding.recyclerViewChatSearchResults.apply {
             layoutManager = LinearLayoutManager(requireContext())
             chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
-                Log.d("test1234", "${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
+                Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
             }, mainActivity, loginUserId)
             adapter = chatSearchResultsAdapter
         }
@@ -105,8 +108,8 @@ class ChatFragment : Fragment() {
         searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    // 검색어 제출 시의 로직 처리 - 이거 사용 X로 생각중
-                    Log.d("test1234", "검색어 제출: $query")
+                    // 검색 완료 시의 로직 처리 - 이거 사용 X로 생각중
+                    Log.d("chatLog1", "검색어 완료: $query")
 
                     // 검색 버튼 누르면 키보드 내리기
                     activity?.hideSoftInput()
@@ -116,20 +119,21 @@ class ChatFragment : Fragment() {
 
             override fun onQueryTextChange(query: String?): Boolean {
                 // 검색어 변경 시의 로직 처리 - 이거로 처리 하려고 함
-                Log.d("test1234", "검색어 변경: $query")
-                performSearch(query!!)
+                Log.d("chatLog1", "검색어 변경: $query")
+                searchResult(query!!)
                 return true
             }
         })
     }
 
-    private fun performSearch(query: String) {
-        // 검색 로직 처리 (필요에 따라 구현)
-        // 예를 들어, 검색 결과를 가져와 RecyclerView에 표시
+    // 검색 로직 처리
+    private fun searchResult(query: String) {
+        // 검색 결과를 가져와 RecyclerView에 표시
         if (query.isNullOrEmpty()){
             fragmentChatBinding.viewPagerContainer.visibility = View.VISIBLE
             fragmentChatBinding.recyclerViewChatSearchResults.visibility = View.GONE
-        } else {
+        }
+        else {
             fragmentChatBinding.viewPagerContainer.visibility = View.GONE
             fragmentChatBinding.recyclerViewChatSearchResults.visibility = View.VISIBLE
             chatSearchResultsAdapter.filter(query)
@@ -168,27 +172,28 @@ class ChatFragment : Fragment() {
         }
     }
 
-    // 실시간 채팅 방 데이터 업데이트
-    private fun getAndUpdateLiveChatRooms() {
-        // 내가 속한 그룹 채팅 방(RecyclerView)를 실시간으로 업데이트
-        ChatRoomDao.updateChatAllRoomsListener(loginUserId) { updatedChatRooms ->
+    // 데이터 변경 관찰
+    private fun observeData() {
+        // 데이터 변경 관찰
+        chatRoomViewModel.allChatRoomsList.observe(viewLifecycleOwner) { updatedChatRooms ->
             chatSearchRoomDataList.clear()
             chatSearchRoomDataList.addAll(updatedChatRooms)
-
-            // RecyclerView 갱신
-            activity?.runOnUiThread {
-                fragmentChatBinding.recyclerViewChatSearchResults.adapter?.notifyDataSetChanged()
-            }
-            Log.d("test1234", "실시간 Update - SearchList")
+            chatSearchResultsAdapter.notifyDataSetChanged()
         }
+    }
+
+    // 채팅 방 데이터 실시간 수신
+    private fun getAndUpdateLiveChatRooms() {
+        chatRoomViewModel.getAllChatRooms(loginUserId)
     }
 
     // 채팅 방 데이터 추가 (예시)
     fun addChatRoomData() {
+
         CoroutineScope(Dispatchers.Main).launch {
 
-            val chatRoomSequence = ChatRoomDao.getChatRoomSequence()
-            ChatRoomDao.updateChatRoomSequence(chatRoomSequence + 1)
+            val chatRoomSequence = ChatRoomDataSource.getChatRoomSequence()
+            ChatRoomDataSource.updateChatRoomSequence(chatRoomSequence + 1)
 
             val chatIdx = chatRoomSequence + 1
             val chatTitle = ""
@@ -203,7 +208,7 @@ class ChatFragment : Fragment() {
             val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
 
             // 채팅 방 생성
-            ChatRoomDao.insertChatRoomData(chatRoomData)
+            ChatRoomDataSource.insertChatRoomData(chatRoomData)
             Log.d("test1234", "${chatTitle} 채팅방 생성 완료")
         }
     }

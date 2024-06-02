@@ -74,7 +74,7 @@ class ChatSearchResultsAdapter(
                         putStringArrayList("chatMemberList", ArrayList(room.chatMemberList))
                         putInt("participantCount", room.participantCount)
                         putBoolean("groupChat", room.groupChat)
-                        Log.d("test1234", "${room}")
+                        Log.d("chatLog1", "Search Adapter - ${room}")
                     }
                     mainActivity.replaceFragment(FragmentName.CHAT_ROOM, true, true, bundle)
                 }
