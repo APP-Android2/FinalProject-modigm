@@ -11,10 +11,11 @@ import kr.co.lion.modigm.model.ChatRoomData
 
 class ChatRoomDataSource {
 
+    private val db = Firebase.firestore
     // 공통으로 쓰이는 collectionReferenceSequence - Sequence 로 설정
-    val collectionReferenceSequence = Firebase.firestore.collection("Sequence")
+    private val collectionReferenceSequence = db.collection("Sequence")
     // 공통으로 쓰이는 collectionReference - ChatRoomData 로 설정
-    val collectionReference = Firebase.firestore.collection("ChatRoomData")
+    private val collectionReference = db.collection("ChatRoomData")
 
     // 채팅 방 시퀀스 번호를 Get 후 반환함
     suspend fun getChatRoomSequence():Int{

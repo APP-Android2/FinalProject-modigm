@@ -334,8 +334,8 @@ class ChatRoomFragment : Fragment() {
     // 대화방 나가기
     fun outChatRoom() {
         CoroutineScope(Dispatchers.Main).launch {
-            val job1 = chatRoomViewModel.removeUserFromChatMemberList(chatIdx, loginUserId)
-            job1.join()
+            val coroutine1 = chatRoomViewModel.removeUserFromChatMemberList(chatIdx, loginUserId)
+            coroutine1.join()
             parentFragmentManager.popBackStack()
         }
     }

@@ -11,8 +11,9 @@ import kr.co.lion.modigm.model.ChatMessagesData
 
 class ChatMessagesDataSource {
 
+    private val db = Firebase.firestore
     // 공통으로 쓰이는 collectionReference - ChatMessagesData 로 설정
-    private val collectionReference = Firebase.firestore.collection("ChatMessagesData")
+    private val collectionReference = db.collection("ChatMessagesData")
 
     // Firestore 실시간 업데이트 리스너
     fun getChatMessagesListener(chatIdx: Int, onUpdate: (List<ChatMessagesData>) -> Unit) {
