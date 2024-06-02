@@ -20,7 +20,7 @@
             android:src="@drawable/icon_camera_24px"
             android:layout_gravity="center"/>
         <TextView
-            android:id="@+id/menuItem1"
+            android:id="@+id/textView_cameraLauncher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
@@ -43,11 +43,11 @@
             android:src="@drawable/icon_photo_plus_24px"
             android:layout_gravity="center"/>
         <TextView
-            android:id="@+id/menuItem2"
+            android:id="@+id/textView_albumLauncher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="편집"
+            android:text="앨범에서 찾기"
             android:textSize="16dp"
             android:clickable="true"
             android:focusable="true"
