@@ -237,6 +237,12 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 saveData()
             }
         }
+
+        // 작성 예시보기 text클릭
+        fragmentDetailEditBinding.textviewDetailIntroEx.setOnClickListener {
+            val dialog = CustomIntroDialog(requireContext())
+            dialog.show()
+        }
     }
 
     fun saveData() {
