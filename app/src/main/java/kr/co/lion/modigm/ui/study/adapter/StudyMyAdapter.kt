@@ -28,7 +28,7 @@ class StudyMyAdapter(
     }
 
     override fun onBindViewHolder(holder: StudyMyViewHolder, position: Int) {
-        holder.bind(studyList[position],rowClickListener)
+        holder.bind(studyList[position])
     }
 
     // 목록 새로고침
