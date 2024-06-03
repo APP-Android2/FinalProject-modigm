@@ -115,7 +115,7 @@ class WriteProceedFragment : Fragment() {
             }
 
             // 어디서 진행할까요? textField 클릭 이벤트
-            textFieldWriteProceedLocation.apply {
+            textInputLayoutWriteProceedOfflineClicked.editText?.apply {
 
                 // 클릭 시 바텀Sheet를 띄워준다
                 textFieldWriteProceedLocation.setOnClickListener {
