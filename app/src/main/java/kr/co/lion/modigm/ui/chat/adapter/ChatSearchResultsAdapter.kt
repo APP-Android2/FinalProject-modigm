@@ -12,12 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.profile.SettingsFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class ChatSearchResultsAdapter(
     private val chatSearchRoomDataList: MutableList<ChatRoomData>,
     private val onItemClick: (ChatRoomData) -> Unit,
-    private val mainActivity: MainActivity,
     private val loginUserId: String // 현재 사용자의 ID를 추가
 ) : RecyclerView.Adapter<ChatSearchResultsAdapter.ChatSearchViewHolder>() {
 
@@ -40,8 +40,8 @@ class ChatSearchResultsAdapter(
         setChatRooms(filtered)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatSearchViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.row_chatroom_filed, parent, false)
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ChatSearchViewHolder {
+        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.row_chatroom_filed, viewGroup, false)
         return ChatSearchViewHolder(view)
     }
 
@@ -66,17 +66,6 @@ class ChatSearchResultsAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val room = filteredChatRooms[position]
                     onItemClick(room)
-
-                    // ChatRoomFragment로 데이터 전달
-                    val bundle = Bundle().apply {
-                        putInt("chatIdx", room.chatIdx)
-                        putString("chatTitle", room.chatTitle)
-                        putStringArrayList("chatMemberList", ArrayList(room.chatMemberList))
-                        putInt("participantCount", room.participantCount)
-                        putBoolean("groupChat", room.groupChat)
-                        Log.d("test1234", "${room}")
-                    }
-                    mainActivity.replaceFragment(FragmentName.CHAT_ROOM, true, true, bundle)
                 }
             }
         }

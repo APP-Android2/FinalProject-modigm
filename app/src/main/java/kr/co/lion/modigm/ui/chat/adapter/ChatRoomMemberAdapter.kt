@@ -15,8 +15,8 @@ class ChatRoomMemberAdapter(private val members: List<String>) : RecyclerView.Ad
         val memberProfile: ImageView = view.findViewById(R.id.imageViewRowChatRoomMemberProfile)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.row_chatroom_member, parent, false)
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.row_chatroom_member, viewGroup, false)
         return ViewHolder(view)
     }
 
