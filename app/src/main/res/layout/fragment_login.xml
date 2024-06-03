@@ -86,25 +86,46 @@
             />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:id="@+id/imageButtonLoginGithub"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="깃허브 로그인"
+            android:textSize="16dp"
+            app:icon="@drawable/icon_github_logo"
+            app:iconPadding="0dp"
+            app:cornerRadius="8dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:backgroundTint="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.495"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageButtonLoginKakao"
+            android:stateListAnimator="@animator/button_click"
+            />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/textButtonLoginOther"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="110dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="110dp"
-            android:text="다른 방법으로 로그인"
             android:fontFamily="@font/one_mobile_pop_otf"
+            android:stateListAnimator="@animator/button_click"
+            android:text="다른 방법으로 로그인"
             android:textColor="@color/white"
             android:textSize="16dp"
             android:textStyle="normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageButtonLoginKakao"
-            android:stateListAnimator="@animator/button_click"
-            app:rippleColor="#00FFFFFF"/>
-
-
+            app:layout_constraintTop_toBottomOf="@+id/imageButtonLoginGithub"
+            app:rippleColor="#00FFFFFF" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

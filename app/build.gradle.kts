@@ -24,11 +24,18 @@ android {
             localProperties.load(localPropertiesFile.inputStream())
         }
         val placeApiKey = localProperties.getProperty("place_api_key") ?: ""
+        val kakaoNativeAppKey = localProperties.getProperty("kakao_native_app_key") ?: ""
 
+        // 장소 API
         buildConfigField("String", "PLACE_API_KEY", "$placeApiKey")
+        // 카카오 로그인 API
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "$kakaoNativeAppKey")
+
+
 
         // manifestPlaceholders 설정
         manifestPlaceholders["PLACE_API_KEY"] = placeApiKey
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -65,6 +72,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.functions.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -97,4 +105,5 @@ dependencies {
 
     // 카카오 로그인 api
     implementation("com.kakao.sdk:v2-user:2.20.1")
+    implementation("androidx.security:security-crypto:1.0.0")
 }
