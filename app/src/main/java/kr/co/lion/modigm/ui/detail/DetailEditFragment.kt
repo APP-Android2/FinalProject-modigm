@@ -50,8 +50,9 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
     // 인터페이스 구현
     // bottomSheet에서 선택한 항목의 제목
-    override fun onPlaceSelected(placeName: String) {
-        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(placeName)
+    override fun onPlaceSelected(placeName: String, detailPlaceName:String) {
+        val test = "$placeName\n$detailPlaceName"
+        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(test)
     }
 
     // 툴바 설정
