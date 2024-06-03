@@ -2,6 +2,7 @@ package kr.co.lion.modigm.ui.detail
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
 import kr.co.lion.modigm.ui.MainActivity
@@ -22,8 +24,6 @@ import kr.co.lion.modigm.util.FragmentName
 class DetailFragment : Fragment() {
 
     lateinit var fragmentDetailBinding: FragmentDetailBinding
-
-    lateinit var mainActivity: MainActivity
 
     lateinit var detailViewModel: DetailViewModel
 
@@ -36,8 +36,6 @@ class DetailFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         fragmentDetailBinding = FragmentDetailBinding.inflate(inflater, container, false)
-        mainActivity = activity as MainActivity
-
 
         return fragmentDetailBinding.root
 
@@ -63,18 +61,6 @@ class DetailFragment : Fragment() {
         setupStatePopup()
     }
 
-    // 옵션 메뉴 아이템 선택 이벤트 처리
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            // 뒤로가기 버튼
-            android.R.id.home -> {
-                mainActivity.removeFragment(FragmentName.DETAIL)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     // 툴바 설정
     fun settingToolbar() {
         (activity as AppCompatActivity).setSupportActionBar(fragmentDetailBinding.toolbar)
@@ -85,6 +71,11 @@ class DetailFragment : Fragment() {
             collapsingToolbarDetail.apply {
                 title = fragmentDetailBinding.textviewDetailTilte.text.toString()
             }
+        }
+
+        // 뒤로 가기
+        fragmentDetailBinding.toolbar.setNavigationOnClickListener {
+            parentFragmentManager.popBackStack()
         }
     }
 
@@ -162,25 +153,58 @@ class DetailFragment : Fragment() {
         // 멤버목록
         popupView.findViewById<TextView>(R.id.menuItem1).setOnClickListener {
             // 화면이동 로직 추가
-            mainActivity.replaceFragment(FragmentName.DETAIL_MEMBER, true, false, null)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, DetailMemberFragment())
+                .addToBackStack(FragmentName.DETAIL_MEMBER.str)
+                .commit()
+
             popupWindow.dismiss()
         }
 
         // 글 편집
         popupView.findViewById<TextView>(R.id.menuItem2).setOnClickListener {
             // 화면이동 로직 추가
-            mainActivity.replaceFragment(FragmentName.DETAIL_EDIT, true,false,null)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, DetailEditFragment())
+                .addToBackStack(FragmentName.DETAIL_EDIT.str)
+                .commit()
             popupWindow.dismiss()
         }
 
         // 글 삭제
         popupView.findViewById<TextView>(R.id.menuItem3).setOnClickListener {
-            // 화면이동 로직 추가
+            // 삭제 확인 다이얼로그
+            showDeleteDialog()
+
             popupWindow.dismiss()
         }
 
         // 팝업 윈도우 표시
         popupWindow.showAsDropDown(anchorView)
+    }
+
+    // custom dialog
+    fun showDeleteDialog() {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.custom_dialog, null)
+        val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
+            .setTitle("삭제 확인")
+            .setMessage("정말로 글을 삭제하시겠습니까?")
+            .setView(dialogView)
+            .create()
+
+        dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
+            // 예 버튼 로직
+            Log.d("Dialog", "확인을 선택했습니다.")
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<TextView>(R.id.btnNo).setOnClickListener {
+            // 아니요 버튼 로직
+            Log.d("Dialog", "취소를 선택했습니다.")
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     fun setupStatePopup() {

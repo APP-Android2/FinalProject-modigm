@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="소개글 작성 예시"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="📌 제 모임을 소개할게요"
+        android:textStyle="bold"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/example1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="같은 꿈을 꾸는 사람들과 함께 개발하며 성장해봐요!"
+        android:textSize="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="📌 이런 활동을 할거예요"
+        android:textStyle="bold"
+        android:textSize="16dp" />
+    <TextView
+        android:id="@+id/example2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:breakStrategy="high_quality"
+        android:hyphenationFrequency="full"
+        android:text="매주 토요일 오후 커피 한 잔과 함께 Java를 함께 배우고 익힐 예정이예요."
+        android:textSize="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="📌 이런 멤버와 함께하고 싶어요"
+        android:textStyle="bold"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/example3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="코딩에 대해 알고는 있지만 더 깊이 배우고 싶은 분, 서로 응원하며 학습할 수 있는 긍정적인 분들을 기다립니다."
+        android:textSize="16dp" />
+
+    <!--        <TextView-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginEnd="2dp"-->
+    <!--            android:text="∙"-->
+    <!--            android:textSize="16dp" />-->
+
+    <TextView
+        android:id="@+id/example4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:text="😊 이외에 필요한 기술스택이나 인원등 모임에대한 설명을 자유롭게 추가해보세요"
+        android:textSize="16dp" />
+</LinearLayout>

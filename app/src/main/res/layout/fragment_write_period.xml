@@ -46,7 +46,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:hint="기간선택"
 
         android:layout_marginTop="26dp"
         android:layout_marginStart="16dp"
@@ -54,6 +53,8 @@
 
         android:focusableInTouchMode="false"
         android:focusable="false"
+        app:hintEnabled="false"
+        app:hintAnimationEnabled="false"
 
         app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +65,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusableInTouchMode="false"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:hint="기간선택"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 

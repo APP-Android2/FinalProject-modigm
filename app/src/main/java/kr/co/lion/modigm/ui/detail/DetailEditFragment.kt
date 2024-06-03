@@ -50,8 +50,9 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
     // 인터페이스 구현
     // bottomSheet에서 선택한 항목의 제목
-    override fun onPlaceSelected(placeName: String) {
-        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(placeName)
+    override fun onPlaceSelected(placeName: String, detailPlaceName:String) {
+        val test = "$placeName\n$detailPlaceName"
+        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(test)
     }
 
     // 툴바 설정
@@ -62,7 +63,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 //네비게이션
                 setNavigationIcon(R.drawable.icon_arrow_back_24px)
                 setNavigationOnClickListener {
-                    mainActivity.removeFragment(FragmentName.DETAIL_EDIT)
+                    parentFragmentManager.popBackStack()
                 }
             }
         }
@@ -236,6 +237,12 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 // 모든 입력이 유효한 경우 데이터 저장 또는 처리
                 saveData()
             }
+        }
+
+        // 작성 예시보기 text클릭
+        fragmentDetailEditBinding.textviewDetailIntroEx.setOnClickListener {
+            val dialog = CustomIntroDialog(requireContext())
+            dialog.show()
         }
     }
 
