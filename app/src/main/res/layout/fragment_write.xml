@@ -1,72 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.write.WriteFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <Toolbar
-        android:id="@+id/toolbar_writeFragment"
+    <data>
+        <variable
+            name="writeViewModel"
+            type="kr.co.lion.modigm.ui.write.vm.WriteViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        tools:context=".ui.write.WriteFragment">
 
-        android:navigationIcon="@drawable/arrow_back_24px"
-        android:title="@string/toolbarTitle_WriteFragment"
-        app:layout_constraintTop_toTopOf="parent"/>
+        <Toolbar
+            android:id="@+id/toolbar_writeFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progressBar_writeFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="100"
-        android:progress="20"
-        app:trackColor="@color/white"
+            android:navigationIcon="@drawable/arrow_back_24px"
+            android:title="@string/toolbarTitle_WriteFragment"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        android:progressTint="@color/pointColor"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_writeFragment"/>
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar_writeFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="20"
+            android:progressTint="@color/pointColor"
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout_writeFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_writeFragment"
+            app:trackColor="@color/white" />
 
-        android:backgroundTint="@color/white"
-        app:tabBackground="@color/white"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout_writeFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-        app:tabTextColor="@color/textGray"
-        app:tabSelectedTextColor="@color/pointColor"
+            android:backgroundTint="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/progressBar_writeFragment"
 
-        app:tabIndicatorColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/progressBar_writeFragment">
+            app:tabBackground="@color/white"
+            app:tabIndicatorColor="@color/white"
 
-    </com.google.android.material.tabs.TabLayout>
+            app:tabSelectedTextColor="@color/pointColor"
+            app:tabTextColor="@color/textGray">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager_writeFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        </com.google.android.material.tabs.TabLayout>
 
-        app:layout_constraintTop_toBottomOf="@id/tabLayout_writeFragment"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/button_write_next"/>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager_writeFragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
 
-    <Button
-        android:id="@+id/button_write_next"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/button_write_next"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabLayout_writeFragment" />
 
-        android:text="다음"
-        android:textSize="14dp"
-        android:textColor="@color/textGray"
-        android:backgroundTint="@color/buttonGray"
+        <Button
+            android:id="@+id/button_write_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/buttonGray"
 
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            android:text="@{writeViewModel.buttonText}"
+            android:textColor="@color/textGray"
+            android:textSize="14dp"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
