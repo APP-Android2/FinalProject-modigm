@@ -1,7 +1,5 @@
 package kr.co.lion.modigm.model
 
-import androidx.databinding.adapters.AutoCompleteTextViewBindingAdapter.IsValid
-
 data class StudyData(
     val studyIdx: Int = -1,                     // 글 고유 번호
     val studyTitle: String = "",                // 글 제목
