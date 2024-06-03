@@ -17,9 +17,12 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.google.android.material.tabs.TabLayoutMediator
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
+import kr.co.lion.modigm.ui.chat.ChatFragment
+import kr.co.lion.modigm.ui.detail.DetailEditFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 
 class WriteFragment : Fragment() {
@@ -76,11 +79,12 @@ class WriteFragment : Fragment() {
 
             // 완료 버튼 클릭 리스너
             if (writeViewModel?.buttonText?.value == "완료") {
-                parentFragmentManager.commit {
-                    // "내 글 보기" 화면으로 이동
-                    parentFragmentManager.commit {
-                        replace(R.id.containerMain, DetailFragment())
-                    }
+                // 내 글보기 화면으로 이동
+                buttonWriteNext.setOnClickListener {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, DetailFragment())
+                        .addToBackStack(FragmentName.DETAIL.str)
+                        .commit()
                 }
             }
         }
