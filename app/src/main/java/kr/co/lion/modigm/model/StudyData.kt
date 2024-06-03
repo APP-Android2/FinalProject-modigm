@@ -1,7 +1,5 @@
 package kr.co.lion.modigm.model
 
-import androidx.databinding.adapters.AutoCompleteTextViewBindingAdapter.IsValid
-
 data class StudyData(
     val studyIdx: Int = -1,                     // 글 고유 번호
     val studyTitle: String = "",                // 글 제목
@@ -10,6 +8,7 @@ data class StudyData(
     val studyPeriod: Int = 0,                   // 진행 기간
     val studyOnOffline: Int = 0,                // 진행 방식 (온라인, 오프라인, 온/오프 혼합)
     val studyPlace: String = "",                // 오프라인 시 진행 장소
+    val studyDetailPlace: String = "",          // 오프라인 시 진행 장소 상세 주소
     val studyApplyMethod: Int = 0,              // 신청 방식 (선착순, 신청제)
     val studySkillList: List<Int> = listOf(),   // 필요 기술 스택 목록
     val studyCanApply: Boolean = true,          // 모집 상태 (모집 중, 모집 완료)

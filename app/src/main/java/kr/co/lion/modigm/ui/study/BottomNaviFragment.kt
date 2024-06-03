@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
@@ -56,30 +57,31 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
                         // 스터디 클릭 시
                         R.id.bottomNaviStudy -> {
-                            childFragmentManager.beginTransaction()
-                                .replace(R.id.containerBottomNavi, StudyFragment())
-                                .commit()
+                            childFragmentManager.commit {
+                                replace(R.id.containerBottomNavi, StudyFragment())
+                            }
                         }
 
                         // 찜 클릭 시
                         R.id.bottomNaviHeart -> {
-                            childFragmentManager.beginTransaction()
-                                .replace(R.id.containerBottomNavi, LikeFragment())
-                                .commit()
+                            childFragmentManager.commit {
+                                replace(R.id.containerBottomNavi, LikeFragment())
+                            }
                         }
 
                         // 채팅 클릭 시
                         R.id.bottomNaviChat -> {
-                            childFragmentManager.beginTransaction()
-                                .replace(R.id.containerBottomNavi, ChatFragment())
-                                .commit()
+                            childFragmentManager.commit {
+                                replace(R.id.containerBottomNavi, ChatFragment())
+                            }
+
                         }
 
                         // 마이 클릭 시
                         R.id.bottomNaviMy -> {
-                            childFragmentManager.beginTransaction()
-                                .replace(R.id.containerBottomNavi, ProfileFragment())
-                                .commit()
+                            childFragmentManager.commit {
+                                replace(R.id.containerBottomNavi, ProfileFragment())
+                            }
                         }
 
                     }
