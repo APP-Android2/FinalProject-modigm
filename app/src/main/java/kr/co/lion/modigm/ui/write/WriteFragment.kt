@@ -73,14 +73,17 @@ class WriteFragment : Fragment() {
             }
 
             // 완료 버튼 클릭 리스너
-            if (writeViewModel?.buttonText?.value == "완료") {
-                // 내 글보기 화면으로 이동
-                buttonWriteNext.setOnClickListener {
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, DetailFragment())
-                        .addToBackStack(FragmentName.DETAIL.str)
-                        .commit()
+            writeViewModel?.buttonText?.observe(viewLifecycleOwner){text ->
+                if (text == "완료"){
+                    // 내 글보기 화면으로 이동
+                    buttonWriteNext.setOnClickListener {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, DetailFragment())
+                            .addToBackStack(FragmentName.DETAIL.str)
+                            .commit()
+                    }
                 }
+
             }
         }
     }
@@ -176,9 +179,6 @@ class WriteFragment : Fragment() {
     fun settingProgress(progressBar: ProgressBar, position: Int){
         progressBar.apply {
             writeViewModel.settingProgressBar(position)
-            writeViewModel.progressCount.observe(viewLifecycleOwner){ progress ->
-                setProgress(progress, true)
-            }
         }
 
     }
