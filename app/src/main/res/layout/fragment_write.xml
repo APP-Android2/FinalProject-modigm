@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100"
-            android:progress="20"
+            android:progress="@{writeViewModel.progressCount}"
             android:progressTint="@color/pointColor"
 
             app:layout_constraintTop_toBottomOf="@id/toolbar_writeFragment"
