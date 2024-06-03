@@ -58,11 +58,6 @@ class WriteFragment : Fragment() {
             toolbarWriteFragment.apply {
                 setNavigationOnClickListener {
                     // 뒤로가기
-                    parentFragmentManager
-                        .beginTransaction()
-                        .remove(this@WriteFragment)
-                        .commit()
-
                     parentFragmentManager.popBackStack()
                 }
             }
