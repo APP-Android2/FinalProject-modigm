@@ -32,7 +32,7 @@
         android:layout_marginTop="10dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/TextInputLayoutOtherEmail"
+        android:id="@+id/textInputLayoutOtherEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:endIconMode="clear_text"
@@ -42,7 +42,7 @@
         app:startIconDrawable="@drawable/icon_mail_24px">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/TextInputEditOtherEmail"
+            android:id="@+id/textInputEditOtherEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="이메일"
@@ -50,7 +50,7 @@
             android:textSize="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/TextInputLayoutOtherPassword"
+        android:id="@+id/textInputLayoutOtherPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:endIconMode="clear_text"
@@ -61,7 +61,7 @@
 
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/TextInputEditOtherPassword"
+        android:id="@+id/textInputEditOtherPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="비밀번호"
