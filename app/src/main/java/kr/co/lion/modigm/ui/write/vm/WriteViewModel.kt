@@ -1,7 +1,10 @@
 package kr.co.lion.modigm.ui.write.vm
 
 import android.graphics.Color
+import android.util.Log
 import android.widget.Button
+import android.widget.ProgressBar
+import androidx.databinding.adapters.SeekBarBindingAdapter.setProgress
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,6 +20,8 @@ class WriteViewModel : ViewModel() {
 
     // 버튼 다음? or 완료?
     private val _buttonText = MutableLiveData<String>()
+    // progress 게이지
+    private val _progressCount = MutableLiveData<Int>()
 
     private val _writeProceedLocation = MutableLiveData<String>()
 
@@ -32,6 +37,8 @@ class WriteViewModel : ViewModel() {
 
     // 버튼 다음? or 완료?
     val buttonText: LiveData<String> = _buttonText
+    // progress 게이지
+    val progressCount: LiveData<Int> = _progressCount
 
     fun userDidAnswer(tabName: String) {
         when (tabName) {
@@ -176,6 +183,31 @@ class WriteViewModel : ViewModel() {
                     btn.setTextColor(Color.parseColor("#777777"))
                     deactivateButton() // 버튼 비활성화
                 }
+            }
+        }
+    }
+
+    // WriteFragment Progress Bar 설정
+    fun settingProgressBar(position: Int){
+        when (position) {
+            0 -> {
+                _progressCount.value = 20
+            }
+
+            1 -> {
+                _progressCount.value = 40
+            }
+
+            2 -> {
+                _progressCount.value = 60
+            }
+
+            3 -> {
+                _progressCount.value = 80
+            }
+
+            4 -> {
+                _progressCount.value = 100
             }
         }
     }

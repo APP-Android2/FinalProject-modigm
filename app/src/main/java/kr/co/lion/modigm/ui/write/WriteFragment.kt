@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -95,27 +96,7 @@ class WriteFragment : Fragment() {
                     // progress Bar 게이지 변경 & 버튼 설정
                     progressBarWriteFragment.apply {
                         // progress Bar 게이지 설정
-                        when (position) {
-                            0 -> {
-                                setProgress(20, true)
-                            }
-
-                            1 -> {
-                                setProgress(40, true)
-                            }
-
-                            2 -> {
-                                setProgress(60, true)
-                            }
-
-                            3 -> {
-                                setProgress(80, true)
-                            }
-
-                            4 -> {
-                                setProgress(100, true)
-                            }
-                        }
+                        settingProgress(this, position)
 
                         // 버튼 설정
                         settingButton(position)
@@ -193,7 +174,15 @@ class WriteFragment : Fragment() {
     }
 
     // Progress Bar 설정
+    fun settingProgress(progressBar: ProgressBar, position: Int){
+        progressBar.apply {
+            writeViewModel.settingProgressBar(position)
+            writeViewModel.progressCount.observe(viewLifecycleOwner){ progress ->
+                setProgress(progress, true)
+            }
+        }
 
+    }
     // ViewPager 설정
     fun viewPagerActivation() {
         fragmentWriteBinding.apply {
