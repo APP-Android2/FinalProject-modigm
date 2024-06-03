@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.join.vm
 
 import android.app.Activity
+import android.os.CountDownTimer
 import android.text.InputFilter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,7 +17,6 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 class JoinStep2ViewModel: ViewModel() {
-
     // ================1. 유효성 검사 관련==============================================================
 
     // 이름
@@ -100,6 +100,12 @@ class JoinStep2ViewModel: ViewModel() {
 
     private val _auth = FirebaseAuth.getInstance()
 
+    private val _authButtonText = MutableLiveData("인증하기")
+    val authButtonText: LiveData<String> = _authButtonText
+
+    private val _authExpired = MutableLiveData(true)
+    val authExpired: LiveData<Boolean> = _authExpired
+
     // 인증문자 발송 여부
     private val _isCodeSent = MutableLiveData(false)
     val isCodeSent: LiveData<Boolean> = _isCodeSent
@@ -108,9 +114,10 @@ class JoinStep2ViewModel: ViewModel() {
     private val _verificationId = MutableLiveData("")
     val verificationId: LiveData<String> = _verificationId
 
-    // 인증 여부
-    private val _phoneVerified = MutableLiveData(false)
-    val phoneVerified: LiveData<Boolean> = _phoneVerified
+    // 올바른 전화번호 확인 여부
+    // onVerificationCompleted, onVerificationFailed에서 확인
+    private val _isVerifiedPhone = MutableLiveData(false)
+    val isVerifiedPhone: LiveData<Boolean> = _isVerifiedPhone
 
     // 인증 에러 메시지
     private val _errorMessage = MutableLiveData("")
@@ -131,11 +138,27 @@ class JoinStep2ViewModel: ViewModel() {
     private val _alreadyRegisteredUserProvider = MutableLiveData("")
     val alreadyRegisteredUserProvider: LiveData<String> = _alreadyRegisteredUserProvider
 
+    // 문자 수신 60초 타이머
+    val setTimer: CountDownTimer by lazy {
+        _authExpired.value = false
+        object : CountDownTimer(60000, 1000){
+            override fun onTick(millisUntilFinished: Long) {
+                _authButtonText.value = "${millisUntilFinished/1000}"
+            }
+
+            override fun onFinish() {
+                _authExpired.value = true
+                _authButtonText.value = "인증하기"
+            }
+        }
+    }
+
     // 전화번호 인증
     suspend fun createPhoneUser(): String {
         // 오류 메시지
         if(_isCodeSent.value!!){
             try{
+                _errorMessage.value = ""
                 _credential.value = PhoneAuthProvider.getCredential(verificationId.value!!, inputSmsCode.value!!)
 
                 // 로그인 결과를 담아서 이미 등록된 유저인지 확인한다.
@@ -170,6 +193,9 @@ class JoinStep2ViewModel: ViewModel() {
 
     // 전화 인증 발송
     fun sendCode(activity: Activity){
+        // 전화 인증 여부를 초기화
+        _isVerifiedPhone.value = false
+
         // 전화번호 앞에 "+82 " 국가코드 붙여주기
         val setNumber = userPhone.value?.replaceRange(0,1,"+82 ")
 
@@ -187,14 +213,21 @@ class JoinStep2ViewModel: ViewModel() {
 
     // 전화 인증코드 발송 콜백
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+        override fun onCodeAutoRetrievalTimeOut(p0: String) {
+            // 제한 시간이 경과된 경우
+            super.onCodeAutoRetrievalTimeOut(p0)
+            _isVerifiedPhone.value = false
+        }
+
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            // 전화번호 인증 성공
-            _phoneVerified.value = true
+            // 입력한 전화번호가 정상적으로 확인될 경우(인증이 완료된게 아님, 실제 번호일때만 호출됨)
+            _isVerifiedPhone.value = true
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-            // 전화번호 인증 실패
-            _phoneVerified.value = false
+            // 입력한 전화번호 또는 인증번호가 잘못되었을 경우
+            _isVerifiedPhone.value = false
             phoneValidation.value = e.message
         }
 
@@ -206,9 +239,9 @@ class JoinStep2ViewModel: ViewModel() {
             _verificationId.value = verificationId
             _isCodeSent.value = true
             inputSmsCode.value = ""
+            setTimer.start()
         }
     }
-
 
     // ================3. 초기화 ==============================================================
     fun reset(){
@@ -221,11 +254,19 @@ class JoinStep2ViewModel: ViewModel() {
 
         _isCodeSent.value = false
         _verificationId.value = ""
-        _phoneVerified.value = false
+        _isVerifiedPhone.value = false
         _errorMessage.value = ""
         _credential = MutableLiveData<PhoneAuthCredential>()
         _alreadyRegisteredUser.value = false
         _alreadyRegisteredUserEmail.value = ""
         _alreadyRegisteredUserProvider.value = ""
+        _authButtonText.value = "인증하기"
+        _authExpired.value = true
+    }
+
+    fun cancelTimer(){
+        setTimer.cancel()
+        _authButtonText.value = "인증하기"
+        _authExpired.value = true
     }
 }

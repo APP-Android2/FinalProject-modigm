@@ -79,8 +79,19 @@ class JoinStep2Fragment : Fragment() {
         joinStep2ViewModel.isCodeSent.observe(viewLifecycleOwner){
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+                binding.textinputJoinPhoneAuth.requestFocus()
             }else{
                 binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
+            }
+        }
+
+        joinStep2ViewModel.authExpired.observe(viewLifecycleOwner){
+            if(it){
+                binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.pointColor))
+                binding.buttonJoinPhoneAuth.isClickable = true
+            }else{
+                binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.textGray))
+                binding.buttonJoinPhoneAuth.isClickable = false
             }
         }
     }

@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -258,15 +259,19 @@ class JoinFragment : Fragment() {
 
             val result = viewModelStep2.createPhoneUser()
             if(result.isEmpty()){
+                // 인증 번호 확인 성공
                 viewModelStep2.credential.value?.let { viewModel.setPhoneCredential(it) }
                 viewModel.setPhoneVerificated(true)
+                viewModelStep2.cancelTimer()
             }else{
+                // 인증 번호 확인 실패
                 viewModel.setPhoneVerificated(false)
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
                 viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail.value.toString()
                 viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider.value.toString()
                 viewModel.isPhoneAlreadyRegistered.value = true
+                viewModelStep2.cancelTimer()
                 hideLoading()
             }
         }
@@ -300,7 +305,15 @@ class JoinFragment : Fragment() {
             hideLoading()
             if(it){
                 // 인증이 되었으면 다음으로 이동
+                viewModelStep2.cancelTimer()
                 binding.viewPagerJoin.currentItem += 1
+            }
+        }
+
+        // 인증하기를 다시 했을 때 기존의 인증 완료 취소
+        viewModelStep2.isVerifiedPhone.observe(viewLifecycleOwner){
+            if(!it){
+                viewModel.setPhoneVerificated(false)
             }
         }
 
