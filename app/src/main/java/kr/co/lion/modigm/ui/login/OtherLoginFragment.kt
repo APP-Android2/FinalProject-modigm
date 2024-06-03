@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -11,7 +12,7 @@ import kr.co.lion.modigm.databinding.FragmentOtherLoginBinding
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
-import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.JoinType
 
 class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
 
@@ -70,11 +71,21 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
 
             // 회원가입 버튼 클릭 시 회원가입 화면으로 이동 및 스택에 추가
             buttonOtherJoin.setOnClickListener {
-                parentFragmentManager.commit {
-                    replace(R.id.containerMain, JoinFragment())
-                    addToBackStack(FragmentName.JOIN.str)
-                }
+                val joinType = JoinType.EMAIL
+                navigateToJoinFragment(joinType)
             }
+        }
+    }
+    // 회원가입 화면으로 이동하는 메서드
+    private fun navigateToJoinFragment(joinType: JoinType) {
+        // 로그 추가
+        Log.d("LoginFragment", "navigateToJoinFragment - joinType: ${joinType.provider}")
+
+        val bundle = Bundle().apply {
+            putString("joinType", joinType.provider)
+        }
+        parentFragmentManager.commit {
+            replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
         }
     }
 }
