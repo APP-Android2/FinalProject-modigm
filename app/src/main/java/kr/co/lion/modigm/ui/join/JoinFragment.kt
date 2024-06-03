@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.FragmentManager
@@ -24,6 +25,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.hideSoftInput
 
 class JoinFragment : Fragment() {
 
@@ -212,6 +214,7 @@ class JoinFragment : Fragment() {
         )
 
         lifecycleScope.launch {
+            showLoading()
             // 처음 화면인 경우
             if(viewModel.verifiedEmail.isEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
@@ -225,9 +228,11 @@ class JoinFragment : Fragment() {
                 val isDup = viewModel.createEmailUser()
                 if(isDup.isNotEmpty()){
                     viewModelStep1.emailValidation.value = isDup
+                    hideLoading()
                     return@launch
                 }
             }
+            hideLoading()
             // 다음 화면으로 이동
             binding.viewPagerJoin.currentItem += 1
         }
@@ -249,6 +254,7 @@ class JoinFragment : Fragment() {
                 binding.viewPagerJoin.currentItem += 1
                 return@launch
             }
+            showLoading()
 
             val result = viewModelStep2.createPhoneUser()
             if(result.isEmpty()){
@@ -261,6 +267,7 @@ class JoinFragment : Fragment() {
                 viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail.value.toString()
                 viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider.value.toString()
                 viewModel.isPhoneAlreadyRegistered.value = true
+                hideLoading()
             }
         }
     }
@@ -277,6 +284,7 @@ class JoinFragment : Fragment() {
         }
 
         lifecycleScope.launch {
+            showLoading()
             when(joinType){
                 JoinType.EMAIL -> viewModel.completeJoinEmailUser()
                 JoinType.KAKAO -> customToken?.let { viewModel.completeJoinSnsUser(it) }
@@ -289,6 +297,7 @@ class JoinFragment : Fragment() {
     private fun settingObservers(){
         // 인증이 확인 되었을 때
         viewModel.phoneVerification.observe(viewLifecycleOwner){
+            hideLoading()
             if(it){
                 // 인증이 되었으면 다음으로 이동
                 binding.viewPagerJoin.currentItem += 1
@@ -297,6 +306,7 @@ class JoinFragment : Fragment() {
 
         // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때
         viewModel.isPhoneAlreadyRegistered.observe(viewLifecycleOwner){
+            hideLoading()
             if(it){
                 // 중복인 경우 중복 알림 프래그먼트로 이동
                 val bundle = Bundle()
@@ -313,12 +323,27 @@ class JoinFragment : Fragment() {
 
         // 회원가입 완료 시 다음 화면으로 이동
         viewModel.joinCompleted.observe(viewLifecycleOwner){
+            hideLoading()
             if(it){
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.containerMain, StudyFragment())
                     .commit()
             }
         }
+    }
+
+    private fun showLoading(){
+        requireActivity().hideSoftInput()
+        binding.layoutLoadingJoin.visibility = View.VISIBLE
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideLoading(){
+        binding.layoutLoadingJoin.visibility = View.GONE
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
 }
