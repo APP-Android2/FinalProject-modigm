@@ -6,13 +6,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatOnetoOneBinding
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 class ChatOnetoOneFragment : Fragment() {
 
@@ -72,11 +75,27 @@ class ChatOnetoOneFragment : Fragment() {
     // RecyclerView 초기화
     private fun setupRecyclerView() {
         // 대화방 목록 RecyclerView 설정
-        fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne.apply {
+        with(fragmentChatOnetoOneBinding.recyclerViewChatOnetoOne){
             layoutManager = LinearLayoutManager(requireContext())
             chatRoomAdapter = ChatRoomAdapter(chatRoomDataList, { roomItem ->
                 Log.d("chatLog1", "1:1 - ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
-            }, mainActivity, loginUserId)
+
+                // ChatRoomFragment로 이동
+                val chatRoomFragment = ChatRoomFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("chatIdx", roomItem.chatIdx)
+                        putString("chatTitle", roomItem.chatTitle)
+                        putStringArrayList("chatMemberList", ArrayList(roomItem.chatMemberList))
+                        putInt("participantCount", roomItem.participantCount)
+                        putBoolean("groupChat", roomItem.groupChat)
+                    }
+                }
+
+                parentFragmentManager.commit {
+                    replace(R.id.containerMain , chatRoomFragment)
+                    addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+                }
+            }, loginUserId)
             adapter = chatRoomAdapter
         }
     }

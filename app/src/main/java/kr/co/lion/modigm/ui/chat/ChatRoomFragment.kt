@@ -78,6 +78,8 @@ class ChatRoomFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.v("chatLog1", "BackStackEntryCount: ${parentFragmentManager.backStackEntryCount}")
+
         // 입장시 -> 메시지 읽음 처리
         readMessage()
 
@@ -118,7 +120,9 @@ class ChatRoomFragment : Fragment() {
                 if (isGroupChat == true) subtitle = "현재인원 ${chatMemberList.size}명"
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
+                    // 뒤로가기
                     parentFragmentManager.popBackStack()
+                    // requireActivity().supportFragmentManager.popBackStack()
                     // mainActivity.removeFragment(FragmentName.CHAT_ROOM)
                 }
                 // 오른쪽 툴바 버튼(Menu)
@@ -136,7 +140,7 @@ class ChatRoomFragment : Fragment() {
 
     // 네비게이션 뷰의 너비를 동적으로 설정하는 함수
     private fun setNavigationViewWidth() {
-        fragmentChatRoomBinding.apply {
+        with(fragmentChatRoomBinding){
             val displayMetrics = DisplayMetrics()
             requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
             val width = displayMetrics.widthPixels
@@ -148,7 +152,7 @@ class ChatRoomFragment : Fragment() {
 
     // 네비게이션 뷰의 멤버 RecyclerView 초기화
     private fun setupMemberRecyclerView() {
-        fragmentChatRoomBinding.recyclerViewChatRoomMemeberList.apply {
+        with(fragmentChatRoomBinding.recyclerViewChatRoomMemeberList){
             layoutManager = LinearLayoutManager(context)
             chatRoomMemberAdapter = ChatRoomMemberAdapter(chatMemberList)
             adapter = chatRoomMemberAdapter
@@ -158,7 +162,7 @@ class ChatRoomFragment : Fragment() {
     // RecyclerView 초기화
     private fun setupRecyclerView() {
         // 대화방 목록 RecyclerView 설정
-        fragmentChatRoomBinding.recyclerView.apply {
+        with(fragmentChatRoomBinding.recyclerView){
             layoutManager = LinearLayoutManager(requireContext())
             messageAdapter = MessageAdapter(loginUserId, messages)
             adapter = messageAdapter
@@ -168,8 +172,7 @@ class ChatRoomFragment : Fragment() {
     // 메세지 전송
     fun addChatMessagesData() {
         CoroutineScope(Dispatchers.Main).launch {
-            fragmentChatRoomBinding.apply {
-
+            with(fragmentChatRoomBinding){
                 val text = editTextMessage.text.toString().trim()
                 // 현재 시간
                 val now = System.currentTimeMillis()
@@ -267,7 +270,7 @@ class ChatRoomFragment : Fragment() {
 
     // 채팅 입력 칸 - 변경 관련 리스너
     fun setupEditTextListener() {
-        fragmentChatRoomBinding.apply {
+        with(fragmentChatRoomBinding){
             editTextMessage.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                     // 텍스트 변경 전 호출
@@ -291,7 +294,7 @@ class ChatRoomFragment : Fragment() {
 
     // 채팅 입력 칸 - 입력 상태 여부에 따라 설정
     fun updateEditTextInText() {
-        fragmentChatRoomBinding.apply {
+        with(fragmentChatRoomBinding){
             if (editTextMessage.text.toString().isEmpty()){
                 imageButtonChatRoomSend.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#999999"))
             } else {
@@ -302,8 +305,7 @@ class ChatRoomFragment : Fragment() {
 
     // 사이드 네비게이션 클릭 Event
     fun sideNavigationTextViewClickEvent() {
-        fragmentChatRoomBinding.apply {
-
+        with(fragmentChatRoomBinding){
             // 공지 클릭 시
             textViewSpeaker.setOnClickListener {
                 // 눌렸을 때의 효과
@@ -324,7 +326,7 @@ class ChatRoomFragment : Fragment() {
                 it.postDelayed({
                     it.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
                 }, 30)
-                
+
                 // 해당 채팅방 멤버 리스트 제거 및 나가기
                 outChatRoom()
             }

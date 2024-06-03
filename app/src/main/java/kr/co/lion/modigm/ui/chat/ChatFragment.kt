@@ -9,6 +9,7 @@ import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -23,6 +24,7 @@ import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatSearchResultsAdapter
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
+import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 
 class ChatFragment : Fragment() {
@@ -55,6 +57,8 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.v("chatLog1", "BackStackEntryCount: ${parentFragmentManager.backStackEntryCount}")
+
         // 툴바 관련 세팅
         setupToolbar()
 
@@ -82,17 +86,6 @@ class ChatFragment : Fragment() {
 
         // 옵션 메뉴가 있다는 것을 시스템에 알림
         setHasOptionsMenu(true)
-    }
-
-    // 리사이클러 뷰 세팅
-    private fun setupRecyclerView() {
-        fragmentChatBinding.recyclerViewChatSearchResults.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
-                Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
-            }, mainActivity, loginUserId)
-            adapter = chatSearchResultsAdapter
-        }
     }
 
     // 툴바의 메뉴 세팅(검색)
@@ -130,19 +123,23 @@ class ChatFragment : Fragment() {
     private fun searchResult(query: String) {
         // 검색 결과를 가져와 RecyclerView에 표시
         if (query.isNullOrEmpty()){
-            fragmentChatBinding.viewPagerContainer.visibility = View.VISIBLE
-            fragmentChatBinding.recyclerViewChatSearchResults.visibility = View.GONE
+            with(fragmentChatBinding){
+                viewPagerContainer.visibility = View.VISIBLE
+                recyclerViewChatSearchResults.visibility = View.GONE
+            }
         }
         else {
-            fragmentChatBinding.viewPagerContainer.visibility = View.GONE
-            fragmentChatBinding.recyclerViewChatSearchResults.visibility = View.VISIBLE
+            with(fragmentChatBinding){
+                viewPagerContainer.visibility = View.GONE
+                recyclerViewChatSearchResults.visibility = View.VISIBLE
+            }
             chatSearchResultsAdapter.filter(query)
         }
     }
 
     // ViewPager 설정
     private fun viewPagerActiviation(){
-        fragmentChatBinding.apply {
+        with(fragmentChatBinding){
             // 1. 페이지 데이터를 로드
             val list = listOf(ChatGroupFragment(), ChatOnetoOneFragment())
             // 2. Adapter 생성
@@ -185,6 +182,37 @@ class ChatFragment : Fragment() {
     // 채팅 방 데이터 실시간 수신
     private fun getAndUpdateLiveChatRooms() {
         chatRoomViewModel.getAllChatRooms(loginUserId)
+    }
+
+    // 리사이클러 뷰 세팅
+    private fun setupRecyclerView() {
+        with(fragmentChatBinding) {
+            with(recyclerViewChatSearchResults){
+                layoutManager = LinearLayoutManager(requireContext())
+                // onItemClick 시
+                chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
+                    Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
+
+                    // ChatRoomFragment로 이동
+                    val chatRoomFragment = ChatRoomFragment().apply {
+                        arguments = Bundle().apply {
+                            putInt("chatIdx", roomItem.chatIdx)
+                            putString("chatTitle", roomItem.chatTitle)
+                            putStringArrayList("chatMemberList", ArrayList(roomItem.chatMemberList))
+                            putInt("participantCount", roomItem.participantCount)
+                            putBoolean("groupChat", roomItem.groupChat)
+                        }
+                    }
+
+                    requireActivity().supportFragmentManager.commit {
+                        replace(R.id.containerMain, chatRoomFragment)
+                        addToBackStack(FragmentName.CHAT_ROOM.str)
+                    }
+
+                }, loginUserId)
+                adapter = chatSearchResultsAdapter
+            }
+        }
     }
 
     // 채팅 방 데이터 추가 (예시)

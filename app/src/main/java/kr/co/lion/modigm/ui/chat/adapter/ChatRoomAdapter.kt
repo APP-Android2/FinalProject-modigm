@@ -1,6 +1,6 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
-import android.os.Bundle
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,31 +10,34 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
 import kr.co.lion.modigm.model.ChatRoomData
-import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.util.FragmentName
 
 class ChatRoomAdapter(
-    private val roomList: MutableList<ChatRoomData>,
+    private var roomList: MutableList<ChatRoomData>,
     private val onItemClick: (ChatRoomData) -> Unit,
-    private val mainActivity: MainActivity,
     private val loginUserId: String // 현재 사용자의 ID를 추가
 ) : RecyclerView.Adapter<ChatRoomAdapter.ChatRoomViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatRoomViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.row_chatroom_filed, parent, false)
-        return ChatRoomViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ChatRoomViewHolder, position: Int) {
-        holder.bind(roomList[position])
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ChatRoomViewHolder {
+        val binding: RowChatroomFiledBinding =
+            RowChatroomFiledBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
+        return ChatRoomViewHolder(binding, onItemClick)
     }
 
     override fun getItemCount(): Int {
         return roomList.size
     }
 
-    inner class ChatRoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    override fun onBindViewHolder(holder: ChatRoomViewHolder, position: Int) {
+        holder.bind(roomList[position])
+    }
+
+    inner class ChatRoomViewHolder(
+        binding: RowChatroomFiledBinding,
+        onItemClick: (ChatRoomData) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
+
         private val roomTitleTextView: TextView = itemView.findViewById(R.id.textViewRowChatroomFiledRoomTitle)
         private val roomLastTextView: TextView = itemView.findViewById(R.id.textViewRowChatroomFiledLastMessage)
         private val roomTimeTextView: TextView = itemView.findViewById(R.id.textViewRowChatroomFiledTime)
@@ -47,17 +50,6 @@ class ChatRoomAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val room = roomList[position]
                     onItemClick(room)
-
-                    // ChatRoomFragment로 데이터 전달
-                    val bundle = Bundle().apply {
-                        putInt("chatIdx", room.chatIdx)
-                        putString("chatTitle", room.chatTitle)
-                        putStringArrayList("chatMemberList", ArrayList(room.chatMemberList))
-                        putInt("participantCount", room.participantCount)
-                        putBoolean("groupChat", room.groupChat)
-                        Log.d("chatLog1", "Room Adapter - ${room}")
-                    }
-                    mainActivity.replaceFragment(FragmentName.CHAT_ROOM, true, true, bundle)
                 }
             }
         }
