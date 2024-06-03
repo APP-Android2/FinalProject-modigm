@@ -58,4 +58,14 @@ class JoinStep1ViewModel: ViewModel() {
         return result
     }
 
+    // 입력값 초기화
+    fun reset(){
+        userEmail.value = ""
+        emailValidation.value = ""
+        userPassword.value = ""
+        pwValidation.value = ""
+        userPasswordCheck.value = ""
+        pwCheckValidation.value = ""
+    }
+
 }
