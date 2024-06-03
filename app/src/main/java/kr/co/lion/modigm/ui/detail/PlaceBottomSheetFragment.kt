@@ -72,7 +72,7 @@ class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
 
     fun setupSearchBar() {
         val adapter = PlaceSearchResultsAdapter(mutableListOf()) { place ->
-            placeSelectedListener?.onPlaceSelected(place.name)
+            placeSelectedListener?.onPlaceSelected(place.name, place.address)
             dismiss()  // 바텀 시트 닫기
         }
         binding.recyclerViewSearchResults.adapter = adapter
