@@ -71,7 +71,7 @@
             android:backgroundTint="@color/buttonGray"
 
             android:text="@{writeViewModel.buttonText}"
-            android:textColor="@color/textGray"
+            android:textColor="@{writeViewModel.buttonTextColor}"
             android:textSize="14dp"
 
             app:layout_constraintBottom_toBottomOf="parent"
