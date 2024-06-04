@@ -3,6 +3,7 @@ package kr.co.lion.modigm.repository
 import android.content.Context
 import android.widget.ImageView
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.model.UserData
 
 class StudyRepository {
     private val remoteStudyDataSource = RemoteStudyDataSource()
@@ -22,6 +23,17 @@ class StudyRepository {
     // 내 스터디 목록을 가져온다. (홈화면 내 스터디 접근 시)
     suspend fun getStudyMyData() = remoteStudyDataSource.getStudyMyData()
 
+
+    // 스터디 정보 가져오기
+    suspend fun selectContentData(studyIdx:Int) = remoteStudyDataSource.selectContentData(studyIdx)
+
+    // uid를 사용해서 사용자 정보 가져오기
+    suspend fun loadUserDetailsByUid(uid: String): UserData? {
+        return remoteStudyDataSource.loadUserDetailsByUid(uid)
+    }
+
+    suspend fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) = remoteStudyDataSource.updateStudyCanApplyByStudyIdx(studyIdx, canApply)
+
     suspend fun loadStudyThumbnail(context: Context, imageFileName: String, imageView: ImageView) =
         remoteStudyDataSource.loadStudyThumbnail(context, imageFileName, imageView)
 
@@ -30,4 +42,5 @@ class StudyRepository {
 
     // 사용자가 진행한 스터디 목록을 가져온다. (프로필 화면)
     suspend fun loadStudyHostDataByUid(uid: String) = remoteStudyDataSource.loadStudyHostData(uid)
+
 }
