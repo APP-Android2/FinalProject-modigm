@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         supportFragmentManager.commit {
             replace(R.id.containerMain, LoginFragment())
+
         }
     }
 }
