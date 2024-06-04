@@ -152,8 +152,8 @@ class DetailFragment : Fragment() {
 
             val studyType = when (data.studyType) {
                 1 -> "스터디"
-                2 -> "공모전"
-                else -> "프로젝트"
+                2 -> "프로젝트"
+                else -> "공모전"
             }
 
             val studyTypeImage = when (studyType) {
