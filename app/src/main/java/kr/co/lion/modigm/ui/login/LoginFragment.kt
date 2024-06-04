@@ -16,6 +16,7 @@ import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginResult
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
+import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
@@ -127,6 +128,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
+            addToBackStack(FragmentName.LOGIN.str)
         }
     }
 }
