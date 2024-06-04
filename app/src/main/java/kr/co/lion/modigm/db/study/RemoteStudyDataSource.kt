@@ -22,6 +22,8 @@ class RemoteStudyDataSource {
     private val studyCollection = FirebaseFirestore.getInstance().collection("Study")
     // 시퀀스 '컬렉션' 접근
     private val sequenceCollection = FirebaseFirestore.getInstance().collection("Sequence")
+    //유저 '컬렉션' 접근
+    private val userCollection = FirebaseFirestore.getInstance().collection("User")
 
     private val currentUserUid: String? = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -101,6 +103,64 @@ class RemoteStudyDataSource {
         } catch (e: Exception) {
             Log.e("Firebase Error", "Error dbGetStudyMyData : ${e.message}")
             emptyList()
+        }
+    }
+
+    // studyIdx를 이용해 해당 스터디 정보를 가져온다
+    suspend fun selectContentData(studyIdx: Int): StudyData? {
+        return try {
+            // Firestore 쿼리 실행
+            val querySnapshot = studyCollection
+                .whereEqualTo("studyIdx", studyIdx)
+                .get()
+                .await()
+
+            // 결과 문서가 있을 경우 첫 번째 문서의 데이터를 StudyData 객체로 변환
+            if (querySnapshot.documents.isNotEmpty()) {
+                querySnapshot.documents[0].toObject(StudyData::class.java)
+            } else {
+                null // 쿼리 결과가 없을 경우 null 반환
+            }
+        } catch (e: Exception) {
+            // 오류 처리: 로깅이나 사용자에게 피드백 제공
+            Log.e("Firestore Error", "Error fetching study data: ${e.message}")
+            null
+        }
+    }
+
+    // uid를 이용해서 해당 사용자 정보를 가져온다
+    suspend fun loadUserDetailsByUid(uid: String): UserData? {
+        return try {
+            val querySnapshot = userCollection
+                .whereEqualTo("userUid", uid)
+                .get()
+                .await()
+            // 결과 문서가 있을 경우 첫 번째 문서의 데이터를 UserData 객체로 변환
+            if (querySnapshot.documents.isNotEmpty()) {
+                querySnapshot.documents[0].toObject(UserData::class.java)
+            } else {
+                null // 쿼리 결과가 없을 경우 null 반환
+            }
+        } catch (e: Exception) {
+            Log.e("LoadUser", "Error fetching user data: ${e.message}")
+            null
+        }
+    }
+
+    // 모집 상태 업데이트
+    suspend fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) {
+        try {
+            val querySnapshot = studyCollection
+                .whereEqualTo("studyIdx", studyIdx)
+                .get()
+                .await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents.first()
+                studyCollection.document(document.id).update("studyCanApply", canApply).await()
+            }
+        } catch (e: Exception) {
+            throw Exception("Failed to update study status: ${e.message}")
         }
     }
 
