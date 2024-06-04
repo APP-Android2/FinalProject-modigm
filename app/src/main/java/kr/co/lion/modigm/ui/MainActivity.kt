@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         // replaceFragment(FragmentName.CHAT, false, false, null)
 
         // 화면 테스트 - 희원
-        replaceFragment(FragmentName.PROFILE, false, false, null)
+        // replaceFragment(FragmentName.PROFILE, false, false, null)
     }
 
     // 지정한 Fragment를 보여주는 메서드
