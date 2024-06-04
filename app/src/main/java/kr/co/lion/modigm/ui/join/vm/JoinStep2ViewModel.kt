@@ -3,6 +3,7 @@ package kr.co.lion.modigm.ui.join.vm
 import android.app.Activity
 import android.os.CountDownTimer
 import android.text.InputFilter
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -169,9 +170,10 @@ class JoinStep2ViewModel: ViewModel() {
 
                     // 프로바이더 확인
                     for(provider in signInResult.user?.providerData!!){
-                        if(provider.providerId == "password"){
-                            _alreadyRegisteredUserProvider.value = "email"
+                        if(provider.providerId != "firebase" && provider.providerId != "phone"){
+                            _alreadyRegisteredUserProvider.value = provider.providerId
                             _alreadyRegisteredUserEmail.value = provider.email!!
+                            Log.d("test1234", "${provider.providerId}")
                         }
                     }
                     // 중복인 경우에는 이미 등록된 계정을 지우면 안되기 때문에 로그아웃만 하기

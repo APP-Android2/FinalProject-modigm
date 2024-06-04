@@ -4,8 +4,8 @@ import kr.co.lion.modigm.R
 
 enum class JoinType (var provider:String, var icon:Int) {
     KAKAO("kakao", R.drawable.kakaotalk_sharing_btn_small),
-    GITHUB("github", R.drawable.icon_github_logo),
-    EMAIL("email", R.drawable.email_login_logo),
+    GITHUB("github.com", R.drawable.icon_github_logo),
+    EMAIL("password", R.drawable.email_login_logo),
     ERROR("error", 0);
 
     companion object{
@@ -13,7 +13,7 @@ enum class JoinType (var provider:String, var icon:Int) {
             return when(str){
                 "kakao" -> KAKAO
                 "github" -> GITHUB
-                "email" -> EMAIL
+                "password" -> EMAIL
                 else -> ERROR
             }
         }
