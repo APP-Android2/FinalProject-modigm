@@ -12,7 +12,7 @@ enum class JoinType (var provider:String, var icon:Int) {
         fun getType(str:String):JoinType{
             return when(str){
                 "kakao" -> KAKAO
-                "github" -> GITHUB
+                "github.com" -> GITHUB
                 "password" -> EMAIL
                 else -> ERROR
             }

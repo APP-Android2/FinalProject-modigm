@@ -172,11 +172,12 @@ class JoinViewModel : ViewModel() {
                 // 카카오 등 파이어베이스에서 지원하지 않는 공급자는 customToken으로 로그인
                 signInResult = _auth.signInWithCustomToken(snsCustomToken.value!!).await()
             }
-            "github" -> {
+            "github.com" -> {
                 // 깃허브 등 파이어베이스에서 지원하는 공급자는 credential로 로그인
                 signInResult = _auth.signInWithCredential(snsCredential.value!!).await()
             }
         }
+        _uid.value = signInResult?.user?.uid
         // 로그인 계정과 전화번호 연결
         signInResult?.user?.linkWithCredential(_phoneCredential.value!!)?.await()
     }
