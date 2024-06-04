@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
 import androidx.databinding.adapters.SeekBarBindingAdapter.setProgress
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,7 +17,16 @@ class WriteViewModel : ViewModel() {
     private val _proceedClicked = MutableLiveData<Boolean>()
     private val _skillClicked = MutableLiveData<Boolean>()
     private val _introClicked = MutableLiveData<Boolean>()
+    // 버튼 활성화 / 비활성화 상태
     private val _buttonState = MutableLiveData<Boolean>()
+    val buttonState: LiveData<Boolean> = _buttonState
+    // 버튼 색상 -> BackgoroundTint에 직접 넣어줄 수가 없음 ( 2차 )
+    private val _buttonColor = MutableLiveData<Int>()
+    val buttonColor: LiveData<Int> = _buttonColor
+
+    // 버튼 텍스트 색상
+    private val _buttonTextColor = MutableLiveData<Int>()
+    val buttonTextColor: LiveData<Int> = _buttonTextColor
 
     // 버튼 다음? or 완료?
     private val _buttonText = MutableLiveData<String>()
@@ -25,13 +35,21 @@ class WriteViewModel : ViewModel() {
 
     private val _writeProceedLocation = MutableLiveData<String>()
 
+    init {
+        // 버튼 text 초기 설정
+        _buttonText.value = "다음"
+        // 버튼 초기 색상 설정
+        _buttonColor.value = Color.parseColor("#bbbbbb")
+        // 버튼 Text 초기 색상 설정
+        _buttonTextColor.value = Color.parseColor("#777777")
+
+    }
     val fieldClicked: LiveData<Boolean> = _fieldClicked
     val periodClicked: LiveData<Boolean> = _periodClicked
     val proceedClicked: LiveData<Boolean> = _proceedClicked
     val skillClicked: LiveData<Boolean> = _skillClicked
     val introClicked: LiveData<Boolean> = _introClicked
 
-    val buttonState: LiveData<Boolean> = _buttonState
 
     val writeProceedLocation: LiveData<String> = _writeProceedLocation
 
@@ -112,11 +130,11 @@ class WriteViewModel : ViewModel() {
 
                 if (didAnswer) {
                     btn.setBackgroundColor(Color.parseColor("#1A51C5"))
-                    btn.setTextColor(Color.parseColor("#FFFFFF"))
+                    _buttonTextColor.value = Color.parseColor("#FFFFFF")
                     activateButton() // 버튼 활성화
                 } else {
                     btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
-                    btn.setTextColor(Color.parseColor("#777777"))
+                    _buttonTextColor.value = Color.parseColor("#777777")
                     deactivateButton() // 버튼 비활성화
                 }
             }
@@ -128,11 +146,11 @@ class WriteViewModel : ViewModel() {
 
                 if (didAnswer) {
                     btn.setBackgroundColor(Color.parseColor("#1A51C5"))
-                    btn.setTextColor(Color.parseColor("#FFFFFF"))
+                    _buttonTextColor.value = Color.parseColor("#FFFFFF")
                     activateButton() // 버튼 활성화
                 } else {
                     btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
-                    btn.setTextColor(Color.parseColor("#777777"))
+                    _buttonTextColor.value = Color.parseColor("#777777")
                     deactivateButton() // 버튼 비활성화
                 }
             }
@@ -144,11 +162,11 @@ class WriteViewModel : ViewModel() {
 
                 if (didAnswer) {
                     btn.setBackgroundColor(Color.parseColor("#1A51C5"))
-                    btn.setTextColor(Color.parseColor("#FFFFFF"))
+                    _buttonTextColor.value = Color.parseColor("#FFFFFF")
                     activateButton() // 버튼 활성화
                 } else {
                     btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
-                    btn.setTextColor(Color.parseColor("#777777"))
+                    _buttonTextColor.value = Color.parseColor("#777777")
                     deactivateButton() // 버튼 비활성화
                 }
             }
@@ -160,11 +178,11 @@ class WriteViewModel : ViewModel() {
 
                 if (didAnswer) {
                     btn.setBackgroundColor(Color.parseColor("#1A51C5"))
-                    btn.setTextColor(Color.parseColor("#FFFFFF"))
+                    _buttonTextColor.value = Color.parseColor("#FFFFFF")
                     activateButton() // 버튼 활성화
                 } else {
                     btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
-                    btn.setTextColor(Color.parseColor("#777777"))
+                    _buttonTextColor.value = Color.parseColor("#777777")
                     deactivateButton() // 버튼 비활성화
                 }
             }
@@ -176,11 +194,11 @@ class WriteViewModel : ViewModel() {
 
                 if (didAnswer) {
                     btn.setBackgroundColor(Color.parseColor("#1A51C5"))
-                    btn.setTextColor(Color.parseColor("#FFFFFF"))
+                    _buttonTextColor.value = Color.parseColor("#FFFFFF")
                     activateButton() // 버튼 활성화
                 } else {
                     btn.setBackgroundColor(Color.parseColor("#bbbbbb"))
-                    btn.setTextColor(Color.parseColor("#777777"))
+                    _buttonTextColor.value = Color.parseColor("#777777")
                     deactivateButton() // 버튼 비활성화
                 }
             }
