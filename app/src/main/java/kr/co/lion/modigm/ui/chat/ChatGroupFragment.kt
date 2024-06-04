@@ -33,7 +33,7 @@ class ChatGroupFragment : Fragment() {
     var chatRoomDataList = mutableListOf<ChatRoomData>()
 
     // 현재 로그인 한 사용자 정보
-    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserId = "rH82PMELb2TimapTRzownbZekd13" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 //    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

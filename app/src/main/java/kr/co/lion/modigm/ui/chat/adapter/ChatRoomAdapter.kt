@@ -9,8 +9,13 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
+import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatRoomData
 
 class ChatRoomAdapter(
@@ -56,32 +61,42 @@ class ChatRoomAdapter(
 
         fun bind(room: ChatRoomData) {
             val position = adapterPosition
-            val rooms = roomList[position]
-            // 채팅 방 제목
-            roomTitleTextView.text = room.chatTitle
 
             // 프로필 설정(회원 아이디 별 사진으로) (아직 Firebase 정보 없음) - DB 연동해야함
-            if(rooms.groupChat == false){
-                if (rooms.chatMemberList.contains("iuUser")) {
-                    roomImageImageView.setImageResource(R.drawable.test_profile_image_iu)
-                } else if (rooms.chatMemberList.contains("sonUser")) {
-                    roomImageImageView.setImageResource(R.drawable.test_profile_image_son)
-                } else if (rooms.chatMemberList.contains("ryuUser")) {
-                    roomImageImageView.setImageResource(R.drawable.test_profile_image_ryu)
-                } else {
-                    roomImageImageView.setImageResource(R.drawable.test_profile_image)
-                }
+            if(room.groupChat == false){
+                val title = room.chatMemberList.filter { it != loginUserId }
+                // 채팅 방 제목
+                roomTitleTextView.text = title[0]
+                roomImageImageView.setImageResource(R.drawable.test_profile_image)
             }
             // 그룹 채팅 사진은 글 작성 -> 그 이미지로 설정 (아직 Firebase 정보 없음) - DB 연동해야함
             else {
-                roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                // 채팅 방 제목
+                roomTitleTextView.text = room.chatTitle
+                if (room.chatRoomImage.isNullOrEmpty()){
+                    Log.v("chatLog", "룸 이미지 X")
+                    roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                }
+                else {
+                    Log.v("chatLog", "룸 이미지 O")
+                    // 채팅 방 대표 사진 설정
+                    val context = itemView.context
+                    CoroutineScope(Dispatchers.Main).launch {
+                        ChatRoomDataSource.loadChatRoomImage(context, room.chatRoomImage, roomImageImageView)
+                    }
+                }
             }
 
             if ((room.lastChatMessage).isNotEmpty()) {
                 // 마지막 대화 내용
+                roomLastTextView.visibility = View.VISIBLE
                 roomLastTextView.text = room.lastChatMessage
                 // 마지막 채팅 시간
+                roomTimeTextView.visibility = View.VISIBLE
                 roomTimeTextView.text = room.lastChatTime
+            } else {
+                roomLastTextView.visibility = View.GONE
+                roomTimeTextView.visibility = View.GONE
             }
 
             // 안 읽은 메시지 수 설정

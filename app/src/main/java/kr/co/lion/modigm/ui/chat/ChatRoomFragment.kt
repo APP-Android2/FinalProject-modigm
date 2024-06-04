@@ -1,8 +1,14 @@
 package kr.co.lion.modigm.ui.chat
 
+import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.DisplayMetrics
@@ -10,9 +16,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CoroutineScope
@@ -20,13 +30,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
+import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomMemberAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatMessagesViewModel
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
+import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.hideSoftInput
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -34,6 +49,9 @@ class ChatRoomFragment : Fragment() {
 
     lateinit var fragmentChatRoomBinding: FragmentChatRoomBinding
     lateinit var mainActivity: MainActivity
+
+    private val usersDataList = mutableListOf<UserData>()
+    private val usersDataHashMap = HashMap<String, UserData>()
 
     // 어댑터
     private lateinit var messageAdapter: MessageAdapter
@@ -47,8 +65,8 @@ class ChatRoomFragment : Fragment() {
     private val messages = mutableListOf<ChatMessagesData>()
 
     // 현재 로그인 한 사용자 정보
-    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    private val loginUserName = "김원빈" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+    private val loginUserId = "rH82PMELb2TimapTRzownbZekd13" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserName = "테스트2" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
     // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     // private val loginUserName = "주성원" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
@@ -96,8 +114,12 @@ class ChatRoomFragment : Fragment() {
         // 사이드 네비게이션 클릭 Event
         sideNavigationTextViewClickEvent()
 
-        // 채팅 방 메시지 데이터 실시간 수신
+        // 입력칸 + 버튼 클릭 Event
+        addIconButtonChatMessage()
+
+        // 실시간 수신
         getAndUpdateLiveChatMessages()
+        getAndUpdateLiveChatMembers()
 
         // 데이터 변경 관찰
         observeData()
@@ -154,7 +176,7 @@ class ChatRoomFragment : Fragment() {
     private fun setupMemberRecyclerView() {
         with(fragmentChatRoomBinding.recyclerViewChatRoomMemeberList){
             layoutManager = LinearLayoutManager(context)
-            chatRoomMemberAdapter = ChatRoomMemberAdapter(chatMemberList)
+            chatRoomMemberAdapter = ChatRoomMemberAdapter(usersDataList)
             adapter = chatRoomMemberAdapter
         }
     }
@@ -164,7 +186,7 @@ class ChatRoomFragment : Fragment() {
         // 대화방 목록 RecyclerView 설정
         with(fragmentChatRoomBinding.recyclerView){
             layoutManager = LinearLayoutManager(requireContext())
-            messageAdapter = MessageAdapter(loginUserId, messages)
+            messageAdapter = MessageAdapter(loginUserId, messages, usersDataHashMap)
             adapter = messageAdapter
         }
     }
@@ -198,19 +220,21 @@ class ChatRoomFragment : Fragment() {
 
                     // 메세지 전송 후 저장
                     chatMessagesViewModel.insertChatMessagesData(message, chatIdx, loginUserName, now)
+                    CoroutineScope(Dispatchers.Main).launch {
+                        // 메세지 전송 후 해당 채팅 방 마지막 메세지 및 시간 변경
+                        val coroutine1 = chatRoomViewModel.updateChatRoomLastMessageAndTime(chatIdx, chatMessage, chatFullTime, chatTime)
+                        coroutine1.join()
+                        // 안읽은 메시지 카운트 증가
+                        chatRoomViewModel.increaseUnreadMessageCount(chatIdx, chatSenderId)
+                    }
 
                     messages.add(message)
                     messageAdapter.notifyItemInserted(messages.size - 1)
                     fragmentChatRoomBinding.recyclerView.scrollToPosition(messages.size - 1)
                     editTextMessage.text.clear()
 
-                    // 메세지 전송 후 해당 채팅 방 마지막 메세지 및 시간 변경
-                    chatRoomViewModel.updateChatRoomLastMessageAndTime(chatIdx, chatMessage, chatFullTime, chatTime)
-
                     // 전송 후 키보드 숨기기
                     activity?.hideSoftInput()
-
-                    chatRoomViewModel.increaseUnreadMessageCount(chatIdx, chatSenderId)
                 }
             }
         }
@@ -249,11 +273,28 @@ class ChatRoomFragment : Fragment() {
             scrollToBottom()
             Log.d("chatLog1", "Room - observeData() 메시지 데이터 변경")
         }
+
+        chatRoomViewModel.userDataList.observe(viewLifecycleOwner) { userDataList ->
+            usersDataList.clear()
+            usersDataList.addAll(userDataList)
+            for (userData in usersDataList) {
+                // 각 사용자의 UID를 키로 사용하여 사용자 데이터를 HashMap에 저장
+                usersDataHashMap[userData.userUid] = userData
+            }
+            Log.v("chatLog11", "${usersDataHashMap}")
+            chatRoomMemberAdapter.notifyDataSetChanged()
+            Log.d("chatLog1", "Room - observeData() 채팅 방 멤버 데이터 변경")
+        }
     }
 
     // 채팅 방 메시지 데이터 실시간 수신
     private fun getAndUpdateLiveChatMessages() {
         chatMessagesViewModel.getChatMessagesListener(chatIdx)
+    }
+
+    // 채팅 방 메시지 데이터 실시간 수신
+    private fun getAndUpdateLiveChatMembers() {
+        chatRoomViewModel.getUsersDataList(chatMemberList)
     }
 
     // RecyclerView (대화 맨 마지막 기준)으로 설정
@@ -344,8 +385,16 @@ class ChatRoomFragment : Fragment() {
 
     // 메세지 읽음 처리
     fun readMessage() {
-        CoroutineScope(Dispatchers.Main).launch {
-            chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+        chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+    }
+
+    // 카메라 앨범 관련 설정 해야함
+    // + 버튼
+    fun addIconButtonChatMessage(){
+        with(fragmentChatRoomBinding.imageButtonChatRoomAdd){
+            setOnClickListener {
+                Log.d("chatLog1", "addIconButton 클릭")
+            }
         }
     }
 }

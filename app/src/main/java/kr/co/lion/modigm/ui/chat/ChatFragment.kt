@@ -42,7 +42,7 @@ class ChatFragment : Fragment() {
     var chatSearchRoomDataList = mutableListOf<ChatRoomData>()
 
     // 현재 로그인 한 사용자 정보
-    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserId = "rH82PMELb2TimapTRzownbZekd13" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -86,6 +86,50 @@ class ChatFragment : Fragment() {
 
         // 옵션 메뉴가 있다는 것을 시스템에 알림
         setHasOptionsMenu(true)
+        toolbar.setNavigationIcon(R.drawable.icon_add_24px)
+        toolbar.setNavigationOnClickListener {
+            Log.d("chatLog1", "테스트 실행 버튼 클릭")
+
+            // 태진님 글 생성 페이지에서 글 작성 완료 시 채팅 방 생성
+            // addChatGroupRoomData()
+
+            // 희원님 프로필 페이지에서 1:1 채팅 방 생성
+            // addChatRoomData()
+
+            // 희원님 프로필 페이지에서 1:1 ChatRoomFragment로 이동 (코드) 작성 완료 - 데이터는 가져와야함
+//            val chatRoomFragment = ChatRoomFragment().apply {
+//                arguments = Bundle().apply {
+//                    putInt("chatIdx", -1)
+//                    putString("chatTitle", "1:1")
+//                    putStringArrayList("chatMemberList", arrayListOf("J04y39mPQ8fLIm2LukmdpRVGN8b2", "rH82PMELb2TimapTRzownbZekd13"))
+//                    putInt("participantCount", 2)
+//                    putBoolean("groupChat", false)
+//                }
+//            }
+//
+//            parentFragmentManager.commit {
+//                replace(R.id.containerMain , chatRoomFragment)
+//                addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+//            }
+            
+            // 승현님 Detail 페이지에서 멤버 신청되면 해당 채팅방 멤버 추가 (코드) 작성 미완
+            
+            // 승현님 Detail 페이지에서 ChatRoomFragment로 이동 (코드) 작성 완료 - 데이터는 가져와야함
+//            val chatRoomFragment = ChatRoomFragment().apply {
+//                arguments = Bundle().apply {
+//                    putInt("chatIdx", 4)
+//                    putString("chatTitle", "제목")
+//                    putStringArrayList("chatMemberList", arrayListOf("fKdVSYNodxYgYJHq8MYKlAC2GCk1", "rH82PMELb2TimapTRzownbZekd13", "SRmFAkULY6XnwarEMom1BfCinff1", "tLp9iigU7HZoMCzTK2JRGJn0Y3T2", "JlDeVcmDkpRUXKvBrlTTiw1Ww8z2", "rOUEb1y9ZOX1Ut0PcP2zvrwqbE03", "J04y39mPQ8fLIm2LukmdpRVGN8b2"))
+//                    putInt("participantCount", 7)
+//                    putBoolean("groupChat", true)
+//                }
+//            }
+//
+//            parentFragmentManager.commit {
+//                replace(R.id.containerMain , chatRoomFragment)
+//                addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+//            }
+        }
     }
 
     // 툴바의 메뉴 세팅(검색)
@@ -216,18 +260,17 @@ class ChatFragment : Fragment() {
     }
 
     // 채팅 방 데이터 추가 (예시)
-    fun addChatRoomData() {
-
+    fun addChatGroupRoomData() {
         CoroutineScope(Dispatchers.Main).launch {
 
-            val chatRoomSequence = ChatRoomDataSource.getChatRoomSequence()
-            ChatRoomDataSource.updateChatRoomSequence(chatRoomSequence + 1)
+            val chatGroupRoomSequence = ChatRoomDataSource.getChatRoomGroupSequence()
+            ChatRoomDataSource.updateChatRoomGroupSequence(chatGroupRoomSequence + 1)
 
-            val chatIdx = chatRoomSequence + 1
+            val chatIdx = chatGroupRoomSequence + 1
             val chatTitle = ""
             val chatRoomImage = ""
-            val chatMemberList = listOf("currentUser", "swUser", "hwUser", "msUser", "shUser", "tjUser", "ryuUser", "sonUser", "iuUser")
-            val participantCount = 4
+            val chatMemberList = listOf("currentUser")
+            val participantCount = 1
             val groupChat = true
             val lastChatMessage = ""
             val lastChatFullTime = 0L
@@ -237,7 +280,32 @@ class ChatFragment : Fragment() {
 
             // 채팅 방 생성
             ChatRoomDataSource.insertChatRoomData(chatRoomData)
-            Log.d("test1234", "${chatTitle} 채팅방 생성 완료")
+            Log.d("test1234", "${chatTitle} 그룹 채팅방 생성 완료")
+        }
+    }
+
+    // 채팅 방 데이터 추가 (예시)
+    fun addChatRoomData() {
+        CoroutineScope(Dispatchers.Main).launch {
+
+            val chatRoomSequence = ChatRoomDataSource.getChatRoomSequence()
+            ChatRoomDataSource.updateChatRoomSequence(chatRoomSequence - 1)
+
+            val chatIdx = chatRoomSequence - 1
+            val chatTitle = "1:1 채팅방"
+            val chatRoomImage = ""
+            val chatMemberList = listOf("내 UID", "상대 UID")
+            val participantCount = 2
+            val groupChat = false
+            val lastChatMessage = ""
+            val lastChatFullTime = 0L
+            val lastChatTime = ""
+
+            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
+
+            // 채팅 방 생성
+            ChatRoomDataSource.insertChatRoomData(chatRoomData)
+            Log.d("test1234", "1:1 채팅방 생성 완료")
         }
     }
 }
