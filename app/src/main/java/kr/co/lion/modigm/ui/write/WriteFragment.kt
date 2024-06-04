@@ -70,21 +70,23 @@ class WriteFragment : Fragment() {
                         viewPagerWriteFragment.currentItem += 1
                     }
                 }
-            }
 
-            // 완료 버튼 클릭 리스너
-            writeViewModel?.buttonText?.observe(viewLifecycleOwner){text ->
-                if (text == "완료"){
-                    // 내 글보기 화면으로 이동
-                    buttonWriteNext.setOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, DetailFragment())
-                            .addToBackStack(FragmentName.DETAIL.str)
-                            .commit()
+                // 완료 버튼 클릭 리스너
+                if (writeViewModel?.buttonText?.value == "완료") {
+                    writeViewModel?.buttonState?.observe(viewLifecycleOwner) { didAnswer ->
+                        if (didAnswer) {
+                            // 내 글 보기 화면으로 이동
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.containerMain, DetailFragment())
+                                .addToBackStack(FragmentName.DETAIL.str)
+                                .commit()
+                        }
                     }
-                }
+                } else {
 
+                }
             }
+
         }
     }
 
@@ -95,14 +97,11 @@ class WriteFragment : Fragment() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
 
-                    // progress Bar 게이지 변경 & 버튼 설정
-                    progressBarWriteFragment.apply {
-                        // progress Bar 게이지 설정
-                        settingProgress(this, position)
 
-                        // 버튼 설정
-                        settingButton(position)
-                    }
+                    // progress Bar 게이지 설정
+                    settingProgress(progressBarWriteFragment, position)
+                    // 버튼 설정
+                    settingButton(position)
                 }
             })
         }
@@ -176,12 +175,11 @@ class WriteFragment : Fragment() {
     }
 
     // Progress Bar 설정
-    fun settingProgress(progressBar: ProgressBar, position: Int){
-        progressBar.apply {
-            writeViewModel.settingProgressBar(position)
-        }
-
+    fun settingProgress(progressBar: ProgressBar, position: Int) {
+        writeViewModel.settingProgressBar(position)
+        progressBar.setProgress(writeViewModel.progressCount.value!!, true)
     }
+
     // ViewPager 설정
     fun viewPagerActivation() {
         fragmentWriteBinding.apply {
@@ -230,13 +228,6 @@ class WriteFragment : Fragment() {
 
         override fun createFragment(position: Int): Fragment {
             val fragment = fragmentList[position]
-
-
-            // 각 fragment에 전달할 데이터를 설정해준다
-            val bundle = Bundle().apply {
-
-            }
-            fragment.arguments = bundle
 
             return fragment
         }
