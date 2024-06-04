@@ -61,7 +61,7 @@ class DetailFragment : Fragment() {
         uid = auth.currentUser?.uid.toString()
 
         // 글작성자와 같을때 test용 uid
-        uid = "rOUEb1y9ZOX1Ut0PcP2zvrwqbE03"
+        uid = "fKdVSYNodxYgYJHq8MYKlAC2GCk1"
 
         // 글 작성자와 다를 때 test용 uid
 //        uid = "rH82PMELb2TimapTRzownbZekd13"
@@ -223,6 +223,27 @@ class DetailFragment : Fragment() {
                 textViewDetailState.text = "모집 마감"
                 setupStatePopup()
             }
+
+            // studyPic이 사용 가능한지 확인하고 커버 이미지 설정
+            if (!data.studyPic.isNullOrEmpty()) {
+                // Firebase Storage 경로
+                val storageReference: StorageReference =
+                    FirebaseStorage.getInstance().reference.child("studyPic/${data.studyPic}")
+
+                storageReference.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(this@DetailFragment)
+                        .load(uri)
+                        .into(imageViewDetailCover) // imageViewDetailCover가 ImageView ID라고 가정
+                }.addOnFailureListener {
+                    // 로그 오류 또는 실패 처리
+                    Log.e("DetailFragment", "Storage에서 이미지 로드 실패: ${it.message}")
+                }
+            } else {
+                // drawable에서 랜덤 이미지 로드
+                val randomImage = if ((0..1).random() == 0) R.drawable.image_detail_1 else R.drawable.image_detail_2
+                imageViewDetailCover.setImageResource(randomImage)
+            }
+
 
 
         }
