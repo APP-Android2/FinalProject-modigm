@@ -33,7 +33,6 @@ import kr.co.lion.modigm.util.Interest
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
-    lateinit var mainActivity: MainActivity
     private val profileViewModel: ProfileViewModel by viewModels()
 
     val uid = "fKdVSYNodxYgYJHq8MYKlAC2GCk1"
@@ -99,7 +98,6 @@ class ProfileFragment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
-        mainActivity = activity as MainActivity
 
         // Bind ViewModel and lifecycle owner
         fragmentProfileBinding.profileViewModel = profileViewModel
@@ -162,7 +160,10 @@ class ProfileFragment: Fragment() {
                     // 뒤로 가기
                     setNavigationIcon(R.drawable.icon_arrow_back_24px)
                     setNavigationOnClickListener {
-                        mainActivity.replaceFragment(FragmentName.PROFILE, false,true,null)
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, SettingsFragment())
+                            .addToBackStack(FragmentName.FILTER_SORT.str)
+                            .commit()
                     }
 
                     // 더보기 아이콘 표시
@@ -204,7 +205,7 @@ class ProfileFragment: Fragment() {
                 adapter = linkAdapter
 
                 // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
+                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             }
         }
     }
@@ -217,7 +218,7 @@ class ProfileFragment: Fragment() {
                 adapter = partStudyAdapter
 
                 // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
+                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             }
         }
     }
@@ -230,7 +231,7 @@ class ProfileFragment: Fragment() {
                 adapter = hostStudyAdapter
 
                 // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(mainActivity)
+                layoutManager = LinearLayoutManager(requireContext())
             }
         }
     }
