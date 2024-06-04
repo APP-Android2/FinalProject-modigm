@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.repository.DetailRepository
+import kr.co.lion.modigm.repository.StudyRepository
 
 class DetailViewModel : ViewModel() {
-    private val detailRepository = DetailRepository()
+    private val studyRepository = StudyRepository()
 
     // StudyData가 데이터 모델이라고 가정
     private val _contentData = MutableLiveData<StudyData?>() // 좀 더 구체적인 타입 사용
@@ -33,7 +33,7 @@ class DetailViewModel : ViewModel() {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
         viewModelScope.launch {
             try {
-                val response = detailRepository.selectContentData(studyIdx)
+                val response = studyRepository.selectContentData(studyIdx)
                 _contentData.value = response
                 Log.d("DetailVM", "Data loaded successfully.")
             } catch (e: Exception) {
@@ -49,7 +49,7 @@ class DetailViewModel : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val userDetails = detailRepository.loadUserDetailsByUid(uid)
+                val userDetails = studyRepository.loadUserDetailsByUid(uid)
                 userDetails?.let {
                     _userNameData.value = UserData(userName = it.userName, userProfilePic = it.userProfilePic)
                     _userProfilePicUrl.value = it.userProfilePic
@@ -68,7 +68,7 @@ class DetailViewModel : ViewModel() {
     fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) {
         viewModelScope.launch {
             try {
-                detailRepository.updateStudyCanApplyByStudyIdx(studyIdx, canApply)
+                studyRepository.updateStudyCanApplyByStudyIdx(studyIdx, canApply)
                 Log.d("DetailVM", "Study can apply status updated successfully for index $studyIdx")
                 // LiveData를 사용하여 UI에 상태 변경 알림
             } catch (e: Exception) {
