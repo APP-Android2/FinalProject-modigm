@@ -60,6 +60,13 @@
                 android:layout_weight="1" />
         </LinearLayout>
 
+        <!-- 검색 결과를 표시할 RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewChatSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </layout>

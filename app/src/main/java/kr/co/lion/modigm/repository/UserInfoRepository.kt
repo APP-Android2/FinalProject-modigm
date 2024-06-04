@@ -2,17 +2,14 @@ package kr.co.lion.modigm.repository
 
 import android.content.Context
 import android.widget.ImageView
-import kr.co.lion.modigm.db.remote.JoinUserDataSource
 import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.UserData
 
 class UserInfoRepository {
-
-    private val _joinUserDataSource = JoinUserDataSource()
     private val _remoteUserDataSource = RemoteUserDataSource()
 
     // 회원가입
-    suspend fun insetUserData(userInfoData: UserData): Boolean = _joinUserDataSource.insetUserData(userInfoData)
+    suspend fun insetUserData(userInfoData: UserData): Boolean = _remoteUserDataSource.insetUserData(userInfoData)
 
     // 유저 정보 불러오기
     suspend fun loadUserData(uid: String): UserData? = _remoteUserDataSource.loadUserDataByUid(uid)

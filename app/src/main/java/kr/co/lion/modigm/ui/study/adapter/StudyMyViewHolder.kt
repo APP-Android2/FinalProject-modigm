@@ -1,117 +1,123 @@
 package kr.co.lion.modigm.ui.study.adapter
 
+import android.graphics.Color
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowStudyMyBinding
 import kr.co.lion.modigm.model.StudyData
 
 class StudyMyViewHolder(
     private val binding: RowStudyMyBinding,
     private val rowClickListener: (Int) -> Unit,
-) :
-    RecyclerView.ViewHolder(binding.root) {
-
+) : RecyclerView.ViewHolder(binding.root) {
 
     // 전체 스터디 항목별 세팅
-    fun bind(studyData: StudyData, rowClickListener: (Int) -> Unit) {
-
+    fun bind(studyData: Pair<StudyData, Int>) {
         with(binding) {
-            // 항목 하나
-            with(root) {
-                layoutParams = ViewGroup.LayoutParams(
-                    // 항목 클릭 시 클릭되는 범위 설정
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
+            // 루트 뷰의 레이아웃 설정 및 클릭 리스너 설정
+            setupRootView(studyData)
 
-                // 클릭 리스너 설정.
-                setOnClickListener {
-                    rowClickListener.invoke(studyData.studyIdx)
+            // 스터디 상태 설정 (모집중/모집완료)
+            setStudyState(studyData.first.studyState)
+
+            // 스터디 진행 방식 설정 (온라인/오프라인/혼합)
+            setStudyOnOffline(studyData.first.studyOnOffline)
+
+            // 스터디 제목 설정
+            textViewStudyMyTitle.text = studyData.first.studyTitle
+
+            // 스터디 기간 설정 (스터디/프로젝트/공모전)
+            setStudyPeriod(studyData.first.studyPeriod)
+
+            // 스터디 인원 설정
+            setStudyMembers(studyData)
+
+            // 스터디 신청 방식 설정
+            textViewStudyMyApplyMethod.text = studyData.first.studyApplyMethod.toString()
+
+            // 찜 버튼 설정
+            setupFavoriteButton()
+        }
+    }
+
+    // 루트 뷰의 레이아웃 설정 및 클릭 리스너 설정
+    private fun setupRootView(studyData: Pair<StudyData, Int>) {
+        with(binding.root) {
+            // 루트 뷰의 레이아웃 파라미터 설정
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+
+            // 루트 뷰 클릭 리스너 설정
+            setOnClickListener {
+                rowClickListener.invoke(studyData.first.studyIdx)
+            }
+
+            // 스터디 이미지 클릭 리스너 설정 (현재는 빈 구현)
+            binding.imageViewStudyMyPic.setOnClickListener {
+                // 클릭 시 실행될 코드 (현재는 빈 구현)
+            }
+        }
+    }
+
+    // 스터디 상태 설정 (모집중/모집완료)
+    private fun setStudyState(studyState: Boolean) {
+        // 스터디 상태에 따라 텍스트를 설정
+        binding.textViewStudyMyCanApply.text = if (studyState) "모집중" else "모집 완료"
+    }
+
+    // 스터디 진행 방식 설정 (온라인/오프라인/혼합)
+    private fun setStudyOnOffline(studyOnOffline: Int) {
+        with(binding.textViewStudyMyOnOffline) {
+            // 스터디 진행 방식에 따라 텍스트와 텍스트 색상을 설정
+            when (studyOnOffline) {
+                1 -> {
+                    text = "온라인"
+                    setTextColor(Color.parseColor("#0FA981"))
                 }
-
-                // 스터디 이미지
-                with(imageViewStudyMyPic){
-
-                    // 이미지 클릭 시
-                    setOnClickListener {
-
-                    }
+                2 -> {
+                    text = "오프라인"
+                    setTextColor(Color.parseColor("#EB9C58"))
                 }
-
-                // 모집중, 모집완료
-                when (studyData.studyState) {
-                    true -> {
-                        textViewStudyMyState.text = "모집중"
-                    }
-                    false -> {
-                        textViewStudyMyState.text = "모집완료"
-                    }
+                3 -> {
+                    text = "온오프혼합"
+                    setTextColor(Color.parseColor("#0096FF"))
                 }
-                // 스터디 진행 방식
-                with(textViewStudyMyStateMeet){
-                    when (studyData.studyOnOffline){
-                        1 -> {
-                            text = "온라인"
-                            setTextColor(android.graphics.Color.parseColor("#0FA981"))
-                        }
-                        2 -> {
-                            text = "오프라인"
-                            setTextColor(android.graphics.Color.parseColor("#EB9C58"))
-                        }
-                        3 -> {
-                            text = "온오프혼합"
-                            setTextColor(android.graphics.Color.parseColor("#0096FF"))
-                        }
-                    }
+            }
+        }
+    }
+
+    // 스터디 기간 설정 (스터디/프로젝트/공모전)
+    private fun setStudyPeriod(studyPeriod: Int) {
+        with(binding.textViewStudyMyType) {
+            // 스터디 기간에 따라 텍스트를 설정
+            when (studyPeriod) {
+                1 -> {
+                    text = "스터디"
                 }
-                // 스터디 제목
-                textViewStudyMyTitle.text = studyData.studyTitle
-                // 스터디 기간
-                with(textViewStudyMyStatePeriod){
-                    when (studyData.studyPeriod) {
-                        1 -> {
-                            text = "단기"
-                        }
-                        2 -> {
-                            text = "정규"
-                        }
-                        else -> {
-                            text = "도전"
-                        }
-                    }
+                2 -> {
+                    text = "프로젝트"
                 }
-
-                // 스터디 최대 인원수
-                textViewStudyMyStateInwon.text = studyData.studyMaxMember.toString()
-
-                // 찜 버튼
-                with(imageViewStudyMyHeart){
-
-                    // 클릭 시
-                    setOnClickListener {
-                        val currentIconResId = tag as? Int ?: R.drawable.icon_favorite_24px
-
-                        if (currentIconResId == R.drawable.icon_favorite_24px) {
-                            // 좋아요 채워진 아이콘으로 변경
-                            setImageResource(R.drawable.icon_favorite_full_24px)
-                            // 상태 태그 업데이트
-                            tag = R.drawable.icon_favorite_full_24px
-
-                            // 새 색상을 사용하여 틴트 적용
-                            setColorFilter(android.graphics.Color.parseColor("#D73333"))
-
-                        } else {
-                            // 기본 아이콘으로 변경
-                            setImageResource(R.drawable.icon_favorite_24px)
-                            // 상태 태그 업데이트
-                            tag = R.drawable.icon_favorite_24px
-
-                            // 틴트 제거 (원래 아이콘 색상으로 복원)
-                            clearColorFilter()
-                        }
-                    }
+                else -> {
+                    text = "공모전"
                 }
+            }
+        }
+    }
+
+    // 스터디 인원 설정
+    private fun setStudyMembers(studyData: Pair<StudyData, Int>) {
+        // 스터디 최대 인원과 현재 인원을 설정
+        binding.textViewStudyMyMaxMember.text = studyData.first.studyMaxMember.toString()
+        binding.textViewStudyMyCurrentMember.text = studyData.second.toString()
+    }
+
+    // 찜 버튼 설정
+    private fun setupFavoriteButton() {
+        with(binding.imageViewStudyMyFavorite) {
+            setOnClickListener {
+
             }
         }
     }

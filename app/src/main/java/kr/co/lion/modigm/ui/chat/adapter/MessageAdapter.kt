@@ -27,12 +27,12 @@ class MessageAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_SENT) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_message_sent, parent, false)
+            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_message_sent, viewGroup, false)
             SentMessageViewHolder(view)
         } else {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_message_received, parent, false)
+            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_message_received, viewGroup, false)
             ReceivedMessageViewHolder(view)
         }
     }

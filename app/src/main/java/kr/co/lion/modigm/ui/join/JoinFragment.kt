@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +15,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
@@ -26,6 +25,8 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.hideSoftInput
 
 class JoinFragment : Fragment() {
 
@@ -36,10 +37,13 @@ class JoinFragment : Fragment() {
     private val viewModelStep2: JoinStep2ViewModel by activityViewModels()
     private val viewModelStep3: JoinStep3ViewModel by activityViewModels()
 
-//    private val joinType: String by lazy {
-//        arguments?.getString("joinType").toString()
-//    }
-    var joinType = "email"
+    private val joinType: JoinType? by lazy {
+        JoinType.getType(arguments?.getString("joinType")?:"")
+    }
+
+    private val customToken: String? by lazy {
+        arguments?.getString("customToken")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,13 +51,10 @@ class JoinFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
 
-        // 키보드가 올려올때 다음 버튼이 같이 올라와 텍스트필드를 막는 부분을 아래 코드로 셋팅하여 다음 버튼이 가려지게 함
-        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
         binding = FragmentJoinBinding.inflate(inflater)
 
         settingToolBar()
-        observePhoneAuth()
+        settingObservers()
 
         return binding.root
     }
@@ -80,10 +81,11 @@ class JoinFragment : Fragment() {
         super.onDestroy()
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
         if(!viewModel.joinCompleted.value!!){
-            CoroutineScope(Dispatchers.IO).launch {
-                viewModel.deleteCurrentUser()
-            }
+            viewModel.deleteCurrentUser()
         }
+        viewModelStep1.reset()
+        viewModelStep2.reset()
+        viewModelStep3.reset()
     }
 
     private fun settingToolBar(){
@@ -127,13 +129,28 @@ class JoinFragment : Fragment() {
     private fun settingViewPagerAdapter(){
         val viewPagerAdapter = JoinViewPagerAdapter(this)
 
-        viewPagerAdapter.addFragments(
-            arrayListOf(
-                JoinStep1Fragment(),
-                JoinStep2Fragment(),
-                JoinStep3Fragment()
-            )
-        )
+        // 뷰페이저에 보여줄 프래그먼트를 회원가입 유형에 따라 다르게 셋팅해준다.
+        when(joinType){
+            // 이메일로 회원가입할 때
+            JoinType.EMAIL -> {
+                viewPagerAdapter.addFragments(
+                    arrayListOf(
+                        JoinStep1Fragment(),
+                        JoinStep2Fragment(),
+                        JoinStep3Fragment()
+                    )
+                )
+            }
+            // SNS계정으로 회원가입할 때
+            else -> {
+                viewPagerAdapter.addFragments(
+                    arrayListOf(
+                        JoinStep2Fragment(),
+                        JoinStep3Fragment()
+                    )
+                )
+            }
+        }
 
         with(binding){
             // 어댑터 설정
@@ -144,12 +161,13 @@ class JoinFragment : Fragment() {
             viewPagerJoin.isUserInputEnabled = false
 
             // 프로그래스바 설정
-            progressBarJoin.max = viewPagerAdapter.itemCount
+            progressBarJoin.max = 100
 
             viewPagerJoin.registerOnPageChangeCallback(
                 object: ViewPager2.OnPageChangeCallback(){
                     override fun onPageSelected(position: Int) {
-                        binding.progressBarJoin.progress = position + 1
+                        val progress = (position + 1) * 100 / viewPagerAdapter.itemCount
+                        binding.progressBarJoin.setProgress(progress, true)
                     }
                 }
             )
@@ -157,15 +175,29 @@ class JoinFragment : Fragment() {
             // 다음 버튼 클릭 시 다음 화면으로 넘어가기
             buttonJoinNext.setOnClickListener {
 
-                // 화면별로 유효성 검사 먼저 하고
-                when(viewPagerJoin.currentItem){
-                    // 이메일, 비밀번호 화면
-                    0 -> step1Process()
-                    // 이름, 전화번호 인증 화면
-                    1 -> step2Process()
-                    // 관심 분야 선택 화면
-                    2 -> step3Process()
+                when(joinType){
+                    // 이메일로 회원가입할 때
+                    JoinType.EMAIL -> {
+                        when(viewPagerJoin.currentItem){
+                            // 이메일, 비밀번호 화면
+                            0 -> step1Process()
+                            // 이름, 전화번호 인증 화면
+                            1 -> step2Process()
+                            // 관심 분야 선택 화면
+                            2 -> step3Process()
+                        }
+                    }
+                    // SNS계정으로 회원가입할 때
+                    else -> {
+                        when(viewPagerJoin.currentItem){
+                            // 이름, 전화번호 인증 화면
+                            0 -> step2Process()
+                            // 관심 분야 선택 화면
+                            1 -> step3Process()
+                        }
+                    }
                 }
+
             }
         }
 
@@ -183,6 +215,7 @@ class JoinFragment : Fragment() {
         )
 
         lifecycleScope.launch {
+            showLoading()
             // 처음 화면인 경우
             if(viewModel.verifiedEmail.isEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
@@ -196,9 +229,11 @@ class JoinFragment : Fragment() {
                 val isDup = viewModel.createEmailUser()
                 if(isDup.isNotEmpty()){
                     viewModelStep1.emailValidation.value = isDup
+                    hideLoading()
                     return@launch
                 }
             }
+            hideLoading()
             // 다음 화면으로 이동
             binding.viewPagerJoin.currentItem += 1
         }
@@ -220,45 +255,24 @@ class JoinFragment : Fragment() {
                 binding.viewPagerJoin.currentItem += 1
                 return@launch
             }
+            showLoading()
 
             val result = viewModelStep2.createPhoneUser()
             if(result.isEmpty()){
+                // 인증 번호 확인 성공
                 viewModelStep2.credential.value?.let { viewModel.setPhoneCredential(it) }
                 viewModel.setPhoneVerificated(true)
+                viewModelStep2.cancelTimer()
             }else{
+                // 인증 번호 확인 실패
                 viewModel.setPhoneVerificated(false)
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
-                viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail
-                viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider
+                viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail.value.toString()
+                viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider.value.toString()
                 viewModel.isPhoneAlreadyRegistered.value = true
-            }
-        }
-    }
-
-    // 번호 인증 옵저버
-    private fun observePhoneAuth(){
-        // 인증이 확인 되었을 때
-        viewModel.phoneVerification.observe(viewLifecycleOwner){
-            if(it){
-                // 인증이 되었으면 다음으로 이동
-                binding.viewPagerJoin.currentItem += 1
-            }
-        }
-
-        // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때
-        viewModel.isPhoneAlreadyRegistered.observe(viewLifecycleOwner){
-            if(it){
-                // 중복인 경우 중복 알림 프래그먼트로 이동
-                val bundle = Bundle()
-                bundle.putString("email", viewModel.alreadyRegisteredUserEmail)
-                bundle.putString("provider", viewModel.alreadyRegisteredUserProvider)
-                val joinFragment = JoinDuplicateFragment()
-                joinFragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, joinFragment)
-                    .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
-                    .commit()
+                viewModelStep2.cancelTimer()
+                hideLoading()
             }
         }
     }
@@ -275,20 +289,74 @@ class JoinFragment : Fragment() {
         }
 
         lifecycleScope.launch {
+            showLoading()
             when(joinType){
-                "email" -> viewModel.completeJoinEmailUser()
-                "phone" -> viewModel.completeJoinSnsUser()
+                JoinType.EMAIL -> viewModel.completeJoinEmailUser()
+                JoinType.KAKAO -> customToken?.let { viewModel.completeJoinSnsUser(it) }
+                else -> {}
+            }
+        }
+    }
+
+    // 회원가입 절차 옵저버 세팅
+    private fun settingObservers(){
+        // 인증이 확인 되었을 때
+        viewModel.phoneVerification.observe(viewLifecycleOwner){
+            hideLoading()
+            if(it){
+                // 인증이 되었으면 다음으로 이동
+                viewModelStep2.cancelTimer()
+                binding.viewPagerJoin.currentItem += 1
+            }
+        }
+
+        // 인증하기를 다시 했을 때 기존의 인증 완료 취소
+        viewModelStep2.isVerifiedPhone.observe(viewLifecycleOwner){
+            if(!it){
+                viewModel.setPhoneVerificated(false)
+            }
+        }
+
+        // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때
+        viewModel.isPhoneAlreadyRegistered.observe(viewLifecycleOwner){
+            hideLoading()
+            if(it){
+                // 중복인 경우 중복 알림 프래그먼트로 이동
+                val bundle = Bundle()
+                bundle.putString("email", viewModel.alreadyRegisteredUserEmail)
+                bundle.putString("provider", viewModel.alreadyRegisteredUserProvider)
+                val joinFragment = JoinDuplicateFragment()
+                joinFragment.arguments = bundle
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, joinFragment)
+                    .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
+                    .commit()
             }
         }
 
         // 회원가입 완료 시 다음 화면으로 이동
         viewModel.joinCompleted.observe(viewLifecycleOwner){
+            hideLoading()
             if(it){
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.containerMain, StudyFragment())
                     .commit()
             }
         }
+    }
+
+    private fun showLoading(){
+        requireActivity().hideSoftInput()
+        binding.layoutLoadingJoin.visibility = View.VISIBLE
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideLoading(){
+        binding.layoutLoadingJoin.visibility = View.GONE
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
 }

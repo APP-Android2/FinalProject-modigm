@@ -2,18 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:backgroundTint="@color/white"
+    android:background="@color/white"
+    android:padding="16dp">
 
     <ScrollView
         android:id="@+id/scrollView_dialog_write_period"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-
-        android:background="@color/white"
-        android:backgroundTint="@color/white"
-
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -28,12 +25,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:text="1개월 이하"
-                android:textSize="16dp"
-
                 android:paddingStart="8dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
+                android:text="1개월 이하"
+                android:textSize="16dp"
 
                 />
 
@@ -41,39 +37,33 @@
                 android:id="@+id/textView_dialog_write_period_02"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16dp"
-
-                android:clickable="true"
                 android:paddingStart="8dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-
-                android:text="1개월 이상"/>
+                android:text="1개월 이상"
+                android:textSize="16dp" />
 
             <TextView
                 android:id="@+id/textView_dialog_write_period_03"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16dp"
-
                 android:paddingStart="8dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-
-                android:text="3개월 이상"/>
+                android:text="3개월 이상"
+                android:textSize="16dp" />
 
 
             <TextView
                 android:id="@+id/textView_dialog_write_period_04"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16dp"
-
                 android:paddingStart="8dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
+                android:text="6개월 이상"
+                android:textSize="16dp" />
 
-                android:text="6개월 이상"/>
         </LinearLayout>
 
     </ScrollView>

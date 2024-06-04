@@ -95,10 +95,10 @@ class JoinViewModel : ViewModel() {
     }
 
     // 회원가입 이탈 시 이미 Auth에 등록되어있는 인증 정보 삭제
-    suspend fun deleteCurrentUser(){
+    fun deleteCurrentUser(){
         // 이메일 인증 정보 삭제
         if(verifiedEmail.isNotEmpty()){
-            _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).await().user?.delete()
+            _user.value?.delete()
         }
         // 전화번호 인증 정보는 이미 중복확인을 할 때 삭제해놓기 때문에 필요없음
     }
@@ -114,7 +114,7 @@ class JoinViewModel : ViewModel() {
         return user
     }
 
-    // 회원가입 완료 전에 이메일(SNS) 계정과 전화번호 계정을 통합
+    // 회원가입 완료 전에 이메일 계정과 전화번호 계정을 통합
     private fun linkEmailAndPhone(){
         _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).addOnCompleteListener { loginTask ->
             if(loginTask.isSuccessful){
@@ -142,13 +142,28 @@ class JoinViewModel : ViewModel() {
         _joinCompleted.value = true
     }
 
+    // 회원가입 완료 전에 SNS 계정과 전화번호 계정을 통합
+    private fun linkSnsAndPhone(customToken: String){
+        _auth.signInWithCustomToken(customToken).addOnCompleteListener { loginTask ->
+            if(loginTask.isSuccessful){
+                _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
+                    if(!linkTask.isSuccessful){
+                        Log.d("testError", "linkWithCredential : ${linkTask.exception}")
+                    }
+                }
+            }else{
+                Log.d("testError", "signInWithCustomToken : ${loginTask.exception}")
+            }
+        }
+    }
+
     // SNS 계정 회원 가입 완료
-    fun completeJoinSnsUser(){
+    fun completeJoinSnsUser(customToken: String){
         // UserInfoData 객체 생성
         val user = createUserInfoData()
 
         // SNS 계정과 전화번호 계정을 연결
-
+        linkSnsAndPhone(customToken)
         // 파이어 스토어에 저장
         viewModelScope.launch {
             _userInfoRepository.insetUserData(user)

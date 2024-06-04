@@ -10,7 +10,7 @@ import kr.co.lion.modigm.model.StudyData
 
 class StudyAllAdapter(
     // 모집중인 스터디 리스트
-    private var studyList: List<StudyData>,
+    private var studyList: List<Pair<StudyData, Int>>,
     // 항목 1개 클릭 리스너
     private val rowClickListener: (Int) -> Unit,
 ) : RecyclerView.Adapter<StudyAllViewHolder>() {
@@ -28,12 +28,12 @@ class StudyAllAdapter(
     }
 
     override fun onBindViewHolder(holder: StudyAllViewHolder, position: Int) {
-        holder.bind(studyList[position],rowClickListener)
+        holder.bind(studyList[position])
     }
 
     // 목록 새로고침
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<StudyData>) {
+    fun updateData(list: List<Pair<StudyData, Int>>) {
         studyList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())

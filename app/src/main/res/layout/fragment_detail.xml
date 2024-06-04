@@ -218,27 +218,6 @@
                                 <ImageView
                                     android:layout_width="24dp"
                                     android:layout_height="24dp"
-                                    android:src="@drawable/icon_location_on_24px"
-                                    app:tint="@color/black" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="10dp"
-                                    android:text="온라인"
-                                    android:textSize="16dp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:layout_marginBottom="80dp"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
                                     android:src="@drawable/icon_group_24px"
                                     app:tint="@color/black" />
 
@@ -276,6 +255,41 @@
                                     android:layout_marginStart="4dp"
                                     android:text="(신청제)"
                                     android:textSize="16dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="80dp"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/icon_location_on_24px"
+                                    app:tint="@color/black" />
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/textviewDetailFragmentPlace"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:text="온라인"
+                                        android:textSize="16dp" />
+
+                                    <TextView
+                                        android:id="@+id/textviewDetailFragmentDetailPlace"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:text="상세주소"
+                                        android:textSize="16dp" />
+                                </LinearLayout>
                             </LinearLayout>
 
                         </LinearLayout>

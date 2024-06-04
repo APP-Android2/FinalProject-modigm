@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="기술스텍"
+                android:text="기술스택"
                 android:textSize="18dp"
                 android:textStyle="bold" />
 

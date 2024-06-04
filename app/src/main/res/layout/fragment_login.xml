@@ -41,56 +41,93 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="30dp"
             android:text="모우다임"
             android:textColor="@color/white"
-            android:textSize="40dp"
-            android:textStyle="bold"
+            android:fontFamily="@font/one_mobile_pop_otf"
+            android:textSize="70dp"
+            android:textStyle="normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.08"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewLoginLogo" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textViewLoginSecondTitle"
+            android:id="@+id/textViewLoginSubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/one_mobile_pop_otf"
             android:text="개발자 스터디의 새로운 패러다임"
             android:textColor="@color/white"
-            android:textSize="18dp"
-            android:textStyle="bold"
+            android:textSize="22dp"
+            android:textStyle="normal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewLoginTitle" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:id="@+id/imageButtonLoginKakao"
-            android:layout_width="wrap_content"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="44dp"
-            android:layout_marginEnd="30dp"
-            android:background="@drawable/kakao_login_medium_wide"
+            android:layout_marginTop="40dp"
+            android:foreground="@drawable/kakao_login_large_wide"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:backgroundTint="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.495"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewLoginSecondTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/textViewLoginSubTitle"
+            android:stateListAnimator="@animator/button_click"
+            />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:id="@+id/imageButtonLoginGithub"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="깃허브 로그인"
+            android:textSize="16dp"
+            app:icon="@drawable/icon_github_logo"
+            app:iconPadding="0dp"
+            app:cornerRadius="8dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:backgroundTint="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.495"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageButtonLoginKakao"
+            android:stateListAnimator="@animator/button_click"
+            />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/textButtonLoginOther"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="110dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="110dp"
+            android:fontFamily="@font/one_mobile_pop_otf"
+            android:stateListAnimator="@animator/button_click"
             android:text="다른 방법으로 로그인"
             android:textColor="@color/white"
             android:textSize="16dp"
-            android:textStyle="bold"
+            android:textStyle="normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageButtonLoginKakao" />
+            app:layout_constraintTop_toBottomOf="@+id/imageButtonLoginGithub"
+            app:rippleColor="#00FFFFFF" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

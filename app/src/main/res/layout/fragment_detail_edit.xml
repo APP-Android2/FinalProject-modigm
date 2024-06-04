@@ -103,6 +103,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
+                    android:id="@+id/textviewDetailIntroEx"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -142,7 +143,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:focusable="false"
-                        android:inputType="none"
+                        android:inputType="textMultiLine"
                         android:text="장소를 입력해주세요"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -173,7 +174,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
-                        android:text="스터디 진행에 필요한 기술 스텍을 선택해주세요"
+                        android:text="스터디 진행에 필요한 기술 스택을 선택해주세요"
                         android:textSize="18dp"
                         android:textStyle="bold" />
 

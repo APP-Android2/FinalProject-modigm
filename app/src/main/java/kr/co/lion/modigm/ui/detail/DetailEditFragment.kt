@@ -20,7 +20,7 @@ import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.util.FragmentName
 
 
-class DetailEditFragment : Fragment(), OnSkillSelectedListener {
+class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedListener {
 
     lateinit var fragmentDetailEditBinding: FragmentDetailEditBinding
 
@@ -47,6 +47,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
         setupChipGroups()
         preselectChips()
     }
+
+    // 인터페이스 구현
+    // bottomSheet에서 선택한 항목의 제목
+    override fun onPlaceSelected(placeName: String, detailPlaceName:String) {
+        val test = "$placeName\n$detailPlaceName"
+        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(test)
+    }
+
     // 툴바 설정
     fun settingToolbar() {
         fragmentDetailEditBinding.apply {
@@ -55,7 +63,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
                 //네비게이션
                 setNavigationIcon(R.drawable.icon_arrow_back_24px)
                 setNavigationOnClickListener {
-                    mainActivity.removeFragment(FragmentName.DETAIL_EDIT)
+                    parentFragmentManager.popBackStack()
                 }
             }
         }
@@ -213,6 +221,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
             bottomSheet.show(childFragmentManager, bottomSheet.tag)
         }
 
+        // 프래그 먼트간 연결 설정
+        fragmentDetailEditBinding.textInputLayoutDetailEditPlace.editText?.setOnClickListener {
+            val bottomSheet = PlaceBottomSheetFragment().apply {
+                setOnPlaceSelectedListener(this@DetailEditFragment)
+            }
+            bottomSheet.show(childFragmentManager,bottomSheet.tag)
+        }
+
     }
 
     fun setupButton() {
@@ -221,6 +237,12 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener {
                 // 모든 입력이 유효한 경우 데이터 저장 또는 처리
                 saveData()
             }
+        }
+
+        // 작성 예시보기 text클릭
+        fragmentDetailEditBinding.textviewDetailIntroEx.setOnClickListener {
+            val dialog = CustomIntroDialog(requireContext())
+            dialog.show()
         }
     }
 
