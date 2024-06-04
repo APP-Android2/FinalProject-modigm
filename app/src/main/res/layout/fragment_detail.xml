@@ -100,7 +100,7 @@
                                         android:layout_width="0dp"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
-                                        android:text="Kotlin 스터디 모집합니다"
+                                        android:text=""
                                         android:textSize="20dp"
                                         android:textStyle="bold" />
 
@@ -129,7 +129,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="4dp"
-                                        android:text="OOO"
+                                        android:text=""
                                         android:textSize="16dp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -153,7 +153,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:text="Lorem ipsum dolor sit amet consectetur. \n\nTurpis id orci vitae pellentesque neque ut eu elit. \n\nMattis mauris ornare ut eget diam. \n\nCursus massa quam molestie lacus pellentesque lectus. \n\nAdipiscing tincidunt vestibulum morbi magna sed integer faucibus orci. \n\nMaecenas non in mattis turpis sit leo porttitor a. \n\nNunc urna est id iaculis a sapien placerat. \n\nMauris tristique in risus integer imperdiet. Lorem ipsum dolor sit amet consectetur. \n\nTurpis id orci vitae pellentesque neque ut eu elit. \n\nMattis mauris ornare ut eget diam. \n\nCursus massa quam molestie lacus pellentesque lectus. \n\nAdipiscing tincidunt vestibulum morbi magna sed integer faucibus orci. \n\nMaecenas non in mattis turpis sit leo porttitor a. \n\nNunc urna est id iaculis a sapien placerat. \n\nMauris tristique in risus integer imperdiet."
+                                android:text=""
                                 android:textSize="16dp" />
 
                             <com.google.android.material.chip.ChipGroup
@@ -191,7 +191,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
-                                    android:text="단기"
+                                    android:text=""
                                     android:textSize="16dp" />
                             </LinearLayout>
 
@@ -212,7 +212,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
-                                    android:text="1"
+                                    android:text=""
                                     android:textSize="16dp" />
 
                                 <TextView
@@ -227,7 +227,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
-                                    android:text="20"
+                                    android:text=""
                                     android:textSize="16dp" />
 
                                 <TextView
@@ -242,7 +242,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
-                                    android:text="(신청제)"
+                                    android:text=""
                                     android:textSize="16dp" />
                             </LinearLayout>
 
@@ -268,7 +268,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="10dp"
-                                        android:text="온라인"
+                                        android:text=""
                                         android:textSize="16dp" />
 
                                     <TextView
@@ -276,7 +276,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="10dp"
-                                        android:text="상세주소"
+                                        android:text=""
                                         android:textSize="16dp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -319,7 +319,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_gravity="center_vertical"
                     android:drawableRight="@drawable/icon_expand_more_24px"
-                    android:text="모집중"
+                    android:text=""
                     android:textSize="18dp"
                     android:textStyle="bold" />
                 <Button
@@ -330,7 +330,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginVertical="8dp"
                     android:layout_marginLeft="10dp"
-                    android:text="신청하기"
+                    android:text=""
                     android:textColor="@color/white"
                     android:textSize="16dp"
                     android:textStyle="bold" />
