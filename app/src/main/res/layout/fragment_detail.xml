@@ -29,6 +29,7 @@
                 app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
                 <ImageView
+                    android:id="@+id/imageViewDetailCover"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
@@ -75,6 +76,7 @@
                             android:orientation="horizontal">
 
                             <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/imageViewDetailUserPic"
                                 android:layout_width="70dp"
                                 android:layout_height="70dp"
                                 android:scaleType="centerCrop"
@@ -94,7 +96,7 @@
                                     android:orientation="horizontal">
 
                                     <TextView
-                                        android:id="@+id/textviewDetailTilte"
+                                        android:id="@+id/textviewDetailTitle"
                                         android:layout_width="0dp"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
@@ -123,8 +125,10 @@
                                         android:textSize="16dp" />
 
                                     <TextView
+                                        android:id="@+id/textViewDetailUserName"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
                                         android:text="OOO"
                                         android:textSize="16dp" />
                                 </LinearLayout>
@@ -145,6 +149,7 @@
                                 android:textStyle="bold" />
 
                             <TextView
+                                android:id="@+id/textViewDetailIntro"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
@@ -156,28 +161,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_marginTop="20dp"
-                                app:chipSpacingHorizontal="8dp">
-
-                                <com.google.android.material.chip.Chip
-                                    android:id="@+id/chip"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="JAVA"
-                                    android:textSize="16dp"
-                                    android:textColor="@color/textGray"
-                                    app:chipBackgroundColor="@color/white"
-                                    app:chipStrokeColor="@color/buttonGray" />
-
-                                <com.google.android.material.chip.Chip
-                                    android:id="@+id/chip2"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="KOTLIN"
-                                    android:textSize="16dp"
-                                    android:textColor="@color/textGray"
-                                    app:chipBackgroundColor="@color/white"
-                                    app:chipStrokeColor="@color/buttonGray" />
-                            </com.google.android.material.chip.ChipGroup>
+                                app:chipSpacingHorizontal="8dp"/>
 
 
                             <TextView
@@ -196,12 +180,14 @@
                                 android:orientation="horizontal">
 
                                 <ImageView
+                                    android:id="@+id/imageViewDetailStudyType"
                                     android:layout_width="24dp"
                                     android:layout_height="24dp"
                                     android:src="@drawable/icon_clock_24px"
                                     app:tint="@color/black" />
 
                                 <TextView
+                                    android:id="@+id/textViewDetailStudyType"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
@@ -222,6 +208,7 @@
                                     app:tint="@color/black" />
 
                                 <TextView
+                                    android:id="@+id/textViewDetailMember"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
@@ -236,6 +223,7 @@
                                     android:textSize="16dp" />
 
                                 <TextView
+                                    android:id="@+id/textViewDetailMemberTotal"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
@@ -250,6 +238,7 @@
                                     android:textSize="16dp" />
 
                                 <TextView
+                                    android:id="@+id/textViewDetailApplyMethod"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
