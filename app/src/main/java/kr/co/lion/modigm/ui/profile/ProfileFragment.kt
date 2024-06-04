@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,35 +33,93 @@ import kr.co.lion.modigm.util.Interest
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
-    lateinit var mainActivity: MainActivity
-    private val addressViewModel: ProfileViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
 
-    lateinit var user: UserData
+    val uid = "fKdVSYNodxYgYJHq8MYKlAC2GCk1"
     var myProfile = true
 
+    // 어댑터 선언
+    val linkAdapter: LinkAdapter = LinkAdapter(
+        // 빈 리스트를 넣어 초기화
+        emptyList(),
+
+        // 항목을 클릭: Url을 받아온다
+        rowClickListener = { linkUrl ->
+            Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
+            viewLifecycleOwner.lifecycleScope.launch {
+                // bundle 에 필요한 정보를 담는다
+                val bundle = Bundle()
+                bundle.putString("link", linkUrl)
+
+                // 이동할 프래그먼트로 bundle을 넘긴다
+                val profileWebFragment = ProfileWebFragment()
+                profileWebFragment.arguments = bundle
+
+                // Fragment 교체
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, ProfileWebFragment())
+                    .addToBackStack(FragmentName.FILTER_SORT.str)
+                    .commit()
+            }
+        }
+    )
+
+    val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
+        // 빈 리스트를 넣어 초기화
+        emptyList(),
+
+        // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
+        rowClickListener = { studyIdx ->
+            Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
+            viewLifecycleOwner.lifecycleScope.launch {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, DetailFragment())
+                    .addToBackStack(FragmentName.FILTER_SORT.str)
+                    .commit()
+            }
+        }
+    )
+
+    val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
+        // 빈 리스트를 넣어 초기화
+        emptyList(),
+
+        // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
+        rowClickListener = { studyIdx ->
+            Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
+            viewLifecycleOwner.lifecycleScope.launch {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, DetailFragment())
+                    .addToBackStack(FragmentName.FILTER_SORT.str)
+                    .commit()
+            }
+        }
+    )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentProfileBinding = FragmentProfileBinding.inflate(inflater,container,false)
-        mainActivity = activity as MainActivity
+        fragmentProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
+
+        // Bind ViewModel and lifecycle owner
+        fragmentProfileBinding.profileViewModel = profileViewModel
+        fragmentProfileBinding.lifecycleOwner = this
 
         return fragmentProfileBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initView()
+    }
 
-        // 전달받은 uid를 사용해 프로필 주인의 정보를 불러온다
-        CoroutineScope(Dispatchers.Main).launch {
-            user = RemoteUserDataSource.loadUserDataByUid("fKdVSYNodxYgYJHq8MYKlAC2GCk1")!!
-
-            setupMemberInfo(user)
-            setupRecyclerViewLink(user)
-            setupRecyclerViewPartStudy()
-            setupRecyclerViewHostStudy()
-        }
-
+    private fun initView() {
         setupToolbar()
         setupFab()
+        setupUserInfo()
+        setupRecyclerViewLink()
+        setupRecyclerViewPartStudy()
+        setupRecyclerViewHostStudy()
+
+        observeData()
     }
 
     private fun setupToolbar() {
@@ -101,7 +160,10 @@ class ProfileFragment: Fragment() {
                     // 뒤로 가기
                     setNavigationIcon(R.drawable.icon_arrow_back_24px)
                     setNavigationOnClickListener {
-                        mainActivity.replaceFragment(FragmentName.PROFILE, false,true,null)
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, SettingsFragment())
+                            .addToBackStack(FragmentName.FILTER_SORT.str)
+                            .commit()
                     }
 
                     // 더보기 아이콘 표시
@@ -129,68 +191,13 @@ class ProfileFragment: Fragment() {
         }
     }
 
-    private fun setupMemberInfo(user: UserData) {
-        fragmentProfileBinding.apply {
-            // 이름
-            textViewProfileName.text = user.userName
-            // 자기소개
-            textViewProfileIntro.text = user.userIntro
-            // 관심분야
-            for (interestNum in user.userInterestList) {
-                chipGroupProfile.addView(Chip(mainActivity).apply {
-                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
-                    text = Interest.fromNum(interestNum)!!.str
-                    // 자동 padding 없애기
-                    setEnsureMinTouchTargetSize(false)
-                    // 배경 흰색으로 지정
-                    setChipBackgroundColorResource(android.R.color.white)
-                    // 클릭 불가
-                    isClickable = false
-                    // chip에서 X 버튼 보이게 하기
-                    //isCloseIconVisible = true
-                    // X버튼 누르면 chip 없어지게 하기
-                    //setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) }
-                })
-            }
-
-            // 프로필 이미지
-            CoroutineScope(Dispatchers.Main).launch {
-                RemoteUserDataSource.loadUserProfilePic(
-                    mainActivity,
-                    user.userProfilePic,
-                    imageProfilePic
-                )
-            }
-        }
+    private fun setupUserInfo() {
+        profileViewModel.loadUserData(uid, requireContext(), fragmentProfileBinding.imageProfilePic, fragmentProfileBinding.chipGroupProfile)
+        profileViewModel.loadPartStudyList(uid)
+        profileViewModel.loadHostStudyList(uid)
     }
 
-    private fun setupRecyclerViewLink(user: UserData) {
-        // 어댑터 선언
-        val linkAdapter: LinkAdapter = LinkAdapter(
-            // 사용자 정보 중 링크 목록
-            user.userLinkList,
-
-            // 항목을 클릭: Url을 받아온다
-            rowClickListener = { linkUrl ->
-                Log.d("테스트 rowClickListener deliveryIdx", linkUrl)
-                viewLifecycleOwner.lifecycleScope.launch {
-                    // bundle 에 필요한 정보를 담는다
-                    val bundle = Bundle()
-                    bundle.putString("link", linkUrl)
-
-                    // 이동할 프래그먼트로 bundle을 넘긴다
-                    val profileWebFragment = ProfileWebFragment()
-                    profileWebFragment.arguments = bundle
-
-                    // Fragment 교체
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, ProfileWebFragment())
-                        .addToBackStack(FragmentName.FILTER_SORT.str)
-                        .commit()
-                }
-            }
-        )
-
+    private fun setupRecyclerViewLink() {
         // 리사이클러뷰 구성
         fragmentProfileBinding.apply {
             recyclerVIewProfileLink.apply {
@@ -198,79 +205,53 @@ class ProfileFragment: Fragment() {
                 adapter = linkAdapter
 
                 // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
+                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             }
         }
     }
 
     private fun setupRecyclerViewPartStudy() {
-        // 참여한 스터디 리스트 불러오기
-        lateinit var partStudyList: List<StudyData>
-        CoroutineScope(Dispatchers.Main).launch {
-            partStudyList = RemoteStudyDataSource.loadUserPartStudy(user.userUid)
+        // 리사이클러뷰 구성
+        fragmentProfileBinding.apply {
+            recyclerViewProfilePartStudy.apply {
+                // 리사이클러뷰 어댑터
+                adapter = partStudyAdapter
 
-            // 어댑터 선언
-            val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
-                // 빈 리스트를 넣어 초기화
-                partStudyList,
-
-                // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
-                rowClickListener = { studyIdx ->
-                    Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, DetailFragment())
-                            .addToBackStack(FragmentName.FILTER_SORT.str)
-                            .commit()
-                    }
-                }
-            )
-
-            // 리사이클러뷰 구성
-            fragmentProfileBinding.apply {
-                recyclerViewProfilePartStudy.apply {
-                    // 리사이클러뷰 어댑터
-                    adapter = partStudyAdapter
-
-                    // 리사이클러뷰 레이아웃
-                    layoutManager = LinearLayoutManager(mainActivity, RecyclerView.HORIZONTAL, false)
-                }
+                // 리사이클러뷰 레이아웃
+                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
             }
         }
     }
 
     private fun setupRecyclerViewHostStudy() {
-        // 진행한 스터디 리스트 불러오기
-        lateinit var hostStudyList: List<StudyData>
-        CoroutineScope(Dispatchers.Main).launch {
-            hostStudyList = RemoteStudyDataSource.loadUserHostStudy(user.userUid)
+        // 리사이클러뷰 구성
+        fragmentProfileBinding.apply {
+            recyclerViewProfileHostStudy.apply {
+                // 리사이클러뷰 어댑터
+                adapter = hostStudyAdapter
 
-            // 어댑터 선언
-            val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
-                // 빈 리스트를 넣어 초기화
-                hostStudyList,
+                // 리사이클러뷰 레이아웃
+                layoutManager = LinearLayoutManager(requireContext())
+            }
+        }
+    }
 
-                // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
-                rowClickListener = { studyIdx ->
-                    Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, DetailFragment())
-                            .addToBackStack(FragmentName.FILTER_SORT.str)
-                            .commit()
-                    }
-                }
-            )
+    fun observeData() {
+        // 데이터 변경 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 링크 리스트
+            profileViewModel.profileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
+                linkAdapter.updateData(profileLinkList)
+            }
 
-            // 리사이클러뷰 구성
-            fragmentProfileBinding.apply {
-                recyclerViewProfileHostStudy.apply {
-                    // 리사이클러뷰 어댑터
-                    adapter = hostStudyAdapter
+            // 참여한 스터디 리스트
+            profileViewModel.profilePartStudyList.observe(viewLifecycleOwner) { profilePartStudyList ->
+                partStudyAdapter.updateData(profilePartStudyList)
+            }
 
-                    // 리사이클러뷰 레이아웃
-                    layoutManager = LinearLayoutManager(mainActivity)
-                }
+            // 진행한 스터디 리스트
+            profileViewModel.profileHostStudyList.observe(viewLifecycleOwner) { profileHostStudyList ->
+                hostStudyAdapter.updateData(profileHostStudyList)
             }
         }
     }
