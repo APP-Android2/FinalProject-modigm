@@ -27,6 +27,10 @@ class ProfileViewModel : ViewModel() {
     private val _profileIntro = MutableLiveData<String>()
     val profileIntro: MutableLiveData<String> = _profileIntro
 
+    // 관심분야 리스트
+    private val _profileInterestList = MutableLiveData<List<Int>>()
+    val profileInterestList: MutableLiveData<List<Int>> = _profileInterestList
+
     // 링크 리스트
     private val _profileLinkList = MutableLiveData<List<String>>()
     val profileLinkList: MutableLiveData<List<String>> = _profileLinkList

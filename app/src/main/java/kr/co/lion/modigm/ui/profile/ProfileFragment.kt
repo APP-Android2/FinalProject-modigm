@@ -35,6 +35,7 @@ class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
     private val profileViewModel: ProfileViewModel by viewModels()
 
+    // arguments에서 불러옴
     val uid = "fKdVSYNodxYgYJHq8MYKlAC2GCk1"
     var myProfile = true
 
