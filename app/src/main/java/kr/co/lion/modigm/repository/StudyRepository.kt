@@ -1,5 +1,7 @@
 package kr.co.lion.modigm.repository
 
+import android.content.Context
+import android.widget.ImageView
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 
 class StudyRepository {
@@ -19,6 +21,9 @@ class StudyRepository {
 
     // 내 스터디 목록을 가져온다. (홈화면 내 스터디 접근 시)
     suspend fun getStudyMyData() = remoteStudyDataSource.getStudyMyData()
+
+    suspend fun loadStudyThumbnail(context: Context, imageFileName: String, imageView: ImageView) =
+        remoteStudyDataSource.loadStudyThumbnail(context, imageFileName, imageView)
 
     // 사용자가 참여한 스터디 목록을 가져온다. (프로필 화면)
     suspend fun loadStudyPartDataByUid(uid: String) = remoteStudyDataSource.loadStudyPartData(uid)
