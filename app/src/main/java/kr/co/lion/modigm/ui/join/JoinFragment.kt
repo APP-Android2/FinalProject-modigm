@@ -27,6 +27,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.hideSoftInput
 
 class JoinFragment : Fragment() {
@@ -358,6 +359,10 @@ class JoinFragment : Fragment() {
         // 회원가입 완료 시 다음 화면으로 이동
         viewModel.joinCompleted.observe(viewLifecycleOwner){
             hideLoading()
+
+            // SharedPreferences에 uid값 저장
+            viewModel.user.value?.let { it1 -> prefs.setString("uid", it1.uid) }
+
             if(it){
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.containerMain, StudyFragment())
