@@ -239,9 +239,10 @@ class DetailFragment : Fragment() {
                     Log.e("DetailFragment", "Storage에서 이미지 로드 실패: ${it.message}")
                 }
             } else {
-                // drawable에서 랜덤 이미지 로드
-                val randomImage = if ((0..1).random() == 0) R.drawable.image_detail_1 else R.drawable.image_detail_2
-                imageViewDetailCover.setImageResource(randomImage)
+//                // drawable에서 랜덤 이미지 로드
+//                val randomImage = if ((0..1).random() == 0) R.drawable.image_detail_1 else R.drawable.image_detail_2
+//                imageViewDetailCover.setImageResource(randomImage)
+
             }
 
 
