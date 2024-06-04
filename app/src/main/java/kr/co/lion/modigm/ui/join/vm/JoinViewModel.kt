@@ -10,7 +10,6 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.PhoneAuthCredential
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
@@ -67,9 +66,9 @@ class JoinViewModel : ViewModel() {
     // 이미 등록된 전화번호 계정의 프로바이더
     var alreadyRegisteredUserProvider = ""
 
-    private val _phoneCredential: MutableLiveData<PhoneAuthCredential> = MutableLiveData()
+    private val _phoneCredential: MutableLiveData<AuthCredential> = MutableLiveData()
 
-    fun setPhoneCredential(credential: PhoneAuthCredential){
+    fun setPhoneCredential(credential: AuthCredential){
         _phoneCredential.value = credential
     }
 
@@ -156,6 +155,8 @@ class JoinViewModel : ViewModel() {
     suspend fun completeJoinEmailUser(){
         // 메일 계정을 전화번호 계정과 연결
         linkEmailAndPhone()
+        _user.value = _auth.currentUser
+
         // UserInfoData 객체 생성
         val user = createUserInfoData()
         // 파이어스토어에 데이터 저장
@@ -187,9 +188,11 @@ class JoinViewModel : ViewModel() {
         viewModelScope.launch {
             // SNS 계정과 전화번호 계정을 연결
             linkSnsAndPhone()
+            _user.value = _auth.currentUser
 
             // UserInfoData 객체 생성
             val user = createUserInfoData()
+            // 파이어스토어에 데이터 저장
             _userInfoRepository.insetUserData(user)
 
             _joinCompleted.value = true
