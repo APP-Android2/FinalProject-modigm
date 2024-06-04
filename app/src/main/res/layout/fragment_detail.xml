@@ -29,11 +29,10 @@
                 app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
                 <ImageView
-                    android:id="@+id/imageViewDetailCover"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/image_loading_gray"
+                    android:src="@drawable/image_detail_1"
                     app:layout_collapseMode="parallax" />
 
                 <androidx.appcompat.widget.Toolbar
@@ -76,11 +75,10 @@
                             android:orientation="horizontal">
 
                             <de.hdodenhof.circleimageview.CircleImageView
-                                android:id="@+id/imageViewDetailUserPic"
                                 android:layout_width="70dp"
                                 android:layout_height="70dp"
                                 android:scaleType="centerCrop"
-                                android:src="@drawable/icon_account_circle" />
+                                android:src="@drawable/image_detail_2" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -96,11 +94,11 @@
                                     android:orientation="horizontal">
 
                                     <TextView
-                                        android:id="@+id/textviewDetailTitle"
+                                        android:id="@+id/textviewDetailTilte"
                                         android:layout_width="0dp"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
-                                        android:text=""
+                                        android:text="Kotlin 스터디 모집합니다"
                                         android:textSize="20dp"
                                         android:textStyle="bold" />
 
@@ -125,11 +123,9 @@
                                         android:textSize="16dp" />
 
                                     <TextView
-                                        android:id="@+id/textViewDetailUserName"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text=""
-                                        android:layout_marginStart="4dp"
+                                        android:text="OOO"
                                         android:textSize="16dp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -149,11 +145,10 @@
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/textViewDetailIntro"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:text=""
+                                android:text="Lorem ipsum dolor sit amet consectetur. \n\nTurpis id orci vitae pellentesque neque ut eu elit. \n\nMattis mauris ornare ut eget diam. \n\nCursus massa quam molestie lacus pellentesque lectus. \n\nAdipiscing tincidunt vestibulum morbi magna sed integer faucibus orci. \n\nMaecenas non in mattis turpis sit leo porttitor a. \n\nNunc urna est id iaculis a sapien placerat. \n\nMauris tristique in risus integer imperdiet. Lorem ipsum dolor sit amet consectetur. \n\nTurpis id orci vitae pellentesque neque ut eu elit. \n\nMattis mauris ornare ut eget diam. \n\nCursus massa quam molestie lacus pellentesque lectus. \n\nAdipiscing tincidunt vestibulum morbi magna sed integer faucibus orci. \n\nMaecenas non in mattis turpis sit leo porttitor a. \n\nNunc urna est id iaculis a sapien placerat. \n\nMauris tristique in risus integer imperdiet."
                                 android:textSize="16dp" />
 
                             <com.google.android.material.chip.ChipGroup
@@ -161,7 +156,28 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_marginTop="20dp"
-                                app:chipSpacingHorizontal="8dp"/>
+                                app:chipSpacingHorizontal="8dp">
+
+                                <com.google.android.material.chip.Chip
+                                    android:id="@+id/chip"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="JAVA"
+                                    android:textSize="16dp"
+                                    android:textColor="@color/textGray"
+                                    app:chipBackgroundColor="@color/white"
+                                    app:chipStrokeColor="@color/buttonGray" />
+
+                                <com.google.android.material.chip.Chip
+                                    android:id="@+id/chip2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="KOTLIN"
+                                    android:textSize="16dp"
+                                    android:textColor="@color/textGray"
+                                    app:chipBackgroundColor="@color/white"
+                                    app:chipStrokeColor="@color/buttonGray" />
+                            </com.google.android.material.chip.ChipGroup>
 
 
                             <TextView
@@ -180,18 +196,16 @@
                                 android:orientation="horizontal">
 
                                 <ImageView
-                                    android:id="@+id/imageViewDetailStudyType"
                                     android:layout_width="24dp"
                                     android:layout_height="24dp"
                                     android:src="@drawable/icon_clock_24px"
                                     app:tint="@color/black" />
 
                                 <TextView
-                                    android:id="@+id/textViewDetailStudyType"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
-                                    android:text=""
+                                    android:text="단기"
                                     android:textSize="16dp" />
                             </LinearLayout>
 
@@ -208,11 +222,10 @@
                                     app:tint="@color/black" />
 
                                 <TextView
-                                    android:id="@+id/textViewDetailMember"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
-                                    android:text=""
+                                    android:text="1"
                                     android:textSize="16dp" />
 
                                 <TextView
@@ -223,11 +236,10 @@
                                     android:textSize="16dp" />
 
                                 <TextView
-                                    android:id="@+id/textViewDetailMemberTotal"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
-                                    android:text=""
+                                    android:text="20"
                                     android:textSize="16dp" />
 
                                 <TextView
@@ -238,11 +250,10 @@
                                     android:textSize="16dp" />
 
                                 <TextView
-                                    android:id="@+id/textViewDetailApplyMethod"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
-                                    android:text=""
+                                    android:text="(신청제)"
                                     android:textSize="16dp" />
                             </LinearLayout>
 
@@ -268,7 +279,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="10dp"
-                                        android:text=""
+                                        android:text="온라인"
                                         android:textSize="16dp" />
 
                                     <TextView
@@ -276,7 +287,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="10dp"
-                                        android:text=""
+                                        android:text="상세주소"
                                         android:textSize="16dp" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -319,7 +330,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_gravity="center_vertical"
                     android:drawableRight="@drawable/icon_expand_more_24px"
-                    android:text=""
+                    android:text="모집중"
                     android:textSize="18dp"
                     android:textStyle="bold" />
                 <Button
@@ -330,7 +341,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginVertical="8dp"
                     android:layout_marginLeft="10dp"
-                    android:text=""
+                    android:text="신청하기"
                     android:textColor="@color/white"
                     android:textSize="16dp"
                     android:textStyle="bold" />
