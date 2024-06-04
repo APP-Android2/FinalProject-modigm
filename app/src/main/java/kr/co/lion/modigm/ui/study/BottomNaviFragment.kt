@@ -40,9 +40,10 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
         // 최초 화면이 null 이라면 스터디 목록을 띄운다.
         if(childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null){
-            childFragmentManager.beginTransaction()
-                .replace(R.id.containerBottomNavi, StudyFragment())
-                .commit()
+            childFragmentManager.commit {
+                replace(R.id.containerBottomNavi, StudyFragment())
+
+            }
         }
 
         // 바인딩
@@ -59,6 +60,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                         R.id.bottomNaviStudy -> {
                             childFragmentManager.commit {
                                 replace(R.id.containerBottomNavi, StudyFragment())
+
                             }
                         }
 
@@ -66,6 +68,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                         R.id.bottomNaviHeart -> {
                             childFragmentManager.commit {
                                 replace(R.id.containerBottomNavi, LikeFragment())
+
                             }
                         }
 
@@ -73,6 +76,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                         R.id.bottomNaviChat -> {
                             childFragmentManager.commit {
                                 replace(R.id.containerBottomNavi, ChatFragment())
+
                             }
 
                         }
@@ -81,6 +85,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                         R.id.bottomNaviMy -> {
                             childFragmentManager.commit {
                                 replace(R.id.containerBottomNavi, ProfileFragment())
+
                             }
                         }
 
