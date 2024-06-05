@@ -106,7 +106,7 @@ class WriteFragment : Fragment() {
                             "필요기술 스택 목록 : ${writeViewModel?.studySkillList?.value}\n" +
                             "모집상태 : ${writeViewModel?.studyCanApply?.value}\n" +
                             "썸네일 사진 : ${writeViewModel?.studyPic?.value}\n" +
-                            "스터디 인원 : ${writeViewModel?.studyMaxMember?.value}\n," +
+                            "스터디 인원 : ${writeViewModel?.studyMaxMember?.value}\n" +
                             "현재 참여자 목록 : ${writeViewModel?.studyUIdList?.value}\n" +
                             "연결된 현재 채팅방 고유 번호 : ${writeViewModel?.chatIdx?.value}\n" +
                             "글 삭제여부 : ${writeViewModel?.studyState?.value}\n")
