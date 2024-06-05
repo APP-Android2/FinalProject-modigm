@@ -61,10 +61,15 @@ class ChatRoomAdapter(
 
         fun bind(room: ChatRoomData) {
             val position = adapterPosition
+            var userNameTitle = ""
 
             // 프로필 설정(회원 아이디 별 사진으로) (아직 Firebase 정보 없음) - DB 연동해야함
             if(room.groupChat == false){
                 val title = room.chatMemberList.filter { it != loginUserId }
+                // 로그인 유저 Name 값 가져오기
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0])!!
+//                }
                 // 채팅 방 제목
                 roomTitleTextView.text = title[0]
                 roomImageImageView.setImageResource(R.drawable.test_profile_image)

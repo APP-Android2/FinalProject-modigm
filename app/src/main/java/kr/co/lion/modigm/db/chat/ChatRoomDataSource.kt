@@ -332,5 +332,19 @@ class ChatRoomDataSource {
                 // 따라서 이 메서드는 제일 마지막에 호출해야 한다.(다른 것들을 모두 보여준 후에...)
             }
         }
+
+        // userUid를 통해 해당 user의 Name을 가져온다
+        suspend fun getUserNameByUid(userUid: String): String? {
+            val querySnapshot = Firebase.firestore.collection("User")
+                .whereEqualTo("userUid", userUid)
+                .get()
+                .await()
+
+            // 문서가 존재하는지 확인하고 userName을 반환
+            for (document in querySnapshot.documents) {
+                return document.getString("userName")
+            }
+            return null
+        }
     }
 }

@@ -70,8 +70,8 @@ class ChatRoomFragment : Fragment() {
     val auth = FirebaseAuth.getInstance()
     val authCurrentUser = auth.currentUser
     // val loginUserId = (authCurrentUser?.uid).toString()
-    private val loginUserId = "rH82PMELb2TimapTRzownbZekd13" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    private val loginUserName = "이름 테스트" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private var loginUserName = "유저 아이디" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
     // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     // private val loginUserName = "주성원" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
@@ -102,6 +102,9 @@ class ChatRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         Log.v("chatLog1", "BackStackEntryCount: ${parentFragmentManager.backStackEntryCount}")
+
+        // 로그인 유저 Name 값 가져오기 (로그인 처리 하고 주석 풀어서 사용)
+        // getUserNameByUid()
 
         // 입장시 -> 메시지 읽음 처리
         readMessage()
@@ -400,6 +403,13 @@ class ChatRoomFragment : Fragment() {
             setOnClickListener {
                 Log.d("chatLog1", "addIconButton 클릭")
             }
+        }
+    }
+
+    // 로그인 유저 Name 값 가져오기
+    fun getUserNameByUid() {
+        CoroutineScope(Dispatchers.Main).launch {
+            loginUserName = ChatRoomDataSource.getUserNameByUid(loginUserId)!!
         }
     }
 }
