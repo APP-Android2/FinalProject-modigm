@@ -1,7 +1,10 @@
 package kr.co.lion.modigm.ui.join
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +18,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
@@ -73,13 +77,21 @@ class JoinFragment : Fragment() {
     // 번들로 전달받은 값들을 뷰모델 라이브 데이터에 셋팅
     private fun settingValuesFromBundle(){
         if(customToken != null){
-            viewModel.setSnsCustomToken(customToken!!)
+            viewModel.setSnsCustomToken(customToken?:"")
         }
         if(credential != null){
             viewModel.setSnsCredential(credential!!)
         }
         if(joinType != null){
-            viewModel.setSnsProvider(joinType?.provider!!)
+            when(joinType){
+                JoinType.EMAIL -> viewModel.setUserProvider(JoinType.EMAIL.provider)
+                else -> {
+                    // sns 계정의 프로바이더 셋팅
+                    viewModel.setUserProvider(joinType?.provider?:"")
+                    // sns 계정의 email 셋팅
+                    viewModel.setSnsEmail()
+                }
+            }
         }
     }
 
@@ -292,8 +304,10 @@ class JoinFragment : Fragment() {
                 viewModel.setPhoneVerificated(false)
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
-                viewModel.alreadyRegisteredUserEmail = viewModelStep2.alreadyRegisteredUserEmail.value.toString()
-                viewModel.alreadyRegisteredUserProvider = viewModelStep2.alreadyRegisteredUserProvider.value.toString()
+                viewModel.setAleradyRegisteredUser(
+                    viewModelStep2.alreadyRegisteredUserEmail.value?:"",
+                    viewModelStep2.alreadyRegisteredUserProvider.value?:""
+                )
                 viewModel.isPhoneAlreadyRegistered.value = true
                 viewModelStep2.cancelTimer()
                 hideLoading()
@@ -312,11 +326,42 @@ class JoinFragment : Fragment() {
 
         lifecycleScope.launch {
             showLoading()
-            when(joinType){
-                JoinType.EMAIL -> viewModel.completeJoinEmailUser()
-                else -> viewModel.completeJoinSnsUser()
+            try{
+                when(joinType){
+                    JoinType.EMAIL -> viewModel.completeJoinEmailUser()
+                    else -> viewModel.completeJoinSnsUser()
+                }
+            }catch (e:Exception){
+                Log.e("JoinError", "$e")
+                showSnackBar()
+                hideLoading()
             }
+
         }
+    }
+
+    private fun showSnackBar() {
+
+        val snackbar =
+            Snackbar.make(binding.root, "통신 에러, 잠시 후 다시 시도해주세요.", Snackbar.LENGTH_SHORT)
+
+        // 스낵바의 뷰를 가져옵니다.
+        val snackbarView = snackbar.view
+
+        // 스낵바 텍스트 뷰 찾기
+        val textView =
+            snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
+        // 텍스트 크기를 dp 단위로 설정
+        val textSizeInPx = dpToPx(requireContext(), 16f)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+        snackbar.show()
+    }
+
+    // 스낵바 글시 크기 설정을 위해 dp를 px로 변환
+    fun dpToPx(context: Context, dp: Float): Float {
+        return dp * context.resources.displayMetrics.density
     }
 
     // 회원가입 절차 옵저버 세팅
@@ -344,8 +389,8 @@ class JoinFragment : Fragment() {
             if(it){
                 // 중복인 경우 중복 알림 프래그먼트로 이동
                 val bundle = Bundle()
-                bundle.putString("email", viewModel.alreadyRegisteredUserEmail)
-                bundle.putString("provider", viewModel.alreadyRegisteredUserProvider)
+                bundle.putString("email", viewModel.alreadyRegisteredUserEmail.value)
+                bundle.putString("provider", viewModel.alreadyRegisteredUserProvider.value)
                 val joinFragment = JoinDuplicateFragment()
                 joinFragment.arguments = bundle
                 parentFragmentManager.beginTransaction()
