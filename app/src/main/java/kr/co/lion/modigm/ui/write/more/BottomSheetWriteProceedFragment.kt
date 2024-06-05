@@ -41,7 +41,7 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
             imageButtonWriteProceedBottomSheetClose.setOnClickListener {
                 val location = textFieldWriteProceedBottomSheetSearch.text.toString()
                 // viewModel에 데이터 전송
-                viewModel.settingLocation(location)
+                viewModel.gettingStudyPlace(location)
                 dismiss()
             }
 
