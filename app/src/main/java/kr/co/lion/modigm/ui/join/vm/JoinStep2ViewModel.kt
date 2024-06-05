@@ -163,7 +163,7 @@ class JoinStep2ViewModel: ViewModel() {
         if(_isCodeSent.value!!){
             try{
                 _errorMessage.value = ""
-                val phoneCredential = PhoneAuthProvider.getCredential(verificationId.value?:"", inputSmsCode.value?:"")
+                val phoneCredential = PhoneAuthProvider.getCredential(_verificationId.value?:"", inputSmsCode.value?:"")
                 _credential.value = phoneCredential
 
                 // DB에 해당 번호로 등록된 계정이 있는지 확인한다.

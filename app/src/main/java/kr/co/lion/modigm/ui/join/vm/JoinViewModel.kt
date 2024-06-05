@@ -39,7 +39,6 @@ class JoinViewModel : ViewModel() {
     fun setSnsEmail(){
         if(_auth.currentUser != null){
             _snsEmail.value = _auth.currentUser?.email
-            Log.d("test1234", "email : ${_auth.currentUser?.email}")
         }
     }
 
@@ -150,7 +149,7 @@ class JoinViewModel : ViewModel() {
         user.userInterestList = _interests.value?: mutableListOf()
         user.userUid = _uid.value?:""
 
-        user.userProvider = userProvider.value?:""
+        user.userProvider = _userProvider.value?:""
         user.userEmail = _snsEmail.value?:""
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return user
@@ -188,14 +187,14 @@ class JoinViewModel : ViewModel() {
     // 회원가입 완료 전에 SNS 계정과 전화번호 계정을 통합
     private suspend fun linkSnsAndPhone(){
         var signInResult: AuthResult? = null
-        when(userProvider.value){
+        when(_userProvider.value){
             "kakao" -> {
                 // 카카오 등 파이어베이스에서 지원하지 않는 공급자는 customToken으로 로그인
-                signInResult = _auth.signInWithCustomToken(snsCustomToken.value?:"").await()
+                signInResult = _auth.signInWithCustomToken(_snsCustomToken.value?:"").await()
             }
             "github" -> {
                 // 깃허브 등 파이어베이스에서 지원하는 공급자는 credential로 로그인
-                signInResult = _auth.signInWithCredential(snsCredential.value!!).await()
+                signInResult = _auth.signInWithCredential(_snsCredential.value!!).await()
             }
         }
         _uid.value = signInResult?.user?.uid
