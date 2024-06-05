@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
@@ -61,31 +62,39 @@ class ChatRoomAdapter(
 
         fun bind(room: ChatRoomData) {
             val position = adapterPosition
-            var userNameTitle = ""
+            val context = itemView.context
 
             // 프로필 설정(회원 아이디 별 사진으로) (아직 Firebase 정보 없음) - DB 연동해야함
             if(room.groupChat == false){
                 val title = room.chatMemberList.filter { it != loginUserId }
-                // 로그인 유저 Name 값 가져오기
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0])!!
-//                }
-                // 채팅 방 제목
-                roomTitleTextView.text = title[0]
+                CoroutineScope(Dispatchers.Main).launch {
+                    val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]) ?: "Unknown User"
+                    val userProfile = ChatRoomDataSource.getUserProfilePicByUid(title[0]) ?: ""
+                    withContext(Dispatchers.Main) {
+                        // 채팅 방 제목
+                        roomTitleTextView.text = userNameTitle
+                        // 채팅 방 이미지 설정
+                        if (userProfile.isNotEmpty()) {
+                            Log.v("chatLog", "RoomAdapter - $userProfile")
+                            ChatRoomDataSource.loadUserProfilePic(context, userProfile, roomImageImageView)
+                        } else {
+                            roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                        }
+                    }
+                }
                 roomImageImageView.setImageResource(R.drawable.test_profile_image)
             }
             // 그룹 채팅 사진은 글 작성 -> 그 이미지로 설정 (아직 Firebase 정보 없음) - DB 연동해야함
             else {
                 // 채팅 방 제목
                 roomTitleTextView.text = room.chatTitle
+                // 채팅 방 이미지 존재 X
                 if (room.chatRoomImage.isNullOrEmpty()){
-                    Log.v("chatLog", "룸 이미지 X")
                     roomImageImageView.setImageResource(R.drawable.test_profile_image)
                 }
+                // 채팅 방 이미지 존재 O
                 else {
-                    Log.v("chatLog", "룸 이미지 O")
                     // 채팅 방 대표 사진 설정
-                    val context = itemView.context
                     CoroutineScope(Dispatchers.Main).launch {
                         ChatRoomDataSource.loadChatRoomImage(context, room.chatRoomImage, roomImageImageView)
                     }

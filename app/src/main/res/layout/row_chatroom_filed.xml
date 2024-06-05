@@ -45,7 +45,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="20dp"
                         android:gravity="center|start"
-                        android:text="Kotlin 스터디 모집"
                         android:textColor="#1C1B1F"
                         android:textSize="16dp"
                         android:textStyle="normal"

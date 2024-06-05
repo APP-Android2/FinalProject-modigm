@@ -346,5 +346,19 @@ class ChatRoomDataSource {
             }
             return null
         }
+
+        // userUid를 통해 해당 user의 userProfilePic을 가져온다
+        suspend fun getUserProfilePicByUid(userUid: String): String? {
+            val querySnapshot = Firebase.firestore.collection("User")
+                .whereEqualTo("userUid", userUid)
+                .get()
+                .await()
+
+            // 문서가 존재하는지 확인하고 userName을 반환
+            for (document in querySnapshot.documents) {
+                return document.getString("userProfilePic")
+            }
+            return null
+        }
     }
 }
