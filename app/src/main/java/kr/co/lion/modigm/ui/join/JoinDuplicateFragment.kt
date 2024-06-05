@@ -59,6 +59,9 @@ class JoinDuplicateFragment : Fragment() {
             JoinType.EMAIL.provider -> {
                 binding.imageViewJoinDupServiceType.setImageResource(JoinType.EMAIL.icon)
             }
+            JoinType.GITHUB.provider -> {
+                binding.imageViewJoinDupServiceType.setImageResource(JoinType.GITHUB.icon)
+            }
         }
     }
 

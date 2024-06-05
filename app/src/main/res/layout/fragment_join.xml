@@ -18,9 +18,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progressBar_join"
-        style="?android:attr/progressBarStyleHorizontal"
+
+        style="@style/Widget.Material3.LinearProgressIndicator"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:progressTint="@color/pointColor"
@@ -61,7 +62,7 @@
         android:id="@+id/layout_loading_join"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0D000000"
+        android:background="#33000000"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
