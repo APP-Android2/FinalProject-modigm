@@ -106,15 +106,13 @@ class RemoteStudyDataSource {
 
     // 사용자 정보를 저장한다.
     suspend fun addStudyData(study: StudyData){
-        val job1 = CoroutineScope(Dispatchers.IO).launch {
-            // 컬렉션에 접근할 수 있는 객체를 가져온다.
-            val collectionReference = Firebase.firestore.collection("Study")
-            // 컬럭션에 문서를 추가한다.
-            // 문서를 추가할 때 객체나 맵을 지정한다.
-            // 추가된 문서 내부의 필드는 객체가 가진 프로퍼티의 이름이나 맵에 있는 데이터의 이름과 동일하게 결정된다.
-            collectionReference.add(study)
+        try {
+            studyCollection
+                .add(study)
+                .await()
+        } catch (e: Exception) {
+            Log.e("Firebase Error", "Error dbAddStudyData: ${e.message}")
         }
-        job1.join()
     }
 
     companion object{
