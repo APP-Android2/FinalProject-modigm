@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100"
-            android:progress="@{writeViewModel.progressCount}"
+            android:progress="20"
             android:progressTint="@color/pointColor"
 
             app:layout_constraintTop_toBottomOf="@id/toolbar_writeFragment"
@@ -70,8 +70,8 @@
             android:layout_marginBottom="20dp"
             android:backgroundTint="@color/buttonGray"
 
-            android:text="@{writeViewModel.buttonText}"
-            android:textColor="@{writeViewModel.buttonTextColor}"
+            android:text="다음"
+            android:textColor="@color/textGray"
             android:textSize="14dp"
 
             app:layout_constraintBottom_toBottomOf="parent"
