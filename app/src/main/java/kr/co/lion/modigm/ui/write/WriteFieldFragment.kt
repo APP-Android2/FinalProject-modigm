@@ -31,15 +31,8 @@ class WriteFieldFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initData()
-        settingView()
-        settingEvent()
-    }
-    fun initData(){
 
-    }
-    fun settingView(){
-        // 필요 시 작성
+        settingEvent()
     }
     fun settingEvent(){
 

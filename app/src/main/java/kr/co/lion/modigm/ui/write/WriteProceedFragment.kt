@@ -147,9 +147,6 @@ class WriteProceedFragment : Fragment() {
         isThereInput()
     }
 
-    fun settingLocationInput(){
-//        fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(viewModel.writeProceedLocation.value)
-    }
 
     private fun showBottomSheet(){
         val modal = BottomSheetWriteProceedFragment()
