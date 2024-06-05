@@ -103,8 +103,8 @@ class WritePeriodFragment : Fragment() {
 
     // textView 클릭 시 애니메이션 처리
     private fun clickAnimation(view: View){
-        view.animate().scaleX(-1.2f).scaleY(1.2f).setDuration(300).withEndAction {
-            view.animate().scaleX(1f).scaleY(1f).setDuration(300)
+        view.animate().scaleX(0.9f).scaleY(1.1f).setDuration(150).withEndAction {
+            view.animate().scaleX(1f).scaleY(1f).setDuration(150)
         }
     }
 }
