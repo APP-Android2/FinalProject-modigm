@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,8 +66,12 @@ class ChatRoomFragment : Fragment() {
     private val messages = mutableListOf<ChatMessagesData>()
 
     // 현재 로그인 한 사용자 정보
+    // FirebaseAuth 인스턴스를 가져옴
+    val auth = FirebaseAuth.getInstance()
+    val authCurrentUser = auth.currentUser
+    // val loginUserId = (authCurrentUser?.uid).toString()
     private val loginUserId = "rH82PMELb2TimapTRzownbZekd13" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    private val loginUserName = "테스트2" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+    private val loginUserName = "이름 테스트" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
     // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     // private val loginUserName = "주성원" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
@@ -281,7 +286,7 @@ class ChatRoomFragment : Fragment() {
                 // 각 사용자의 UID를 키로 사용하여 사용자 데이터를 HashMap에 저장
                 usersDataHashMap[userData.userUid] = userData
             }
-            Log.v("chatLog11", "${usersDataHashMap}")
+            Log.v("chatLog1", "Room - ${usersDataHashMap}")
             chatRoomMemberAdapter.notifyDataSetChanged()
             Log.d("chatLog1", "Room - observeData() 채팅 방 멤버 데이터 변경")
         }
