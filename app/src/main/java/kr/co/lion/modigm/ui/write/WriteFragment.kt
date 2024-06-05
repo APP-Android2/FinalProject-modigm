@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -46,9 +47,18 @@ class WriteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initData()
         settingView()
         settingEvent()
         viewPagerActivation()
+    }
+
+    fun initData(){
+        writeViewModel.initField()
+        writeViewModel.initPeriod()
+        writeViewModel.initProceed()
+        writeViewModel.initSkill()
+        writeViewModel.initIntro()
     }
 
     fun settingEvent() {
@@ -62,29 +72,28 @@ class WriteFragment : Fragment() {
                 }
             }
 
-            // 다음 버튼 클릭 리스너
+            // 버튼 리스너
             buttonWriteNext.setOnClickListener {
                 val currentItem = viewPagerWriteFragment.currentItem
+                // 다음 버튼 클릭 리스너
                 if (writeViewModel?.buttonState?.value == true) {
                     if (currentItem < viewPagerWriteFragment.adapter!!.itemCount - 1) {
                         viewPagerWriteFragment.currentItem += 1
                     }
                 }
-
                 // 완료 버튼 클릭 리스너
-                if (writeViewModel?.buttonText?.value == "완료") {
-                    writeViewModel?.buttonState?.observe(viewLifecycleOwner) { didAnswer ->
-                        if (didAnswer) {
-                            // 내 글 보기 화면으로 이동
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.containerMain, DetailFragment())
-                                .addToBackStack(FragmentName.DETAIL.str)
-                                .commit()
-                        }
-                    }
-                } else {
-
+                else if (writeViewModel?.buttonFinalStateActivation() == true){
+                    // 내 글 보기 화면으로 이동
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, DetailFragment())
+                        .addToBackStack(FragmentName.DETAIL.str)
+                        .commit()
+                } else if (writeViewModel?.buttonFinalStateActivation() == false){
+                    noticeUserDidNotAnswer()
                 }
+
+                Log.d("TedMoon", "${writeViewModel?.fieldClicked?.value}\n ${writeViewModel?.periodClicked?.value}\n ${writeViewModel?.proceedClicked?.value}\n ${writeViewModel?.skillClicked?.value}\n ${writeViewModel?.introClicked?.value}")
+                Log.d("TedMoon", "${writeViewModel?.studyType?.value}, ${writeViewModel?.studyPeriod?.value}, ${writeViewModel?.studyOnOffline?.value} ")
             }
 
         }
@@ -92,92 +101,130 @@ class WriteFragment : Fragment() {
 
     fun settingView() {
         fragmentWriteBinding.apply {
-
+            // ViewPager의 화면이 바뀔 때마다 적용
             viewPagerWriteFragment.registerOnPageChangeCallback(object : OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
 
-
                     // progress Bar 게이지 설정
                     settingProgress(progressBarWriteFragment, position)
                     // 버튼 설정
-                    settingButton(position)
+                    settingButton(buttonWriteNext, position)
                 }
             })
         }
     }
+    // 어디서 입력을 안 했는지 알려줌
+    fun noticeUserDidNotAnswer(){
+        val context = requireContext()
+        val tab0 = writeViewModel.fieldClicked.value!!
+        val tab1 = writeViewModel.periodClicked.value!!
+        val tab2 = writeViewModel.proceedClicked.value!!
+        val tab3 = writeViewModel.skillClicked.value!!
+        val tab4 = writeViewModel.introClicked.value!!
 
-    // Tab Layout 활성화/비활성화 처리 -> 2차
+        val toast = if (!tab0){
+            // 분야
+            Toast.makeText(context, "분야를 입력해주세요", Toast.LENGTH_LONG)
+        }else if (!tab1){
+            Toast.makeText(context, "기간을 입력해주세요", Toast.LENGTH_LONG)
+        }else if (!tab2){
+            Toast.makeText(context, "진행방식을 입력해주세요", Toast.LENGTH_LONG)
+        }else if (!tab3){
+            Toast.makeText(context, "기술을 입력해주세요", Toast.LENGTH_LONG)
+        }else if (!tab4){
+            Toast.makeText(context, "소개를 입력해주세요", Toast.LENGTH_LONG)
+        } else null
+
+        toast?.show()
+    }
+
+    // Tab Layout 활성화/비활성화 처리 -> (2차)
     fun settingTabLayout() {
 
     }
 
     // 버튼 설정
-    fun settingButton(position: Int) {
-        when (position) {
-            // 탭 - 분야
-            0 -> {
-                val tabName = "field"
-                writeViewModel.fieldClicked.observe(viewLifecycleOwner) { didAnswer ->
-                    writeViewModel.settingButton(
-                        fragmentWriteBinding.buttonWriteNext,
-                        tabName,
-                        didAnswer
-                    )
+    fun settingButton(button: Button, position: Int){
+        when (position){
+            0 -> { // 탭 - 분야
+                // text설정
+                button.setText("다음")
+
+                // 사용자 입력 여부에 따라 UI 변경
+                writeViewModel.fieldClicked.observe(viewLifecycleOwner){didAnswer ->
+                    settingButtonView(button, didAnswer)
                 }
             }
-            // 탭 - 기간
-            1 -> {
-                val tabName = "period"
-                writeViewModel.periodClicked.observe(viewLifecycleOwner) { didAnswer ->
-                    writeViewModel.settingButton(
-                        fragmentWriteBinding.buttonWriteNext,
-                        tabName,
-                        didAnswer
-                    )
+            1 -> { // 탭 - 기간
+                // text설정
+                button.setText("다음")
+
+                // 사용자 입력 여부에 따라 UI 변경
+                writeViewModel.periodClicked.observe(viewLifecycleOwner){didAnswer ->
+                    settingButtonView(button, didAnswer)
                 }
             }
-            // 탭 - 진행방식
-            2 -> {
-                val tabName = "proceed"
-                writeViewModel.proceedClicked.observe(viewLifecycleOwner) { didAnswer ->
-                    writeViewModel.settingButton(
-                        fragmentWriteBinding.buttonWriteNext,
-                        tabName,
-                        didAnswer
-                    )
+            2 -> { // 탭 - 진행방식
+                // text설정
+                button.setText("다음")
+
+                // 사용자 입력 여부에 따라 UI 변경
+                writeViewModel.proceedClicked.observe(viewLifecycleOwner){didAnswer ->
+                    settingButtonView(button, didAnswer)
                 }
             }
-            // 탭 - 기술
-            3 -> {
-                val tabName = "skill"
-                writeViewModel.skillClicked.observe(viewLifecycleOwner) { didAnswer ->
-                    writeViewModel.settingButton(
-                        fragmentWriteBinding.buttonWriteNext,
-                        tabName,
-                        didAnswer
-                    )
+            3 -> { // 탭 - 기술
+                // text설정
+                button.setText("다음")
+
+                // 사용자 입력 여부에 따라 UI 변경
+                writeViewModel.skillClicked.observe(viewLifecycleOwner){didAnswer ->
+                    settingButtonView(button, didAnswer)
                 }
             }
-            // 탭 - 소개
-            4 -> {
-                val tabName = "intro"
-                writeViewModel.introClicked.observe(viewLifecycleOwner) { didAnswer ->
-                    writeViewModel.settingButton(
-                        fragmentWriteBinding.buttonWriteNext,
-                        tabName,
-                        didAnswer
-                    )
+            4 -> { // 탭 - 소개
+                // text설정
+                button.setText("완료")
+
+                // 사용자 입력 여부에 따라 UI 변경
+                writeViewModel.introClicked.observe(viewLifecycleOwner){didAnswer ->
+                    settingButtonView(button, didAnswer)
                 }
             }
 
         }
     }
 
+    fun settingButtonView(button: Button, didAnswer: Boolean){
+        if (didAnswer){ // 버튼 활성화
+
+            // 버튼 배경색 설정
+            button.setBackgroundColor(Color.parseColor("#1A51C5"))
+            // 버튼 글자색 설정
+            button.setTextColor(Color.parseColor("#FFFFFF"))
+            // 버튼 활성화
+            writeViewModel.activateButton()
+        } else { // 버튼 비활성화
+
+            // 버튼 배경색 설정
+            button.setBackgroundColor(Color.parseColor("#bbbbbb"))
+            // 버튼 글자색 설정
+            button.setTextColor(Color.parseColor("#777777"))
+            // 버튼 비활성화
+            writeViewModel.deactivateButton()
+        }
+    }
+
     // Progress Bar 설정
     fun settingProgress(progressBar: ProgressBar, position: Int) {
-        writeViewModel.settingProgressBar(position)
-        progressBar.setProgress(writeViewModel.progressCount.value!!, true)
+        when(position){
+            0 -> progressBar.setProgress(20, true)
+            1 -> progressBar.setProgress(40, true)
+            2 -> progressBar.setProgress(60, true)
+            3 -> progressBar.setProgress(80, true)
+            4 -> progressBar.setProgress(100, true)
+        }
     }
 
     // ViewPager 설정
