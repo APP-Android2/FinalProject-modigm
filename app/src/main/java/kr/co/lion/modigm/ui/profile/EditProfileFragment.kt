@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -16,6 +18,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.Interest
 
 class EditProfileFragment : Fragment() {
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
@@ -38,7 +41,6 @@ class EditProfileFragment : Fragment() {
                 // Sign in success, update UI with the signed-in user's information
                 Log.d("editprofile", "signInWithEmail:success")
                 user = firebaseAuth.currentUser!!
-                Log.d("editprofile", user.uid)
                 initView()
             } else {
                 // If sign in fails, display a message to the user.
@@ -81,7 +83,29 @@ class EditProfileFragment : Fragment() {
     }
 
     private fun setupUserInfo() {
-        editProfileViewModel.loadUserData(user, requireContext(), fragmentEditProfileBinding.imageProfilePic, fragmentEditProfileBinding.chipGroupProfile)
+        // 데이터베이스로부터 데이터를 불러와 뷰모델에 담기
+        editProfileViewModel.loadUserData(user, requireContext(), fragmentEditProfileBinding.imageProfilePic)
+        // 불러온 데이터를 관찰하여 관심분야 chipGroup 구성
+        editProfileViewModel.editProfileInterestList.observe(viewLifecycleOwner, Observer { list ->
+            // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
+            for (interestNum in list) {
+                // 아이템 처리 코드
+                fragmentEditProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
+                    text = Interest.fromNum(interestNum)!!.str
+                    // 자동 padding 없애기
+                    setEnsureMinTouchTargetSize(false)
+                    // 배경 흰색으로 지정
+                    setChipBackgroundColorResource(android.R.color.white)
+                    // 클릭 불가
+                    isClickable = false
+                    // chip에서 X 버튼 보이게 하기
+                    isCloseIconVisible = true
+                    // X버튼 누르면 chip 없어지게 하기
+                    setOnCloseIconClickListener { fragmentEditProfileBinding.chipGroupProfile.removeView(this) }
+                })
+            }
+        })
 //        editProfileViewModel.loadPartStudyList(uid)
 //        editProfileViewModel.loadHostStudyList(uid)
     }

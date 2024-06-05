@@ -50,7 +50,7 @@ class EditProfileViewModel: ViewModel() {
     /** functions **/
 
     // 유저 기본 정보를 불러온다.
-    fun loadUserData(user: FirebaseUser, context: Context, imageView: ImageView, chipGroup: ChipGroup) = viewModelScope.launch {
+    fun loadUserData(user: FirebaseUser, context: Context, imageView: ImageView) = viewModelScope.launch {
         try {
             val response = userRepository.loadUserData(user.uid)
 
@@ -70,23 +70,6 @@ class EditProfileViewModel: ViewModel() {
             _editProfileLinkList.value = response?.userLinkList
             // 프로필 사진
             userRepository.loadUserProfilePic(context, response?.userProfilePic!!, imageView)
-            // 관심분야
-            for (interestNum in response.userInterestList) {
-                chipGroup.addView(Chip(context).apply {
-                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
-                    text = Interest.fromNum(interestNum)!!.str
-                    // 자동 padding 없애기
-                    setEnsureMinTouchTargetSize(false)
-                    // 배경 흰색으로 지정
-                    setChipBackgroundColorResource(android.R.color.white)
-                    // 클릭 불가
-                    isClickable = false
-                    // chip에서 X 버튼 보이게 하기
-                    //isCloseIconVisible = true
-                    // X버튼 누르면 chip 없어지게 하기
-                    //setOnCloseIconClickListener { fragmentProfileBinding.chipGroupProfile.removeView(this) }
-                })
-            }
         } catch (e: Exception) {
             Log.e("profilevm", "loadUserData(): ${e.message}")
         }
