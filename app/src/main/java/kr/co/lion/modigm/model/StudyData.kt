@@ -17,4 +17,5 @@ data class StudyData(
     val studyUidList: List<String> = listOf(),  // 현재 참여 목록
     val chatIdx: Int = -1,                      // 연결된 채팅방 고유번호
     val studyState: Boolean = true,             // 삭제 여부 (존재함, 삭제됨)
+    val studyWriteUid: String = "",             // 글 작성자 uid
 )
