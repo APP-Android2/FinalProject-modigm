@@ -136,7 +136,7 @@ class ProfileFragment: Fragment() {
                         R.id.menu_item_profile_setting -> {
                             parentFragmentManager.beginTransaction()
                                 .replace(R.id.containerMain, SettingsFragment())
-                                .addToBackStack(FragmentName.FILTER_SORT.str)
+                                .addToBackStack(FragmentName.SETTINGS.str)
                                 .commit()
                         }
 

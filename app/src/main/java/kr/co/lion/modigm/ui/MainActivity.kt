@@ -20,9 +20,11 @@ import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
+import kr.co.lion.modigm.ui.profile.EditProfileFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.profile.ProfileWebFragment
 import kr.co.lion.modigm.ui.profile.SettingsFragment
+import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.study.FilterSortFragment
 import kr.co.lion.modigm.ui.study.StudyAllFragment
@@ -49,7 +51,10 @@ class MainActivity : AppCompatActivity() {
         // replaceFragment(FragmentName.CHAT, false, false, null)
 
         // 화면 테스트 - 희원
-        replaceFragment(FragmentName.PROFILE, false, false, null)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.containerMain, EditProfileFragment())
+            .addToBackStack(FragmentName.EDIT_PROFILE.str)
+            .commit()
     }
 
     // 지정한 Fragment를 보여주는 메서드
@@ -64,45 +69,45 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 관련 Fragment 등록
-        newFragment = when(name){
-            // 채팅
-            FragmentName.CHAT -> ChatFragment()
-            FragmentName.CHAT_GROUP -> ChatGroupFragment()
-            FragmentName.CHAT_ONE_TO_ONE -> ChatOnetoOneFragment()
-            FragmentName.CHAT_ROOM -> ChatRoomFragment()
-
-            // 글 상세보기
-            FragmentName.DETAIL -> DetailFragment()
-            FragmentName.DETAIL_MEMBER -> DetailMemberFragment()
-            FragmentName.DETAIL_EDIT -> DetailEditFragment()
-
-            // 회원가입
-            FragmentName.JOIN -> JoinFragment()
-            FragmentName.JOIN_DUPLICATE -> JoinDuplicateFragment()
-
-            // 찜
-            FragmentName.LIKE -> LikeFragment()
-
-            // 로그인
-            FragmentName.LOGIN -> LoginFragment()
-            FragmentName.OTHER_LOGIN -> OtherLoginFragment()
-
-            // 프로필
-            FragmentName.PROFILE -> ProfileFragment()
-            FragmentName.PROFILE_WEB -> ProfileWebFragment()
-            FragmentName.SETTINGS -> SettingsFragment()
-
-            // 스터디
-            FragmentName.STUDY -> StudyFragment()
-            FragmentName.STUDY_ALL -> StudyAllFragment()
-            FragmentName.STUDY_MY -> StudyMyFragment()
-            FragmentName.FILTER_SORT -> FilterSortFragment()
-            FragmentName.BOTTOM_NAVI -> BottomNaviFragment()
-
-
-            // 글 작성
-            FragmentName.WRITE -> WriteFragment()
-        }
+//        newFragment = when(name){
+//            // 채팅
+//            FragmentName.CHAT -> ChatFragment()
+//            FragmentName.CHAT_GROUP -> ChatGroupFragment()
+//            FragmentName.CHAT_ONE_TO_ONE -> ChatOnetoOneFragment()
+//            FragmentName.CHAT_ROOM -> ChatRoomFragment()
+//
+//            // 글 상세보기
+//            FragmentName.DETAIL -> DetailFragment()
+//            FragmentName.DETAIL_MEMBER -> DetailMemberFragment()
+//            FragmentName.DETAIL_EDIT -> DetailEditFragment()
+//
+//            // 회원가입
+//            FragmentName.JOIN -> JoinFragment()
+//            FragmentName.JOIN_DUPLICATE -> JoinDuplicateFragment()
+//
+//            // 찜
+//            FragmentName.LIKE -> LikeFragment()
+//
+//            // 로그인
+//            FragmentName.LOGIN -> LoginFragment()
+//            FragmentName.OTHER_LOGIN -> OtherLoginFragment()
+//
+//            // 프로필
+//            FragmentName.PROFILE -> ProfileFragment()
+//            FragmentName.PROFILE_WEB -> ProfileWebFragment()
+//            FragmentName.SETTINGS -> SettingsFragment()
+//
+//            // 스터디
+//            FragmentName.STUDY -> StudyFragment()
+//            FragmentName.STUDY_ALL -> StudyAllFragment()
+//            FragmentName.STUDY_MY -> StudyMyFragment()
+//            FragmentName.FILTER_SORT -> FilterSortFragment()
+//            FragmentName.BOTTOM_NAVI -> BottomNaviFragment()
+//
+//
+//            // 글 작성
+//            FragmentName.WRITE -> WriteFragment()
+//        }
 
         // 새로운 Fragment에 전달할 객체가 있다면 arguments 프로퍼티에 넣어준다.
         if(data != null){
