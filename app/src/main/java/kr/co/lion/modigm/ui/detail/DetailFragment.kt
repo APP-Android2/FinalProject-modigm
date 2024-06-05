@@ -61,8 +61,10 @@ class DetailFragment : Fragment() {
         studyIdx = arguments?.getInt("studyIdx")!!
 
         auth = FirebaseAuth.getInstance()
-        uid = auth.currentUser?.uid.toString()
+//        uid = auth.currentUser?.uid.toString()
 
+        // 로그인 구현 완료되면 지우겠습니다
+        uid = "J04y39mPQ8fLIm2LukmdpRVGN8b2"
 
         return fragmentDetailBinding.root
     }
@@ -95,6 +97,7 @@ class DetailFragment : Fragment() {
 
                 // 스터디 데이터가 로드되면 연관된 사용자 데이터 로드
                 viewModel.loadUserDetailsByUid(it.studyWriteUid)
+                Log.d("DetailWriteUid","writeUid = ${it.studyWriteUid}")
             }
         }
         viewModel.userData.observe(viewLifecycleOwner) { userData ->
@@ -395,9 +398,16 @@ class DetailFragment : Fragment() {
 
             // 글 편집
             popupView.findViewById<TextView>(R.id.menuItem2).setOnClickListener {
+                // DetailEditFragment의 인스턴스를 생성하고 번들을 통해 studyIdx를 전달
+                val detailEditFragment = DetailEditFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", studyIdx)  // studyIdx에 맞는 키 사용
+                    }
+                }
+
                 // 화면이동 로직 추가
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, DetailEditFragment())
+                    .replace(R.id.containerMain, detailEditFragment)
                     .addToBackStack(FragmentName.DETAIL_EDIT.str)
                     .commit()
                 popupWindow.dismiss()
