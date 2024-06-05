@@ -120,8 +120,6 @@ class WriteProceedFragment : Fragment() {
                 // 클릭 시 바텀Sheet를 띄워준다
                 textFieldWriteProceedLocation.setOnClickListener {
                     showBottomSheet()
-                    Log.d("TedMoon", "text Fragment : ${viewModel.writeProceedLocation.value}")
-                    setText(viewModel.writeProceedLocation.value)
                 }
             }
 
@@ -150,7 +148,7 @@ class WriteProceedFragment : Fragment() {
     }
 
     fun settingLocationInput(){
-        fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(viewModel.writeProceedLocation.value)
+//        fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(viewModel.writeProceedLocation.value)
     }
 
     private fun showBottomSheet(){
