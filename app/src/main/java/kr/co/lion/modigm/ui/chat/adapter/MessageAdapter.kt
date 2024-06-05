@@ -1,17 +1,26 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
+import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
+import kr.co.lion.modigm.model.UserData
 
 class MessageAdapter(
     private val loginUserId: String,
     private val messages: MutableList<ChatMessagesData>,
+    private val usersDataHashMap: HashMap<String, UserData>
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -39,21 +48,18 @@ class MessageAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = messages[position]
+        val thisUid = message.chatSenderId
+        val userData = usersDataHashMap[thisUid]
         if (getItemViewType(position) == VIEW_TYPE_SENT) {
             (holder as SentMessageViewHolder).bind(message)
         } else {
-            (holder as ReceivedMessageViewHolder).bind(message)
+            val receivedHolder = holder as ReceivedMessageViewHolder
+            receivedHolder.bind(message, userData)
         }
     }
 
     override fun getItemCount(): Int {
         return messages.size
-    }
-
-    fun updateMessages(updatedMessages: List<ChatMessagesData>) {
-        messages.clear()
-        messages.addAll(updatedMessages)
-        notifyDataSetChanged()
     }
 
     class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -71,18 +77,33 @@ class MessageAdapter(
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
         private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatroomFiledImage)
-        fun bind(message: ChatMessagesData) {
+        fun bind(message: ChatMessagesData, userData: UserData?) {
+            Log.v("chatLog1", "MessageAdapter : ${userData}")
             messageBody.text = message.chatMessage
             messageTime.text = message.chatTime
-            messageSender.text = message.chatSenderName
+            if (userData == null) {
+                messageSender.text = message.chatSenderName
+            }
+            else {
+                messageSender.text = userData.userName
+            }
 
-            // chatSenderName에 따라서 이미지 변경
-            when (message.chatSenderName) {
-                "손흥민" -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image_son)
-                "류현진" -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image_ryu)
-                "아이유" -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image_iu)
-                // 기본 이미지 설정 또는 다른 케이스 추가
-                else -> imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image)
+
+            // Glide 라이브러리를 사용하여 프로필 이미지 로드
+            Glide.with(itemView.context)
+                .load("gs://modigm-4afde.appspot.com/userProfile/${userData?.userProfilePic}")
+                .placeholder(R.drawable.test_profile_image)
+                .into(imageChatroomFiledImage)
+
+            if (userData?.userProfilePic.isNullOrEmpty()){
+                imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image)
+            } else {
+                // 이미지가 있으면 Glide 등을 사용하여 이미지를 로드합니다.
+                val context = itemView.context
+                CoroutineScope(Dispatchers.Main).launch {
+                    ChatRoomDataSource.loadUserProfilePic(context,
+                        userData?.userProfilePic.toString(), imageChatroomFiledImage)
+                }
             }
         }
     }

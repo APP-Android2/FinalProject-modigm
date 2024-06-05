@@ -40,8 +40,6 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
             // 닫기 종료
             imageButtonWriteProceedBottomSheetClose.setOnClickListener {
                 val location = textFieldWriteProceedBottomSheetSearch.text.toString()
-                viewModel.settingLocation(location)
-                Log.d("TedMoon", "text Bottom : ${viewModel.writeProceedLocation.value}")
                 dismiss()
             }
 
