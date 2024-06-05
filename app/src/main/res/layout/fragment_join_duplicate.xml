@@ -63,9 +63,9 @@
 
                     <ImageView
                         android:id="@+id/imageView_join_dup_serviceType"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/kakaotalk_sharing_btn_small" />
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/icon_link" />
 
                     <TextView
                         android:id="@+id/textView_join_dup_user"
