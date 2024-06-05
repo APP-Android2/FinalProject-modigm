@@ -93,7 +93,23 @@ class WriteFragment : Fragment() {
                 }
 
                 Log.d("TedMoon", "${writeViewModel?.fieldClicked?.value}\n ${writeViewModel?.periodClicked?.value}\n ${writeViewModel?.proceedClicked?.value}\n ${writeViewModel?.skillClicked?.value}\n ${writeViewModel?.introClicked?.value}")
-                Log.d("TedMoon", "${writeViewModel?.studyType?.value}, ${writeViewModel?.studyPeriod?.value}, ${writeViewModel?.studyOnOffline?.value} ")
+                Log.d("TedMoon",
+                    "글 고유번호 : ${writeViewModel?.studyIdx?.value}\n" +
+                            "글 제목 : ${writeViewModel?.studyTitle?.value}\n" +
+                            "글 내용 : ${writeViewModel?.studyContent?.value}\n" +
+                            "활동타입 : ${writeViewModel?.studyType?.value},\n" +
+                            "진행기간: ${writeViewModel?.studyPeriod?.value},\n" +
+                            "진행방식: ${writeViewModel?.studyOnOffline?.value},\n" +
+                            "스터디 장소 : ${writeViewModel?.studyPlace?.value},\n" +
+                            "스터디 장소 세부정보 : ${writeViewModel?.studyDetailPlace?.value}\n" +
+                            "신청방식 : ${writeViewModel?.studyApplyMethod?.value}\n" +
+                            "필요기술 스택 목록 : ${writeViewModel?.studySkillList?.value}\n" +
+                            "모집상태 : ${writeViewModel?.studyCanApply?.value}\n" +
+                            "썸네일 사진 : ${writeViewModel?.studyPic?.value}\n" +
+                            "스터디 인원 : ${writeViewModel?.studyMaxMember?.value}\n," +
+                            "현재 참여자 목록 : ${writeViewModel?.studyUIdList?.value}\n" +
+                            "연결된 현재 채팅방 고유 번호 : ${writeViewModel?.chatIdx?.value}\n" +
+                            "글 삭제여부 : ${writeViewModel?.studyState?.value}\n")
             }
 
         }
