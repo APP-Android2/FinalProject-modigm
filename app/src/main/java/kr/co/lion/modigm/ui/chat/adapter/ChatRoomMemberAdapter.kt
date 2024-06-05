@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.UserData
 
@@ -44,7 +45,7 @@ class ChatRoomMemberAdapter(private val members: List<UserData>) : RecyclerView.
         // 사용자 프로필 사진 설정
         val context = holder.itemView.context
         CoroutineScope(Dispatchers.Main).launch {
-            RemoteUserDataSource.loadUserProfilePic(context, userData.userProfilePic, holder.memberProfile)
+            ChatRoomDataSource.loadUserProfilePic(context, userData.userProfilePic, holder.memberProfile)
         }
     }
     override fun getItemCount() = members.size

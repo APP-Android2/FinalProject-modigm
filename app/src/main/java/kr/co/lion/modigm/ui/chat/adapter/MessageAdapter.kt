@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.UserData
@@ -100,7 +101,7 @@ class MessageAdapter(
                 // 이미지가 있으면 Glide 등을 사용하여 이미지를 로드합니다.
                 val context = itemView.context
                 CoroutineScope(Dispatchers.Main).launch {
-                    RemoteUserDataSource.loadUserProfilePic(context,
+                    ChatRoomDataSource.loadUserProfilePic(context,
                         userData?.userProfilePic.toString(), imageChatroomFiledImage)
                 }
             }
