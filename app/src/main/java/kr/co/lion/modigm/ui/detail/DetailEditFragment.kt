@@ -147,8 +147,10 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
             }
 
+            // 제목
+            editTextDetailEditTitle.setText(data.studyTitle)
 
-
+            editTextDetailEditContext.setText(data.studyContent.replace("\\n", System.getProperty("line.separator")))
 
         }
     }
