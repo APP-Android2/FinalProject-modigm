@@ -1,154 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.write.WriteSkillFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/textView_writeSkill_choose1"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="158dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-
-        android:textSize="18dp"
-        android:text="신청방식을 선택해주세요"
-        android:textStyle="bold"/>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardview_writeSkill_application_system"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:backgroundTint="@color/white"
-        app:strokeColor="@color/textGray"
-
-        android:layout_marginTop="26dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-
-        app:layout_constraintTop_toBottomOf="@id/textView_writeSkill_choose1">
+        android:layout_height="match_parent"
+        tools:context=".ui.write.WriteSkillFragment">
 
         <TextView
+            android:id="@+id/textView_writeSkill_choose1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="158dp"
+            android:text="신청방식을 선택해주세요"
+            android:textSize="18dp"
+            android:textStyle="bold"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardview_writeSkill_application_system"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
-            android:textSize="16dp"
-            android:text="신청제"
-
-            android:layout_marginTop="12dp"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="32dp"/>
+            android:layout_marginTop="26dp"
+
+            android:layout_marginEnd="16dp"
+            android:backgroundTint="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/textView_writeSkill_choose1"
+
+            app:strokeColor="@color/textGray">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="32dp"
+                android:text="신청제"
+                android:textSize="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="36dp"
+                android:layout_marginEnd="24dp"
+
+                android:layout_marginBottom="12dp"
+                android:text="직접 멤버를 수락하거나 거절할 수 있어요"
+                android:textColor="@color/textGray"
+                android:textSize="14dp" />
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardview_writeSkill_first_come"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="26dp"
+
+            android:layout_marginEnd="16dp"
+            android:backgroundTint="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/cardview_writeSkill_application_system"
+
+            app:strokeColor="@color/textGray">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="32dp"
+                android:text="선착순"
+                android:textSize="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="36dp"
+                android:layout_marginEnd="24dp"
+
+                android:layout_marginBottom="12dp"
+                android:text="신청과 동시에 참여가 완료돼요"
+                android:textColor="@color/textGray"
+                android:textSize="14dp" />
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
+            android:id="@+id/textView_writeSkill_choose2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            android:textSize="14dp"
-            android:text="직접 멤버를 수락하거나 거절할 수 있어요"
-            android:textColor="@color/textGray"
-
-            android:layout_marginTop="36dp"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="12dp" />
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="109dp"
+            android:text="필요한 기술스택을 선택해주세요"
+            android:textSize="18dp"
+            android:textStyle="bold"
 
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardview_writeSkill_first_come" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardview_writeSkill_first_come"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:backgroundTint="@color/white"
-        app:strokeColor="@color/textGray"
-
-        android:layout_marginTop="26dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-
-        app:layout_constraintTop_toBottomOf="@id/cardview_writeSkill_application_system">
-
-        <TextView
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_writeSkill"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            android:textSize="16dp"
-            android:text="선착순"
-
-            android:layout_marginTop="12dp"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="32dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-
-            android:textSize="14dp"
-            android:text="신청과 동시에 참여가 완료돼요"
-            android:textColor="@color/textGray"
-
-            android:layout_marginTop="36dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="12dp" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <TextView
-        android:id="@+id/textView_writeSkill_choose2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="26dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="109dp"
-        app:layout_constraintTop_toBottomOf="@id/cardview_writeSkill_first_come"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-
-        android:textSize="18dp"
-        android:text="필요한 기술스택을 선택해주세요"
-        android:textStyle="bold"/>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout_writeSkill"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:focusableInTouchMode="false"
-        android:focusable="false"
-        app:layout_constraintTop_toBottomOf="@id/textView_writeSkill_choose2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <AutoCompleteTextView
-            android:id="@+id/textField_writeSkill"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusableInTouchMode="false"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="16dp"
             android:focusable="false"
-            android:textSize="16dp"
-            android:hint="필요한 기술"/>
+            android:focusableInTouchMode="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_writeSkill_choose2">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <AutoCompleteTextView
+                android:id="@+id/textField_writeSkill"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:hint="필요한 기술"
+                android:textSize="16dp" />
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroup_writeSkill"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout_writeSkill"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup_writeSkill"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textInputLayout_writeSkill" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

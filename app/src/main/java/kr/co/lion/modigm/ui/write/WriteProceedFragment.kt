@@ -115,13 +115,11 @@ class WriteProceedFragment : Fragment() {
             }
 
             // 어디서 진행할까요? textField 클릭 이벤트
-            textFieldWriteProceedLocation.apply {
+            textInputLayoutWriteProceedOfflineClicked.editText?.apply {
 
                 // 클릭 시 바텀Sheet를 띄워준다
                 textFieldWriteProceedLocation.setOnClickListener {
                     showBottomSheet()
-                    Log.d("TedMoon", "text Fragment : ${viewModel.writeProceedLocation.value}")
-                    setText(viewModel.writeProceedLocation.value)
                 }
             }
 
@@ -149,9 +147,6 @@ class WriteProceedFragment : Fragment() {
         isThereInput()
     }
 
-    fun settingLocationInput(){
-        fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(viewModel.writeProceedLocation.value)
-    }
 
     private fun showBottomSheet(){
         val modal = BottomSheetWriteProceedFragment()
