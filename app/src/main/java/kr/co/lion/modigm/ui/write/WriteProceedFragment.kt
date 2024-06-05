@@ -1,6 +1,8 @@
 package kr.co.lion.modigm.ui.write
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import kr.co.lion.modigm.R
@@ -53,13 +56,51 @@ class WriteProceedFragment : Fragment() {
 
     }
 
+    // 입력 유효성 검사
+    fun validateInput(): Boolean {
+        var result1: Boolean = false
+        var result2: Boolean = false
+        val maxMember = fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
+        val location = fragmentWriteProceedBinding.textFieldWriteProceedLocation.text.toString()
+        // 멤버가 0명 || 멤버가 30명 이상
+        if (maxMember.toInt() > 30) {
+            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
+            viewModel.userDidNotAnswer(tabName)
+            result1 = false
+        } else {
+            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = null
+            result1 = true
+        }
+
+        // 오프라인 - 위치 정보
+        viewModel.studyOnOffline.observe(viewLifecycleOwner){
+            if (it == 1 || it == 3){ // 오프라인 or 온오프 혼합
+                if (location.isEmpty()){ // 미입력
+                    fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = ""
+                    result2 = false
+                } else { // 입력
+                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = null
+                    result2 = true
+                }
+            } else{ // 온라인인 경우
+                result2 = true
+            }
+        }
+
+        if (result1 && result2){
+            // 모두 입력을 받은 경우 -> proceedClicked.value = true => 버튼 활성화
+            viewModel.userDidAnswer("proceed")
+        }
+
+        return result1 && result2
+    }
 
 
     fun settingEvent(){
         fragmentWriteProceedBinding.apply {
 
             // 오프라인 chip 클릭 이벤트
-            chipWriteProceedOffline.setOnCheckedChangeListener { _, isChecked ->
+            chipWriteProceedOffline.setOnCheckedChangeListener { view, isChecked ->
                 if (isChecked){ // checked
                     // 보여주기
                     textInputLayoutWriteProceedOfflineClicked.visibility = View.VISIBLE
@@ -93,11 +134,12 @@ class WriteProceedFragment : Fragment() {
             }
 
             // 온라인, 오프라인 혼합 chip 클릭 이벤트
-            chipWriteProceedMix.setOnCheckedChangeListener { _, isChecked ->
+            chipWriteProceedMix.setOnCheckedChangeListener { chip, isChecked ->
                 if (isChecked){ // checked
                     // 보여주기
                     textInputLayoutWriteProceedOfflineClicked.visibility = View.VISIBLE
 
+                    chipWriteProceedMix.setBackgroundColor(Color.parseColor("#1A51C5"))
                     // 체크 상태 조정
                     chipWriteProceedOffline.isChecked = false
                     chipWriteProceedOnline.isChecked = false
@@ -121,6 +163,10 @@ class WriteProceedFragment : Fragment() {
                 textFieldWriteProceedLocation.setOnClickListener {
                     showBottomSheet()
                 }
+            }
+            viewModel.studyLocation.observe(viewLifecycleOwner){
+                // location이 바뀌면 적용함
+                textFieldWriteProceedLocation.setText(it)
             }
 
             // 몇 명이서 진행할까요? textField 클릭 이벤트
