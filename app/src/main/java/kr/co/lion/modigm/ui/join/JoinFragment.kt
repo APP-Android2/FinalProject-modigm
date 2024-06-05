@@ -73,13 +73,13 @@ class JoinFragment : Fragment() {
     // 번들로 전달받은 값들을 뷰모델 라이브 데이터에 셋팅
     private fun settingValuesFromBundle(){
         if(customToken != null){
-            viewModel.setSnsCustomToken(customToken!!)
+            viewModel.setSnsCustomToken(customToken?:"")
         }
         if(credential != null){
             viewModel.setSnsCredential(credential!!)
         }
         if(joinType != null){
-            viewModel.setSnsProvider(joinType?.provider!!)
+            viewModel.setSnsProvider(joinType?.provider?:"")
         }
     }
 
