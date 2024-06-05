@@ -21,6 +21,9 @@ class UserInfoRepository {
 
     // ----------------- 로그인 데이터 처리 -----------------
 
+    // 이메일과 비밀번호로 로그인하는 메소드
+    suspend fun loginWithEmailPassword(email: String, password: String) = _remoteUserDataSource.loginWithEmailPassword(email, password)
+
     // Firebase Functions를 통해 Custom Token 획득
     suspend fun getKakaoCustomToken(accessToken: String): String = _remoteUserDataSource.getKakaoCustomToken(accessToken)
 

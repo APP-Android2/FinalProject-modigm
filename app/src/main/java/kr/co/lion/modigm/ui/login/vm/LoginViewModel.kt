@@ -20,6 +20,9 @@ import kotlin.coroutines.resumeWithException
 class LoginViewModel : ViewModel() {
     private val userInfoRepository = UserInfoRepository() // UserInfoRepository 초기화
 
+    private val _loginResult = MutableLiveData<LoginResult>() // 로그인 결과를 저장하는 LiveData
+    val loginResult: LiveData<LoginResult> = _loginResult // 외부에서 접근 가능한 로그인 결과 LiveData
+
     private val _kakaoLoginResult = MutableLiveData<LoginResult>() // 카카오 로그인 결과를 저장하는 LiveData
     val kakaoLoginResult: LiveData<LoginResult> = _kakaoLoginResult // 외부에서 접근 가능한 카카오 로그인 결과 LiveData
 
@@ -85,6 +88,30 @@ class LoginViewModel : ViewModel() {
         return password.length > 5
     }
     // ----------------- 로그인 유효성 검사 끝-----------------
+    // ----------------- 이메일/비밀번호 로그인 처리 -----------------
+    fun login(email: String, password: String) {
+        _loginResult.value = LoginResult.Loading
+        viewModelScope.launch {
+            try {
+                Log.d("LoginViewModel", "로그인 시도 중... 이메일: $email")
+                val authResult = userInfoRepository.loginWithEmailPassword(email, password)
+                val userUid = authResult.getOrNull()?.user?.uid
+                if (userUid != null) {
+                    Log.d("LoginViewModel", "로그인 성공 - 사용자 UID: $userUid")
+                    _loginResult.postValue(LoginResult.Success)
+                    _customToken.postValue(userUid)
+                } else {
+                    Log.e("LoginViewModel", "로그인 실패 - 사용자 UID를 가져올 수 없음")
+                    _loginResult.postValue(LoginResult.Error(Exception("로그인 실패 - 사용자 UID를 가져올 수 없음")))
+                }
+            } catch (e: Exception) {
+                Log.e("LoginViewModel", "로그인 시도 중 예외 발생", e)
+                _loginResult.postValue(LoginResult.Error(e))
+            }
+        }
+    }
+    // ----------------- 이메일/비밀번호 로그인 처리 끝 -----------------
+
     // ----------------- 카카오 로그인 처리 -----------------
 
     // 카카오 로그인 처리
