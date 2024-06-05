@@ -14,6 +14,7 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
@@ -35,7 +36,7 @@ class DetailFragment : Fragment() {
 
     lateinit var fragmentDetailBinding: FragmentDetailBinding
 
-    private val viewModel: DetailViewModel by viewModels()
+    private val viewModel: DetailViewModel by activityViewModels()
 
     private var isPopupShown = false
 
@@ -62,11 +63,6 @@ class DetailFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         uid = auth.currentUser?.uid.toString()
 
-        // 글작성자와 같을때 test용 uid
-        uid = "J04y39mPQ8fLIm2LukmdpRVGN8b2"
-
-        // 글 작성자와 다를 때 test용 uid
-//        uid = "rH82PMELb2TimapTRzownbZekd13"
 
         return fragmentDetailBinding.root
     }
@@ -74,9 +70,6 @@ class DetailFragment : Fragment() {
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 툴바 설정
-//        settingToolbar()
 
         // 앱바 스크롤
         setupAppBarScrollListener()
@@ -87,12 +80,8 @@ class DetailFragment : Fragment() {
         // 메뉴 설정
         setupPopupMenu()
 
-        // 모집 상태 변경
-//        setupStatePopup()
-
         // ViewModel에서 데이터 요청
         viewModel.selectContentData(studyIdx)
-        viewModel.loadUserDetailsByUid(uid)
 
         observeViewModel()
     }
@@ -103,9 +92,12 @@ class DetailFragment : Fragment() {
             data?.let {
                 currentStudyData = it // 여기서 데이터를 업데이트합니다.
                 updateUIIfReady() // UI 업데이트 체크
+
+                // 스터디 데이터가 로드되면 연관된 사용자 데이터 로드
+                viewModel.loadUserDetailsByUid(it.studyWriteUid)
             }
         }
-        viewModel.userNameData.observe(viewLifecycleOwner) { userData ->
+        viewModel.userData.observe(viewLifecycleOwner) { userData ->
             userData?.let {
                 currentUserData = it // 여기서 사용자 데이터를 업데이트합니다.
                 updateUIIfReady() // UI 업데이트 체크

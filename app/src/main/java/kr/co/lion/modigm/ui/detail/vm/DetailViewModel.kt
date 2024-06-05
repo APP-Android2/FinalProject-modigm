@@ -21,12 +21,18 @@ class DetailViewModel : ViewModel() {
     val isLoading: LiveData<Boolean> = _isLoading
 
     // UserData가 데이터 모델이라고 가정
-    private val _userNameData = MutableLiveData<UserData?>()
-    val userNameData: LiveData<UserData?> = _userNameData
+//    private val _userNameData = MutableLiveData<UserData?>()
+//    val userNameData: LiveData<UserData?> = _userNameData
+
+    private val _userData = MutableLiveData<UserData?>()
+    val userData: LiveData<UserData?> = _userData
 
     // 기존 코드...
     private val _userProfilePicUrl = MutableLiveData<String?>()
     val userProfilePicUrl: LiveData<String?> = _userProfilePicUrl
+
+    private val _errorMessages = MutableLiveData<String>()
+    val errorMessages: LiveData<String> = _errorMessages
 
 
     fun selectContentData(studyIdx: Int) {
@@ -45,26 +51,38 @@ class DetailViewModel : ViewModel() {
         }
     }
 
+    //    fun loadUserDetailsByUid(uid: String) {
+//        _isLoading.value = true
+//        viewModelScope.launch {
+//            try {
+//                val userDetails = studyRepository.loadUserDetailsByUid(uid)
+//                userDetails?.let {
+//                    _userNameData.value =
+//                        UserData(userName = it.userName, userProfilePic = it.userProfilePic)
+//                    _userProfilePicUrl.value = it.userProfilePic
+//                }
+//                Log.d("DetailVM", "User details loaded successfully.")
+//            } catch (e: Exception) {
+//                Log.e("DetailVM Error", "Error in fetching user details: ${e.message}")
+//                _userNameData.value = null
+//                _userProfilePicUrl.value = null
+//            } finally {
+//                _isLoading.value = false
+//            }
+//        }
+//    }
     fun loadUserDetailsByUid(uid: String) {
         _isLoading.value = true
         viewModelScope.launch {
-            try {
-                val userDetails = studyRepository.loadUserDetailsByUid(uid)
-                userDetails?.let {
-                    _userNameData.value =
-                        UserData(userName = it.userName, userProfilePic = it.userProfilePic)
-                    _userProfilePicUrl.value = it.userProfilePic
-                }
-                Log.d("DetailVM", "User details loaded successfully.")
-            } catch (e: Exception) {
-                Log.e("DetailVM Error", "Error in fetching user details: ${e.message}")
-                _userNameData.value = null
-                _userProfilePicUrl.value = null
-            } finally {
-                _isLoading.value = false
+            studyRepository.loadUserDetailsByUid(uid)?.let {
+                _userData.value = it
+            } ?: run {
+                _errorMessages.value = "Failed to load user details"
             }
+            _isLoading.value = false
         }
     }
+
 
     fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) {
         viewModelScope.launch {
