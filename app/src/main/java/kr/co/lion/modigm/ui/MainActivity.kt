@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         supportFragmentManager.commit {
-            replace(R.id.containerMain, EditProfileFragment())
+            replace(R.id.containerMain, LoginFragment())
         }
     }
 }

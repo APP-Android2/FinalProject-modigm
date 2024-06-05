@@ -8,20 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
-import kr.co.lion.modigm.db.user.RemoteUserDataSource
-import kr.co.lion.modigm.db.study.RemoteStudyDataSource
-import kr.co.lion.modigm.model.StudyData
-import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
@@ -36,7 +30,7 @@ class ProfileFragment: Fragment() {
     private val profileViewModel: ProfileViewModel by viewModels()
 
     // arguments에서 불러옴
-    val uid = "fKdVSYNodxYgYJHq8MYKlAC2GCk1"
+    val uid = "J04y39mPQ8fLIm2LukmdpRVGN8b2"
     var myProfile = true
 
     // 어댑터 선언
@@ -193,7 +187,7 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupUserInfo() {
-        profileViewModel.loadUserData(uid, requireContext(), fragmentProfileBinding.imageProfilePic, fragmentProfileBinding.chipGroupProfile)
+        profileViewModel.loadUserData(uid, requireContext(), fragmentProfileBinding.imageProfilePic)
         profileViewModel.loadPartStudyList(uid)
         profileViewModel.loadHostStudyList(uid)
     }
@@ -239,21 +233,37 @@ class ProfileFragment: Fragment() {
 
     fun observeData() {
         // 데이터 변경 관찰
-        viewLifecycleOwner.lifecycleScope.launch {
-            // 링크 리스트
-            profileViewModel.profileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
-                linkAdapter.updateData(profileLinkList)
+        // 관심 분야 chipGroup
+        profileViewModel.profileInterestList.observe(viewLifecycleOwner, Observer { list ->
+            // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
+            for (interestNum in list) {
+                // 아이템 처리 코드
+                fragmentProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
+                    text = Interest.fromNum(interestNum)!!.str
+                    // 자동 padding 없애기
+                    setEnsureMinTouchTargetSize(false)
+                    // 배경 흰색으로 지정
+                    setChipBackgroundColorResource(android.R.color.white)
+                    // 클릭 불가
+                    isClickable = false
+                })
             }
+        })
 
-            // 참여한 스터디 리스트
-            profileViewModel.profilePartStudyList.observe(viewLifecycleOwner) { profilePartStudyList ->
-                partStudyAdapter.updateData(profilePartStudyList)
-            }
+        // 링크 리스트
+        profileViewModel.profileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
+            linkAdapter.updateData(profileLinkList)
+        }
 
-            // 진행한 스터디 리스트
-            profileViewModel.profileHostStudyList.observe(viewLifecycleOwner) { profileHostStudyList ->
-                hostStudyAdapter.updateData(profileHostStudyList)
-            }
+        // 참여한 스터디 리스트
+        profileViewModel.profilePartStudyList.observe(viewLifecycleOwner) { profilePartStudyList ->
+            partStudyAdapter.updateData(profilePartStudyList)
+        }
+
+        // 진행한 스터디 리스트
+        profileViewModel.profileHostStudyList.observe(viewLifecycleOwner) { profileHostStudyList ->
+            hostStudyAdapter.updateData(profileHostStudyList)
         }
     }
 }
