@@ -148,6 +148,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
             }
 
 
+
+
         }
     }
 
@@ -433,7 +435,16 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         when (chip.text.toString()) {
             // '온라인'이 선택된 경우 장소 선택 입력 필드 숨김
             "온라인" -> fragmentDetailEditBinding.textInputLayoutDetailEditPlace.visibility = View.GONE
-            else -> fragmentDetailEditBinding.textInputLayoutDetailEditPlace.visibility = View.VISIBLE
+//            else -> fragmentDetailEditBinding.textInputLayoutDetailEditPlace.visibility = View.VISIBLE
+            else -> {
+                fragmentDetailEditBinding.textInputLayoutDetailEditPlace.visibility = View.VISIBLE
+
+                // currentStudyData에서 studyPlace와 studyDetailPlace 데이터를 가져와 합친다음 editTextDetailEditTitleLocation에 값을 넣기
+                val placeName = currentStudyData?.studyPlace
+                val detailPlaceName = currentStudyData?.studyDetailPlace
+                val test = "$placeName\n$detailPlaceName"
+                fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(test)
+            }
         }
     }
 
