@@ -1,21 +1,72 @@
 package kr.co.lion.modigm.db.user
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.google.firebase.Firebase
+import com.google.firebase.auth.OAuthProvider
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.google.firebase.functions.functions
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class RemoteUserDataSource {
     private val db = Firebase.firestore
     private val userCollection = db.collection("User")
+    private val auth = Firebase.auth
+    private val functions = Firebase.functions("asia-northeast3")
+
+    // ----------------- 로그인 데이터 처리 -----------------
+
+    // Firebase Functions를 통해 Custom Token 획득
+    suspend fun getKakaoCustomToken(accessToken: String): String {
+        // Firebase Function 호출에 전달할 데이터 생성
+        val data = hashMapOf("token" to accessToken)
+        return try {
+            // Firebase Function 호출 및 결과 대기
+            val result = functions.getHttpsCallable("getKakaoCustomAuth").call(data).await()
+            // 결과 데이터를 맵으로 캐스팅하여 커스텀 토큰 추출
+            val customToken = result.data as Map<*, *>
+            // 커스텀 토큰을 문자열로 반환
+            customToken["custom_token"] as String
+        } catch (e: Exception) {
+            // 에러 발생 시 예외를 던져 호출자에게 알림
+            throw Exception("Failed to get custom token: ${e.message}", e)
+        }
+    }
+
+    // Firebase Custom Token으로 로그인
+    suspend fun signInWithCustomToken(customToken: String) {
+        // Firebase Custom Token을 사용하여 Firebase에 로그인
+        auth.signInWithCustomToken(customToken).await()
+    }
+
+    // 깃허브 로그인
+    suspend fun signInWithGithub(context: Activity) = suspendCancellableCoroutine { cont ->
+        // GitHub OAuthProvider 생성
+        val provider = OAuthProvider.newBuilder("github.com")
+        // GitHub 로그인 시도 및 결과 대기
+        auth.startActivityForSignInWithProvider(context, provider.build()).addOnSuccessListener { authResult ->
+            // 로그인 성공 시 자격 증명을 코루틴으로 반환
+            cont.resume(authResult.credential)
+        }.addOnFailureListener { e ->
+            // 로그인 실패 시 예외를 코루틴으로 반환
+            cont.resumeWithException(e)
+        }
+    }
+
+    // ----------------- 로그인 데이터 처리 끝-----------------
+
 
     //사용자 정보 저장
     suspend fun insetUserData(userInfoData: UserData): Boolean{
@@ -27,6 +78,7 @@ class RemoteUserDataSource {
             false
         }
     }
+
 
     // uid를 통해 사용자 정보를 가져오는 메서드
     suspend fun loadUserDataByUid(uid: String): UserData? {
