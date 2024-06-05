@@ -73,6 +73,7 @@ class WritePeriodFragment : Fragment() {
                             clickAnimation(it)
                             textinputWritePeriod.setText("1개월 이하")
                             viewModel.userDidAnswer(tabName)
+                            viewModel.gettingStudyPeriod(1)
 
 
                         }
@@ -81,18 +82,21 @@ class WritePeriodFragment : Fragment() {
                             clickAnimation(it)
                             textinputWritePeriod.setText("1개월 이상")
                             viewModel.userDidAnswer(tabName)
+                            viewModel.gettingStudyPeriod(2)
                         }
 
                         textViewDialogWritePeriod03.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("3개월 이상")
                             viewModel.userDidAnswer(tabName)
+                            viewModel.gettingStudyPeriod(3)
                         }
 
                         textViewDialogWritePeriod04.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("6개월 이상")
                             viewModel.userDidAnswer(tabName)
+                            viewModel.gettingStudyPeriod(4)
                         }
                     }
                 }
