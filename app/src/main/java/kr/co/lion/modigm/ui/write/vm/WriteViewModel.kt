@@ -1,11 +1,5 @@
 package kr.co.lion.modigm.ui.write.vm
 
-import android.graphics.Color
-import android.util.Log
-import android.widget.Button
-import android.widget.ProgressBar
-import androidx.core.content.ContextCompat
-import androidx.databinding.adapters.SeekBarBindingAdapter.setProgress
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,7 +9,28 @@ import kr.co.lion.modigm.model.StudyData
 
 class WriteViewModel : ViewModel() {
 
+    // ----------------- Remote Data Source에 전송할 내용 -----------------
 
+    // 데이터에서 가져올 부분
+    private val _studyIdx = MutableLiveData<Int>() // 글 고유번호
+    val studyIdx: LiveData<Int> = _studyIdx
+
+    private val _studyDetailPlace = MutableLiveData<String>() // 오프라인 진행장소 상세 주소
+    val studyDetailPlace: LiveData<String> = _studyDetailPlace
+
+    private val _studyUIdList = MutableLiveData<List<String>>() // 현재 참여자 목록
+    val studyUIdList: LiveData<List<String>> = _studyUIdList
+
+    private val _chatIdx = MutableLiveData<Int>() // 연결된 채팅방 고유 번호
+    val chatIdx: LiveData<Int> = _chatIdx
+
+    private val _studyState = MutableLiveData<Boolean>() // 삭제 여부 (존재함, 삭제됨)
+    val studyState: LiveData<Boolean> = _studyState
+
+    private val _studyCanApply = MutableLiveData<Boolean>() // 모집상태(모집중, 모집완료)
+    val studyCanApply: LiveData<Boolean> = _studyCanApply
+
+    // 이 프래그먼트에 존재하는 부분
     // WriteField -> 활동타입 (스터디 : 1, 프로젝트 : 2, 공모전 : 3)
     private val _studyType = MutableLiveData<Int>()
     val studyType: LiveData<Int> = _studyType
@@ -99,19 +114,28 @@ class WriteViewModel : ViewModel() {
             _introClicked.value = false
         }
     }
+
     // ----------------- 초기화 함수 -----------------
-    fun initField(){ _studyType.value = 0 }
-    fun initPeriod(){ _studyPeriod.value = 0 }
-    fun initProceed(){
+    fun initField() {
+        _studyType.value = 0
+    }
+
+    fun initPeriod() {
+        _studyPeriod.value = 0
+    }
+
+    fun initProceed() {
         _studyOnOffline.value = 0
         _studyPlace.value = ""
         _studyMaxMember.value = 0
     }
-    fun initSkill(){
+
+    fun initSkill() {
         _studyApplyMethod.value = 0
         _studySkillList.value = listOf()
     }
-    fun initIntro(){
+
+    fun initIntro() {
         _studyPic.value = ""
         _studyTitle.value = ""
         _studyContent.value = ""
@@ -121,7 +145,7 @@ class WriteViewModel : ViewModel() {
     // ----------------- 입력 처리 함수 -----------------
 
     // 완료 버튼 활성화 함수
-    fun buttonFinalStateActivation(): Boolean{
+    fun buttonFinalStateActivation(): Boolean {
         return (fieldClicked.value == true
                 && periodClicked.value == true
                 && proceedClicked.value == true
@@ -130,18 +154,32 @@ class WriteViewModel : ViewModel() {
     }
 
     // 활동타입 저장
-    fun gettingStudyType(type: Int){
+    fun gettingStudyType(type: Int) {
         _studyType.value = type
     }
 
     // 활동기간 저장
-    fun gettingStudyPeriod(period: Int){
+    fun gettingStudyPeriod(period: Int) {
         _studyPeriod.value = period
     }
-    //
+
+    // 진행방식 저장 (온라인, 오프라인, 온오프 혼합)
+    fun gettingStudyOnOffLine(onOffline: Int) { // 1: 오프라인, 2: 온라인, 3: 온오프 혼합
+        _studyOnOffline.value = onOffline
+    }
+
+    // 오프라인 장소 저장
+    fun gettingStudyPlace(place: String) {
+        _studyPlace.value = place
+    }
+
+    // 최대 인원 수 저장
+    fun gettingStudyMaxMember(max: Int) {
+        _studyMaxMember.value = max
+    }
 
     // 스터디 데이터를 저장한다
-    fun saveStudyData(){
+    fun saveStudyData() {
         val studyType = studyType.value
         val studyPeriod = studyPeriod.value
         val studyOnOffLine = studyOnOffline.value
@@ -207,4 +245,8 @@ class WriteViewModel : ViewModel() {
         _buttonState.value = false
     }
 
+    // ----------------- Repository에 데이터 전송 -----------------
+
+
+    // ---------------------------------------------------------
 }
