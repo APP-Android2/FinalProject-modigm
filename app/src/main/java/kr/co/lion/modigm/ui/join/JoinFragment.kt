@@ -1,7 +1,7 @@
 package kr.co.lion.modigm.ui.join
 
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.AuthCredential
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
@@ -26,6 +27,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.hideSoftInput
 
 class JoinFragment : Fragment() {
@@ -45,6 +47,14 @@ class JoinFragment : Fragment() {
         arguments?.getString("customToken")
     }
 
+    private val credential: AuthCredential? by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getParcelable("credential", AuthCredential::class.java)
+        } else {
+            arguments?.getParcelable("credential")
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,10 +63,24 @@ class JoinFragment : Fragment() {
 
         binding = FragmentJoinBinding.inflate(inflater)
 
+        settingValuesFromBundle()
         settingToolBar()
         settingObservers()
 
         return binding.root
+    }
+
+    // 번들로 전달받은 값들을 뷰모델 라이브 데이터에 셋팅
+    private fun settingValuesFromBundle(){
+        if(customToken != null){
+            viewModel.setSnsCustomToken(customToken!!)
+        }
+        if(credential != null){
+            viewModel.setSnsCredential(credential!!)
+        }
+        if(joinType != null){
+            viewModel.setSnsProvider(joinType?.provider!!)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -283,17 +307,14 @@ class JoinFragment : Fragment() {
         if(!validation) return
         // 응답값
         viewModelStep3.selectedInterestList.value?.let { it1 ->
-            viewModel.setInterests(
-                it1
-            )
+            viewModel.setInterests(it1)
         }
 
         lifecycleScope.launch {
             showLoading()
             when(joinType){
                 JoinType.EMAIL -> viewModel.completeJoinEmailUser()
-                JoinType.KAKAO -> customToken?.let { viewModel.completeJoinSnsUser(it) }
-                else -> {}
+                else -> viewModel.completeJoinSnsUser()
             }
         }
     }
@@ -331,12 +352,17 @@ class JoinFragment : Fragment() {
                     .replace(R.id.containerMain, joinFragment)
                     .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
                     .commit()
+                viewModel.isPhoneAlreadyRegistered.value = false
             }
         }
 
         // 회원가입 완료 시 다음 화면으로 이동
         viewModel.joinCompleted.observe(viewLifecycleOwner){
             hideLoading()
+
+            // SharedPreferences에 uid값 저장
+            viewModel.user.value?.let { it1 -> prefs.setString("uid", it1.uid) }
+
             if(it){
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.containerMain, StudyFragment())
