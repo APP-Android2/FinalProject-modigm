@@ -43,7 +43,7 @@ class ChatFragment : Fragment() {
     var chatSearchRoomDataList = mutableListOf<ChatRoomData>()
 
     // 현재 로그인 한 사용자 정보
-    private val loginUserId = "rH82PMELb2TimapTRzownbZekd13" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     // FirebaseAuth 인스턴스를 가져옴
