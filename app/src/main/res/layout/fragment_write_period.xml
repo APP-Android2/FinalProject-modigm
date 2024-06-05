@@ -1,73 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.write.WritePeriodFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-
-    <TextView
-        android:id="@+id/textView_writePeriod_question"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="얼마나 진행 하실건가요?"
+        android:layout_height="match_parent"
+        tools:context=".ui.write.WritePeriodFragment">
 
-        android:textSize="18dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
 
-        android:layout_marginTop="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="164dp"
-
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <TextView
-        android:id="@+id/textView_writePeriod_notice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="자세한 기간과 모임시간은 소개글에 작성해주세요 :)"
-
-        android:textSize="16dp"
-        android:textColor="@color/textGray"
-
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-
-        app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_question"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout_writePeriod"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-
-        android:layout_marginTop="26dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-
-        android:focusableInTouchMode="false"
-        android:focusable="false"
-        app:hintEnabled="false"
-        app:hintAnimationEnabled="false"
-
-        app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <AutoCompleteTextView
-            android:id="@+id/textinput_writePeriod"
+        <TextView
+            android:id="@+id/textView_writePeriod_question"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusableInTouchMode="false"
+            android:layout_marginStart="16dp"
+
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="164dp"
+
+            android:text="얼마나 진행 하실건가요?"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="18dp"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_writePeriod_notice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="16dp"
+
+            android:text="자세한 기간과 모임시간은 소개글에 작성해주세요 :)"
+            android:textColor="@color/textGray"
+            android:textSize="16dp"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_question" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_writePeriod"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="16dp"
+
             android:focusable="false"
-            android:hint="기간선택"/>
+            android:focusableInTouchMode="false"
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false"
 
-    </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <AutoCompleteTextView
+                android:id="@+id/textinput_writePeriod"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:hint="기간선택" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

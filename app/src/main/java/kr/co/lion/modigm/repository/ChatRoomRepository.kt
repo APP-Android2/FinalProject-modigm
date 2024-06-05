@@ -2,6 +2,7 @@ package kr.co.lion.modigm.repository
 
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.model.ChatRoomData
+import kr.co.lion.modigm.model.UserData
 
 class ChatRoomRepository {
 
@@ -36,7 +37,11 @@ class ChatRoomRepository {
     suspend fun chatRoomMessageAsRead(chatIdx: Int, loginUserId: String) =
         chatRoomDataSource.chatRoomMessageAsRead(chatIdx, loginUserId)
 
-    // 메세지 전송시 해당 채팅 방 사용자에 안읽은 메세지 카운트 증가
+    // 메세지 전송시 해당 채팅 방 사용자에 안읽은 메세지 카운트 증가 (Update)
     suspend fun increaseUnreadMessageCount(chatIdx: Int, senderId: String) =
         chatRoomDataSource.increaseUnreadMessageCount(chatIdx, senderId)
+
+    // 실시간으로 여러 사용자 정보를 가져오는 함수
+    fun getUsersDataListListener(chatMemberList: List<String>, onUpdate: (List<UserData>) -> Unit) =
+        chatRoomDataSource.getUsersDataListListener(chatMemberList, onUpdate)
 }

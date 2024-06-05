@@ -5,10 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.PhoneAuthCredential
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
@@ -25,6 +26,36 @@ class JoinViewModel : ViewModel() {
     private var _user: MutableLiveData<FirebaseUser?> = MutableLiveData()
     val user: LiveData<FirebaseUser?> = _user
 
+    // sns provider(제공자 이름, kakao, github)
+    private var _userProvider: MutableLiveData<String> = MutableLiveData()
+    val userProvider: LiveData<String> = _userProvider
+    fun setUserProvider(provider:String){
+        _userProvider.value = provider
+    }
+
+    // sns email
+    private var _snsEmail: MutableLiveData<String> = MutableLiveData()
+    val snsEmail: LiveData<String> = _snsEmail
+    fun setSnsEmail(){
+        if(_auth.currentUser != null){
+            _snsEmail.value = _auth.currentUser?.email
+        }
+    }
+
+    // sns Custom Token(카카오톡)
+    private var _snsCustomToken: MutableLiveData<String> = MutableLiveData()
+    val snsCustomToken: LiveData<String> = _snsCustomToken
+    fun setSnsCustomToken(customToken:String){
+        _snsCustomToken.value = customToken
+    }
+
+    // sns Credential(깃허브)
+    private var _snsCredential: MutableLiveData<AuthCredential> = MutableLiveData()
+    val snsCredential: LiveData<AuthCredential> = _snsCredential
+    fun setSnsCredential(credential:AuthCredential){
+        _snsCredential.value = credential
+    }
+
     // auth에 등록된 이메일, 뒤로가기로 이메일을 수정한 경우 비교용
     var verifiedEmail = ""
 
@@ -40,13 +71,20 @@ class JoinViewModel : ViewModel() {
     }
 
     // 이미 등록된 전화번호 계정의 이메일
-    var alreadyRegisteredUserEmail = ""
+    private var _alreadyRegisteredUserEmail: MutableLiveData<String> = MutableLiveData()
+    val alreadyRegisteredUserEmail: LiveData<String> = _alreadyRegisteredUserEmail
     // 이미 등록된 전화번호 계정의 프로바이더
-    var alreadyRegisteredUserProvider = ""
+    private var _alreadyRegisteredUserProvider: MutableLiveData<String> = MutableLiveData()
+    val alreadyRegisteredUserProvider: LiveData<String> = _alreadyRegisteredUserProvider
 
-    private val _phoneCredential: MutableLiveData<PhoneAuthCredential> = MutableLiveData()
+    fun setAleradyRegisteredUser(email:String, provider:String){
+        _alreadyRegisteredUserEmail.value = email
+        _alreadyRegisteredUserProvider.value = provider
+    }
 
-    fun setPhoneCredential(credential: PhoneAuthCredential){
+    private val _phoneCredential: MutableLiveData<AuthCredential> = MutableLiveData()
+
+    fun setPhoneCredential(credential: AuthCredential){
         _phoneCredential.value = credential
     }
 
@@ -80,10 +118,10 @@ class JoinViewModel : ViewModel() {
         // 오류 메시지
         var error = ""
         try {
-            val authResult = _auth.createUserWithEmailAndPassword(_email.value!!, _password.value!!).await()
+            val authResult = _auth.createUserWithEmailAndPassword(_email.value?:"", _password.value?:"").await()
             _user.value = authResult.user
-            _uid.value = authResult.user?.uid!!
-            verifiedEmail = _email.value!!
+            _uid.value = authResult.user?.uid?:""
+            verifiedEmail = _email.value?:""
             //userCredential.user?.delete()
             //_auth.signOut()
         }catch (e:FirebaseAuthException){
@@ -104,19 +142,22 @@ class JoinViewModel : ViewModel() {
     }
 
     // UserInfoData 객체 생성
-    fun createUserInfoData(): UserData {
+    private fun createUserInfoData(): UserData {
         val user = UserData()
-        user.userName = _userName.value.toString()
-        user.userPhone = _phoneNumber.value.toString()
+        user.userName = _userName.value?:""
+        user.userPhone = _phoneNumber.value?:""
         user.userInterestList = _interests.value?: mutableListOf()
-        user.userUid = _uid.value.toString()
+        user.userUid = _uid.value?:""
+
+        user.userProvider = _userProvider.value?:""
+        user.userEmail = _snsEmail.value?:""
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return user
     }
 
     // 회원가입 완료 전에 이메일 계정과 전화번호 계정을 통합
     private fun linkEmailAndPhone(){
-        _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).addOnCompleteListener { loginTask ->
+        _auth.signInWithEmailAndPassword(_email.value?:"", _password.value?:"").addOnCompleteListener { loginTask ->
             if(loginTask.isSuccessful){
                 _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
                     if(!linkTask.isSuccessful){
@@ -131,11 +172,12 @@ class JoinViewModel : ViewModel() {
 
     // 이메일 계정 회원 가입 완료
     suspend fun completeJoinEmailUser(){
-        // UserInfoData 객체 생성
-        val user = createUserInfoData()
-
         // 메일 계정을 전화번호 계정과 연결
         linkEmailAndPhone()
+        _user.value = _auth.currentUser
+
+        // UserInfoData 객체 생성
+        val user = createUserInfoData()
         // 파이어스토어에 데이터 저장
         _userInfoRepository.insetUserData(user)
 
@@ -143,32 +185,36 @@ class JoinViewModel : ViewModel() {
     }
 
     // 회원가입 완료 전에 SNS 계정과 전화번호 계정을 통합
-    private fun linkSnsAndPhone(customToken: String){
-        _auth.signInWithCustomToken(customToken).addOnCompleteListener { loginTask ->
-            if(loginTask.isSuccessful){
-                _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
-                    if(!linkTask.isSuccessful){
-                        Log.d("testError", "linkWithCredential : ${linkTask.exception}")
-                    }
-                }
-            }else{
-                Log.d("testError", "signInWithCustomToken : ${loginTask.exception}")
+    private suspend fun linkSnsAndPhone(){
+        var signInResult: AuthResult? = null
+        when(_userProvider.value){
+            "kakao" -> {
+                // 카카오 등 파이어베이스에서 지원하지 않는 공급자는 customToken으로 로그인
+                signInResult = _auth.signInWithCustomToken(_snsCustomToken.value?:"").await()
+            }
+            "github" -> {
+                // 깃허브 등 파이어베이스에서 지원하는 공급자는 credential로 로그인
+                signInResult = _auth.signInWithCredential(_snsCredential.value!!).await()
             }
         }
+        _uid.value = signInResult?.user?.uid
+        // 로그인 계정과 전화번호 연결
+        signInResult?.user?.linkWithCredential(_phoneCredential.value!!)?.await()
     }
 
     // SNS 계정 회원 가입 완료
-    fun completeJoinSnsUser(customToken: String){
-        // UserInfoData 객체 생성
-        val user = createUserInfoData()
-
-        // SNS 계정과 전화번호 계정을 연결
-        linkSnsAndPhone(customToken)
-        // 파이어 스토어에 저장
+    fun completeJoinSnsUser(){
         viewModelScope.launch {
-            _userInfoRepository.insetUserData(user)
-        }
+            // SNS 계정과 전화번호 계정을 연결
+            linkSnsAndPhone()
+            _user.value = _auth.currentUser
 
-        _joinCompleted.value = true
+            // UserInfoData 객체 생성
+            val user = createUserInfoData()
+            // 파이어스토어에 데이터 저장
+            _userInfoRepository.insetUserData(user)
+
+            _joinCompleted.value = true
+        }
     }
 }

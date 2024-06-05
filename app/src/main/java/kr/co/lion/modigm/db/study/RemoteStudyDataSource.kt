@@ -247,4 +247,15 @@ class RemoteStudyDataSource {
             throw Exception("Failed to update study status: ${e.message}")
         }
     }
+
+    // 사용자 정보를 저장한다.
+    suspend fun addStudyData(study: StudyData){
+        try {
+            studyCollection
+                .add(study)
+                .await()
+        } catch (e: Exception) {
+            Log.e("Firebase Error", "Error dbAddStudyData: ${e.message}")
+        }
+    }
 }

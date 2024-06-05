@@ -5,8 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.auth.User
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.ChatRoomData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.ChatRoomRepository
 
 class ChatRoomViewModel : ViewModel() {
@@ -25,6 +27,9 @@ class ChatRoomViewModel : ViewModel() {
     // 모든 채팅방 목록 (검색에서 사용)
     private val _allChatRoomsList = MutableLiveData<List<ChatRoomData>>()
     val allChatRoomsList: LiveData<List<ChatRoomData>> = _allChatRoomsList
+
+    private val _userDataList = MutableLiveData<List<UserData>>()
+    val userDataList: LiveData<List<UserData>> get() = _userDataList
 
     // 뷰모델 인스턴스가 생성될 때마다 가동
     init {
@@ -123,6 +128,20 @@ class ChatRoomViewModel : ViewModel() {
             Log.i("chatLog", "ChatRoomViewModel - ${chatIdx}번 채팅 방 안읽은 메시지 카운트 증가")
         } catch (e: Exception) {
             Log.e("chatLog", "Error - increaseUnreadMessageCount: ${e.message}")
+        }
+    }
+
+    // 사용자 정보를 가져오는 함수
+    fun getUsersDataList(chatMemberList: List<String>) {
+        viewModelScope.launch {
+            try {
+                chatRoomRepository.getUsersDataListListener(chatMemberList) { userDataList ->
+                    _userDataList.postValue(userDataList)
+                    Log.i("chatLog", "ChatRoomViewModel - 채팅 방 멤버 데이터: ${userDataList}")
+                }
+            } catch (e: Exception) {
+                Log.e("chatLog", "Error - getUsersDataList: ${e.message}")
+            }
         }
     }
 }

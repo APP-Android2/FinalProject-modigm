@@ -1,10 +1,12 @@
 package kr.co.lion.modigm.ui.write
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import kr.co.lion.modigm.R
@@ -19,16 +21,18 @@ class WriteFieldFragment : Fragment() {
     val tabName = "field"
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        fragmentWriteFieldBinding = FragmentWriteFieldBinding.inflate(inflater)
-
-        settingView()
-        settingEvent()
+        fragmentWriteFieldBinding = DataBindingUtil.inflate(inflater,R.layout.fragment_write_field, container, false)
+        fragmentWriteFieldBinding.writeViewModel = viewModel
+        fragmentWriteFieldBinding.lifecycleOwner = this
 
         return fragmentWriteFieldBinding.root
     }
 
-    fun settingView(){
-        // 필요 시 작성
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+
+        settingEvent()
     }
     fun settingEvent(){
 
@@ -53,6 +57,7 @@ class WriteFieldFragment : Fragment() {
 
                         // 사용자 입력 해제
                         viewModel.userDidNotAnswer(tabName)
+                        viewModel.gettingStudyType(0)
                     } else {
 
                         // Stroke 색상 변경
@@ -67,6 +72,7 @@ class WriteFieldFragment : Fragment() {
 
                         // 사용자 입력 추가
                         viewModel.userDidAnswer(tabName)
+                        viewModel.gettingStudyType(1)
                     }
                 }
             }
@@ -81,6 +87,7 @@ class WriteFieldFragment : Fragment() {
 
                         // 사용자 입력 해제
                         viewModel.userDidNotAnswer(tabName)
+                        viewModel.gettingStudyType(0)
                     } else {
                         // Stroke 색상 변경
                         strokeColor = clickedStrokeColor
@@ -94,6 +101,7 @@ class WriteFieldFragment : Fragment() {
 
                         // 사용자 입력 추가
                         viewModel.userDidAnswer(tabName)
+                        viewModel.gettingStudyType(2)
                     }
                 }
             }
@@ -108,6 +116,7 @@ class WriteFieldFragment : Fragment() {
 
                         // 사용자 입력 해제
                         viewModel.userDidNotAnswer(tabName)
+                        viewModel.gettingStudyType(0)
                     } else {
 
                         // Stroke 색상 변경
@@ -122,6 +131,7 @@ class WriteFieldFragment : Fragment() {
 
                         // 사용자 입력 추가
                         viewModel.userDidAnswer(tabName)
+                        viewModel.gettingStudyType(3)
                     }
                 }
             }

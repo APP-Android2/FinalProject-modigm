@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatOnetoOneBinding
 import kr.co.lion.modigm.model.ChatRoomData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
@@ -29,10 +31,16 @@ class ChatOnetoOneFragment : Fragment() {
     private val chatRoomViewModel: ChatRoomViewModel by viewModels()
 
     // 내가 속한 1:1 채팅 방들을 담고 있을 리스트
-    var chatRoomDataList = mutableListOf<ChatRoomData>()
+    private var chatRoomDataList = mutableListOf<ChatRoomData>()
+    // 해당 멤버의 유저 정보를 가지고 있을 리스트
+    // private val usersDataList = mutableListOf<UserData>()
 
     // 현재 로그인 한 사용자 정보
-    private val loginUserId = "currentUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    // FirebaseAuth 인스턴스를 가져옴
+    val auth = FirebaseAuth.getInstance()
+    val authCurrentUser = auth.currentUser
+    // val loginUserId = (authCurrentUser?.uid).toString()
+    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 //    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

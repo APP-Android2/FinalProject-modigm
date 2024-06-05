@@ -18,6 +18,9 @@ class UserInfoRepository {
     // 유저 프로필 사진 불러오기
     suspend fun loadUserProfilePic(context: Context, imageFileName: String, imageView: ImageView) = _remoteUserDataSource.loadUserProfilePic(context, imageFileName, imageView)
 
+    // 해당 전화 번호의 계정이 있는지 확인 (중복 확인)
+    suspend fun checkUserByPhone(phoneNumber: String): Map<String, String>? = _remoteUserDataSource.checkUserByPhone(phoneNumber)
+
 
     // ----------------- 로그인 데이터 처리 -----------------
 
