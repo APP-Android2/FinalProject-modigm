@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.kakao.sdk.common.KakaoSdk
 import kr.co.lion.modigm.BuildConfig
@@ -15,6 +16,7 @@ import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginResult
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
+import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
@@ -45,22 +47,18 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Loading -> {
-                    Log.i("LoginFragment", "카카오 로그인 중...")
+                    Log.i("LoginFragment", "카카오 로그인 진행 중...")
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "카카오 로그인 성공")
-
                     // 로그인 성공 후 커스텀 토큰과 JoinType을 받아 회원가입 화면으로 이동
                     viewModel.customToken.observe(viewLifecycleOwner, Observer { token ->
-                        Log.i("LoginFragment", "Custom Token Updated: $token")
-
-                        val customToken = viewModel.customToken.value
-                        val joinType = JoinType.KAKAO
-                        if (customToken != null) {
-                            navigateToJoinFragment(customToken, joinType)
+                        Log.i("LoginFragment", "커스텀 토큰 업데이트됨: $token")
+                        val joinType = viewModel.joinType.value ?: JoinType.KAKAO
+                        if (token != null) {
+                            navigateToJoinFragment(token, joinType)
                         }
                     })
-
                 }
                 is LoginResult.Error -> {
                     Log.e("LoginFragment", "카카오 로그인 실패", result.exception)
@@ -71,18 +69,16 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         viewModel.githubLoginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Loading -> {
-                    Log.i("LoginFragment", "깃허브 로그인 중...")
+                    Log.i("LoginFragment", "깃허브 로그인 진행 중...")
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "깃허브 로그인 성공")
-
                     // 로그인 성공 후 커스텀 토큰과 JoinType을 받아 회원가입 화면으로 이동
-                    viewModel.customToken.observe(viewLifecycleOwner, Observer { token ->
-                        Log.i("LoginFragment", "Custom Token Updated: $token")
-                        val customToken = viewModel.customToken.value
-                        val joinType = JoinType.GITHUB
-                        if (customToken != null) {
-                            navigateToJoinFragment(customToken, joinType)
+                    viewModel.credential.observe(viewLifecycleOwner, Observer { credential ->
+                        Log.i("LoginFragment", "자격 증명 업데이트됨: $credential")
+                        val joinType = viewModel.joinType.value ?: JoinType.GITHUB
+                        if (credential != null) {
+                            navigateToJoinFragment(credential, joinType)
                         }
                     })
                 }
@@ -118,16 +114,21 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     // 회원가입 화면으로 이동하는 메서드
-    private fun navigateToJoinFragment(customToken: String, joinType: JoinType) {
-        // 로그 추가
-        Log.d("LoginFragment", "navigateToJoinFragment - customToken: $customToken, joinType: ${joinType.provider}")
-
+    private fun navigateToJoinFragment(token: Any, joinType: JoinType) {
         val bundle = Bundle().apply {
-            putString("customToken", customToken)
+            when (token) {
+                is String -> {
+                    putString("customToken", token)
+                }
+                is AuthCredential -> {
+                    putParcelable("credential", token)
+                }
+            }
             putString("joinType", joinType.provider)
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
+            addToBackStack(FragmentName.LOGIN.str)
         }
     }
 }
