@@ -28,6 +28,7 @@
         </activity>
         <activity
             android:name=".ui.MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false">
         </activity> <!-- Kakao Login Activity -->
         <activity
