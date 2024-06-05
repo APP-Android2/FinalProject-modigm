@@ -101,6 +101,16 @@ class ChatRoomViewModel : ViewModel() {
         }
     }
 
+    // 채팅방에 사용자 추가 / chatMemberList 배열에 ID 추가 (Update)
+    suspend fun addUserToChatMemberList(chatIdx: Int, userId: String) = viewModelScope.launch {
+        try {
+            chatRoomRepository.addUserToChatMemberList(chatIdx, userId)
+            Log.i("chatLog", "ChatRoomViewModel - 해당 채팅 방에서 멤버 목록 추가 - ${chatIdx}번 $userId")
+        } catch (e: Exception) {
+            Log.e("chatLog", "Error - addUserToChatMemberList: ${e.message}")
+        }
+    }
+
     // 채팅방 나가기 / chatMemberList 배열에서 내 ID를 제거 (Update)
     suspend fun removeUserFromChatMemberList(chatIdx: Int, userId: String) = viewModelScope.launch {
         try {

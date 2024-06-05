@@ -119,6 +119,7 @@ class ChatFragment : Fragment() {
 //            }
             
             // 승현님 Detail 페이지에서 멤버 신청되면 해당 채팅방 멤버 추가 (코드) 작성 미완
+            // addUserToChatMemberList(1)
             
             // 승현님 Detail 페이지에서 ChatRoomFragment로 이동 (코드) 작성 완료 - 데이터는 가져와야함
 //            val chatRoomFragment = ChatRoomFragment().apply {
@@ -312,6 +313,15 @@ class ChatFragment : Fragment() {
             // 채팅 방 생성
             ChatRoomDataSource.insertChatRoomData(chatRoomData)
             Log.d("test1234", "1:1 채팅방 생성 완료")
+        }
+    }
+
+    // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
+    fun addUserToChatMemberList(chatIdx: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(chatIdx, loginUserId)
+            coroutine1.join()
+            parentFragmentManager.popBackStack()
         }
     }
 }

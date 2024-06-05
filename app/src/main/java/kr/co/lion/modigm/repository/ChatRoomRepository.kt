@@ -29,6 +29,10 @@ class ChatRoomRepository {
     suspend fun updateChatRoomLastMessageAndTime(chatIdx: Int, chatMessage: String, chatFullTime: Long, chatTime: String) =
         chatRoomDataSource.updateChatRoomLastMessageAndTime(chatIdx, chatMessage, chatFullTime, chatTime)
 
+    // 채팅방에 사용자 추가 / chatMemberList 배열에 ID 추가 (Update)
+    suspend fun addUserToChatMemberList(chatIdx: Int, userId: String) =
+        chatRoomDataSource.addUserToChatMemberList(chatIdx, userId)
+
     // 채팅방 나가기 / chatMemberList 배열에서 내 ID를 제거 (Update)
     suspend fun removeUserFromChatMemberList(chatIdx: Int, userId: String) =
         chatRoomDataSource.removeUserFromChatMemberList(chatIdx, userId)

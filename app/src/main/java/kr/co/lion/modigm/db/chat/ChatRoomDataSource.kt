@@ -133,6 +133,22 @@ class ChatRoomDataSource {
         return chatRooms
     }
 
+    // 채팅방에 사용자 추가 / chatMemberList 배열에 ID 추가 (Update)
+    suspend fun addUserToChatMemberList(chatIdx: Int, userId: String) {
+        val querySnapshot = collectionReference
+            .whereEqualTo("chatIdx", chatIdx)
+            .get()
+            .await()
+
+        for (document in querySnapshot.documents) {
+            val documentReference = document.reference
+            documentReference.update(
+                "chatMemberList", com.google.firebase.firestore.FieldValue.arrayUnion(userId),
+                "participantCount", com.google.firebase.firestore.FieldValue.increment(1)
+            ).await()
+        }
+    }
+
     // 채팅방 나가기 / chatMemberList 배열에서 내 ID를 제거 (Update)
     suspend fun removeUserFromChatMemberList(chatIdx: Int, userId: String) {
         val querySnapshot = collectionReference
