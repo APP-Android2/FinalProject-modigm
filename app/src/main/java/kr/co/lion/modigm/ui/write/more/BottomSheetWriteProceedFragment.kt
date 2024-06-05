@@ -37,29 +37,34 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
 
     fun settingEvent() {
         binding.apply {
-            // 닫기 종료
             imageButtonWriteProceedBottomSheetClose.setOnClickListener {
-                val location = textFieldWriteProceedBottomSheetSearch.text.toString()
-                // viewModel에 데이터 전송
-                viewModel.gettingStudyPlace(location)
+                // 닫기 종료
                 dismiss()
             }
 
 
             textFieldWriteProceedBottomSheetSearch.apply {
 
-                // 키보드에서 return 클릭 시 키보드 없애기
-                setOnEditorActionListener { v, actionId, event ->
-                    if (actionId == EditorInfo.IME_ACTION_DONE){
-                        // 키보드 숨기기
-                        v.clearFocus()
-                        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        imm.hideSoftInputFromWindow(v.windowToken, 0 )
-                        true
-                    } else {
-                        false
-                    }
+                imeOptions = EditorInfo.IME_ACTION_DONE
+
+                addTextChangedListener {
+                    val location = textFieldWriteProceedBottomSheetSearch.text.toString()
+                    // viewModel에 데이터 전송
+                    viewModel.gettingStudyPlace(location)
                 }
+
+                // 엔터키 클릭 시
+                setOnEditorActionListener { _, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        val location = text.toString()
+                        // viewModel에 데이터 전송
+                        viewModel.gettingStudyPlace(location)
+                        dismiss()
+                        true
+                    }
+                    false
+                }
+
             }
 
         }
