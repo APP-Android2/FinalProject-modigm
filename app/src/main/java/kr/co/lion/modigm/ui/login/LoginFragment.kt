@@ -52,7 +52,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "카카오 로그인 성공")
                     // 로그인 성공 후 커스텀 토큰과 JoinType을 받아 회원가입 화면으로 이동
-                    viewModel.customToken.observe(viewLifecycleOwner, Observer { token ->
+                    viewModel.kakaoCustomToken.observe(viewLifecycleOwner, Observer { token ->
                         Log.i("LoginFragment", "커스텀 토큰 업데이트됨: $token")
                         val joinType = viewModel.joinType.value ?: JoinType.KAKAO
                         if (token != null) {
@@ -128,7 +128,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
-            addToBackStack(FragmentName.LOGIN.str)
+            addToBackStack(FragmentName.JOIN.str)
         }
     }
 }

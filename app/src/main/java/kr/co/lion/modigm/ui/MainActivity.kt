@@ -1,45 +1,54 @@
 package kr.co.lion.modigm.ui
 
 import android.os.Bundle
-import android.os.SystemClock
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
-import com.google.android.material.transition.MaterialSharedAxis
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.ActivityMainBinding
-import kr.co.lion.modigm.ui.chat.ChatFragment
-import kr.co.lion.modigm.ui.chat.ChatGroupFragment
-import kr.co.lion.modigm.ui.chat.ChatOnetoOneFragment
-import kr.co.lion.modigm.ui.chat.ChatRoomFragment
-import kr.co.lion.modigm.ui.detail.DetailEditFragment
-import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.detail.DetailMemberFragment
-import kr.co.lion.modigm.ui.join.JoinDuplicateFragment
-import kr.co.lion.modigm.ui.join.JoinFragment
-import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
-import kr.co.lion.modigm.ui.login.OtherLoginFragment
-import kr.co.lion.modigm.ui.profile.ProfileFragment
-import kr.co.lion.modigm.ui.profile.ProfileWebFragment
-import kr.co.lion.modigm.ui.profile.SettingsFragment
+import kr.co.lion.modigm.ui.login.vm.LoginResult
+import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
-import kr.co.lion.modigm.ui.study.FilterSortFragment
-import kr.co.lion.modigm.ui.study.StudyAllFragment
-import kr.co.lion.modigm.ui.study.StudyFragment
-import kr.co.lion.modigm.ui.study.StudyMyFragment
-import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
+import android.util.Log
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        supportFragmentManager.commit {
-            replace(R.id.containerMain, LoginFragment())
+        Log.d("MainActivity1", "onCreate: Starting MainActivity")
+
+        // 앱이 시작될 때 자동 로그인 시도
+        Log.d("MainActivity1", "onCreate: Attempting auto login")
+        loginViewModel.attemptAutoLogin()
+
+        // 자동 로그인에 성공 시 loginResult를 관찰하여 메인 화면으로 이동
+        loginViewModel.loginResult.observe(this) { result ->
+            when (result) {
+                is LoginResult.Success -> {
+                    // 로그인 성공 시
+                    Log.d("MainActivity1", "loginResult: Success - Navigating to BottomNaviFragment")
+                    supportFragmentManager.commit {
+                        replace(R.id.containerMain, BottomNaviFragment())
+                        addToBackStack(FragmentName.BOTTOM_NAVI.str)
+                    }
+                }
+                is LoginResult.Error -> {
+                    // 로그인 에러 시
+                    Log.e("MainActivity1", "loginResult: Error - Navigating to LoginFragment", result.exception)
+                    supportFragmentManager.commit {
+                        replace(R.id.containerMain, LoginFragment())
+                        addToBackStack(FragmentName.LOGIN.str)
+                    }
+                }
+                is LoginResult.Loading -> {
+                    // 로그인 로딩 시
+                    Log.d("MainActivity1", "loginResult: Loading")
+                }
+            }
         }
     }
 }
