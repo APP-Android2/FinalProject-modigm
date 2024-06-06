@@ -45,6 +45,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     // ViewModel의 데이터 변경을 관찰하는 메서드
     private fun observeViewModel() {
+        // 카카오 로그인 데이터 관찰
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Loading -> {
@@ -52,13 +53,16 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "카카오 로그인 성공")
-                    // 로그인 성공 후 커스텀 토큰과 JoinType을 받아 회원가입 화면으로 이동
+                    // 스터디 목록 화면으로 이동
+                    navigateToBottomNaviFragment()
+                }
+                is LoginResult.NeedSignUp -> {
+                    Log.i("LoginFragment", "카카오 로그인 성공, 회원가입 필요")
                     viewModel.kakaoCustomToken.observe(viewLifecycleOwner, Observer { token ->
                         Log.i("LoginFragment", "커스텀 토큰 업데이트됨: $token")
                         val joinType = viewModel.joinType.value ?: JoinType.KAKAO
                         if (token != null) {
                             navigateToJoinFragment(token, joinType)
-
                         }
                     })
                 }
@@ -68,6 +72,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             }
         })
 
+        // 깃허브 로그인 데이터 관찰
         viewModel.githubLoginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Loading -> {
@@ -75,7 +80,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "깃허브 로그인 성공")
-                    // 로그인 성공 후 커스텀 토큰과 JoinType을 받아 회원가입 화면으로 이동
+                    // 스터디 목록 화면으로 이동
+                    navigateToBottomNaviFragment()
+                }
+                is LoginResult.NeedSignUp -> {
+                    Log.i("LoginFragment", "깃허브 로그인 성공, 회원가입 필요")
                     viewModel.credential.observe(viewLifecycleOwner, Observer { credential ->
                         Log.i("LoginFragment", "자격 증명 업데이트됨: $credential")
                         val joinType = viewModel.joinType.value ?: JoinType.GITHUB
@@ -96,60 +105,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         // 카카오 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginKakao.setOnClickListener {
             Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
-            // 자동 로그인
-            viewModel.attemptKakaoAutoLogin(requireContext())
-            viewModel.kakaoLoginResult.observe(viewLifecycleOwner) { result ->
-                when (result) {
-                    is LoginResult.Success -> {
-                        // 로그인 성공 시
-                        Log.d("LoginFragment", "카카오 로그인 상태: 성공 - BottomNaviFragment 로 전환")
-                        parentFragmentManager.commit {
-                            replace(R.id.containerMain,BottomNaviFragment())
-                        }
-                    }
-                    is LoginResult.Error -> {
-                        // 로그인 에러 시
-                        Log.e("LoginFragment", "카카오 로그인 상태: 에러 - LoginFragment 로 전환", result.exception)
-                        parentFragmentManager.commit {
-                            replace(R.id.containerMain,LoginFragment())
-                        }
-                    }
-                    is LoginResult.Loading -> {
-                        // 로그인 로딩 시
-                        Log.d("LoginFragment", "카카오 로그인 상태: 로딩")
-                    }
-                }
-            }
+            val autoLogin = binding.checkboxAutoLogin.isChecked
+            viewModel.loginWithKakao(requireContext(), autoLogin)
         }
 
         // 깃허브 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginGithub.setOnClickListener {
             Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
-            // 자동 로그인
-            viewModel.attemptGithubAutoLogin(requireActivity())
-            viewModel.githubLoginResult.observe(viewLifecycleOwner) { result ->
-                when (result) {
-                    is LoginResult.Success -> {
-                        // 로그인 성공 시
-                        Log.d("LoginFragment", "깃허브 로그인 상태: 성공 - BottomNaviFragment 로 전환")
-                        parentFragmentManager.commit {
-                            replace(R.id.containerMain,BottomNaviFragment())
-                        }
-                    }
-                    is LoginResult.Error -> {
-                        // 로그인 에러 시
-                        Log.e("LoginFragment", "깃허브 로그인 상태: 에러 - LoginFragment 로 전환", result.exception)
-                        parentFragmentManager.commit {
-                            replace(R.id.containerMain,LoginFragment())
-                        }
-                    }
-                    is LoginResult.Loading -> {
-                        // 로그인 로딩 시
-                        Log.d("LoginFragment", "깃허브 로그인 상태: 로딩")
-                    }
-                }
-            }
-
+            val autoLogin = binding.checkboxAutoLogin.isChecked
+            viewModel.loginWithGithub(requireContext(), autoLogin)
         }
 
         // 다른 방법으로 로그인 버튼 클릭 리스너 설정
@@ -164,6 +128,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     // 회원가입 화면으로 이동하는 메서드
     private fun navigateToJoinFragment(token: Any, joinType: JoinType) {
+
+        // 회원가입으로 넘겨줄 데이터
         val bundle = Bundle().apply {
             when (token) {
                 is String -> {
@@ -178,6 +144,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
             addToBackStack(FragmentName.JOIN.str)
+        }
+    }
+    private fun navigateToBottomNaviFragment() {
+        parentFragmentManager.commit {
+            replace(R.id.containerMain, BottomNaviFragment())
+            addToBackStack(FragmentName.BOTTOM_NAVI.str)
         }
     }
 }

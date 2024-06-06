@@ -47,7 +47,7 @@ class RemoteUserDataSource {
         }
     }
 
-    // Firebase Functions를 통해 Custom Token 획득
+    // Firebase Functions를 통해 카카오 Custom Token 획득
     suspend fun getKakaoCustomToken(accessToken: String): String {
         val data = hashMapOf("token" to accessToken)
         return try {
@@ -62,7 +62,7 @@ class RemoteUserDataSource {
         }
     }
 
-    // Firebase Custom Token으로 로그인
+    // Firebase에 카카오 Custom Token으로 로그인
     suspend fun signInWithCustomToken(customToken: String): String {
         return try {
             Log.d("RemoteUserDataSource", "Firebase Custom Token으로 로그인 시도")
@@ -77,15 +77,26 @@ class RemoteUserDataSource {
     }
 
     // 깃허브 로그인
-    suspend fun signInWithGithub(context: Activity) = suspendCancellableCoroutine { cont ->
+    suspend fun signInWithGithub(context: Activity): AuthResult = suspendCancellableCoroutine { cont ->
         val provider = OAuthProvider.newBuilder("github.com")
         Log.d("RemoteUserDataSource", "깃허브 로그인 시도")
         auth.startActivityForSignInWithProvider(context, provider.build()).addOnSuccessListener { authResult ->
             Log.d("RemoteUserDataSource", "깃허브 로그인 성공")
-            cont.resume(authResult.credential)
+            cont.resume(authResult)
         }.addOnFailureListener { e ->
             Log.e("RemoteUserDataSource", "깃허브 로그인 실패", e)
             cont.resumeWithException(e)
+        }
+    }
+
+    // 사용자 UID를 통해 사용자가 이미 가입된 계정인지 확인
+    suspend fun isUserAlreadyRegistered(uid: String): Boolean {
+        return try {
+            val querySnapshot = userCollection.whereEqualTo("userUid", uid).get().await()
+            !querySnapshot.isEmpty
+        } catch (e: Exception) {
+            Log.e("RemoteUserDataSource", "사용자 가입 여부 확인 중 에러 발생", e)
+            false
         }
     }
 

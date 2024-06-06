@@ -87,7 +87,7 @@
 
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:id="@+id/buttonOtherSearchEmail"
+        android:id="@+id/buttonOtherFindEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="이메일   |"
@@ -97,7 +97,7 @@
         app:rippleColor="#00FFFFFF"/>
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:id="@+id/buttonOtherSearchPassword"
+        android:id="@+id/buttonOtherFindPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="비밀번호 찾기"

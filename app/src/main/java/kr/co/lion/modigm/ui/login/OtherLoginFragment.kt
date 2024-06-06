@@ -14,6 +14,7 @@ import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginResult
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
+import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 
 class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
@@ -24,11 +25,11 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentOtherLoginBinding.bind(view) // 뷰 바인딩 설정
 
-        setupUI(binding) // 초기 UI 설정
+        initView(binding) // 초기 UI 설정
         observeViewModel(binding) // ViewModel의 데이터 변경 관찰
     }
 
-    private fun setupUI(binding: FragmentOtherLoginBinding) {
+    private fun initView(binding: FragmentOtherLoginBinding) {
         // 로그인 버튼 초기값을 비활성화 상태로 설정
         binding.buttonOtherLogin.isEnabled = false
 
@@ -66,13 +67,20 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
             val password = binding.textInputEditOtherPassword.text.toString()
             val autoLogin = binding.checkBoxOtherAutoLogin.isChecked
             Log.d("OtherLoginFragment","autoLogin : $autoLogin")
-            viewModel.attemptEmailAutoLogin()
             viewModel.login(email, password, autoLogin)
         }
 
         // 회원가입 버튼 클릭 시 회원가입 화면으로 이동
         binding.buttonOtherJoin.setOnClickListener {
             handleJoinClick()
+        }
+
+        // 이메일 찾기 버튼 클릭 시
+        binding.buttonOtherFindEmail.setOnClickListener {
+            parentFragmentManager.commit {
+                replace(R.id.containerMain,FindEmailFragment())
+                addToBackStack(FragmentName.FIND_EMAIL.str)
+            }
         }
 
 
@@ -129,26 +137,24 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
             }
         })
 
+        // 이메일 로그인 데이터 관찰
         viewModel.loginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
+                is LoginResult.Loading -> {
+                    Log.i("LoginFragment", "이메일 로그인 진행 중...")
+                }
                 is LoginResult.Success -> {
-                    // 로그인 성공 시 메인 화면으로 이동
-                    parentFragmentManager.commit {
-                        replace(R.id.containerMain, BottomNaviFragment())
-                        addToBackStack(null)
-                    }
+                    Log.i("LoginFragment", "이메일 로그인 성공")
+                    // 메인 화면으로 이동
+                    navigateToBottomNaviFragment()
+                }
+                is LoginResult.NeedSignUp -> {
+                    Log.i("LoginFragment", "이메일 로그인 성공, 회원가입 필요")
+                    val joinType = viewModel.joinType.value ?: JoinType.EMAIL
+                    navigateToJoinFragment(joinType) // 이메일 로그인은 별도의 토큰이 필요 없음
                 }
                 is LoginResult.Error -> {
-                    Log.e("OtherLoginFragment", "로그인 실패", result.exception)
-                    if (result.exception.message?.contains("이메일") == true) {
-                        binding.textInputLayoutOtherEmail.error = "이메일 일치하지 않습니다."
-                    } else {
-                        binding.textInputLayoutOtherPassword.error = "비밀번호가 일치하지 않습니다."
-                    }
-                }
-                is LoginResult.Loading -> {
-                    // 로딩시 보여줄 인디케이터 등
-
+                    Log.e("LoginFragment", "이메일 로그인 실패", result.exception)
                 }
             }
         })
@@ -169,7 +175,14 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
-            addToBackStack(null)
+            addToBackStack(FragmentName.JOIN.str)
+        }
+    }
+
+    private fun navigateToBottomNaviFragment() {
+        parentFragmentManager.commit {
+            replace(R.id.containerMain, BottomNaviFragment())
+            addToBackStack(FragmentName.BOTTOM_NAVI.str)
         }
     }
 }

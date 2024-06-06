@@ -3,6 +3,7 @@ package kr.co.lion.modigm.repository
 import android.app.Activity
 import android.content.Context
 import android.widget.ImageView
+import com.google.firebase.auth.AuthResult
 import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.UserData
 
@@ -34,7 +35,10 @@ class UserInfoRepository {
     suspend fun signInWithCustomToken(customToken: String): String = _remoteUserDataSource.signInWithCustomToken(customToken)
 
     // 깃허브 로그인
-    suspend fun signInWithGithub(context: Activity) = _remoteUserDataSource.signInWithGithub(context)
+    suspend fun signInWithGithub(context: Activity): AuthResult = _remoteUserDataSource.signInWithGithub(context)
+
+    // 사용자 UID를 통해 사용자가 이미 가입된 계정인지 확인
+    suspend fun isUserAlreadyRegistered(uid: String): Boolean = _remoteUserDataSource.isUserAlreadyRegistered(uid)
 
     // ----------------- 로그인 데이터 처리 끝-----------------
 }
