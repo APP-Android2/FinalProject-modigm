@@ -49,6 +49,7 @@ class WriteIntroFragment : Fragment() {
         android.Manifest.permission.READ_EXTERNAL_STORAGE,
         android.Manifest.permission.ACCESS_MEDIA_LOCATION
     )
+
     // 이미지를 첨부한 적이 있는지..
     var isAddPicture = false
 
@@ -89,21 +90,19 @@ class WriteIntroFragment : Fragment() {
             textInputWriteIntroTitle.apply {
                 addTextChangedListener {
                     validateInput()
-                    uploadPic()
                 }
             }
 
             // 내용 완료 처리 이벤트
-            textInputWriteIntroContent.apply{
+            textInputWriteIntroContent.apply {
                 addTextChangedListener {
                     validateInput()
-                    uploadPic()
                 }
             }
         }
     }
 
-    fun initData(){
+    fun initData() {
         isAddPicture = false
     }
 
@@ -217,7 +216,8 @@ class WriteIntroFragment : Fragment() {
 
         // 입력 완료 처리
         viewModel.userDidAnswer(tabName)
-        Log.d("TedMoon", "Write Skill : ${viewModel.introClicked.value}")
+        // ViewModel에 사진 정보 저장
+        uploadPic()
         return true
     }
 
@@ -351,7 +351,8 @@ class WriteIntroFragment : Fragment() {
         popupView.findViewById<TextView>(R.id.textView_albumLauncher).setOnClickListener {
 
             // 앨범에서 사진을 선택할 수 있도록 셋팅된 인텐트를 생성한다.
-            val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            val albumIntent =
+                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             // 실행할 액티비티의 타입을 설정(이미지를 선택할 수 있는 것이 뜨게 한다)
             albumIntent.setType("image/*")
             // 선택할 수 있는 파들의 MimeType을 설정한다.
@@ -368,14 +369,11 @@ class WriteIntroFragment : Fragment() {
     }
 
     // 사진 저장 메서드
-    fun uploadPic(){
-
+    fun uploadPic() {
         var serverFileName: String? = null
 
-        Log.d("TedMoon", "isAddPictrue: ${isAddPicture}")
         // 첨부된 이미지가 존재
-        if (isAddPicture == true){
-            Log.d("TedMoon", "isAddPictrue: ${isAddPicture}")
+        if (isAddPicture == true) {
 
             // 서버에서의 파일 이름
             serverFileName = "image_${System.currentTimeMillis()}.jpg"
