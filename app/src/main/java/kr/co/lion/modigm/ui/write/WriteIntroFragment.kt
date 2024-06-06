@@ -193,6 +193,7 @@ class WriteIntroFragment : Fragment() {
         // 제목이 비어있거나 너무 짧은 경우 검사
         if (title.isEmpty() || title.length < 8) {
             fragmentWriteIntroBinding.textInputWriteIntroTitle.error = "제목은 최소 8자 이상이어야 합니다."
+            // 입력 미완료 처리
             viewModel.userDidNotAnswer(tabName)
             return false
         } else {
@@ -203,8 +204,8 @@ class WriteIntroFragment : Fragment() {
 
         // 소개글이 비어있거나 너무 짧은 경우 검사
         if (description.isEmpty() || description.length < 10) {
-            fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error =
-                "소개글은 최소 10자 이상이어야 합니다."
+            fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = "소개글은 최소 10자 이상이어야 합니다."
+            // 입력 미완료 처리
             viewModel.userDidNotAnswer(tabName)
             return false
         } else {
@@ -213,6 +214,7 @@ class WriteIntroFragment : Fragment() {
             viewModel.gettingStudyContent(description)
         }
 
+        // 입력 완료 처리
         viewModel.userDidAnswer(tabName)
         Log.d("TedMoon", "Write Skill : ${viewModel.introClicked.value}")
         return true
