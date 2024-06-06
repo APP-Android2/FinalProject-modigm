@@ -187,8 +187,8 @@ class WriteViewModel : ViewModel() {
         _studySkillList.value = skillList
     }
     // 커버사진 경로 저장 - WriteIntroFragment
-    fun gettingStudyPic(){
-
+    fun gettingStudyPic(picPath: String){
+        _studyPic.value = picPath
     }
     // 글 제목 저장 - WriteIntroFragment
     fun gettingStudyTitle(title: String){
