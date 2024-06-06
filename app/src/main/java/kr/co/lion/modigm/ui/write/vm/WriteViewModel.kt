@@ -261,6 +261,20 @@ class WriteViewModel : ViewModel() {
     fun gettingStudyUidList(){
         _studyUIdList.value = null
     }
+    // 연결된 채팅방 고유번호(chatIdx)
+    fun gettingChatIdx() = viewModelScope.launch {
+        try {
+            // 채팅방 시퀀스 값을 가져온다
+            val chatRoomSequence = chatRoomRepository.getChatRoomSequence()
+            // 채팅방 시퀀스 값을 업데이트해서 서버로 올려준다
+            chatRoomRepository.updateChatRoomSequence(chatRoomSequence + 1)
+            // 저장할 값을 담아준다
+            _chatIdx.value = chatRoomSequence + 1
+        } catch (e: Exception){
+            Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
+        }
+    }
+//        글 삭제 여부(studyState)
 
     // --------------------------------------------
 
