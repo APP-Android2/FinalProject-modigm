@@ -7,11 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.repository.ChatRoomRepository
 import kr.co.lion.modigm.repository.StudyRepository
 
 class WriteViewModel : ViewModel() {
     // 스터디 Repository
     val studyRepository = StudyRepository()
+    // 채팅 Repository
+    val chatRoomRepository = ChatRoomRepository()
 
     // ----------------- Remote Data Source에 전송할 내용 -----------------
 
