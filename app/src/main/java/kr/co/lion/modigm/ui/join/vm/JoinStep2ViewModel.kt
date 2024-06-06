@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.repository.UserInfoRepository
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -159,25 +160,32 @@ class JoinStep2ViewModel: ViewModel() {
 
     // 전화번호 인증
     suspend fun createPhoneUser(): String {
+        // DB에 해당 번호로 등록된 계정이 있는지 확인한다.
+        val checkResult = _db.checkUserByPhone(userPhone.value?:"")
+
+        if(checkResult != null){
+            _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
+            _alreadyRegisteredUserProvider.value = checkResult["provider"]
+            _alreadyRegisteredUserEmail.value = checkResult["email"]
+        }
         // 오류 메시지
         if(_isCodeSent.value!!){
             try{
                 _errorMessage.value = ""
                 val phoneCredential = PhoneAuthProvider.getCredential(_verificationId.value?:"", inputSmsCode.value?:"")
-                _credential.value = phoneCredential
-
-                // DB에 해당 번호로 등록된 계정이 있는지 확인한다.
-                val checkResult = _db.checkUserByPhone(userPhone.value?:"")
-                Log.d("test1234", "createPhoneUser: $checkResult")
-
-                if(checkResult != null){
-                    _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
-                    _alreadyRegisteredUserProvider.value = checkResult["provider"]
-                    _alreadyRegisteredUserEmail.value = checkResult["email"]
+                val linkedProviders = _auth.currentUser?.providerData?.map { it.providerId }
+                if (linkedProviders != null) {
+                    for(provider in linkedProviders){
+                        if(provider == "phone"){
+                            _auth.currentUser?.unlink("phone")
+                            break
+                        }
+                    }
                 }
-
+                _auth.currentUser?.linkWithCredential(phoneCredential)?.await()
             }catch (e: FirebaseAuthException){
                 _errorMessage.value = e.message.toString()
+                e.errorCode
                 inputSmsCodeValidation.value = _errorMessage.value
             }
         }

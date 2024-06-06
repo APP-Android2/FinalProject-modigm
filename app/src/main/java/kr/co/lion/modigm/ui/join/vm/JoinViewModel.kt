@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.join.vm
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -34,11 +33,11 @@ class JoinViewModel : ViewModel() {
     }
 
     // sns email
-    private var _snsEmail: MutableLiveData<String> = MutableLiveData()
-    val snsEmail: LiveData<String> = _snsEmail
-    fun setSnsEmail(){
+    private var _userEmail: MutableLiveData<String> = MutableLiveData()
+    val userEmail: LiveData<String> = _userEmail
+    fun setUserEmail(){
         if(_auth.currentUser != null){
-            _snsEmail.value = _auth.currentUser?.email
+            _userEmail.value = _auth.currentUser?.email
         }
     }
 
@@ -157,30 +156,13 @@ class JoinViewModel : ViewModel() {
         user.userUid = _uid.value?:""
 
         user.userProvider = _userProvider.value?:""
-        user.userEmail = _snsEmail.value?:""
+        user.userEmail = _userEmail.value?:""
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return user
     }
 
-    // 회원가입 완료 전에 이메일 계정과 전화번호 계정을 통합
-    private fun linkEmailAndPhone(){
-        _auth.signInWithEmailAndPassword(_email.value?:"", _password.value?:"").addOnCompleteListener { loginTask ->
-            if(loginTask.isSuccessful){
-                _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
-                    if(!linkTask.isSuccessful){
-                        Log.d("testError", "linkWithCredential : ${linkTask.exception}")
-                    }
-                }
-            }else{
-                Log.d("testError", "signInWithEmailAndPassword : ${loginTask.exception}")
-            }
-        }
-    }
-
     // 이메일 계정 회원 가입 완료
     suspend fun completeJoinEmailUser(){
-        // 메일 계정을 전화번호 계정과 연결
-        linkEmailAndPhone()
         _user.value = _auth.currentUser
 
         // UserInfoData 객체 생성

@@ -83,15 +83,10 @@ class JoinFragment : Fragment() {
             viewModel.setSnsCredential(credential!!)
         }
         if(joinType != null){
-            when(joinType){
-                JoinType.EMAIL -> viewModel.setUserProvider(JoinType.EMAIL.provider)
-                else -> {
-                    // sns 계정의 프로바이더 셋팅
-                    viewModel.setUserProvider(joinType?.provider?:"")
-                    // sns 계정의 email 셋팅
-                    viewModel.setSnsEmail()
-                }
-            }
+            // 프로바이더 셋팅
+            viewModel.setUserProvider(joinType?.provider?:"")
+            // email 셋팅
+            viewModel.setUserEmail()
         }
     }
 
@@ -150,7 +145,7 @@ class JoinFragment : Fragment() {
 
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            parentFragmentManager.popBackStack(FragmentName.JOIN.str, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             dialog.dismiss()
         }
 
