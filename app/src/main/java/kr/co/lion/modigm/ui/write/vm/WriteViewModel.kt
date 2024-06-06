@@ -274,7 +274,7 @@ class WriteViewModel : ViewModel() {
             Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
         }
     }
-    // 글 삭제 여부(studyState) -> default = true(
+    // 글 삭제 여부(studyState) -> default = true(유효)
     fun gettingStudyState(){
         _studyState.value = true
     }
