@@ -196,7 +196,7 @@ class WriteViewModel : ViewModel() {
     }
     // 글 내용 저장 - WriteIntroFragment
     fun gettingStudyContent(content: String){
-
+        _studyContent.value = content
     }
     // --------------------------------------------
 
