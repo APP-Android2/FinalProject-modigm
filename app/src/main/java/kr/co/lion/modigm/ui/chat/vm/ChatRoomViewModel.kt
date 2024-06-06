@@ -147,7 +147,7 @@ class ChatRoomViewModel : ViewModel() {
             try {
                 chatRoomRepository.getUsersDataListListener(chatMemberList) { userDataList ->
                     _userDataList.postValue(userDataList)
-                    Log.i("chatLog", "ChatRoomViewModel - 채팅 방 멤버 데이터: ${userDataList}")
+                    Log.i("chatLog", "ChatRoomViewModel - 채팅 방 멤버 데이터: 총 ${userDataList.size}명 데이터 가져옴")
                 }
             } catch (e: Exception) {
                 Log.e("chatLog", "Error - getUsersDataList: ${e.message}")

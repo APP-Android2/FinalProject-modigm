@@ -28,6 +28,11 @@ import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 
+// Chat 관련 Log
+// ViewModel 관련 - 검색: chatLog / I(노란색) Log.i("chatLog", 값)
+// Fragment 관련 - 검색: chatLog1 / D(청록색) Log.d("chatLog1", 값)
+// Adapter 관련 - 검색: chatLog2 / V(흰색) Log.v("chatLog2", 값)
+
 class ChatFragment : Fragment() {
 
     lateinit var fragmentChatBinding: FragmentChatBinding
@@ -62,8 +67,6 @@ class ChatFragment : Fragment() {
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        Log.v("chatLog1", "BackStackEntryCount: ${parentFragmentManager.backStackEntryCount}")
 
         // 툴바 관련 세팅
         setupToolbar()

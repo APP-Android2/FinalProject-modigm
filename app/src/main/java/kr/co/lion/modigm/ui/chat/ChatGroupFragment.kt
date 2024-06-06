@@ -70,7 +70,7 @@ class ChatGroupFragment : Fragment() {
             chatRoomDataList.clear()
             chatRoomDataList.addAll(updatedChatRooms)
             chatRoomAdapter.notifyDataSetChanged()
-//            Log.d("chatLog1", "Group - observeData() 데이터 변경")
+            Log.d("chatLog1", "Group - observeData() 데이터 변경")
         }
     }
 

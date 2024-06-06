@@ -1,19 +1,16 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
-import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.UserData
 
@@ -78,22 +75,17 @@ class MessageAdapter(
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
         private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatroomFiledImage)
         fun bind(message: ChatMessagesData, userData: UserData?) {
-            Log.v("chatLog1", "MessageAdapter : ${userData}")
             messageBody.text = message.chatMessage
             messageTime.text = message.chatTime
+
             if (userData == null) {
-                messageSender.text = message.chatSenderName
+                messageSender.text = "알 수 없는 사용자" // 기본값 설정
+                imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image) // 기본 이미지 설정
+                // messageSender.text = message.chatSenderName
             }
             else {
                 messageSender.text = userData.userName
             }
-
-
-            // Glide 라이브러리를 사용하여 프로필 이미지 로드
-            Glide.with(itemView.context)
-                .load("gs://modigm-4afde.appspot.com/userProfile/${userData?.userProfilePic}")
-                .placeholder(R.drawable.test_profile_image)
-                .into(imageChatroomFiledImage)
 
             if (userData?.userProfilePic.isNullOrEmpty()){
                 imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image)

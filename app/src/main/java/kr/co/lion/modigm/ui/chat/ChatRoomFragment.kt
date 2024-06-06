@@ -1,14 +1,8 @@
 package kr.co.lion.modigm.ui.chat
 
-import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.DisplayMetrics
@@ -16,13 +10,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -32,7 +23,6 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
-import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
@@ -40,9 +30,7 @@ import kr.co.lion.modigm.ui.chat.adapter.ChatRoomMemberAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatMessagesViewModel
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
-import kr.co.lion.modigm.ui.study.StudyFragment
 import kr.co.lion.modigm.util.hideSoftInput
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -94,14 +82,20 @@ class ChatRoomFragment : Fragment() {
             isGroupChat = it.getBoolean("groupChat")
         }
 
+        // 뒤로 가기 콜백 설정
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // 이전 프래그먼트를 스택에서 팝
+                parentFragmentManager.popBackStack()
+            }
+        })
+
         return fragmentChatRoomBinding.root
     }
 
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        Log.v("chatLog1", "BackStackEntryCount: ${parentFragmentManager.backStackEntryCount}")
 
         // 로그인 유저 Name 값 가져오기 (로그인 처리 하고 주석 풀어서 사용)
         // getUserNameByUid()
@@ -137,7 +131,6 @@ class ChatRoomFragment : Fragment() {
     // Pause 상태 - 채팅방 나갈때도 포함되며 Destory에 안쓴 이유는 (onDestory 보다 먼저 실행되서...) 어차피 readMessage 처리 해야해서
     override fun onPause() {
         super.onPause()
-        Log.d("chatLog1", "Room - onPause 실행")
         readMessage()
     }
 
@@ -277,7 +270,10 @@ class ChatRoomFragment : Fragment() {
         chatMessagesViewModel.chatMessages.observe(viewLifecycleOwner) { updatedMessages ->
             messages.clear()
             messages.addAll(updatedMessages)
-            messageAdapter.notifyDataSetChanged()
+            if (::messageAdapter.isInitialized) {
+                messageAdapter.notifyDataSetChanged()
+            }
+            // messageAdapter.notifyDataSetChanged()
             scrollToBottom()
             Log.d("chatLog1", "Room - observeData() 메시지 데이터 변경")
         }
@@ -289,8 +285,13 @@ class ChatRoomFragment : Fragment() {
                 // 각 사용자의 UID를 키로 사용하여 사용자 데이터를 HashMap에 저장
                 usersDataHashMap[userData.userUid] = userData
             }
-            Log.v("chatLog1", "Room - ${usersDataHashMap}")
+
             chatRoomMemberAdapter.notifyDataSetChanged()
+
+            if (::messageAdapter.isInitialized) {
+                messageAdapter.notifyDataSetChanged()
+            }
+            // messageAdapter.notifyDataSetChanged()
             Log.d("chatLog1", "Room - observeData() 채팅 방 멤버 데이터 변경")
         }
     }
@@ -393,7 +394,10 @@ class ChatRoomFragment : Fragment() {
 
     // 메세지 읽음 처리
     fun readMessage() {
-        chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+        Log.d("chatLog1", "ReadMessage 실행")
+        CoroutineScope(Dispatchers.Main).launch {
+            chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+        }
     }
 
     // 카메라 앨범 관련 설정 해야함

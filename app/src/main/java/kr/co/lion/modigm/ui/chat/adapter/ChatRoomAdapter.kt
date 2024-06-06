@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
-import android.annotation.SuppressLint
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,6 @@ import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
-import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatRoomData
 
 class ChatRoomAdapter(
@@ -75,7 +73,7 @@ class ChatRoomAdapter(
                         roomTitleTextView.text = userNameTitle
                         // 채팅 방 이미지 설정
                         if (userProfile.isNotEmpty()) {
-                            Log.v("chatLog", "RoomAdapter - $userProfile")
+                            Log.v("chatLog2", "RoomAdapter - $userProfile")
                             ChatRoomDataSource.loadUserProfilePic(context, userProfile, roomImageImageView)
                         } else {
                             roomImageImageView.setImageResource(R.drawable.test_profile_image)
