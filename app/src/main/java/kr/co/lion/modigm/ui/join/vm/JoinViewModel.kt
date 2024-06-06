@@ -57,7 +57,8 @@ class JoinViewModel : ViewModel() {
     }
 
     // auth에 등록된 이메일, 뒤로가기로 이메일을 수정한 경우 비교용
-    var verifiedEmail = ""
+    private var _verifiedEmail: MutableLiveData<String> = MutableLiveData()
+    val verifiedEmail: LiveData<String> = _verifiedEmail
 
     // 전화번호 인증
     private var _phoneVerification: MutableLiveData<Boolean> = MutableLiveData()
@@ -121,7 +122,7 @@ class JoinViewModel : ViewModel() {
             val authResult = _auth.createUserWithEmailAndPassword(_email.value?:"", _password.value?:"").await()
             _user.value = authResult.user
             _uid.value = authResult.user?.uid?:""
-            verifiedEmail = _email.value?:""
+            _verifiedEmail.value = _email.value?:""
             //userCredential.user?.delete()
             //_auth.signOut()
         }catch (e:FirebaseAuthException){
@@ -135,7 +136,7 @@ class JoinViewModel : ViewModel() {
     // 회원가입 이탈 시 이미 Auth에 등록되어있는 인증 정보 삭제
     fun deleteCurrentUser(){
         // 이메일 인증 정보 삭제
-        if(verifiedEmail.isNotEmpty()){
+        if(!verifiedEmail.value.isNullOrEmpty()){
             _user.value?.delete()
         }
         // 전화번호 인증 정보는 이미 중복확인을 할 때 삭제해놓기 때문에 필요없음

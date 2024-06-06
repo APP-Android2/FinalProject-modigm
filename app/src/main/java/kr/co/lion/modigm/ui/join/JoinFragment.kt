@@ -253,11 +253,11 @@ class JoinFragment : Fragment() {
         lifecycleScope.launch {
             showLoading()
             // 처음 화면인 경우
-            if(viewModel.verifiedEmail.isEmpty()
+            if(viewModel.verifiedEmail.value.isNullOrEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
-                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty())
+                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && !viewModel.verifiedEmail.value.isNullOrEmpty())
                 ){
-                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty()){
+                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && !viewModel.verifiedEmail.value.isNullOrEmpty()){
                     // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
                     viewModel.deleteCurrentUser()
                 }
