@@ -254,7 +254,10 @@ class WriteViewModel : ViewModel() {
     fun gettingStudyCanApply(){
         _studyCanApply.value = true
     }
-
+    // 현재 참여자 목록(studyUidList) -> List<String>
+    fun gettingStudyUidList(){
+        _studyUIdList.value = null
+    }
 
     // --------------------------------------------
 
