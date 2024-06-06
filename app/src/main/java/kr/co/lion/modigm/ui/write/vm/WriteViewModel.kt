@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.write.vm
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -56,8 +57,8 @@ class WriteViewModel : ViewModel() {
     val studyApplyMethod: LiveData<Int> = _studyApplyMethod
 
     // WriteSkill -> 필요 기술스택 목록
-    private val _studySkillList = MutableLiveData<List<String>>()
-    val studySkillList: LiveData<List<String>> = _studySkillList
+    private val _studySkillList = MutableLiveData<MutableList<String>?>()
+    val studySkillList: LiveData<MutableList<String>?> = _studySkillList
 
     // WriteIntro -> 썸네일 사진
     private val _studyPic = MutableLiveData<String>()
@@ -132,7 +133,7 @@ class WriteViewModel : ViewModel() {
 
     fun initSkill() {
         _studyApplyMethod.value = 0
-        _studySkillList.value = listOf()
+        _studySkillList.value = mutableListOf()
     }
 
     fun initIntro() {
@@ -177,8 +178,47 @@ class WriteViewModel : ViewModel() {
     fun gettingStudyMaxMember(max: Int) {
         _studyMaxMember.value = max
     }
+    // 신청 방식 저장 - WriteSkillFragment
+    fun gettingApplyMethod(method: Int){
+        _studyApplyMethod.value = method
+    }
+    // 필요한 기술 슽택 저장 - WriteSkillFragment
+    fun gettingStudySkillList(skillList: MutableList<String>){
+        _studySkillList.value = skillList
+    }
+    // ---------------- 입력된 리스트에서 해당 데이터를 찾아서 제거 ------------------
 
-    // 스터디 데이터를 저장한다
+    // 필요한 기술 스택(_studySKillList)에서  X 버튼 클릭 시 해당 데이터 제거
+
+    fun removeStudySkill(skill: String){
+        // 필요한 기술 스택 리스트를 불러온다
+        val skillList = studySkillList.value
+
+        // skill에 해당하는 내용이 있는지 확인한다
+        // 비어있는 리스트가 아니면
+        if (skillList != null){
+            // skill에 해당하는 내용을 가지고 있다면
+            if (skillList.contains(skill)){
+                // 해당 내용을 제거한다
+                skillList.removeIf { it == skill }
+                // 비어있는 리스트가 되었다면!? -> 사용자 입력 false 처리
+                if (skillList == null){
+                    _skillClicked.value = false
+                } else {
+                    // 제거한 내용을 다시 필요한 기술 스택 리스트에 저장해준다
+                    _studySkillList.value = skillList
+                }
+            }
+            // skill에 해당하는 내용을 가지고 있지 않다면
+            else {
+                Log.d("TedMoon", "${skill}에 해당하는 내용이 필요한 기술 스택 리스트에 없습니다!")
+            }
+        } else {
+            Log.d("TedMoon", "필요한 기술 스택 리스트에 아무것도 없습니다!")
+        }
+    }
+
+    // ----------------- 스터디 데이터 저장 -------------------
     fun saveStudyData() {
         val studyType = studyType.value
         val studyPeriod = studyPeriod.value

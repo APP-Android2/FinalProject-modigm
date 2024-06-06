@@ -44,7 +44,8 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
 
         settingView()
         settingEvent()
-
+        // 입력 확인 처리
+        checkAnswer()
     }
 
 
@@ -77,8 +78,9 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                     if (cardElevation == 20F && strokeColor == clickedStrokeColor){
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
-                        // 입력 해제 처리
-                        didAnswer1 = 0
+
+                        // ViewModel에 데이터 해제
+                        viewModel.gettingApplyMethod(0)
 
                     } else {
 
@@ -90,8 +92,9 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                         cardElevation = 20F
                         cardviewWriteSkillFirstCome.cardElevation = 0F
 
-                        // 입력 완료 처리
-                        didAnswer1 = 1
+
+                        // ViewModel에 데이터 전달
+                        viewModel.gettingApplyMethod(1)
                     }
                 }
 
@@ -103,8 +106,9 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                     if (cardElevation == 20F && strokeColor == clickedStrokeColor){
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
-                        // 입력 해제 처리
-                        didAnswer1 = 0
+
+                        // ViewModel에 데이터 전달
+                        viewModel.gettingApplyMethod(1)
                     } else {
 
                         // Stroke 색상 변경
@@ -115,8 +119,9 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                         cardElevation = 20F
                         cardviewWriteSkillApplicationSystem.cardElevation = 0F
 
-                        // 입력 완료 처리
-                        didAnswer1 = 1
+
+                        // ViewModel에 데이터 전달
+                        viewModel.gettingApplyMethod(2)
                     }
                 }
             }
@@ -135,11 +140,13 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
 
         // 들어온 skill이 존재한다면
         if (skills.size != 0){
-            didAnswer2 = 1
+            // ViewModel에 전달받은 스킬 리스트 저장
+            viewModel.gettingStudySkillList(skills as MutableList<String>) // X 버튼 클릭 시 제거하기 위해서 MutableList로 Casting
         }
 
         // 전달받은 스킬 리스트를 이용하여 칩을 생성 및 추가
         for (skill in skills) {
+
             val chip = Chip(context).apply {
                 text = skill
                 isClickable = true
@@ -153,11 +160,8 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                 // 'X' 아이콘 클릭시 해당 칩을 ChipGroup에서 제거
                 setOnCloseIconClickListener {
                     chipGroup.removeView(this)  // 'this'는 현재 클릭된 Chip 인스턴스를 참조
-
-                    // chipGroup에 남은 칩이 없다면?
-                    if (chipGroup.childCount == 0){
-                        didAnswer2 = 0
-                    }
+                    // skill List에서 목록 제거
+                    viewModel.removeStudySkill(skill)
                 }
             }
             chipGroup.addView(chip)
@@ -166,15 +170,24 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
 
     // 사용자가 입력을 했는지 확인
     fun checkAnswer(){
-        didAnswer = didAnswer1 * didAnswer2
-        Log.d("TedMoon", "didAnswer1 : ${didAnswer1}")
-        Log.d("TedMoon", "didAnswer2 : ${didAnswer2}")
-        Log.d("TedMoon", "didAnswer : ${didAnswer}")
+        viewModel.studyApplyMethod.observe(viewLifecycleOwner){
+            // 신청방식 - 입력 OK
+            if (!it.equals(0)){
+                viewModel.studySkillList.observe(viewLifecycleOwner){
+                    // 필요한 기술 스택 - 입력 OK
+                    if (it != null) {
+                        if (it.size != 0){
+                            // 입력 OK
+                            viewModel.userDidAnswer(tabName)
+                        } else{
+                            viewModel.userDidNotAnswer(tabName)
+                        }
+                    }
+                }
+            } else {
+                viewModel.userDidNotAnswer(tabName)
+            }
 
-        if (didAnswer == 1){
-            viewModel.userDidAnswer(tabName)
-        } else {
-            viewModel.userDidNotAnswer(tabName)
         }
     }
 }
