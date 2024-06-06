@@ -76,7 +76,7 @@ class WriteFragment : Fragment() {
             buttonWriteNext.setOnClickListener {
                 val currentItem = viewPagerWriteFragment.currentItem
                 // 다음 버튼 클릭 리스너
-                if (writeViewModel?.buttonState?.value == true) {
+                if (writeViewModel?.buttonState?.value == true && writeViewModel?.buttonFinalStateActivation() == false) {
                     if (currentItem < viewPagerWriteFragment.adapter!!.itemCount - 1) {
                         viewPagerWriteFragment.currentItem += 1
                     }
