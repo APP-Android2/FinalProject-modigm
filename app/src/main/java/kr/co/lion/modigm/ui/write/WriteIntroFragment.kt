@@ -197,6 +197,8 @@ class WriteIntroFragment : Fragment() {
             return false
         } else {
             fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
+            // ViewModel에 제목 저장
+            viewModel.gettingStudyTitle(title)
         }
 
         // 소개글이 비어있거나 너무 짧은 경우 검사
