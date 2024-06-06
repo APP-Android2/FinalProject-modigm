@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         // 앱이 시작될 때 자동 로그인 시도
         Log.d("MainActivity1", "onCreate: Attempting auto login")
-        loginViewModel.attemptAutoLogin()
+        loginViewModel.attemptAutoLogin(this)
 
         // 자동 로그인에 성공 시 loginResult를 관찰하여 메인 화면으로 이동
         loginViewModel.loginResult.observe(this) { result ->

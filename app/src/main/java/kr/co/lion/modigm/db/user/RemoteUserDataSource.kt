@@ -63,11 +63,13 @@ class RemoteUserDataSource {
     }
 
     // Firebase Custom Token으로 로그인
-    suspend fun signInWithCustomToken(customToken: String) {
-        try {
+    suspend fun signInWithCustomToken(customToken: String): String {
+        return try {
             Log.d("RemoteUserDataSource", "Firebase Custom Token으로 로그인 시도")
-            auth.signInWithCustomToken(customToken).await()
-            Log.d("RemoteUserDataSource", "Firebase Custom Token으로 로그인 성공")
+            val authResult = auth.signInWithCustomToken(customToken).await()
+            val uid = authResult.user?.uid ?: throw Exception("Firebase 사용자 UID를 가져올 수 없음")
+            Log.d("RemoteUserDataSource", "Firebase Custom Token으로 로그인 성공 - UID: $uid")
+            uid
         } catch (e: Exception) {
             Log.e("RemoteUserDataSource", "Firebase Custom Token으로 로그인 실패", e)
             throw e

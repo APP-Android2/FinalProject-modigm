@@ -16,6 +16,7 @@ import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginResult
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 
@@ -57,6 +58,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         val joinType = viewModel.joinType.value ?: JoinType.KAKAO
                         if (token != null) {
                             navigateToJoinFragment(token, joinType)
+
+
                         }
                     })
                 }
@@ -94,13 +97,60 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         // 카카오 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginKakao.setOnClickListener {
             Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
-            viewModel.loginWithKakao(requireContext())
+            // 자동 로그인
+            viewModel.attemptKakaoAutoLogin(requireContext())
+            viewModel.kakaoLoginResult.observe(viewLifecycleOwner) { result ->
+                when (result) {
+                    is LoginResult.Success -> {
+                        // 로그인 성공 시
+                        Log.d("LoginFragment", "카카오 로그인 상태: 성공 - BottomNaviFragment 로 전환")
+                        parentFragmentManager.commit {
+                            replace(R.id.containerMain,BottomNaviFragment())
+                        }
+                    }
+                    is LoginResult.Error -> {
+                        // 로그인 에러 시
+                        Log.e("LoginFragment", "카카오 로그인 상태: 에러 - LoginFragment 로 전환", result.exception)
+                        parentFragmentManager.commit {
+                            replace(R.id.containerMain,LoginFragment())
+                        }
+                    }
+                    is LoginResult.Loading -> {
+                        // 로그인 로딩 시
+                        Log.d("LoginFragment", "카카오 로그인 상태: 로딩")
+                    }
+                }
+            }
         }
 
         // 깃허브 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginGithub.setOnClickListener {
             Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
-            viewModel.loginWithGithub(requireContext())
+            // 자동 로그인
+            viewModel.attemptGithubAutoLogin(requireActivity())
+            viewModel.githubLoginResult.observe(viewLifecycleOwner) { result ->
+                when (result) {
+                    is LoginResult.Success -> {
+                        // 로그인 성공 시
+                        Log.d("LoginFragment", "깃허브 로그인 상태: 성공 - BottomNaviFragment 로 전환")
+                        parentFragmentManager.commit {
+                            replace(R.id.containerMain,BottomNaviFragment())
+                        }
+                    }
+                    is LoginResult.Error -> {
+                        // 로그인 에러 시
+                        Log.e("LoginFragment", "깃허브 로그인 상태: 에러 - LoginFragment 로 전환", result.exception)
+                        parentFragmentManager.commit {
+                            replace(R.id.containerMain,LoginFragment())
+                        }
+                    }
+                    is LoginResult.Loading -> {
+                        // 로그인 로딩 시
+                        Log.d("LoginFragment", "깃허브 로그인 상태: 로딩")
+                    }
+                }
+            }
+
         }
 
         // 다른 방법으로 로그인 버튼 클릭 리스너 설정

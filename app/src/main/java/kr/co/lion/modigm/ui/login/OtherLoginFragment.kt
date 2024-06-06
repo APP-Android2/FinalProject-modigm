@@ -65,6 +65,8 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
             val email = binding.textInputEditOtherEmail.text.toString()
             val password = binding.textInputEditOtherPassword.text.toString()
             val autoLogin = binding.checkBoxOtherAutoLogin.isChecked
+            Log.d("OtherLoginFragment","autoLogin : $autoLogin")
+            viewModel.attemptEmailAutoLogin()
             viewModel.login(email, password, autoLogin)
         }
 
@@ -130,18 +132,23 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         viewModel.loginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Success -> {
-                    navigateToMain() // 로그인 성공 시 메인 화면으로 이동
+                    // 로그인 성공 시 메인 화면으로 이동
+                    parentFragmentManager.commit {
+                        replace(R.id.containerMain, BottomNaviFragment())
+                        addToBackStack(null)
+                    }
                 }
                 is LoginResult.Error -> {
                     Log.e("OtherLoginFragment", "로그인 실패", result.exception)
                     if (result.exception.message?.contains("이메일") == true) {
-                        binding.textInputLayoutOtherEmail.error = "이메일 또는 비밀번호가 일치하지 않습니다."
+                        binding.textInputLayoutOtherEmail.error = "이메일 일치하지 않습니다."
                     } else {
-                        binding.textInputLayoutOtherPassword.error = "이메일 또는 비밀번호가 일치하지 않습니다."
+                        binding.textInputLayoutOtherPassword.error = "비밀번호가 일치하지 않습니다."
                     }
                 }
                 is LoginResult.Loading -> {
                     // 로딩시 보여줄 인디케이터 등
+
                 }
             }
         })
@@ -162,14 +169,6 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
-            addToBackStack(null)
-        }
-    }
-
-    // 메인 화면으로 이동하는 메소드
-    private fun navigateToMain() {
-        parentFragmentManager.commit {
-            replace(R.id.containerMain, BottomNaviFragment())
             addToBackStack(null)
         }
     }

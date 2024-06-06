@@ -31,7 +31,7 @@ class UserInfoRepository {
     suspend fun getKakaoCustomToken(accessToken: String): String = _remoteUserDataSource.getKakaoCustomToken(accessToken)
 
     // Firebase Custom Token으로 로그인
-    suspend fun signInWithCustomToken(customToken: String) = _remoteUserDataSource.signInWithCustomToken(customToken)
+    suspend fun signInWithCustomToken(customToken: String): String = _remoteUserDataSource.signInWithCustomToken(customToken)
 
     // 깃허브 로그인
     suspend fun signInWithGithub(context: Activity) = _remoteUserDataSource.signInWithGithub(context)

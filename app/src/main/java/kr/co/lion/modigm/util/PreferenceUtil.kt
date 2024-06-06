@@ -35,13 +35,13 @@ class PreferenceUtil(context: Context) {
     }
 
     // 유저 정보를 SharedPreferences에 저장
-    fun setUser(key: String, user: UserData) {
+    fun setUserData(key: String, user: UserData) {
         val userJson = gson.toJson(user)
         prefs.edit().putString(key, userJson).apply()
     }
 
     // SharedPreferences에서 유저 정보를 가져옴
-    fun getUser(key: String): UserData? {
+    fun getUserData(key: String): UserData? {
         val userJson = prefs.getString(key, null)
         return if (userJson != null) {
             gson.fromJson(userJson, UserData::class.java)
@@ -50,7 +50,8 @@ class PreferenceUtil(context: Context) {
         }
     }
 
-    fun clearUser(key: String) {
+
+    fun clearUserData(key: String) {
         prefs.edit().remove(key).apply()
     }
 }
