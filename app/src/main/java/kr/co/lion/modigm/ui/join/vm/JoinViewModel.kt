@@ -27,10 +27,19 @@ class JoinViewModel : ViewModel() {
     val user: LiveData<FirebaseUser?> = _user
 
     // sns provider(제공자 이름, kakao, github)
-    private var _snsProvider: MutableLiveData<String> = MutableLiveData()
-    val snsProvider: LiveData<String> = _snsProvider
-    fun setSnsProvider(provider:String){
-        _snsProvider.value = provider
+    private var _userProvider: MutableLiveData<String> = MutableLiveData()
+    val userProvider: LiveData<String> = _userProvider
+    fun setUserProvider(provider:String){
+        _userProvider.value = provider
+    }
+
+    // sns email
+    private var _snsEmail: MutableLiveData<String> = MutableLiveData()
+    val snsEmail: LiveData<String> = _snsEmail
+    fun setSnsEmail(){
+        if(_auth.currentUser != null){
+            _snsEmail.value = _auth.currentUser?.email
+        }
     }
 
     // sns Custom Token(카카오톡)
@@ -62,9 +71,16 @@ class JoinViewModel : ViewModel() {
     }
 
     // 이미 등록된 전화번호 계정의 이메일
-    var alreadyRegisteredUserEmail = ""
+    private var _alreadyRegisteredUserEmail: MutableLiveData<String> = MutableLiveData()
+    val alreadyRegisteredUserEmail: LiveData<String> = _alreadyRegisteredUserEmail
     // 이미 등록된 전화번호 계정의 프로바이더
-    var alreadyRegisteredUserProvider = ""
+    private var _alreadyRegisteredUserProvider: MutableLiveData<String> = MutableLiveData()
+    val alreadyRegisteredUserProvider: LiveData<String> = _alreadyRegisteredUserProvider
+
+    fun setAleradyRegisteredUser(email:String, provider:String){
+        _alreadyRegisteredUserEmail.value = email
+        _alreadyRegisteredUserProvider.value = provider
+    }
 
     private val _phoneCredential: MutableLiveData<AuthCredential> = MutableLiveData()
 
@@ -102,10 +118,10 @@ class JoinViewModel : ViewModel() {
         // 오류 메시지
         var error = ""
         try {
-            val authResult = _auth.createUserWithEmailAndPassword(_email.value!!, _password.value!!).await()
+            val authResult = _auth.createUserWithEmailAndPassword(_email.value?:"", _password.value?:"").await()
             _user.value = authResult.user
-            _uid.value = authResult.user?.uid!!
-            verifiedEmail = _email.value!!
+            _uid.value = authResult.user?.uid?:""
+            verifiedEmail = _email.value?:""
             //userCredential.user?.delete()
             //_auth.signOut()
         }catch (e:FirebaseAuthException){
@@ -128,17 +144,20 @@ class JoinViewModel : ViewModel() {
     // UserInfoData 객체 생성
     private fun createUserInfoData(): UserData {
         val user = UserData()
-        user.userName = _userName.value.toString()
-        user.userPhone = _phoneNumber.value.toString()
+        user.userName = _userName.value?:""
+        user.userPhone = _phoneNumber.value?:""
         user.userInterestList = _interests.value?: mutableListOf()
-        user.userUid = _uid.value.toString()
+        user.userUid = _uid.value?:""
+
+        user.userProvider = _userProvider.value?:""
+        user.userEmail = _snsEmail.value?:""
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return user
     }
 
     // 회원가입 완료 전에 이메일 계정과 전화번호 계정을 통합
     private fun linkEmailAndPhone(){
-        _auth.signInWithEmailAndPassword(_email.value!!, _password.value!!).addOnCompleteListener { loginTask ->
+        _auth.signInWithEmailAndPassword(_email.value?:"", _password.value?:"").addOnCompleteListener { loginTask ->
             if(loginTask.isSuccessful){
                 _auth.currentUser?.linkWithCredential(_phoneCredential.value!!)?.addOnCompleteListener { linkTask ->
                     if(!linkTask.isSuccessful){
@@ -168,14 +187,14 @@ class JoinViewModel : ViewModel() {
     // 회원가입 완료 전에 SNS 계정과 전화번호 계정을 통합
     private suspend fun linkSnsAndPhone(){
         var signInResult: AuthResult? = null
-        when(snsProvider.value){
+        when(_userProvider.value){
             "kakao" -> {
                 // 카카오 등 파이어베이스에서 지원하지 않는 공급자는 customToken으로 로그인
-                signInResult = _auth.signInWithCustomToken(snsCustomToken.value!!).await()
+                signInResult = _auth.signInWithCustomToken(_snsCustomToken.value?:"").await()
             }
-            "github.com" -> {
+            "github" -> {
                 // 깃허브 등 파이어베이스에서 지원하는 공급자는 credential로 로그인
-                signInResult = _auth.signInWithCredential(snsCredential.value!!).await()
+                signInResult = _auth.signInWithCredential(_snsCredential.value!!).await()
             }
         }
         _uid.value = signInResult?.user?.uid

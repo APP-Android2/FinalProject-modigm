@@ -169,4 +169,18 @@ class RemoteUserDataSource {
             job1.join()
         }
     }
+
+    // 해당 전화 번호의 계정이 있는지 확인 (중복 확인)
+    suspend fun checkUserByPhone(phone: String): Map<String, String>?{
+        val result = userCollection.whereEqualTo("userPhone", phone).get().await()
+        if(!result.isEmpty){
+            val user = result.documents.first().toObject(UserData::class.java)
+            val provider = user?.userProvider?:""
+            val email = user?.userEmail?:""
+            return mapOf("provider" to provider, "email" to email)
+        }else{
+            return null
+        }
+    }
+
 }
