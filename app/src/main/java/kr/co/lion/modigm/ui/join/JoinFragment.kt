@@ -28,7 +28,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
-import kr.co.lion.modigm.ui.study.StudyFragment
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -409,7 +409,7 @@ class JoinFragment : Fragment() {
 
             if(it){
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, StudyFragment())
+                    .replace(R.id.containerMain, BottomNaviFragment())
                     .commit()
             }
         }
