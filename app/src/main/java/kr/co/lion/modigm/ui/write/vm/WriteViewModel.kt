@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ChatRoomRepository
@@ -25,8 +26,8 @@ class WriteViewModel : ViewModel() {
     private val _studyDetailPlace = MutableLiveData<String>() // 오프라인 진행장소 상세 주소
     val studyDetailPlace: LiveData<String> = _studyDetailPlace
 
-    private val _studyUIdList = MutableLiveData<List<String>?>() // 현재 참여자 목록
-    val studyUIdList: LiveData<List<String>?> = _studyUIdList
+    private val _studyUIdList = MutableLiveData<MutableList<String>>() // 현재 참여자 목록
+    val studyUIdList: LiveData<MutableList<String>> = _studyUIdList
 
     private val _chatIdx = MutableLiveData<Int>() // 연결된 채팅방 고유 번호
     val chatIdx: LiveData<Int> = _chatIdx
@@ -257,9 +258,17 @@ class WriteViewModel : ViewModel() {
     fun gettingStudyCanApply(){
         _studyCanApply.value = true
     }
-    // 현재 참여자 목록(studyUidList) -> List<String>
-    fun gettingStudyUidList(){
-        _studyUIdList.value = null
+    // 현재 참여자 목록(studyUidList) -> List<String> / List[0] = 진행자
+    fun gettingStudyUidList() = viewModelScope.launch {
+        // auth 접근
+        val auth = FirebaseAuth.getInstance()
+        // 현재 사용자 uid 받아오기
+        val uid = auth.currentUser?.uid.toString()
+        // 리스트 만들기
+        val uidList = mutableListOf(uid)
+
+        // 리스트에 답아준다
+        _studyUIdList.value = uidList
     }
     // 연결된 채팅방 고유번호(chatIdx)
     fun gettingChatIdx() = viewModelScope.launch {
