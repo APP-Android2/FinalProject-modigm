@@ -3,16 +3,18 @@ package kr.co.lion.modigm.ui.join.vm
 import android.app.Activity
 import android.os.CountDownTimer
 import android.text.InputFilter
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.FirebaseException
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import kotlinx.coroutines.tasks.await
+import kr.co.lion.modigm.repository.UserInfoRepository
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
@@ -100,6 +102,8 @@ class JoinStep2ViewModel: ViewModel() {
 
     private val _auth = FirebaseAuth.getInstance()
 
+    private val _db = UserInfoRepository()
+
     private val _authButtonText = MutableLiveData("인증하기")
     val authButtonText: LiveData<String> = _authButtonText
 
@@ -124,8 +128,8 @@ class JoinStep2ViewModel: ViewModel() {
     val errorMessage: LiveData<String> = _errorMessage
 
     // 나중에 이메일 계정과 합칠 때 필요한 전화번호 인증 credential
-    private var _credential = MutableLiveData<PhoneAuthCredential>()
-    val credential: LiveData<PhoneAuthCredential> = _credential
+    private var _credential = MutableLiveData<AuthCredential>()
+    val credential: LiveData<AuthCredential> = _credential
 
     // 이미 등록된 전화번호 계정이 있는지 여부
     private val _alreadyRegisteredUser = MutableLiveData(false)
@@ -159,29 +163,18 @@ class JoinStep2ViewModel: ViewModel() {
         if(_isCodeSent.value!!){
             try{
                 _errorMessage.value = ""
-                _credential.value = PhoneAuthProvider.getCredential(verificationId.value!!, inputSmsCode.value!!)
+                val phoneCredential = PhoneAuthProvider.getCredential(_verificationId.value?:"", inputSmsCode.value?:"")
+                _credential.value = phoneCredential
 
-                // 로그인 결과를 담아서 이미 등록된 유저인지 확인한다.
-                val signInResult = _auth.signInWithCredential(_credential.value!!).await()
-                _alreadyRegisteredUser.value = signInResult.additionalUserInfo?.isNewUser != true
-                if(_alreadyRegisteredUser.value == true){
+                // DB에 해당 번호로 등록된 계정이 있는지 확인한다.
+                val checkResult = _db.checkUserByPhone(userPhone.value?:"")
+                Log.d("test1234", "createPhoneUser: $checkResult")
+
+                if(checkResult != null){
                     _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
-
-                    // 프로바이더 확인
-                    for(provider in signInResult.user?.providerData!!){
-                        if(provider.providerId == "password"){
-                            _alreadyRegisteredUserProvider.value = "email"
-                            _alreadyRegisteredUserEmail.value = provider.email!!
-                        }
-                    }
-                    // 중복인 경우에는 이미 등록된 계정을 지우면 안되기 때문에 로그아웃만 하기
-                    _auth.signOut()
-                }else{
-                    // 중복이 아닐 경우에는 나중에 이메일 계정과 합칠 때
-                    // credential 사용하기 위해 signin된 계정을 다시 지워놓기
-                    signInResult.user?.delete()?.await()
+                    _alreadyRegisteredUserProvider.value = checkResult["provider"]
+                    _alreadyRegisteredUserEmail.value = checkResult["email"]
                 }
-
 
             }catch (e: FirebaseAuthException){
                 _errorMessage.value = e.message.toString()
@@ -256,7 +249,7 @@ class JoinStep2ViewModel: ViewModel() {
         _verificationId.value = ""
         _isVerifiedPhone.value = false
         _errorMessage.value = ""
-        _credential = MutableLiveData<PhoneAuthCredential>()
+        _credential = MutableLiveData<AuthCredential>()
         _alreadyRegisteredUser.value = false
         _alreadyRegisteredUserEmail.value = ""
         _alreadyRegisteredUserProvider.value = ""
