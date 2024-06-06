@@ -11,11 +11,9 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
@@ -25,7 +23,6 @@ import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.internal.ViewUtils.hideKeyboard
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
 import kr.co.lion.modigm.ui.write.more.CustomDialogWriteIntroExample
@@ -52,6 +49,8 @@ class WriteIntroFragment : Fragment() {
         android.Manifest.permission.READ_EXTERNAL_STORAGE,
         android.Manifest.permission.ACCESS_MEDIA_LOCATION
     )
+    // 이미지를 첨부한 적이 있는지..
+    var isAddPicture = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,14 +59,14 @@ class WriteIntroFragment : Fragment() {
         // Inflate the layout for this fragment
         fragmentWriteIntroBinding = FragmentWriteIntroBinding.inflate(inflater)
         // 카메라 및 앨범 런처 설정
-        initData()
+        initLauncher()
         return fragmentWriteIntroBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        settingView()
+        initData()
         settingEvent()
     }
 
@@ -90,6 +89,7 @@ class WriteIntroFragment : Fragment() {
             textInputWriteIntroTitle.apply {
                 addTextChangedListener {
                     validateInput()
+                    uploadPic()
                 }
             }
 
@@ -97,14 +97,17 @@ class WriteIntroFragment : Fragment() {
             textInputWriteIntroContent.apply{
                 addTextChangedListener {
                     validateInput()
+                    uploadPic()
                 }
-
             }
         }
-
     }
 
-    fun initData() {
+    fun initData(){
+        isAddPicture = false
+    }
+
+    fun initLauncher() {
         val context = requireContext()
 
         // 권한 확인
@@ -126,6 +129,7 @@ class WriteIntroFragment : Fragment() {
                 val bitmap3 = resizeBitmap(bitmap2, 1024)
 
                 fragmentWriteIntroBinding.imageViewWriteIntroCoverImage.setImageBitmap(bitmap3)
+                isAddPicture = true
 
                 // 사진 파일을 삭제한다.
                 val file = File(contentUri.path)
@@ -134,7 +138,6 @@ class WriteIntroFragment : Fragment() {
 
             // 입력상태 초기화
             viewModel.userDidNotAnswer(tabName)
-
         }
 
         // 앨범 실행을 위한 런처
@@ -176,14 +179,12 @@ class WriteIntroFragment : Fragment() {
                     val bitmap3 = resizeBitmap(bitmap2, 1024)
 
                     fragmentWriteIntroBinding.imageViewWriteIntroCoverImage.setImageBitmap(bitmap)
+                    isAddPicture = true
                 }
             }
         }
     }
 
-    fun settingView() {
-
-    }
 
     // 입력 유효성 검사
     fun validateInput(): Boolean {
@@ -330,6 +331,8 @@ class WriteIntroFragment : Fragment() {
             contentUri = FileProvider.getUriForFile(context, a1, file)
 
             if (contentUri != null) {
+                // 사진이 저장된 위치를 전송
+
                 // 실행할 액티비티를 카메라 액티비티로 지정한다.
                 // 단말기에 설치되어 있는 모든 애플리케이션이 가진 액티비티 중에 사진촬영이
                 // 가능한 액티비가 실행된다.
@@ -338,6 +341,7 @@ class WriteIntroFragment : Fragment() {
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
                 // 카메라 액티비티 실행
                 cameraLauncher.launch(cameraIntent)
+
             }
 
             popupWindow.dismiss()
@@ -347,8 +351,7 @@ class WriteIntroFragment : Fragment() {
         popupView.findViewById<TextView>(R.id.textView_albumLauncher).setOnClickListener {
 
             // 앨범에서 사진을 선택할 수 있도록 셋팅된 인텐트를 생성한다.
-            val albumIntent =
-                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             // 실행할 액티비티의 타입을 설정(이미지를 선택할 수 있는 것이 뜨게 한다)
             albumIntent.setType("image/*")
             // 선택할 수 있는 파들의 MimeType을 설정한다.
@@ -362,5 +365,22 @@ class WriteIntroFragment : Fragment() {
         }
         // 팝업 윈도우 표시
         popupWindow.showAsDropDown(anchorView)
+    }
+
+    // 사진 저장 메서드
+    fun uploadPic(){
+
+        var serverFileName: String? = null
+
+        Log.d("TedMoon", "isAddPictrue: ${isAddPicture}")
+        // 첨부된 이미지가 존재
+        if (isAddPicture == true){
+            Log.d("TedMoon", "isAddPictrue: ${isAddPicture}")
+
+            // 서버에서의 파일 이름
+            serverFileName = "image_${System.currentTimeMillis()}.jpg"
+            // ViewModel에 저장
+            viewModel.gettingStudyPic(serverFileName)
+        }
     }
 }
