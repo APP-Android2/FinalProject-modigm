@@ -235,7 +235,24 @@ class WriteViewModel : ViewModel() {
     }
 
     // --------------------------------------------
+    // ----------------- ViewModel에 필요한 항목들 불러오기 -------------------
 
+    // 글 고유번호(studyIdx)
+    fun gettingStudyIdx() = viewModelScope.launch {
+        try {
+            // 스터디 시퀀스 값을 가져온다
+            val studySequence = studyRepository.getStudySequence()
+            // 스터디 시퀀스 값을 업데이트 한다
+            studyRepository.updateStudySequence(studySequence + 1)
+            // 저장할 값을 담아준다
+            _studyIdx.value = studySequence + 1
+        } catch (e: Exception){
+            Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
+        }
+    }
+
+
+    // --------------------------------------------
 
     // ----------------- 스터디 데이터 저장 -------------------
     fun saveStudyData() {
