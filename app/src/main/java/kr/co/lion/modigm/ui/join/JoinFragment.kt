@@ -382,7 +382,9 @@ class JoinFragment : Fragment() {
 
         // 인증하기를 다시 했을 때 기존의 인증 완료 취소
         viewModelStep2.isVerifiedPhone.observe(viewLifecycleOwner){
-            viewModel.setPhoneVerified(it)
+            if(!it){
+                viewModel.setPhoneVerified(false)
+            }
         }
 
         // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때
