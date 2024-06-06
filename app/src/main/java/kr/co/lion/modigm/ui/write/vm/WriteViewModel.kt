@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.repository.StudyRepository
 
 class WriteViewModel : ViewModel() {
+    // 스터디 Repository
+    val studyRepository = StudyRepository()
 
     // ----------------- Remote Data Source에 전송할 내용 -----------------
 
@@ -19,8 +22,8 @@ class WriteViewModel : ViewModel() {
     private val _studyDetailPlace = MutableLiveData<String>() // 오프라인 진행장소 상세 주소
     val studyDetailPlace: LiveData<String> = _studyDetailPlace
 
-    private val _studyUIdList = MutableLiveData<List<String>>() // 현재 참여자 목록
-    val studyUIdList: LiveData<List<String>> = _studyUIdList
+    private val _studyUIdList = MutableLiveData<List<String>?>() // 현재 참여자 목록
+    val studyUIdList: LiveData<List<String>?> = _studyUIdList
 
     private val _chatIdx = MutableLiveData<Int>() // 연결된 채팅방 고유 번호
     val chatIdx: LiveData<Int> = _chatIdx
@@ -232,6 +235,7 @@ class WriteViewModel : ViewModel() {
     }
 
     // --------------------------------------------
+
 
     // ----------------- 스터디 데이터 저장 -------------------
     fun saveStudyData() {
