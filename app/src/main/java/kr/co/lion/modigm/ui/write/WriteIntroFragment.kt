@@ -209,6 +209,8 @@ class WriteIntroFragment : Fragment() {
             return false
         } else {
             fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
+            // ViewModel에 내용 저장
+            viewModel.gettingStudyContent(description)
         }
 
         viewModel.userDidAnswer(tabName)
