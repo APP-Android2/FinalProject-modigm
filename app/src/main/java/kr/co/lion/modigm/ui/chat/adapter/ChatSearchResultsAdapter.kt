@@ -31,8 +31,23 @@ class ChatSearchResultsAdapter(
 
     // 검색어 필터
     fun filter(query: String) {
+
         val filtered = if (query.isNotEmpty()) {
-            chatSearchRoomDataList.filter { it.chatTitle.contains(query, ignoreCase = true) }
+            val oneToOneChatRooms = mutableListOf<ChatRoomData>()
+            val groupChatRooms = mutableListOf<ChatRoomData>()
+            // 검색 1:1 채팅 방의 제목
+            for (i in 0 until chatSearchRoomDataList.size) {
+                val chatRoom = chatSearchRoomDataList[i]
+                if (chatSearchRoomDataList[i].groupChat == false) {
+                    // 1:1 채팅 방은 제목이 아니라 상대 방의 이름으로 검색 가능하게 바꿔야함...
+                    oneToOneChatRooms.add(chatSearchRoomDataList[i])
+                }
+                else {
+                    groupChatRooms.add(chatSearchRoomDataList[i])
+                }
+            }
+            groupChatRooms.filter { it.chatTitle.contains(query, ignoreCase = true) }
+            // groupChatRooms.filter { it.chatTitle.contains(query, ignoreCase = true) } + oneToOneChatRooms.filter { it.chatMemberList[0].contains(query, ignoreCase = true) }
         } else {
             // 없어도 되는거 같은데 앞에서 다 걸러내서.. 혹시 모르니
             chatSearchRoomDataList
