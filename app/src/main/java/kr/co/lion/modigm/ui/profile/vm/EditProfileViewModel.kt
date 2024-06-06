@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.repository.UserInfoRepository
 import kr.co.lion.modigm.util.Interest
+import kr.co.lion.modigm.util.JoinType
 
 class EditProfileViewModel: ViewModel() {
     private val userRepository = UserInfoRepository()
@@ -29,6 +30,10 @@ class EditProfileViewModel: ViewModel() {
     // 이메일
     private val _editProfileEmail = MutableLiveData<String>()
     val editProfileEmail: MutableLiveData<String> = _editProfileEmail
+
+    // 로그인 방법
+    private val _editProfileProvider = MutableLiveData<JoinType>()
+    val editProfileProvider: MutableLiveData<JoinType> = _editProfileProvider
 
     // 전화번호
     private val _editProfilePhone = MutableLiveData<String>()
@@ -60,8 +65,10 @@ class EditProfileViewModel: ViewModel() {
             _editProfileIntro.value = response?.userIntro
             // 이메일
             _editProfileEmail.value = user.email
+            // 로그인 방법
+            _editProfileProvider.value = JoinType.getType(response?.userProvider!!)
             // 전화번호
-            _editProfilePhone.value = user.phoneNumber
+            _editProfilePhone.value = response?.userPhone
             // 입력창의 링크
             // 흠..
             // 관심분야 리스트

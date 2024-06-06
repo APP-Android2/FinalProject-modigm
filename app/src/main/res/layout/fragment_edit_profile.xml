@@ -82,7 +82,8 @@
                         android:focusable="false"
                         android:padding="10dp"
                         android:text="@={editProfileViewModel.editProfileEmail}"
-                        android:textSize="16dp" />
+                        android:textSize="16dp"
+                        android:textColor="@color/textGray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
@@ -116,7 +117,8 @@
                             android:focusable="false"
                             android:padding="10dp"
                             android:text="@={editProfileViewModel.editProfilePhone}"
-                            android:textSize="16dp" />
+                            android:textSize="16dp"
+                            android:textColor="@color/textGray"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton

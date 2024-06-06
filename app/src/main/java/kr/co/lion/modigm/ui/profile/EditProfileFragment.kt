@@ -19,6 +19,7 @@ import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
+import kr.co.lion.modigm.util.JoinType
 
 class EditProfileFragment : Fragment() {
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
@@ -85,6 +86,15 @@ class EditProfileFragment : Fragment() {
 
     fun observeData() {
         // 데이터 변경 관찰
+        // 로그인 방식
+        editProfileViewModel.editProfileProvider.observe(viewLifecycleOwner) { provider ->
+            when (provider) {
+                JoinType.KAKAO -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "카카오로 로그인된 계정입니다."
+                JoinType.GITHUB -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "깃허브로 로그인된 계정입니다."
+                JoinType.EMAIL -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
+                JoinType.ERROR -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
+            }
+        }
         // 관심 분야 chipGroup
         editProfileViewModel.editProfileInterestList.observe(viewLifecycleOwner, Observer { list ->
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
