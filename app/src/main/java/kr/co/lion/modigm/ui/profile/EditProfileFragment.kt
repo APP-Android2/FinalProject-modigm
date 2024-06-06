@@ -35,26 +35,14 @@ class EditProfileFragment : Fragment() {
         fragmentEditProfileBinding.lifecycleOwner = this
 
         firebaseAuth = Firebase.auth
-        // 임시 로그인
-        firebaseAuth.signInWithEmailAndPassword("test@naver.com", "test1234!").addOnCompleteListener {
-            if (it.isSuccessful) {
-                // Sign in success, update UI with the signed-in user's information
-                Log.d("editprofile", "signInWithEmail:success")
-                user = firebaseAuth.currentUser!!
-                initView()
-            } else {
-                // If sign in fails, display a message to the user.
-                Log.w("editprofile", "signInWithEmail:failure", it.exception)
-
-            }
-        }
+        user = firebaseAuth.currentUser!!
 
         return fragmentEditProfileBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        initView()
+        initView()
     }
 
     private fun initView() {
@@ -64,7 +52,7 @@ class EditProfileFragment : Fragment() {
 //        setupRecyclerViewPartStudy()
 //        setupRecyclerViewHostStudy()
 //
-//        observeData()
+        observeData()
     }
 
     private fun setupToolbar() {
@@ -85,7 +73,19 @@ class EditProfileFragment : Fragment() {
     private fun setupUserInfo() {
         // 데이터베이스로부터 데이터를 불러와 뷰모델에 담기
         editProfileViewModel.loadUserData(user, requireContext(), fragmentEditProfileBinding.imageProfilePic)
-        // 불러온 데이터를 관찰하여 관심분야 chipGroup 구성
+        // 해당 유저의 로그인 방식 표시
+        val provider = user.providerData
+        for (p in provider) {
+            Log.d("editprofile", "$p")
+        }
+
+//        editProfileViewModel.loadPartStudyList(uid)
+//        editProfileViewModel.loadHostStudyList(uid)
+    }
+
+    fun observeData() {
+        // 데이터 변경 관찰
+        // 관심 분야 chipGroup
         editProfileViewModel.editProfileInterestList.observe(viewLifecycleOwner, Observer { list ->
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
             for (interestNum in list) {
@@ -106,7 +106,10 @@ class EditProfileFragment : Fragment() {
                 })
             }
         })
-//        editProfileViewModel.loadPartStudyList(uid)
-//        editProfileViewModel.loadHostStudyList(uid)
+
+        // 링크 리스트
+        editProfileViewModel.editProfileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
+            //linkAdapter.updateData(profileLinkList)
+        }
     }
 }
