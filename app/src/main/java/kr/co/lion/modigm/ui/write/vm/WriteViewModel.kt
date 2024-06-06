@@ -182,14 +182,27 @@ class WriteViewModel : ViewModel() {
     fun gettingApplyMethod(method: Int){
         _studyApplyMethod.value = method
     }
-    // 필요한 기술 슽택 저장 - WriteSkillFragment
+    // 필요한 기술 스택 저장 - WriteSkillFragment
     fun gettingStudySkillList(skillList: MutableList<String>){
         _studySkillList.value = skillList
     }
+    // 커버사진 경로 저장 - WriteIntroFragment
+    fun gettingStudyPic(){
+
+    }
+    // 글 제목 저장 - WriteIntroFragment
+    fun gettingStudyTitle(title: String){
+        _studyTitle.value = title
+    }
+    // 글 내용 저장 - WriteIntroFragment
+    fun gettingStudyContent(content: String){
+
+    }
+    // --------------------------------------------
+
     // ---------------- 입력된 리스트에서 해당 데이터를 찾아서 제거 ------------------
 
     // 필요한 기술 스택(_studySKillList)에서  X 버튼 클릭 시 해당 데이터 제거
-
     fun removeStudySkill(skill: String){
         // 필요한 기술 스택 리스트를 불러온다
         val skillList = studySkillList.value
@@ -218,6 +231,8 @@ class WriteViewModel : ViewModel() {
         }
     }
 
+    // --------------------------------------------
+
     // ----------------- 스터디 데이터 저장 -------------------
     fun saveStudyData() {
         val studyType = studyType.value
@@ -227,6 +242,7 @@ class WriteViewModel : ViewModel() {
 
     }
 
+    // ----------------- 버튼 활성화 / 비활성화 처리 데이터 -------------------
     fun userDidAnswer(tabName: String) {
         when (tabName) {
             "field" -> {
