@@ -188,6 +188,7 @@ class JoinStep2ViewModel: ViewModel() {
     fun sendCode(activity: Activity){
         // 전화 인증 여부를 초기화
         _isVerifiedPhone.value = false
+        _authExpired.value = false
 
         // 전화번호 앞에 "+82 " 국가코드 붙여주기
         val setNumber = userPhone.value?.replaceRange(0,1,"+82 ")

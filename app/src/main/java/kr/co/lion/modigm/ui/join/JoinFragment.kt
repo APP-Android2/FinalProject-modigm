@@ -288,8 +288,11 @@ class JoinFragment : Fragment() {
         lifecycleScope.launch {
             // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
             if(viewModel.phoneVerification.value==true){
-                binding.viewPagerJoin.currentItem += 1
-                return@launch
+                // 전화번호를 변경하지 않은 경우에 넘어갈 수 있음
+                if(viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
+                    binding.viewPagerJoin.currentItem += 1
+                    return@launch
+                }
             }
             showLoading()
 
@@ -297,14 +300,15 @@ class JoinFragment : Fragment() {
             if(result.isEmpty()){
                 // 인증 번호 확인 성공
                 viewModelStep2.credential.value?.let { viewModel.setPhoneCredential(it) }
-                viewModel.setPhoneVerificated(true)
+                viewModel.setPhoneVerified(true)
+                viewModelStep2.userPhone.value?.let { viewModel.setVerifiedPhoneNumber(it) }
                 viewModelStep2.cancelTimer()
             }else{
                 // 인증 번호 확인 실패
-                viewModel.setPhoneVerificated(false)
+                viewModel.setPhoneVerified(false)
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
-                viewModel.setAleradyRegisteredUser(
+                viewModel.setAlreadyRegisteredUser(
                     viewModelStep2.alreadyRegisteredUserEmail.value?:"",
                     viewModelStep2.alreadyRegisteredUserProvider.value?:""
                 )
@@ -378,9 +382,7 @@ class JoinFragment : Fragment() {
 
         // 인증하기를 다시 했을 때 기존의 인증 완료 취소
         viewModelStep2.isVerifiedPhone.observe(viewLifecycleOwner){
-            if(!it){
-                viewModel.setPhoneVerificated(false)
-            }
+            viewModel.setPhoneVerified(it)
         }
 
         // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때

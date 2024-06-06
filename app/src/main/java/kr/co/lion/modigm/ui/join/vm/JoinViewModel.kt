@@ -63,13 +63,19 @@ class JoinViewModel : ViewModel() {
     // 전화번호 인증
     private var _phoneVerification: MutableLiveData<Boolean> = MutableLiveData()
     val phoneVerification: LiveData<Boolean> = _phoneVerification
+    fun setPhoneVerified(verified:Boolean){
+        _phoneVerification.value = verified
+    }
+
+    // 인증된 전화번호
+    private var _verifiedPhoneNumber: MutableLiveData<String> = MutableLiveData()
+    val verifiedPhoneNumber: LiveData<String> = _verifiedPhoneNumber
+    fun setVerifiedPhoneNumber(phone:String){
+        _verifiedPhoneNumber.value = phone
+    }
 
     // 이미 전화번호가 등록되었는지 여부
     var isPhoneAlreadyRegistered = MutableLiveData(false)
-
-    fun setPhoneVerificated(verificated:Boolean){
-        _phoneVerification.value = verificated
-    }
 
     // 이미 등록된 전화번호 계정의 이메일
     private var _alreadyRegisteredUserEmail: MutableLiveData<String> = MutableLiveData()
@@ -78,7 +84,7 @@ class JoinViewModel : ViewModel() {
     private var _alreadyRegisteredUserProvider: MutableLiveData<String> = MutableLiveData()
     val alreadyRegisteredUserProvider: LiveData<String> = _alreadyRegisteredUserProvider
 
-    fun setAleradyRegisteredUser(email:String, provider:String){
+    fun setAlreadyRegisteredUser(email:String, provider:String){
         _alreadyRegisteredUserEmail.value = email
         _alreadyRegisteredUserProvider.value = provider
     }
