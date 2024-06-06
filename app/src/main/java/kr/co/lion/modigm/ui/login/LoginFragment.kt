@@ -59,7 +59,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                         if (token != null) {
                             navigateToJoinFragment(token, joinType)
 
-
                         }
                     })
                 }
