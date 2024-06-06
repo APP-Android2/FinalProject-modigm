@@ -250,6 +250,10 @@ class WriteViewModel : ViewModel() {
             Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
         }
     }
+    // 모집상태(studyCanApply)  -> default = true
+    fun gettingStudyCanApply(){
+        _studyCanApply.value = true
+    }
 
 
     // --------------------------------------------
