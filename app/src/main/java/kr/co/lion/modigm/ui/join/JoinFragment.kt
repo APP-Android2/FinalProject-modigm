@@ -389,9 +389,6 @@ class JoinFragment : Fragment() {
         viewModel.joinCompleted.observe(viewLifecycleOwner){
             hideLoading()
 
-            // SharedPreferences에 uid값 저장
-            viewModel.user.value?.let { it1 -> prefs.setString("uid", it1.uid) }
-
             if(it){
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.containerMain, BottomNaviFragment())

@@ -165,7 +165,9 @@ class JoinViewModel : ViewModel() {
             _userInfoRepository.insetUserData(user)
 
             // SharedPreferences에 유저 정보 저장
-            prefs.setUserData("currentUserData", Gson().toJson(user))
+            prefs.setUserData("currentUserData", user)
+            // SharedPreferences에 uid값 저장
+            prefs.setString("uid", user.userUid)
 
             _joinCompleted.value = true
         }
@@ -182,7 +184,9 @@ class JoinViewModel : ViewModel() {
             _userInfoRepository.insetUserData(user)
 
             // SharedPreferences에 유저 정보 저장
-            prefs.setUserData("currentUserData", Gson().toJson(user))
+            prefs.setUserData("currentUserData", user)
+            // SharedPreferences에 uid값 저장
+            prefs.setString("uid", user.userUid)
 
             _joinCompleted.value = true
         }
