@@ -60,8 +60,8 @@ class ChatRoomFragment : Fragment() {
     // val loginUserId = (authCurrentUser?.uid).toString()
     private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     private var loginUserName = "유저 아이디" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
-    // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    // private val loginUserName = "주성원" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+    // private val loginUserId = "J04y39mPQ8fLIm2LukmdpRVGN8b2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    // private val loginUserName = "테스트" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
     // 현재 방 번호, 제목, 그룹 채팅방 여부 변수 초기 세팅
     var chatIdx = 0
@@ -201,6 +201,7 @@ class ChatRoomFragment : Fragment() {
                 val now = System.currentTimeMillis()
                 val currentTimeText = SimpleDateFormat("HH:mm").format(Date())
 
+
                 val chatIdx = chatIdx
                 // 현재 로그인 한 계정의 아이디
                 val chatSenderId = loginUserId
@@ -208,6 +209,7 @@ class ChatRoomFragment : Fragment() {
                 val chatMessage = text
                 val chatFullTime = now
                 val chatTime = currentTimeText.toString()
+                val chatDateSeparator = SimpleDateFormat("yyyy년 MM월 dd일").format(Date())
 
                 if (text.isNotEmpty()) {
                     val message = ChatMessagesData(
@@ -217,6 +219,7 @@ class ChatRoomFragment : Fragment() {
                         chatMessage,
                         chatFullTime,
                         chatTime,
+                        chatDateSeparator,
                     )
 
                     // 메세지 전송 후 저장

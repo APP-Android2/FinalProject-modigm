@@ -66,7 +66,7 @@ class ChatRoomAdapter(
             if(room.groupChat == false){
                 val title = room.chatMemberList.filter { it != loginUserId }
                 CoroutineScope(Dispatchers.Main).launch {
-                    val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]) ?: "Unknown User"
+                    val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]) ?: "알 수 없는 사용자"
                     val userProfile = ChatRoomDataSource.getUserProfilePicByUid(title[0]) ?: ""
                     withContext(Dispatchers.Main) {
                         // 채팅 방 제목

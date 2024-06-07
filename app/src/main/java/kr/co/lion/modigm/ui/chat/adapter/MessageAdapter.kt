@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.chat.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +24,6 @@ class MessageAdapter(
 
     private val VIEW_TYPE_SENT = 1
     private val VIEW_TYPE_RECEIVED = 2
-    private val VIEW_TYPE_DATE = 3 // 날짜 아이템 뷰 홀더 추가 (00시 기준 날짜 바뀔 때마다 알려 줘야함) - 아직 미구현
 
     override fun getItemViewType(position: Int): Int {
         return if (messages[position].chatSenderId == loginUserId) {
@@ -47,11 +47,29 @@ class MessageAdapter(
         val message = messages[position]
         val thisUid = message.chatSenderId
         val userData = usersDataHashMap[thisUid]
+        var currentDate = message.chatDateSeparator // 현재 메시지의 날짜
+        var dateCheck = true
+
+        // 이전 메시지의 날짜와 비교하여 날짜가 변경되었는지 확인
+        if (position > 0) {
+            val previousMessage = messages[position - 1]
+            val previousDate = previousMessage.chatDateSeparator // 이전 메시지의 날짜
+            currentDate = message.chatDateSeparator // 현재 메시지의 날짜
+
+            // 날짜가 변경되었을 경우, 날짜 구분자를 추가
+            if (currentDate != previousDate) {
+                dateCheck = true
+            } else {
+                dateCheck = false
+            }
+        }
+
+        // 메시지 ViewHolder 설정
         if (getItemViewType(position) == VIEW_TYPE_SENT) {
-            (holder as SentMessageViewHolder).bind(message)
+            (holder as SentMessageViewHolder).bind(message, dateCheck, currentDate)
         } else {
             val receivedHolder = holder as ReceivedMessageViewHolder
-            receivedHolder.bind(message, userData)
+            receivedHolder.bind(message, userData, dateCheck, currentDate)
         }
     }
 
@@ -60,23 +78,42 @@ class MessageAdapter(
     }
 
     class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val textDate: TextView = itemView.findViewById(R.id.text_date)
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
 
-        fun bind(message: ChatMessagesData) {
+        fun bind(message: ChatMessagesData, dateCheck: Boolean, currentDate: String) {
+
             messageBody.text = message.chatMessage
             messageTime.text = message.chatTime
+
+            // 날자 구분선
+            if (dateCheck == true) {
+                textDate.text = currentDate
+                textDate.visibility = View.VISIBLE
+            } else {
+                textDate.visibility = View.GONE
+            }
         }
     }
 
     class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val textDate: TextView = itemView.findViewById(R.id.text_date)
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
         private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatroomFiledImage)
-        fun bind(message: ChatMessagesData, userData: UserData?) {
+        fun bind(message: ChatMessagesData, userData: UserData?, dateCheck: Boolean, currentDate: String) {
             messageBody.text = message.chatMessage
             messageTime.text = message.chatTime
+
+            // 날자 구분선
+            if (dateCheck == true) {
+                textDate.text = currentDate
+                textDate.visibility = View.VISIBLE
+            } else {
+                textDate.visibility = View.GONE
+            }
 
             if (userData == null) {
                 messageSender.text = "알 수 없는 사용자" // 기본값 설정
