@@ -167,6 +167,7 @@ class JoinStep2ViewModel: ViewModel() {
             _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
             _alreadyRegisteredUserProvider.value = checkResult["provider"]
             _alreadyRegisteredUserEmail.value = checkResult["email"]
+            return _errorMessage.value!!
         }
         // 오류 메시지
         if(_isCodeSent.value!!){
