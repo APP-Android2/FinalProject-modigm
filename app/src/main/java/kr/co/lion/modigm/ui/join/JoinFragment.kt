@@ -129,7 +129,7 @@ class JoinFragment : Fragment() {
 
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            parentFragmentManager.popBackStack()
             dialog.dismiss()
         }
 
