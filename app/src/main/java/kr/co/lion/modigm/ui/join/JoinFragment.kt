@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.join
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -47,18 +46,6 @@ class JoinFragment : Fragment() {
         JoinType.getType(arguments?.getString("joinType")?:"")
     }
 
-    private val customToken: String? by lazy {
-        arguments?.getString("customToken")
-    }
-
-    private val credential: AuthCredential? by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getParcelable("credential", AuthCredential::class.java)
-        } else {
-            arguments?.getParcelable("credential")
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -76,17 +63,15 @@ class JoinFragment : Fragment() {
 
     // 번들로 전달받은 값들을 뷰모델 라이브 데이터에 셋팅
     private fun settingValuesFromBundle(){
-        if(customToken != null){
-            viewModel.setSnsCustomToken(customToken?:"")
-        }
-        if(credential != null){
-            viewModel.setSnsCredential(credential!!)
-        }
         if(joinType != null){
             // 프로바이더 셋팅
             viewModel.setUserProvider(joinType?.provider?:"")
             // email 셋팅
             viewModel.setUserEmail()
+            // SNS계정인경우 uid 셋팅
+            if(joinType != JoinType.EMAIL){
+                viewModel.setUserUid()
+            }
         }
     }
 
