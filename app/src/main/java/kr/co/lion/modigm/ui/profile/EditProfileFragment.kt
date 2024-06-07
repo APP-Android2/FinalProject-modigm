@@ -16,6 +16,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
+import kr.co.lion.modigm.ui.detail.SkillBottomSheetFragment
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
@@ -115,6 +116,23 @@ class EditProfileFragment : Fragment() {
                     setOnCloseIconClickListener { fragmentEditProfileBinding.chipGroupProfile.removeView(this) }
                 })
             }
+            // 마지막 칩은 칩을 추가하는 버튼으로 사용
+            fragmentEditProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+                // chip 텍스트 설정
+                text = "+"
+                // 자동 padding 없애기
+                setEnsureMinTouchTargetSize(false)
+                // 배경 흰색으로 지정
+                setChipBackgroundColorResource(android.R.color.white)
+                // 클릭하면 바텀시트 올라옴
+                setOnClickListener {
+                    val bottomSheet = InterestBottomSheetFragment().apply {
+                        //setOnSkillSelectedListener(this@WriteSkillFragment)
+                    }
+                    bottomSheet.show(childFragmentManager, bottomSheet.tag)
+
+                }
+            })
         })
 
         // 링크 리스트
