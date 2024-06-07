@@ -1,8 +1,13 @@
 package kr.co.lion.modigm.ui.chat
 
+import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.ImageDecoder
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.DisplayMetrics
@@ -11,6 +16,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
@@ -30,6 +38,7 @@ import kr.co.lion.modigm.ui.chat.adapter.ChatRoomMemberAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatMessagesViewModel
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
+import kr.co.lion.modigm.util.Camera
 import kr.co.lion.modigm.util.hideSoftInput
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -38,6 +47,15 @@ class ChatRoomFragment : Fragment() {
 
     lateinit var fragmentChatRoomBinding: FragmentChatRoomBinding
     lateinit var mainActivity: MainActivity
+
+    // 앨범 실행을 위한 런처
+    lateinit var albumLauncher: ActivityResultLauncher<Intent>
+
+    // 확인할 권한 목록
+    val permissionList = arrayOf(
+        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        android.Manifest.permission.ACCESS_MEDIA_LOCATION
+    )
 
     private val usersDataList = mutableListOf<UserData>()
     private val usersDataHashMap = HashMap<String, UserData>()
@@ -59,9 +77,9 @@ class ChatRoomFragment : Fragment() {
     val authCurrentUser = auth.currentUser
     // val loginUserId = (authCurrentUser?.uid).toString()
     private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    private var loginUserName = "유저 아이디" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
-    // private val loginUserId = "J04y39mPQ8fLIm2LukmdpRVGN8b2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    // private val loginUserName = "테스트" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+    private var loginUserName = "홍길동" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+//    private val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+//    private var loginUserName = "테스트" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
     // 현재 방 번호, 제목, 그룹 채팅방 여부 변수 초기 세팅
     var chatIdx = 0
@@ -90,6 +108,8 @@ class ChatRoomFragment : Fragment() {
             }
         })
 
+
+
         return fragmentChatRoomBinding.root
     }
 
@@ -99,6 +119,9 @@ class ChatRoomFragment : Fragment() {
 
         // 로그인 유저 Name 값 가져오기 (로그인 처리 하고 주석 풀어서 사용)
         // getUserNameByUid()
+
+        // 카메라 InitData
+        cameraInitData()
 
         // 입장시 -> 메시지 읽음 처리
         readMessage()
@@ -132,6 +155,57 @@ class ChatRoomFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         readMessage()
+    }
+
+    // 카메라 관련 데이터 초기 세팅
+    fun cameraInitData() {
+        val context = requireContext()
+
+        // 권한 확인
+        requestPermissions(permissionList, 0)
+
+        // 앨범 실행을 위한 런처
+        val contract2 = ActivityResultContracts.StartActivityForResult()
+        albumLauncher = registerForActivityResult(contract2) {
+            // 사진 선택을 완료한 후 돌아왔다면
+            if (it.resultCode == AppCompatActivity.RESULT_OK) {
+                // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출한다.
+                val uri = it.data?.data
+                if (uri != null) {
+                    // 안드로이드 Q(10) 이상이라면
+                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        // 이미지를 생성할 수 있는 객체를 생성한다.
+                        val source = ImageDecoder.createSource(context.contentResolver, uri)
+                        // Bitmap을 생성한다.
+                        ImageDecoder.decodeBitmap(source)
+                    } else {
+                        // 컨텐츠 프로바이더를 통해 이미지 데이터에 접근한다.
+                        val cursor = context.contentResolver.query(uri, null, null, null, null)
+                        if (cursor != null) {
+                            cursor.moveToNext()
+
+                            // 이미지의 경로를 가져온다.
+                            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+                            val source = cursor.getString(idx)
+
+                            // 이미지를 생성한다
+                            BitmapFactory.decodeFile(source)
+                        } else {
+                            null
+                        }
+                    }
+
+                    // 회전 각도값을 가져온다.
+                    val degree = Camera.getDegree(context, uri)
+                    // 회전 이미지를 가져온다
+                    val bitmap2 = Camera.rotateBitmap(bitmap!!, degree.toFloat())
+                    // 크기를 줄인 이미지를 가져온다.
+                    val bitmap3 = Camera.resizeBitmap(bitmap2, 1024)
+
+                    // fragmentChatBinding.imageViewWriteIntroCoverImage.setImageBitmap(bitmap)
+                }
+            }
+        }
     }
 
     // 툴바 세팅
@@ -399,7 +473,9 @@ class ChatRoomFragment : Fragment() {
     fun readMessage() {
         Log.d("chatLog1", "ReadMessage 실행")
         CoroutineScope(Dispatchers.Main).launch {
-            chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+            val coroutine1 = chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+            coroutine1.join()
+            ChatRoomDataSource.chatRoomMessageAsRead(chatIdx, loginUserId)
         }
     }
 
@@ -409,8 +485,24 @@ class ChatRoomFragment : Fragment() {
         with(fragmentChatRoomBinding.imageButtonChatRoomAdd){
             setOnClickListener {
                 Log.d("chatLog1", "addIconButton 클릭")
+                // 앨범 띄워주기
+                startAlbum()
             }
         }
+    }
+
+    // 앨범 사용 시작
+    fun startAlbum(){
+        // 앨범에서 사진을 선택할 수 있도록 셋팅된 인텐트를 생성한다.
+        val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        // 실행할 액티비티의 타입을 설정(이미지를 선택할 수 있는 것이 뜨게 한다)
+        albumIntent.setType("image/*")
+        // 선택할 수 있는 파들의 MimeType을 설정한다.
+        // 여기서 선택한 종류의 파일만 선택이 가능하다. 모든 이미지로 설정한다.
+        val mimeType = arrayOf("image/*")
+        albumIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeType)
+        // 액티비티를 실행한다.
+        albumLauncher.launch(albumIntent)
     }
 
     // 로그인 유저 Name 값 가져오기
