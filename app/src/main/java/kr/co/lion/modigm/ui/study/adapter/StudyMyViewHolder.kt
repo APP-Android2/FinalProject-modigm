@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowStudyMyBinding
 import kr.co.lion.modigm.model.StudyData
 
@@ -76,10 +77,10 @@ class StudyMyViewHolder(
                     .into(binding.imageViewStudyMyPic)
             }.addOnFailureListener {
                 // 실패 시 기본 이미지 설정 또는 에러 처리
-                // binding.imageViewStudyAllPic.setImageResource(R.drawable.placeholder_image)
+                binding.imageViewStudyMyPic.setImageResource(R.drawable.image_detail_1)
             }
         } else {
-            // binding.imageViewStudyAllPic.setImageResource(R.drawable.placeholder_image)
+            binding.imageViewStudyMyPic.setImageResource(R.drawable.image_detail_2)
         }
     }
 
@@ -144,7 +145,6 @@ class StudyMyViewHolder(
                 else -> ""
             }
         }
-
     }
 
     // 찜 버튼 설정

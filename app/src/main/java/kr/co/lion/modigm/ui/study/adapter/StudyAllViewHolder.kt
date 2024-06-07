@@ -78,10 +78,10 @@ class StudyAllViewHolder(
                     .into(binding.imageViewStudyAllPic)
             }.addOnFailureListener {
                 // 실패 시 기본 이미지 설정 또는 에러 처리
-                // binding.imageViewStudyAllPic.setImageResource(R.drawable.placeholder_image)
+                binding.imageViewStudyAllPic.setImageResource(R.drawable.image_detail_1)
             }
         } else {
-            // binding.imageViewStudyAllPic.setImageResource(R.drawable.placeholder_image)
+            binding.imageViewStudyAllPic.setImageResource(R.drawable.image_detail_2)
         }
     }
 
