@@ -34,7 +34,7 @@ import kr.co.lion.modigm.util.Skill
 
 class DetailFragment : Fragment() {
 
-    lateinit var fragmentDetailBinding: FragmentDetailBinding
+    lateinit var binding: FragmentDetailBinding
 
     private val viewModel: DetailViewModel by activityViewModels()
 
@@ -55,7 +55,7 @@ class DetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        fragmentDetailBinding = FragmentDetailBinding.inflate(inflater, container, false)
+        binding = FragmentDetailBinding.inflate(inflater, container, false)
 
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
@@ -64,9 +64,9 @@ class DetailFragment : Fragment() {
 //        uid = auth.currentUser?.uid.toString()
 
         // 로그인 구현 완료되면 지우겠습니다
-        uid = "J04y39mPQ8fLIm2LukmdpRVGN8b2"
+        uid = "BZPI3tpRAeZ55jrenfuEFuyGc6B2"
 
-        return fragmentDetailBinding.root
+        return binding.root
     }
 
     // 뷰가 생성된 직후 호출
@@ -87,6 +87,13 @@ class DetailFragment : Fragment() {
 
         observeViewModel()
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.selectContentData(studyIdx)  // 프래그먼트로 돌아올 때 데이터를 다시 로드합니다.
+        observeViewModel()
+    }
+
 
     fun observeViewModel() {
 
@@ -119,7 +126,7 @@ class DetailFragment : Fragment() {
 
     fun updateUI(data: StudyData) {
 
-        with(fragmentDetailBinding) {
+        with(binding) {
             //툴바 설정 함수 호출
             settingToolbar(data)
 
@@ -132,7 +139,7 @@ class DetailFragment : Fragment() {
                 imageViewDetailMenu.setImageResource(R.drawable.icon_settings_24px)
             } else {
                 // studyWriteUid와 사용자의 uid가 다른 경우: 아이콘을 icon_more_vert_24px로 변경
-                fragmentDetailBinding.imageViewDetailMenu.setImageResource(R.drawable.icon_more_vert_24px)
+                imageViewDetailMenu.setImageResource(R.drawable.icon_more_vert_24px)
             }
 
             // 스터디 소개글(줄바꿈 추가)
@@ -230,7 +237,7 @@ class DetailFragment : Fragment() {
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
                     Glide.with(this@DetailFragment)
                         .load(uri)
-                        .into(imageViewDetailCover) // imageViewDetailCover가 ImageView ID라고 가정
+                        .into(imageViewDetailCover) // imageViewDetailCover
                 }.addOnFailureListener {
                     // 로그 오류 또는 실패 처리
                     Log.e("DetailFragment", "Storage에서 이미지 로드 실패: ${it.message}")
@@ -245,7 +252,7 @@ class DetailFragment : Fragment() {
     }
 
     fun updateUserDetails(userData: UserData) {
-        with(fragmentDetailBinding) {
+        with(binding) {
             textViewDetailUserName.text = userData.userName
 
             // userProfilePic 값을 로그로 출력
@@ -286,10 +293,9 @@ class DetailFragment : Fragment() {
 
 
     // 툴바 설정
-    // 툴바 설정
     fun settingToolbar(data: StudyData) {
-        with(fragmentDetailBinding) {
-            (activity as AppCompatActivity).setSupportActionBar(fragmentDetailBinding.toolbar)
+        with(binding) {
+            (activity as AppCompatActivity).setSupportActionBar(toolbar)
             (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
             // 콜랩싱 툴바의 타이틀 설정
@@ -304,33 +310,35 @@ class DetailFragment : Fragment() {
 
     // 앱바 스크롤 설정
     fun setupAppBarScrollListener() {
-        fragmentDetailBinding.appBarDetail.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            // 전체 스크롤 범위를 계산
-            val scrollRange = appBarLayout.totalScrollRange
-            // 뒤로가기 아이콘
-            val drawable =
-                ContextCompat.getDrawable(requireContext(), R.drawable.icon_arrow_back_24px)
-            // 스크롤 최대일 때 아이콘 색상 변경
-            if (scrollRange + verticalOffset == 0) {
-                drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.black))
-            } else {
-                drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.white))
-            }
-            // 네비게이션 아이콘 업데이트
-            fragmentDetailBinding.toolbar.navigationIcon = drawable
-        })
+        with(binding) {
+            appBarDetail.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                // 전체 스크롤 범위를 계산
+                val scrollRange = appBarLayout.totalScrollRange
+                // 뒤로가기 아이콘
+                val drawable =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.icon_arrow_back_24px)
+                // 스크롤 최대일 때 아이콘 색상 변경
+                if (scrollRange + verticalOffset == 0) {
+                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.black))
+                } else {
+                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.white))
+                }
+                // 네비게이션 아이콘 업데이트
+                toolbar.navigationIcon = drawable
+            })
+        }
     }
 
     // 좋아요 버튼 설정
     fun setupLikeButtonListener() {
-        fragmentDetailBinding.buttonDetailLike.setOnClickListener {
+        binding.buttonDetailLike.setOnClickListener {
             toggleLikeButton()
         }
     }
 
     // 팝업 메뉴 설정
     fun setupPopupMenu() {
-        fragmentDetailBinding.imageViewDetailMenu.setOnClickListener {
+        binding.imageViewDetailMenu.setOnClickListener {
             showPopupWindow(it)
         }
     }
@@ -339,23 +347,23 @@ class DetailFragment : Fragment() {
     fun toggleLikeButton() {
         // 현재 설정된 이미지 리소스 ID를 확인하고 상태를 토글
         val currentIconResId =
-            fragmentDetailBinding.buttonDetailLike.tag as? Int ?: R.drawable.icon_favorite_24px
+            binding.buttonDetailLike.tag as? Int ?: R.drawable.icon_favorite_24px
         if (currentIconResId == R.drawable.icon_favorite_24px) {
             // 좋아요 채워진 아이콘으로 변경
-            fragmentDetailBinding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
             // 상태 태그 업데이트
-            fragmentDetailBinding.buttonDetailLike.tag = R.drawable.icon_favorite_full_24px
+            binding.buttonDetailLike.tag = R.drawable.icon_favorite_full_24px
 
             // 새 색상을 사용하여 틴트 적용
-            fragmentDetailBinding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
+            binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
         } else {
             // 기본 아이콘으로 변경
-            fragmentDetailBinding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
             // 상태 태그 업데이트
-            fragmentDetailBinding.buttonDetailLike.tag = R.drawable.icon_favorite_24px
+            binding.buttonDetailLike.tag = R.drawable.icon_favorite_24px
 
             // 틴트 제거 (원래 아이콘 색상으로 복원)
-            fragmentDetailBinding.buttonDetailLike.clearColorFilter()
+            binding.buttonDetailLike.clearColorFilter()
         }
     }
 
@@ -401,7 +409,7 @@ class DetailFragment : Fragment() {
                 // DetailEditFragment의 인스턴스를 생성하고 번들을 통해 studyIdx를 전달
                 val detailEditFragment = DetailEditFragment().apply {
                     arguments = Bundle().apply {
-                        putInt("studyIdx", studyIdx)  // studyIdx에 맞는 키 사용
+                        putInt("studyIdx", currentStudyData?.studyIdx?:0)
                     }
                 }
 
@@ -468,7 +476,7 @@ class DetailFragment : Fragment() {
     }
 
     fun setupStatePopup() {
-        val textViewState = fragmentDetailBinding.textViewDetailState
+        val textViewState = binding.textViewDetailState
 
         // 사용자 ID와 studyWriteUid를 비교하여 이미지를 설정합니다.
         if (currentStudyData?.studyWriteUid == uid) {
@@ -503,7 +511,7 @@ class DetailFragment : Fragment() {
             }
 
             // 버튼 클릭 이벤트(채팅 방 이동)
-            fragmentDetailBinding.buttonDetailApply.setOnClickListener {
+            binding.buttonDetailApply.setOnClickListener {
                 Log.d("DetailFragment", "채팅방 이동1")
             }
 
@@ -518,22 +526,22 @@ class DetailFragment : Fragment() {
 
             // textViewState의 text가 "모집중"인 경우 버튼 파란색으로 설정
             if (textViewState.text == "모집중") {
-                fragmentDetailBinding.buttonDetailApply.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pointColor))
+                binding.buttonDetailApply.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pointColor))
                 // 버튼 클릭 이벤트(채팅 방 이동 혹은 신청)
                 if (currentStudyData?.studyApplyMethod==1) {
-                    fragmentDetailBinding.buttonDetailApply.setOnClickListener {
+                    binding.buttonDetailApply.setOnClickListener {
                         Log.d("DetailFragment", "신청")
                     }
                 }else{
                     // 선착순일 경우
-                    fragmentDetailBinding.buttonDetailApply.setOnClickListener {
+                    binding.buttonDetailApply.setOnClickListener {
                         Log.d("DetailFragment", "채팅방 이동2")
                     }
                 }
 
             } else {
                 // textViewState의 text가 "모집 마감"인 경우 버튼 회색으로 설정
-                val button = fragmentDetailBinding.buttonDetailApply
+                val button = binding.buttonDetailApply
                 button.setBackgroundColor(Color.parseColor("#777777"))  // 배경색을 회색으로 설정
                 button.setTextColor(Color.BLACK)  // 텍스트 색상을 검정색으로 설정
 
@@ -568,7 +576,7 @@ class DetailFragment : Fragment() {
         popupWindow.setOnDismissListener {
             // 팝업이 닫힐 때 이미지를 원래대로 복구
             isPopupShown = false
-            fragmentDetailBinding.textViewDetailState.setCompoundDrawablesWithIntrinsicBounds(
+            binding.textViewDetailState.setCompoundDrawablesWithIntrinsicBounds(
                 0,
                 0,
                 R.drawable.icon_expand_more_24px,
@@ -581,12 +589,12 @@ class DetailFragment : Fragment() {
 
         // 팝업 메뉴 아이템의 클릭 리스너 설정
         popupView.findViewById<TextView>(R.id.textViewDetailState1).setOnClickListener {
-            fragmentDetailBinding.textViewDetailState.text = (it as TextView).text
+            binding.textViewDetailState.text = (it as TextView).text
             viewModel.updateStudyCanApplyByStudyIdx(studyIdx, true)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
         }
         popupView.findViewById<TextView>(R.id.textViewDetailState2).setOnClickListener {
-            fragmentDetailBinding.textViewDetailState.text = (it as TextView).text
+            binding.textViewDetailState.text = (it as TextView).text
             viewModel.updateStudyCanApplyByStudyIdx(studyIdx, false)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
         }
