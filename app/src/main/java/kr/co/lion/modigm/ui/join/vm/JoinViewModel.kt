@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.UserInfoRepository
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class JoinViewModel : ViewModel() {
 
@@ -162,6 +163,9 @@ class JoinViewModel : ViewModel() {
             // 파이어스토어에 데이터 저장
             _userInfoRepository.insetUserData(user)
 
+            // SharedPreferences에 유저 정보 저장
+            prefs.setUserData("currentUserData", user)
+
             _joinCompleted.value = true
         }
     }
@@ -175,6 +179,9 @@ class JoinViewModel : ViewModel() {
             val user = createUserInfoData()
             // 파이어스토어에 데이터 저장
             _userInfoRepository.insetUserData(user)
+
+            // SharedPreferences에 유저 정보 저장
+            prefs.setUserData("currentUserData", user)
 
             _joinCompleted.value = true
         }
