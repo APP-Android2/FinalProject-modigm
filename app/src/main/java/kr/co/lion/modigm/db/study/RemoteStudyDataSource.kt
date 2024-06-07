@@ -258,4 +258,25 @@ class RemoteStudyDataSource {
             Log.e("Firebase Error", "Error dbAddStudyData: ${e.message}")
         }
     }
+
+    suspend fun updateStudyDataByStudyIdx(studyIdx: Int, updatedStudyData: Map<String, Any>) {
+        try {
+            val querySnapshot = studyCollection
+                .whereEqualTo("studyIdx", studyIdx)
+                .get()
+                .await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents.first()
+                studyCollection.document(document.id).update(updatedStudyData).await()
+                Log.d("RemoteStudyDataSource", "Document updated successfully: $updatedStudyData")
+            } else {
+                Log.e("RemoteStudyDataSource", "No document found with studyIdx: $studyIdx")
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Failed to update study data: ${e.message}", e)
+            throw e
+        }
+    }
+
 }
