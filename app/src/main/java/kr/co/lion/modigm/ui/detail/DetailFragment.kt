@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -14,8 +13,8 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
@@ -27,7 +26,6 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Skill
@@ -61,10 +59,7 @@ class DetailFragment : Fragment() {
         studyIdx = arguments?.getInt("studyIdx")!!
 
         auth = FirebaseAuth.getInstance()
-//        uid = auth.currentUser?.uid.toString()
-
-        // 로그인 구현 완료되면 지우겠습니다
-        uid = "BZPI3tpRAeZ55jrenfuEFuyGc6B2"
+        uid = auth.currentUser?.uid.toString()
 
         return binding.root
     }
@@ -84,6 +79,10 @@ class DetailFragment : Fragment() {
 
         // ViewModel에서 데이터 요청
         viewModel.selectContentData(studyIdx)
+
+        viewModel.contentData.observe(viewLifecycleOwner) {
+            updateUI(StudyData())
+        }
 
         observeViewModel()
     }
@@ -228,24 +227,19 @@ class DetailFragment : Fragment() {
                 setupStatePopup()
             }
 
-            // studyPic이 사용 가능한지 확인하고 커버 이미지 설정
             if (!data.studyPic.isNullOrEmpty()) {
-                // Firebase Storage 경로
                 val storageReference: StorageReference =
                     FirebaseStorage.getInstance().reference.child("studyPic/${data.studyPic}")
 
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
+                    // viewLifecycleOwner를 사용하여 Glide가 프래그먼트의 뷰 생명주기에 따라 작동하도록 함
                     Glide.with(this@DetailFragment)
                         .load(uri)
-                        .into(imageViewDetailCover) // imageViewDetailCover
+                        .error(R.drawable.icon_error_24px)  // 에러 이미지 추가
+                        .into(imageViewDetailCover)
                 }.addOnFailureListener {
-                    // 로그 오류 또는 실패 처리
                     Log.e("DetailFragment", "Storage에서 이미지 로드 실패: ${it.message}")
                 }
-            } else {
-//                // drawable에서 랜덤 이미지 로드
-//                val randomImage = if ((0..1).random() == 0) R.drawable.image_detail_1 else R.drawable.image_detail_2
-//                imageViewDetailCover.setImageResource(randomImage)
             }
 
         }
