@@ -37,7 +37,7 @@ class ChatFragment : Fragment() {
 
     lateinit var fragmentChatBinding: FragmentChatBinding
     lateinit var mainActivity: MainActivity
-    
+
     // 어댑터
     private lateinit var chatSearchResultsAdapter: ChatSearchResultsAdapter
 
@@ -49,7 +49,7 @@ class ChatFragment : Fragment() {
 
     // 현재 로그인 한 사용자 정보
     private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    // private val loginUserId = "J04y39mPQ8fLIm2LukmdpRVGN8b2" // 프로필 있는 사용자의 UID (DB 연동 후 교체)
+    // private val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 프로필 있는 사용자의 UID (DB 연동 후 교체)
 
     // FirebaseAuth 인스턴스를 가져옴
     val auth = FirebaseAuth.getInstance()

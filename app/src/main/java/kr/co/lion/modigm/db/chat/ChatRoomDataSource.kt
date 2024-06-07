@@ -376,5 +376,21 @@ class ChatRoomDataSource {
             }
             return null
         }
+
+        // 로그인 한 사용자 해당 채팅 방 메세지 읽음 처리 (Update)
+        suspend fun chatRoomMessageAsRead(chatIdx: Int, loginUserId: String) {
+            val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
+                val chatRoomRef = collectionReference.whereEqualTo("chatIdx", chatIdx)
+                val querySnapshot = chatRoomRef.get().await()
+                querySnapshot.forEach { document ->
+                    val chatRoom = document.toObject(ChatRoomData::class.java)
+                    chatRoom?.let {
+                        it.unreadMessageCount[loginUserId] = 0
+                        document.reference.set(it).await()
+                    }
+                }
+            }
+            coroutine1.join()
+        }
     }
 }
