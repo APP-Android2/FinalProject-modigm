@@ -4,10 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.google.gson.Gson
+import kr.co.lion.modigm.model.UserData
 
 class PreferenceUtil(context: Context) {
 
     private val prefs: SharedPreferences
+    private val gson = Gson()
 
     init {
         // 마스터 키 생성 또는 가져오기
@@ -29,5 +32,26 @@ class PreferenceUtil(context: Context) {
 
     fun setString(key: String, str: String) {
         prefs.edit().putString(key, str).apply()
+    }
+
+    // 유저 정보를 SharedPreferences에 저장
+    fun setUserData(key: String, user: UserData) {
+        val userJson = gson.toJson(user)
+        prefs.edit().putString(key, userJson).apply()
+    }
+
+    // SharedPreferences에서 유저 정보를 가져옴
+    fun getUserData(key: String): UserData? {
+        val userJson = prefs.getString(key, null)
+        return if (userJson != null) {
+            gson.fromJson(userJson, UserData::class.java)
+        } else {
+            null
+        }
+    }
+
+
+    fun clearUserData(key: String) {
+        prefs.edit().remove(key).apply()
     }
 }
