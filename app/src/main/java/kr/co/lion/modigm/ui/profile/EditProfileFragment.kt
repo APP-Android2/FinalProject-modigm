@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.google.android.material.chip.Chip
@@ -24,7 +25,7 @@ import kr.co.lion.modigm.util.JoinType
 
 class EditProfileFragment : Fragment() {
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
-    private val editProfileViewModel: EditProfileViewModel by viewModels()
+    private val editProfileViewModel: EditProfileViewModel by activityViewModels()
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var user: FirebaseUser
@@ -97,7 +98,10 @@ class EditProfileFragment : Fragment() {
             }
         }
         // 관심 분야 chipGroup
-        editProfileViewModel.editProfileInterestList.observe(viewLifecycleOwner, Observer { list ->
+        editProfileViewModel.editProfileInterestList.observe(viewLifecycleOwner) { list ->
+            // 기존 칩들 제거
+            fragmentEditProfileBinding.chipGroupProfile.removeAllViews()
+
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
             for (interestNum in list) {
                 // 아이템 처리 코드
@@ -113,7 +117,14 @@ class EditProfileFragment : Fragment() {
                     // chip에서 X 버튼 보이게 하기
                     isCloseIconVisible = true
                     // X버튼 누르면 chip 없어지게 하기
-                    setOnCloseIconClickListener { fragmentEditProfileBinding.chipGroupProfile.removeView(this) }
+                    setOnCloseIconClickListener {
+                        fragmentEditProfileBinding.chipGroupProfile.removeView(this)
+
+                        // ViewModel의 리스트에서 해당 항목 삭제
+                        val currentList = editProfileViewModel.editProfileInterestList.value?.toMutableList()
+                        currentList?.remove(interestNum)
+                        editProfileViewModel.editProfileInterestList.value = currentList
+                    }
                 })
             }
             // 마지막 칩은 칩을 추가하는 버튼으로 사용
@@ -133,7 +144,7 @@ class EditProfileFragment : Fragment() {
 
                 }
             })
-        })
+        }
 
         // 링크 리스트
         editProfileViewModel.editProfileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
