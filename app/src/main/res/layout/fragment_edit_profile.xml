@@ -161,25 +161,12 @@
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <LinearLayout
-                    android:id="@+id/layoutSettingsNotice"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="6dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="관심분야"
-                        android:textSize="16dp" />
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/icon_add_24px" />
-                </LinearLayout>
+                    android:text="관심분야"
+                    android:textSize="16dp" />
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupProfile"
