@@ -32,7 +32,10 @@ class DetailViewModel : ViewModel() {
     val userProfilePicUrl: LiveData<String?> = _userProfilePicUrl
 
     private val _errorMessages = MutableLiveData<String>()
-    val errorMessages: LiveData<String> = _errorMessages
+    val errorMessages: MutableLiveData<String> = _errorMessages
+
+    private val _updateResult = MutableLiveData<Boolean>()
+    val updateResult: MutableLiveData<Boolean> get() = _updateResult
 
 
     fun selectContentData(studyIdx: Int) {
@@ -50,27 +53,6 @@ class DetailViewModel : ViewModel() {
             }
         }
     }
-
-    //    fun loadUserDetailsByUid(uid: String) {
-//        _isLoading.value = true
-//        viewModelScope.launch {
-//            try {
-//                val userDetails = studyRepository.loadUserDetailsByUid(uid)
-//                userDetails?.let {
-//                    _userNameData.value =
-//                        UserData(userName = it.userName, userProfilePic = it.userProfilePic)
-//                    _userProfilePicUrl.value = it.userProfilePic
-//                }
-//                Log.d("DetailVM", "User details loaded successfully.")
-//            } catch (e: Exception) {
-//                Log.e("DetailVM Error", "Error in fetching user details: ${e.message}")
-//                _userNameData.value = null
-//                _userProfilePicUrl.value = null
-//            } finally {
-//                _isLoading.value = false
-//            }
-//        }
-//    }
     fun loadUserDetailsByUid(uid: String) {
         _isLoading.value = true
         viewModelScope.launch {
@@ -95,4 +77,39 @@ class DetailViewModel : ViewModel() {
             }
         }
     }
+
+    fun updateStudyDataByStudyIdx(studyIdx: Int, studyData: StudyData) {
+        viewModelScope.launch {
+            try {
+                val dataMap = studyData.toMap() // StudyData 객체를 Map으로 변환
+                studyRepository.updateStudyDataByStudyIdx(studyIdx, dataMap)
+                _updateResult.postValue(true)  // UI에 변경 사항 반영
+                Log.d("DetailViewModel", "Study data updated successfully for studyIdx: $studyIdx")
+            } catch (e: Exception) {
+                Log.e("DetailViewModel", "Update failed: ${e.message}")
+                _updateResult.postValue(false)
+            }
+        }
+    }
+
+    fun StudyData.toMap(): Map<String, Any> = mapOf(
+        "studyIdx" to studyIdx,
+        "studyTitle" to studyTitle,
+        "studyContent" to studyContent,
+        "studyType" to studyType,
+        "studyPlace" to studyPlace,
+        "studyDetailPlace" to studyDetailPlace,
+        "studyOnOffline" to studyOnOffline,
+        "studyApplyMethod" to studyApplyMethod,
+        "studyPic" to studyPic,
+        "studySkillList" to studySkillList,
+        "studyCanApply" to studyCanApply,
+        "studyPic" to studyPic,
+        "studyMaxMember" to studyMaxMember,
+        "studyUidList" to studyUidList,
+        "chatIdx" to chatIdx,
+        "studyState" to studyState,
+        "studyWriteUid" to studyWriteUid
+    )
+
 }
