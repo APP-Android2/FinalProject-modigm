@@ -48,7 +48,7 @@ class MessageAdapter(
         val thisUid = message.chatSenderId
         val userData = usersDataHashMap[thisUid]
         var currentDate = message.chatDateSeparator // 현재 메시지의 날짜
-        var dateCheck = true
+        var dateCheck = true // 날짜 구분선 적용 해야 (한다/안한다)
 
         // 이전 메시지의 날짜와 비교하여 날짜가 변경되었는지 확인
         if (position > 0) {
@@ -115,6 +115,7 @@ class MessageAdapter(
                 textDate.visibility = View.GONE
             }
 
+            // UserData 유무 검사
             if (userData == null) {
                 messageSender.text = "알 수 없는 사용자" // 기본값 설정
                 imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image) // 기본 이미지 설정
@@ -124,6 +125,7 @@ class MessageAdapter(
                 messageSender.text = userData.userName
             }
 
+            // 프로필 사진 유무 검사
             if (userData?.userProfilePic.isNullOrEmpty()){
                 imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image)
             } else {
