@@ -39,7 +39,8 @@
         app:hintAnimationEnabled="false"
         app:hintEnabled="false"
         android:layout_marginTop="30dp"
-        app:startIconDrawable="@drawable/icon_mail_24px">
+        app:startIconDrawable="@drawable/icon_mail_24px"
+        app:errorTextAppearance="@style/ErrorTextAppearance">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textInputEditOtherEmail"
@@ -57,7 +58,8 @@
         app:hintAnimationEnabled="false"
         app:hintEnabled="false"
         android:layout_marginTop="20dp"
-        app:startIconDrawable="@drawable/icon_key_24px">
+        app:startIconDrawable="@drawable/icon_key_24px"
+        app:errorTextAppearance="@style/ErrorTextAppearance">
 
 
     <com.google.android.material.textfield.TextInputEditText
@@ -80,24 +82,27 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="자동 로그인" />
+        android:text="자동 로그인"
+        android:textSize="14dp"/>
 
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:id="@+id/buttonOtherSearchEmail"
+        android:id="@+id/buttonOtherFindEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="이메일   |"
         android:padding="0dp"
+        android:textSize="14dp"
         android:textColor="@color/black"
         app:rippleColor="#00FFFFFF"/>
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:id="@+id/buttonOtherSearchPassword"
+        android:id="@+id/buttonOtherFindPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="비밀번호 찾기"
         android:padding="0dp"
+        android:textSize="14dp"
         android:textColor="@color/black"
         app:rippleColor="#00FFFFFF"/>
 
@@ -108,7 +113,8 @@
     android:id="@+id/buttonOtherLogin"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="로그인"/>
+    android:text="로그인"
+    android:textSize="14dp"/>
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -120,6 +126,7 @@
         android:layout_height="wrap_content"
         android:text="계정이 없으신가요? "
         android:padding="0dp"
+        android:textSize="14dp"
         />
     <com.google.android.material.button.MaterialButton
         style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -130,6 +137,8 @@
         android:textColor="@color/black"
         android:textStyle="bold"
         android:padding="0dp"
+        android:textSize="14dp"
+        app:rippleColor="#00FFFFFF"
         />
 </LinearLayout>
 

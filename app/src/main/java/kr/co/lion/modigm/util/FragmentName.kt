@@ -40,6 +40,7 @@ enum class FragmentName (var str: String){
     STUDY_MY("StudyMyFragment"),
     FILTER_SORT("FilterSortFragment"),
     BOTTOM_NAVI("BottomNaviFragment"),
+    FIND_EMAIL("FindEmailFragment"),
 
     // 글 작성
     WRITE("WriteFragment"),
