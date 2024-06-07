@@ -3,6 +3,8 @@ package kr.co.lion.modigm.ui.study.adapter
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.databinding.RowStudyMyBinding
 import kr.co.lion.modigm.model.StudyData
 
@@ -16,6 +18,9 @@ class StudyMyViewHolder(
         with(binding) {
             // 루트 뷰의 레이아웃 설정 및 클릭 리스너 설정
             setupRootView(studyData)
+
+            // 스터디 사진 설정
+            loadStudyImage(studyData.first.studyPic)
 
             // 스터디 상태 설정 (모집중/모집완료)
             setStudyState(studyData.first.studyState)
@@ -58,6 +63,23 @@ class StudyMyViewHolder(
             binding.imageViewStudyMyPic.setOnClickListener {
                 // 클릭 시 실행될 코드 (현재는 빈 구현)
             }
+        }
+    }
+
+    // Firebase Storage에서 스터디 이미지 로드
+    private fun loadStudyImage(imageFileName: String) {
+        if (imageFileName.isNotEmpty()) {
+            val storageRef = FirebaseStorage.getInstance().reference.child("studyPic/$imageFileName")
+            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                Glide.with(itemView.context)
+                    .load(uri)
+                    .into(binding.imageViewStudyMyPic)
+            }.addOnFailureListener {
+                // 실패 시 기본 이미지 설정 또는 에러 처리
+                // binding.imageViewStudyAllPic.setImageResource(R.drawable.placeholder_image)
+            }
+        } else {
+            // binding.imageViewStudyAllPic.setImageResource(R.drawable.placeholder_image)
         }
     }
 
