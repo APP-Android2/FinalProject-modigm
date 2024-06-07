@@ -38,7 +38,7 @@ class StudyMyViewHolder(
             setStudyMembers(studyData)
 
             // 스터디 신청 방식 설정
-            textViewStudyMyApplyMethod.text = studyData.first.studyApplyMethod.toString()
+            setStudyApplyMethod(studyData)
 
             // 찜 버튼 설정
             setupFavoriteButton()
@@ -133,6 +133,18 @@ class StudyMyViewHolder(
         // 스터디 최대 인원과 현재 인원을 설정
         binding.textViewStudyMyMaxMember.text = studyData.first.studyMaxMember.toString()
         binding.textViewStudyMyCurrentMember.text = studyData.second.toString()
+    }
+
+    // 스터디 신청 방식 설정
+    private fun setStudyApplyMethod(studyData: Pair<StudyData, Int>) {
+        with(binding){
+            textViewStudyMyApplyMethod.text = when(studyData.first.studyApplyMethod){
+                1 -> "선착순"
+                2 -> "신청제"
+                else -> ""
+            }
+        }
+
     }
 
     // 찜 버튼 설정
