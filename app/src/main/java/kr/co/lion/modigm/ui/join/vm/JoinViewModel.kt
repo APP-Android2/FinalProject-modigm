@@ -8,6 +8,7 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
@@ -164,7 +165,7 @@ class JoinViewModel : ViewModel() {
             _userInfoRepository.insetUserData(user)
 
             // SharedPreferences에 유저 정보 저장
-            prefs.setUserData("currentUserData", user)
+            prefs.setUserData("currentUserData", Gson().toJson(user))
 
             _joinCompleted.value = true
         }
@@ -181,7 +182,7 @@ class JoinViewModel : ViewModel() {
             _userInfoRepository.insetUserData(user)
 
             // SharedPreferences에 유저 정보 저장
-            prefs.setUserData("currentUserData", user)
+            prefs.setUserData("currentUserData", Gson().toJson(user))
 
             _joinCompleted.value = true
         }
