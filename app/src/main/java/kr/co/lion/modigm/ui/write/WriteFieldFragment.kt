@@ -133,7 +133,7 @@ class WriteFieldFragment : Fragment() {
     // 입력처리 함수
     fun getAnswer(){
 
-        // 타입의 변화를 감지~
+        // studyType Observing!!
         viewModel.studyType.observe(viewLifecycleOwner){ type ->
             when (type){
                 // 입력 해제
