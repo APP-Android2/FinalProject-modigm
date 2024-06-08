@@ -12,6 +12,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
@@ -118,6 +120,10 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
         // 백 스택 로그 출력
         logFragmentBackStack(parentFragmentManager)
+
+        // 입력값 검증 로직 메서드 호출
+//        setupMemberInputWatcher()
+
     }
 
     fun logFragmentBackStack(fragmentManager: FragmentManager) {
@@ -145,10 +151,13 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 updateUIIfReady() // UI 업데이트 체크
                 preselectChips() // 칩 선택 사전 설정
 
-                if (!it.studyPic.isNullOrEmpty()) {
+                if (it.studyPic.isNotEmpty()) {
                     viewModel.loadStudyPic(it.studyPic) // 파일 이름을 사용하여 스터디 이미지 로드
                 }
 
+                // 최소 인원 수 설정
+                val minMembers = it.studyUidList.size
+                setupMemberInputWatcher(minMembers) // 최소 인원 수를 반영하여 TextWatcher 설정
             }
         }
         viewModel.updateResult.observe(viewLifecycleOwner) { isSuccess ->
@@ -203,8 +212,52 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
             // 내용
             editTextDetailEditContext.setText(data.studyContent.replace("\\n", System.getProperty("line.separator")))
+
+            // 인원수
+            editTextDetailEditMember.setText(data.studyMaxMember.toString())
         }
     }
+
+    // 인원수 입력 설정
+    fun setupMemberInputWatcher(minMembers: Int) {
+        fragmentDetailEditBinding.editTextDetailEditMember.addTextChangedListener(object :
+            TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // 변경 전에 호출됩니다.
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // 텍스트가 변경되는 동안 호출됩니다.
+                if (s != null && s.startsWith("0") && s.length > 1) {
+                    // 입력된 값이 "0"으로 시작하고 길이가 1 초과인 경우, "0"을 제거합니다.
+                    val correctString = s.toString().substring(1)
+                    fragmentDetailEditBinding.editTextDetailEditMember.setText(correctString)
+                    fragmentDetailEditBinding.editTextDetailEditMember.setSelection(correctString.length) // 커서를 수정된 텍스트의 끝으로 이동
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // 텍스트 변경 후 호출됩니다.
+                s?.toString()?.let {
+                    if(it.isEmpty()){
+                        // 사용자가 모든 텍스트를 지웠을 경우 "0"을 자동으로 입력
+                        fragmentDetailEditBinding.editTextDetailEditMember.setText(minMembers.toString())
+                        fragmentDetailEditBinding.editTextDetailEditMember.setSelection(fragmentDetailEditBinding.editTextDetailEditMember.text.toString().length) // 커서를 텍스트 끝으로 이동
+                    }else{
+                        val num = it.toIntOrNull()
+                        when {
+                            num == null || num < minMembers -> fragmentDetailEditBinding.editTextDetailEditMember.setText(minMembers.toString())
+                            num > 30 -> fragmentDetailEditBinding.editTextDetailEditMember.setText("30")
+                        }
+                    }
+                }
+                fragmentDetailEditBinding.editTextDetailEditMember.setSelection(fragmentDetailEditBinding.editTextDetailEditMember.text.toString().length) // 커서를 끝으로 이동
+            }
+        })
+    }
+
+
+
 
     fun initData() {
         val context = requireContext()
@@ -744,7 +797,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
             studySkillList = selectedSkillList,
             studyCanApply = currentStudyData?.studyCanApply ?: true,
             studyPic = imageFileName,
-            studyMaxMember = currentStudyData?.studyMaxMember!!.toInt(),
+            studyMaxMember = fragmentDetailEditBinding.editTextDetailEditMember.text.toString().toInt(),
             studyUidList = currentStudyData?.studyUidList ?: listOf(),
             chatIdx = currentStudyData?.chatIdx!!.toInt(),
             studyState = currentStudyData?.studyState?: true,
