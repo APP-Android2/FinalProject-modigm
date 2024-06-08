@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -152,12 +153,21 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         }
         viewModel.updateResult.observe(viewLifecycleOwner) { isSuccess ->
             isSuccess?.let{
+                val message = if (it) "정보가 업데이트되었습니다." else "업데이트 실패"
+                val snackbar = Snackbar.make(fragmentDetailEditBinding.root, message, Snackbar.LENGTH_LONG)
+
+                // 스낵바의 텍스트 뷰 찾기
+                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
+                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
+                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+                snackbar.show()
+
                 if (it) {
-                    Snackbar.make(fragmentDetailEditBinding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG).show()
                     viewModel.updateResult.value = null
                     parentFragmentManager.popBackStack()
-                } else {
-                    Snackbar.make(fragmentDetailEditBinding.root, "업데이트 실패", Snackbar.LENGTH_LONG).show()
                 }
             }
 
