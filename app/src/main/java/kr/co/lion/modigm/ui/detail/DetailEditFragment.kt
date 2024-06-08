@@ -473,8 +473,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     override fun onPlaceSelected(placeName: String, detailPlaceName:String) {
         selectedPlaceName = placeName
         selectedDetailPlaceName = detailPlaceName
-        val test = "$selectedPlaceName\n$selectedDetailPlaceName"
-        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(test)
+        val locationText  = "$selectedPlaceName\n$selectedDetailPlaceName"
+        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(locationText )
     }
 
     // 툴바 설정
@@ -821,6 +821,11 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         val title = fragmentDetailEditBinding.editTextDetailEditTitle.text.toString()
         val description = fragmentDetailEditBinding.editTextDetailEditContext.text.toString()
 
+        val studyOnOffline = getSelectedStudyOnOffline()  // 현재 온라인/오프라인 상태 가져오기
+        val placeName = selectedPlaceName
+        val detailPlaceName = selectedDetailPlaceName
+
+
         // 제목이 비어있거나 너무 짧은 경우 검사
         if (title.isEmpty() || title.length < 8) {
             fragmentDetailEditBinding.textInputLayoutDetailEditTitle.error = "제목은 최소 8자 이상이어야 합니다."
@@ -836,6 +841,16 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
             return false
         } else {
             fragmentDetailEditBinding.textInputLayoutDetailEditContext.error = null
+        }
+
+        // 온라인이 아닌 경우 위치 유효성 검사
+        if (studyOnOffline != 1) {
+            if (placeName.isEmpty() || detailPlaceName.isEmpty()) {
+                fragmentDetailEditBinding.editTextDetailEditTitleLocation.error = "장소와 상세 장소를 입력해야 합니다."
+                return false
+            } else {
+                fragmentDetailEditBinding.editTextDetailEditTitleLocation.error = null
+            }
         }
 
         return true
