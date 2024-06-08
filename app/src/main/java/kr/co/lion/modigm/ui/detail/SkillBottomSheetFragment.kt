@@ -270,26 +270,6 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-//    fun displaySelectedCategory(category: String) {
-//        if (category == "전체" || category == "기타") {
-//            binding.selectedCategoryTextView.visibility = View.GONE
-//        } else {
-//            binding.selectedCategoryTextView.visibility = View.VISIBLE
-//            binding.selectedCategoryTextView.text = category
-//        }
-//    }
-
-//    fun scrollToSubCategories() {
-//        binding.ScrollViewSkill.post {
-//            val scrollView = binding.ScrollViewSkill
-//            val subCategoryChipGroup = binding.subCategoryChipGroupSkill
-//            val location = IntArray(2)
-//            subCategoryChipGroup.getLocationOnScreen(location)
-//            val scrollY = location[1] - scrollView.scrollY - scrollView.height / 3
-//            scrollView.smoothScrollTo(0, scrollY)
-//        }
-//    }
-
     fun scrollToBottom() {
         binding.ScrollViewSkill.post {
             val scrollView = binding.ScrollViewSkill
