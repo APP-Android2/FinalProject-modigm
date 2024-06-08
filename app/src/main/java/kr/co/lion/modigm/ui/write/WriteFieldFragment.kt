@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -58,7 +59,7 @@ class WriteFieldFragment : Fragment() {
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
 
-                        viewModel.gettingStudyType(0)
+                        viewModel.gettingStudyField(0)
                     } else {
 
                         // Stroke 색상 변경
@@ -71,7 +72,7 @@ class WriteFieldFragment : Fragment() {
                         cardviewWriteFieldContest.cardElevation = 0F
                         cardviewWriteFieldProject.cardElevation = 0F
 
-                        viewModel.gettingStudyType(1)
+                        viewModel.gettingStudyField(1)
                     }
                 }
             }
@@ -84,7 +85,7 @@ class WriteFieldFragment : Fragment() {
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
 
-                        viewModel.gettingStudyType(0)
+                        viewModel.gettingStudyField(0)
                     } else {
                         // Stroke 색상 변경
                         strokeColor = clickedStrokeColor
@@ -96,7 +97,7 @@ class WriteFieldFragment : Fragment() {
                         cardviewWriteFieldStudy.cardElevation = 0F
                         cardviewWriteFieldProject.cardElevation = 0F
 
-                        viewModel.gettingStudyType(2)
+                        viewModel.gettingStudyField(2)
                     }
                 }
             }
@@ -109,7 +110,7 @@ class WriteFieldFragment : Fragment() {
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
 
-                        viewModel.gettingStudyType(0)
+                        viewModel.gettingStudyField(0)
                     } else {
 
                         // Stroke 색상 변경
@@ -122,7 +123,7 @@ class WriteFieldFragment : Fragment() {
                         cardviewWriteFieldContest.cardElevation = 0F
                         cardviewWriteFieldStudy.cardElevation = 0F
 
-                        viewModel.gettingStudyType(3)
+                        viewModel.gettingStudyField(3)
                     }
                 }
             }
@@ -140,6 +141,10 @@ class WriteFieldFragment : Fragment() {
                 0 -> {
                     // fieldClicked.value = false
                     viewModel.userDidNotAnswer(tabName)
+
+                    val context = requireContext()
+                    val toast = Toast.makeText(context, "스터디, 공모전, 프로젝트 중에 어떤 분야를 모집할 지 선택해주세요", Toast.LENGTH_SHORT)
+                    toast.show()
                 }
                 // 스터디 클릭
                 1, 2, 3 -> {
