@@ -128,6 +128,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         }
     }
 
+    fun safeContext(): Context? {
+        return if (isAdded) {
+            context
+        } else {
+            null
+        }
+    }
+
     fun observeViewModel() {
 
         viewModel.contentData.observe(viewLifecycleOwner) { data ->
@@ -135,6 +143,11 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 currentStudyData = it // 여기서 데이터를 업데이트합니다.
                 updateUIIfReady() // UI 업데이트 체크
                 preselectChips() // 칩 선택 사전 설정
+
+                if (!it.studyPic.isNullOrEmpty()) {
+                    viewModel.loadStudyPic(it.studyPic) // 파일 이름을 사용하여 스터디 이미지 로드
+                }
+
             }
         }
         viewModel.updateResult.observe(viewLifecycleOwner) { isSuccess ->
@@ -150,6 +163,18 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
         }
 
+        // 스터디 커버 이미지
+        viewModel.imageUri.observe(viewLifecycleOwner) { uri ->
+            safeContext()?.let { context ->
+                fragmentDetailEditBinding.cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
+
+                Glide.with(context)
+                    .load(uri)
+                    .error(R.drawable.icon_error_24px) // 에러 발생시 보여줄 이미지
+                    .into(fragmentDetailEditBinding.imageViewCoverImageSelect)
+            }
+        }
+
     }
 
     // UI 업데이트가 준비되었는지 확인
@@ -160,46 +185,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         }
     }
 
-    fun safeContext(): Context? {
-        return if (isAdded) {
-            context
-        } else {
-            null
-        }
-    }
-
     // 실제로 UI 업데이트 수행
     fun updateUI(data: StudyData) {
         with(fragmentDetailEditBinding) {
-            cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
-
-            // studyPic이 사용 가능한지 확인하고 커버 이미지 설정
-            if (data.studyPic.isNotEmpty()) {
-//                viewModel.loadStudyCover(requireContext(), data.studyPic, imageViewCoverImageSelect)
-                // Firebase Storage 경로
-                val storageReference: StorageReference =
-                    FirebaseStorage.getInstance().reference.child("studyPic/${data.studyPic}")
-
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    safeContext()?.let { context ->
-                        Glide.with(context)
-                            .load(uri)
-                            .error(R.drawable.icon_account_circle)
-                            .into(imageViewCoverImageSelect) // 이미지 로딩 및 표시
-                    }
-
-                }.addOnFailureListener {
-                    // 로그 오류 또는 실패 처리
-                    Log.e("DetailEditFragment", "Storage에서 이미지 로드 실패: ${it.message}")
-                }
-            }
-
             // 제목
             editTextDetailEditTitle.setText(data.studyTitle)
 
             // 내용
             editTextDetailEditContext.setText(data.studyContent.replace("\\n", System.getProperty("line.separator")))
-
         }
     }
 
