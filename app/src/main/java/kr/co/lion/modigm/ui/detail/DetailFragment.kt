@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
@@ -104,14 +105,42 @@ class DetailFragment : Fragment() {
                 // 스터디 데이터가 로드되면 연관된 사용자 데이터 로드
                 viewModel.loadUserDetailsByUid(it.studyWriteUid)
                 Log.d("DetailWriteUid","writeUid = ${it.studyWriteUid}")
+                if (!it.studyPic.isNullOrEmpty()) {
+                    viewModel.loadStudyPic(it.studyPic) // 파일 이름을 사용하여 스터디 이미지 로드
+                }
+
             }
         }
+        // 스터디 커버 이미지
+        viewModel.imageUri.observe(viewLifecycleOwner) { uri ->
+            Glide.with(this)
+                .load(uri)
+                .error(R.drawable.icon_error_24px) // 에러 발생시 보여줄 이미지
+                .into(binding.imageViewDetailCover)
+        }
+
         viewModel.userData.observe(viewLifecycleOwner) { userData ->
             userData?.let {
                 currentUserData = it // 여기서 사용자 데이터를 업데이트합니다.
                 updateUIIfReady() // UI 업데이트 체크
-                updateUserDetails(it)
+
+                // 스터디 데이터가 로드되면 연관된 사용자 데이터 로드
+                viewModel.loadUserDetailsByUid(it.userProfilePic)
+                if (!it.userProfilePic.isNullOrEmpty()) {
+                    viewModel.loadUserPicUrl(it.userProfilePic) // 파일 이름을 사용하여 유저 이미지 로드
+                }
+
+                // 유저 이름
+                binding.textViewDetailUserName.text = userData.userName
             }
+        }
+
+        // 유저 프로필 이미지
+        viewModel.userImageUri.observe(viewLifecycleOwner) { uri ->
+            Glide.with(this)
+                .load(uri)
+                .error(R.drawable.icon_account_circle) // 에러 발생시 보여줄 이미지
+                .into(binding.imageViewDetailUserPic)
         }
     }
 
@@ -226,51 +255,8 @@ class DetailFragment : Fragment() {
                 textViewDetailState.text = "모집 마감"
                 setupStatePopup()
             }
-
-            if (!data.studyPic.isNullOrEmpty()) {
-                val storageReference: StorageReference =
-                    FirebaseStorage.getInstance().reference.child("studyPic/${data.studyPic}")
-
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    // viewLifecycleOwner를 사용하여 Glide가 프래그먼트의 뷰 생명주기에 따라 작동하도록 함
-                    Glide.with(this@DetailFragment)
-                        .load(uri)
-                        .error(R.drawable.icon_error_24px)  // 에러 이미지 추가
-                        .into(imageViewDetailCover)
-                }.addOnFailureListener {
-                    Log.e("DetailFragment", "Storage에서 이미지 로드 실패: ${it.message}")
-                }
-            }
-
         }
     }
-
-    fun updateUserDetails(userData: UserData) {
-        with(binding) {
-            textViewDetailUserName.text = userData.userName
-
-            // userProfilePic 값을 로그로 출력
-            Log.d("DetailFragment", "User Profile Pic URL: ${userData.userProfilePic}")
-
-            if (userData.userProfilePic.isNullOrEmpty()) {
-                imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
-            } else {
-                // Firebase Storage에서 이미지 URL 가져오기
-                val storageReference: StorageReference =
-                    FirebaseStorage.getInstance().reference.child("userProfile/${userData.userProfilePic}")
-
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    Glide.with(requireContext())
-                        .load(uri)
-                        .error(R.drawable.icon_account_circle) // 오류 발생 시 표시할 대체 이미지
-                        .into(imageViewDetailUserPic)
-                }.addOnFailureListener {
-                    imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
-                }
-            }
-        }
-    }
-
 
     // 칩 생성 함수
     fun createSkillChip(skillId: Int): Chip {

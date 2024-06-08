@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.detail.vm
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,10 +21,6 @@ class DetailViewModel : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    // UserData가 데이터 모델이라고 가정
-//    private val _userNameData = MutableLiveData<UserData?>()
-//    val userNameData: LiveData<UserData?> = _userNameData
-
     private val _userData = MutableLiveData<UserData?>()
     val userData: LiveData<UserData?> = _userData
 
@@ -37,6 +34,11 @@ class DetailViewModel : ViewModel() {
     private val _updateResult = MutableLiveData<Boolean>()
     val updateResult: MutableLiveData<Boolean> get() = _updateResult
 
+    private val _imageUri = MutableLiveData<Uri>()
+    val imageUri: LiveData<Uri> = _imageUri
+
+    private val _userImageUri = MutableLiveData<Uri>()
+    val userImageUri: LiveData<Uri> = _userImageUri
 
     fun selectContentData(studyIdx: Int) {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
@@ -111,5 +113,28 @@ class DetailViewModel : ViewModel() {
         "studyState" to studyState,
         "studyWriteUid" to studyWriteUid
     )
+
+    fun loadStudyPic(studyPic: String) {
+        viewModelScope.launch {
+            val result = studyRepository.loadStudyPicUrl(studyPic)
+            result.onSuccess {
+                _imageUri.postValue(it)
+            }.onFailure {
+                Log.e("ViewModel", "Failed to load cover image: ${it.message}")
+            }
+        }
+    }
+
+    fun loadUserPicUrl(userProfilePic: String) {
+        viewModelScope.launch {
+            val result = studyRepository.loadUserPicUrl(userProfilePic)
+            result.onSuccess {
+                _userImageUri.postValue(it)
+            }.onFailure {
+                Log.e("ViewModel", "Failed to load user image: ${it.message}")
+            }
+        }
+    }
+
 
 }
