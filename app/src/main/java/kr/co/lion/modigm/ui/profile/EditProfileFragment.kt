@@ -1,11 +1,19 @@
 package kr.co.lion.modigm.ui.profile
 
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +32,7 @@ import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.Picture
 
 class EditProfileFragment : Fragment() {
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
@@ -34,6 +43,8 @@ class EditProfileFragment : Fragment() {
 
     // 어댑터 선언
     private lateinit var linkAddAdapter: LinkAddAdapter
+    // 앨범 실행을 위한 런처
+    lateinit var albumLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentEditProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_profile, container, false)
@@ -51,11 +62,13 @@ class EditProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
+        setupAlbumLauncher()
     }
 
     private fun initView() {
         setupToolbar()
         setupUserInfo()
+        setupButtonChangePic()
         setupRecyclerViewLink()
         setupButtonLinkAdd()
 
@@ -63,16 +76,9 @@ class EditProfileFragment : Fragment() {
     }
 
     private fun setupToolbar() {
-        fragmentEditProfileBinding.apply {
-            toolbarEditProfile.apply {
-                // title
-                title = "프로필 수정"
-
-                // 뒤로 가기
-                setNavigationIcon(R.drawable.icon_arrow_back_24px)
-                setNavigationOnClickListener {
-                    parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
-                }
+        fragmentEditProfileBinding.toolbarEditProfile.apply {
+            setNavigationOnClickListener {
+                parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
             }
         }
     }
@@ -80,6 +86,12 @@ class EditProfileFragment : Fragment() {
     private fun setupUserInfo() {
         // 데이터베이스로부터 데이터를 불러와 뷰모델에 담기
         editProfileViewModel.loadUserData(user, requireContext(), fragmentEditProfileBinding.imageProfilePic)
+    }
+
+    private fun setupButtonChangePic() {
+        fragmentEditProfileBinding.imageEditProfileChangePic.setOnClickListener {
+            startAlbumLauncher()
+        }
     }
 
     private fun setupRecyclerViewLink() {
@@ -102,6 +114,66 @@ class EditProfileFragment : Fragment() {
         }
     }
 
+    // 앨범 런처 설정
+    fun setupAlbumLauncher() {
+        // 앨범 실행을 위한 런처
+        val albumContract = ActivityResultContracts.StartActivityForResult()
+        albumLauncher = registerForActivityResult(albumContract){
+            // 사진 선택을 완료한 후 돌아왔다면
+            if(it.resultCode == AppCompatActivity.RESULT_OK){
+                // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출한다.
+                val uri = it.data?.data
+                if(uri != null){
+                    // 안드로이드 Q(10) 이상이라면
+                    val bitmap = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                        // 이미지를 생성할 수 있는 객체를 생성한다.
+                        val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+                        // Bitmap을 생성한다.
+                        ImageDecoder.decodeBitmap(source)
+                    } else {
+                        // 컨텐츠 프로바이더를 통해 이미지 데이터에 접근한다.
+                        val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
+                        if(cursor != null){
+                            cursor.moveToNext()
+
+                            // 이미지의 경로를 가져온다.
+                            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+                            val source = cursor.getString(idx)
+
+                            // 이미지를 생성한다
+                            BitmapFactory.decodeFile(source)
+                        }  else {
+                            null
+                        }
+                    }
+
+                    // 회전 각도값을 가져온다.
+                    val degree = Picture.getDegree(requireContext(), uri)
+                    // 회전 이미지를 가져온다
+                    val bitmap2 = Picture.rotateBitmap(bitmap!!, degree.toFloat())
+                    // 크기를 줄인 이미지를 가져온다.
+                    val bitmap3 = Picture.resizeBitmap(bitmap2, 1024)
+
+                    fragmentEditProfileBinding.imageProfilePic.setImageBitmap(bitmap3)
+                }
+            }
+        }
+    }
+
+    // 앨범 런처를 실행하는 메서드
+    fun startAlbumLauncher(){
+        // 앨범에서 사진을 선택할 수 있도록 셋팅된 인텐트를 생성한다.
+        val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        // 실행할 액티비티의 타입을 설정(이미지를 선택할 수 있는 것이 뜨게 한다)
+        albumIntent.setType("image/*")
+        // 선택할 수 있는 파들의 MimeType을 설정한다.
+        // 여기서 선택한 종류의 파일만 선택이 가능하다. 모든 이미지로 설정한다.
+        val mimeType = arrayOf("image/*")
+        albumIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeType)
+        // 액티비티를 실행한다.
+        albumLauncher.launch(albumIntent)
+    }
+
     fun observeData() {
         // 데이터 변경 관찰
         // 로그인 방식
@@ -113,6 +185,7 @@ class EditProfileFragment : Fragment() {
                 JoinType.ERROR -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
             }
         }
+
         // 관심 분야 chipGroup
         editProfileViewModel.editProfileInterestList.observe(viewLifecycleOwner) { list ->
             // 기존 칩들 제거

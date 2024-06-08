@@ -19,6 +19,8 @@ class EditProfileViewModel: ViewModel() {
     private val userRepository = UserInfoRepository()
     private val studyRepository = StudyRepository()
 
+    // 프로필 사진
+
     // 사용자 이름
     private val _editProfileName = MutableLiveData<String>()
     val editProfileName: MutableLiveData<String> = _editProfileName

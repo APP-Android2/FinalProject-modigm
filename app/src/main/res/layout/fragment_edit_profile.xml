@@ -24,6 +24,8 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
+            app:title="프로필 수정"
+            app:navigationIcon="@drawable/icon_arrow_back_24px"
             app:titleTextAppearance="@style/toolbarText" />
 
         <androidx.core.widget.NestedScrollView
@@ -38,14 +40,32 @@
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="20dp">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imageProfilePic"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/image_loading_gray" />
+                    android:layout_gravity="center">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/imageProfilePic"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:src="@drawable/image_loading_gray"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/imageEditProfileChangePic"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:padding="6dp"
+                        android:src="@drawable/icon_camera_24px"
+                        android:background="@drawable/style_round_border"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
                     android:id="@+id/textViewProfileName"
