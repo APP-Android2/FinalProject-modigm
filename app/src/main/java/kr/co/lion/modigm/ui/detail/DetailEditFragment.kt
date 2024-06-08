@@ -157,9 +157,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                     viewModel.loadStudyPic(it.studyPic) // 파일 이름을 사용하여 스터디 이미지 로드
                 }
 
-                // 최소 인원 수 설정
-                val minMembers = it.studyUidList.size
-                setupMemberInputWatcher(minMembers) // 최소 인원 수를 반영하여 TextWatcher 설정
+                setupMemberInputWatcher() // 최소 인원 수를 반영하여 TextWatcher 설정
             }
         }
         viewModel.updateResult.observe(viewLifecycleOwner) { isSuccess ->
@@ -221,7 +219,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     }
 
     // 인원수 입력 설정
-    fun setupMemberInputWatcher(minMembers: Int) {
+    fun setupMemberInputWatcher() {
         fragmentDetailEditBinding.editTextDetailEditMember.addTextChangedListener(object :
             TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -243,13 +241,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 s?.toString()?.let {
                     if(it.isEmpty()){
                         // 사용자가 모든 텍스트를 지웠을 경우 "0"을 자동으로 입력
-                        fragmentDetailEditBinding.editTextDetailEditMember.setText(minMembers.toString())
+                        fragmentDetailEditBinding.editTextDetailEditMember.setText("0")
                         fragmentDetailEditBinding.editTextDetailEditMember.setSelection(fragmentDetailEditBinding.editTextDetailEditMember.text.toString().length) // 커서를 텍스트 끝으로 이동
                     }else{
                         val num = it.toIntOrNull()
-                        when {
-                            num == null || num < minMembers -> fragmentDetailEditBinding.editTextDetailEditMember.setText(minMembers.toString())
-                            num > 30 -> fragmentDetailEditBinding.editTextDetailEditMember.setText("30")
+                        num?.let { value ->
+                            if (value > 30) {
+                                fragmentDetailEditBinding.editTextDetailEditMember.setText("30")
+                            }
                         }
                     }
                 }
@@ -848,6 +847,13 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         val title = fragmentDetailEditBinding.editTextDetailEditTitle.text.toString()
         val description = fragmentDetailEditBinding.editTextDetailEditContext.text.toString()
 
+        val memberInput = fragmentDetailEditBinding.editTextDetailEditMember.text.toString()
+        val memberCount = memberInput.toIntOrNull() ?: 0
+
+        // 최소 인원 수 설정
+        val minMembers = currentStudyData?.studyUidList?.size.toString().toInt()
+
+
         val studyOnOffline = getSelectedStudyOnOffline()  // 현재 온라인/오프라인 상태 가져오기
         val placeName = selectedPlaceName
         val detailPlaceName = selectedDetailPlaceName
@@ -879,6 +885,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 fragmentDetailEditBinding.editTextDetailEditTitleLocation.error = null
             }
         }
+        // 인원수가 최소 인원보다 작은 경우 검사
+        if (memberCount < minMembers) {
+            fragmentDetailEditBinding.textInputLayoutDetailEditMember.error = "최소 인원은 $minMembers 명 이상이어야 합니다."
+            return false
+        } else {
+            fragmentDetailEditBinding.textInputLayoutDetailEditMember.error = null
+        }
+
 
         return true
     }
