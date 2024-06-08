@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.children
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
@@ -79,6 +80,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
 
+    private var selectedSkillList: MutableList<Int> = mutableListOf()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -89,13 +92,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        Log.d("DetailFragment","$studyIdx")
-
         auth = FirebaseAuth.getInstance()
-//        uid = auth.currentUser?.uid.toString()
-
-        // 로그인 구현 완료되면 지우겠습니다
-        uid = "J04y39mPQ8fLIm2LukmdpRVGN8b2"
+        uid = auth.currentUser?.uid.toString()
 
         // 카메라 및 앨범 런처 설정
         initData()
@@ -106,16 +104,30 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // ViewModel에서 데이터 요청
+        viewModel.selectContentData(studyIdx) // ViewModel을 통해 데이터 요청
+
+        observeViewModel() // ViewModel 관찰
+
         settingToolbar()  // 툴바 설정
         setupBottomSheet() // 바텀 시트
         setupButton() // 버튼
         setupChipGroups() // 칩 그룹
 
-        // ViewModel에서 데이터 요청
-        viewModel.selectContentData(studyIdx) // ViewModel을 통해 데이터 요청
 
-        observeViewModel() // ViewModel 관찰
+        // 백 스택 로그 출력
+        logFragmentBackStack(parentFragmentManager)
     }
+
+    fun logFragmentBackStack(fragmentManager: FragmentManager) {
+        val backStackEntryCount = fragmentManager.backStackEntryCount
+        Log.d("BackStack", "Total Back Stack Entry Count: $backStackEntryCount")
+        for (index in 0 until backStackEntryCount) {
+            val backStackEntry = fragmentManager.getBackStackEntryAt(index)
+            Log.d("BackStack", "Entry $index: ${backStackEntry.name}")
+        }
+    }
+
     fun observeViewModel() {
 
         viewModel.contentData.observe(viewLifecycleOwner) { data ->
@@ -126,14 +138,16 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
             }
         }
         viewModel.updateResult.observe(viewLifecycleOwner) { isSuccess ->
-            if (isSuccess) {
-                Snackbar.make(fragmentDetailEditBinding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG).show()
-            } else {
-                Snackbar.make(fragmentDetailEditBinding.root, "업데이트 실패", Snackbar.LENGTH_LONG).show()
+            isSuccess?.let{
+                if (it) {
+                    Snackbar.make(fragmentDetailEditBinding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG).show()
+                    viewModel.updateResult.value = null
+                    parentFragmentManager.popBackStack()
+                } else {
+                    Snackbar.make(fragmentDetailEditBinding.root, "업데이트 실패", Snackbar.LENGTH_LONG).show()
+                }
             }
 
-            // Fragment 닫기 또는 이전 화면으로 돌아가기
-            parentFragmentManager.popBackStack()
         }
 
     }
@@ -146,25 +160,37 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         }
     }
 
+    fun safeContext(): Context? {
+        return if (isAdded) {
+            context
+        } else {
+            null
+        }
+    }
+
     // 실제로 UI 업데이트 수행
     fun updateUI(data: StudyData) {
         with(fragmentDetailEditBinding) {
             cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
 
             // studyPic이 사용 가능한지 확인하고 커버 이미지 설정
-            if (!data.studyPic.isNullOrEmpty()) {
-
+            if (data.studyPic.isNotEmpty()) {
+//                viewModel.loadStudyCover(requireContext(), data.studyPic, imageViewCoverImageSelect)
                 // Firebase Storage 경로
                 val storageReference: StorageReference =
                     FirebaseStorage.getInstance().reference.child("studyPic/${data.studyPic}")
 
                 storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    Glide.with(this@DetailEditFragment)
-                        .load(uri)
-                        .into(imageViewCoverImageSelect) // 이미지 로딩 및 표시
+                    safeContext()?.let { context ->
+                        Glide.with(context)
+                            .load(uri)
+                            .error(R.drawable.icon_account_circle)
+                            .into(imageViewCoverImageSelect) // 이미지 로딩 및 표시
+                    }
+
                 }.addOnFailureListener {
                     // 로그 오류 또는 실패 처리
-                    Log.e("DetailFragment", "Storage에서 이미지 로드 실패: ${it.message}")
+                    Log.e("DetailEditFragment", "Storage에서 이미지 로드 실패: ${it.message}")
                 }
             }
 
@@ -563,9 +589,11 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
         // 기존의 칩들을 삭제
         chipGroup.removeAllViews()
+        selectedSkillList.clear()
 
         // 전달받은 스킬 리스트를 이용하여 칩을 생성 및 추가
         for (skill in skills) {
+            selectedSkillList.add(skill.num)  // 초기 스킬 목록을 selectedSkillList에 추가
             val chip = Chip(context).apply {
                 text = skill.displayName
                 isClickable = true
@@ -575,10 +603,12 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 setTextColor(ContextCompat.getColor(context, R.color.black))
                 setTextAppearance(R.style.ChipTextStyle)
                 id = View.generateViewId()
+                tag = skill.num
 
                 // 'X' 아이콘 클릭시 해당 칩을 ChipGroup에서 제거
                 setOnCloseIconClickListener {
                     chipGroup.removeView(this)  // 'this'는 현재 클릭된 Chip 인스턴스를 참조
+                    selectedSkillList.remove(skill.num)  // 선택된 스킬 목록에서 해당 스킬 제거
                 }
             }
             chipGroup.addView(chip)
@@ -681,16 +711,16 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     }
 
     fun saveData(imageFileName: String) {
-    if (!validateInputs()) {
-        Snackbar.make(fragmentDetailEditBinding.root, "입력이 유효하지 않습니다.", Snackbar.LENGTH_SHORT)
-            .show()
-        return
-    }
+        if (!validateInputs()) {
+            Snackbar.make(fragmentDetailEditBinding.root, "입력이 유효하지 않습니다.", Snackbar.LENGTH_SHORT)
+                .show()
+            return
+        }
 
-    val studyType = getSelectedStudyType()
-    val studyOnOffline = getSelectedStudyOnOffline()
-    val studyApplyMethod = getSelectedStudyApplyMethod()
-        val studySkills = if (selectedSkills.isNotEmpty()) selectedSkills else currentStudyData?.studySkillList ?: listOf()
+        val studyType = getSelectedStudyType()
+        val studyOnOffline = getSelectedStudyOnOffline()
+        val studyApplyMethod = getSelectedStudyApplyMethod()
+//        val studySkills = if (selectedSkills.isNotEmpty()) selectedSkills else currentStudyData?.studySkillList ?: listOf()
 
         // EditText로부터 텍스트를 가져와 줄바꿈 문자를 \n으로 변환
         val studyContent = fragmentDetailEditBinding.editTextDetailEditContext.text.toString().replace(System.getProperty("line.separator"), "\\n")
@@ -698,29 +728,29 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         val placeName = if (studyOnOffline == 1) "" else selectedPlaceName
         val detailPlaceName = if (studyOnOffline == 1) "" else selectedDetailPlaceName
 
-    val updatedStudyData = StudyData(
-        studyIdx = studyIdx,
-        studyTitle = fragmentDetailEditBinding.editTextDetailEditTitle.text.toString(),
-        studyContent = studyContent,
-        studyType = studyType,
-        studyPeriod = currentStudyData?.studyPeriod!!.toInt(),
-        studyOnOffline = studyOnOffline,
-        studyPlace = placeName,
-        studyDetailPlace = detailPlaceName,
-        studyApplyMethod = studyApplyMethod,
-        studySkillList = studySkills,
-        studyCanApply = currentStudyData?.studyCanApply ?: true,
-        studyPic = imageFileName,
-        studyMaxMember = currentStudyData?.studyMaxMember!!.toInt(),
-        studyUidList = currentStudyData?.studyUidList ?: listOf(),
-        chatIdx = currentStudyData?.chatIdx!!.toInt(),
-        studyState = currentStudyData?.studyState?: true,
-        studyWriteUid = currentStudyData?.studyWriteUid.toString()
+        val updatedStudyData = StudyData(
+            studyIdx = studyIdx,
+            studyTitle = fragmentDetailEditBinding.editTextDetailEditTitle.text.toString(),
+            studyContent = studyContent,
+            studyType = studyType,
+            studyPeriod = currentStudyData?.studyPeriod!!.toInt(),
+            studyOnOffline = studyOnOffline,
+            studyPlace = placeName,
+            studyDetailPlace = detailPlaceName,
+            studyApplyMethod = studyApplyMethod,
+            studySkillList = selectedSkillList,
+            studyCanApply = currentStudyData?.studyCanApply ?: true,
+            studyPic = imageFileName,
+            studyMaxMember = currentStudyData?.studyMaxMember!!.toInt(),
+            studyUidList = currentStudyData?.studyUidList ?: listOf(),
+            chatIdx = currentStudyData?.chatIdx!!.toInt(),
+            studyState = currentStudyData?.studyState?: true,
+            studyWriteUid = currentStudyData?.studyWriteUid.toString()
 
-    )
+        )
 
-    viewModel.updateStudyDataByStudyIdx(studyIdx, updatedStudyData)
-    Log.d("DetailEditFragment", "Updating study data: $updatedStudyData")
+        viewModel.updateStudyDataByStudyIdx(studyIdx, updatedStudyData)
+        Log.d("DetailEditFragment", "Updating study data: $updatedStudyData")
 
 }
 
