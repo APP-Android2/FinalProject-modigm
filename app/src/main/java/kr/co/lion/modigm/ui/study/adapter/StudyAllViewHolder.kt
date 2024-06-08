@@ -3,20 +3,26 @@ package kr.co.lion.modigm.ui.study.adapter
 import android.graphics.Color
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowStudyAllBinding
 import kr.co.lion.modigm.model.StudyData
 
 class StudyAllViewHolder(
     private val binding: RowStudyAllBinding,
-    private val rowClickListener: (Int) -> Unit,
+    private val rowClickListener: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     // 전체 스터디 항목별 세팅
     fun bind(studyData: Pair<StudyData, Int>) {
         with(binding) {
+
             // 루트 뷰의 레이아웃 설정 및 클릭 리스너 설정
             setupRootView(studyData)
+
+            // 스터디 사진 설정
+            loadStudyImage(studyData.first.studyPic)
 
             // 스터디 상태 설정 (모집중/모집완료)
             setStudyState(studyData.first.studyState)
@@ -34,7 +40,7 @@ class StudyAllViewHolder(
             setStudyMembers(studyData)
 
             // 스터디 신청 방식 설정
-            textViewStudyAllApplyMethod.text = studyData.first.studyApplyMethod.toString()
+            setStudyApplyMethod(studyData)
 
             // 찜 버튼 설정
             setupFavoriteButton()
@@ -59,6 +65,23 @@ class StudyAllViewHolder(
             binding.imageViewStudyAllPic.setOnClickListener {
                 // 클릭 시 실행될 코드 (현재는 빈 구현)
             }
+        }
+    }
+
+    // Firebase Storage에서 스터디 이미지 로드
+    private fun loadStudyImage(imageFileName: String) {
+        if (imageFileName.isNotEmpty()) {
+            val storageRef = FirebaseStorage.getInstance().reference.child("studyPic/$imageFileName")
+            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                Glide.with(itemView.context)
+                    .load(uri)
+                    .into(binding.imageViewStudyAllPic)
+            }.addOnFailureListener {
+                // 실패 시 기본 이미지 설정 또는 에러 처리
+                binding.imageViewStudyAllPic.setImageResource(R.drawable.image_detail_1)
+            }
+        } else {
+            binding.imageViewStudyAllPic.setImageResource(R.drawable.image_detail_2)
         }
     }
 
@@ -115,6 +138,18 @@ class StudyAllViewHolder(
         // 스터디 최대 인원과 현재 인원을 설정
         binding.textViewStudyAllMaxMember.text = studyData.first.studyMaxMember.toString()
         binding.textViewStudyAllCurrentMember.text = studyData.second.toString()
+    }
+
+    // 스터디 신청 방식 설정
+    private fun setStudyApplyMethod(studyData: Pair<StudyData, Int>) {
+        with(binding){
+            textViewStudyAllApplyMethod.text = when(studyData.first.studyApplyMethod){
+                1 -> "선착순"
+                2 -> "신청제"
+                else -> ""
+            }
+        }
+
     }
 
     // 찜 버튼 설정
