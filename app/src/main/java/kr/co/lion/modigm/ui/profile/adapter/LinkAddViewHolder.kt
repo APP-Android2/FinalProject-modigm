@@ -49,7 +49,7 @@ class LinkAddViewHolder(
 
             // 삭제
             iconRowLinkAddDelete.setOnClickListener {
-                editProfileViewModel.removeLink(data)
+                editProfileViewModel.removeLinkFromList(data)
             }
         }
     }

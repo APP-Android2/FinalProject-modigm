@@ -82,7 +82,16 @@ class EditProfileViewModel: ViewModel() {
         }
     }
 
-    fun removeLink(link: String) {
+    fun addLinkToList() {
+        val newLink = editProfileNewLink.value
+        if (!newLink.isNullOrEmpty()) {
+            _editProfileLinkList.value = _editProfileLinkList.value?.toMutableList()?.apply {
+                add(newLink)
+            }
+        }
+    }
+
+    fun removeLinkFromList(link: String) {
         _editProfileLinkList.value = _editProfileLinkList.value?.filter { it != link }
     }
 

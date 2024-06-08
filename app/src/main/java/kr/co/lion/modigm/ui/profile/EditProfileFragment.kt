@@ -57,6 +57,7 @@ class EditProfileFragment : Fragment() {
         setupToolbar()
         setupUserInfo()
         setupRecyclerViewLink()
+        setupButtonLinkAdd()
 
         observeData()
     }
@@ -89,6 +90,15 @@ class EditProfileFragment : Fragment() {
                 adapter = linkAddAdapter
                 layoutManager = LinearLayoutManager(requireContext())
             }
+        }
+    }
+
+    private fun setupButtonLinkAdd() {
+        fragmentEditProfileBinding.buttonEditProfileLink.setOnClickListener {
+            // 리스트에 링크 추가
+            editProfileViewModel.addLinkToList()
+            // 링크 텍스트필드 비우기
+            editProfileViewModel.editProfileNewLink.value = ""
         }
     }
 
