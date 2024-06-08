@@ -20,6 +20,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
@@ -254,6 +256,22 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 fragmentDetailEditBinding.editTextDetailEditMember.setSelection(fragmentDetailEditBinding.editTextDetailEditMember.text.toString().length) // 커서를 끝으로 이동
             }
         })
+
+        fragmentDetailEditBinding.editTextDetailEditMember.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // 포커스 해제
+                v.clearFocus()
+
+                // 키보드 숨기기
+                val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(v.windowToken, 0)
+
+                true // 이벤트 처리 완료
+            } else {
+                false // 다른 액션 ID의 경우 이벤트 처리 안함
+            }
+        }
+
     }
 
 
@@ -687,8 +705,17 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 setOnPlaceSelectedListener(this@DetailEditFragment)
             }
             bottomSheet.show(childFragmentManager,bottomSheet.tag)
+
+            bottomSheet.dialog?.setOnDismissListener {
+                clearAllFocus() // 모든 포커스 제거 함수 호출
+            }
         }
 
+    }
+
+    fun clearAllFocus() {
+        // 모든 뷰에서 포커스 제거
+        activity?.window?.decorView?.clearFocus()
     }
 
     fun setupButton() {
