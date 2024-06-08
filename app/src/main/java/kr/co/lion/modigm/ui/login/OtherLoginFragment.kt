@@ -1,8 +1,14 @@
 package kr.co.lion.modigm.ui.login
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -20,13 +26,23 @@ import kr.co.lion.modigm.util.JoinType
 class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
 
     private val viewModel: LoginViewModel by viewModels() // LoginViewModel 인스턴스 생성
+    private lateinit var binding: FragmentOtherLoginBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentOtherLoginBinding.bind(view) // 뷰 바인딩 설정
+        binding = FragmentOtherLoginBinding.bind(view) // 뷰 바인딩 설정
 
         initView(binding) // 초기 UI 설정
         observeViewModel(binding) // ViewModel의 데이터 변경 관찰
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // 이메일 텍스트 필드 포커싱 및 소프트키보드 보여주기
+        binding.textInputEditOtherEmail.requestFocus()
+        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(binding.textInputEditOtherEmail, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun initView(binding: FragmentOtherLoginBinding) {
@@ -66,7 +82,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
             val email = binding.textInputEditOtherEmail.text.toString()
             val password = binding.textInputEditOtherPassword.text.toString()
             val autoLogin = binding.checkBoxOtherAutoLogin.isChecked
-            Log.d("OtherLoginFragment","autoLogin : $autoLogin")
+            Log.d("OtherLoginFragment", "autoLogin : $autoLogin")
             viewModel.login(email, password, autoLogin)
         }
 
@@ -78,13 +94,10 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         // 이메일 찾기 버튼 클릭 시
         binding.buttonOtherFindEmail.setOnClickListener {
             parentFragmentManager.commit {
-                replace(R.id.containerMain,FindEmailFragment())
+                replace(R.id.containerMain, FindEmailFragment())
                 addToBackStack(FragmentName.FIND_EMAIL.str)
             }
         }
-
-
-
     }
 
     // 이메일 유효성 검사
@@ -105,7 +118,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         val password = binding.textInputEditOtherPassword.text.toString()
         if (password.isEmpty()) {
             binding.textInputLayoutOtherPassword.error = "비밀번호를 입력해주세요"
-        } else if(!viewModel.isPasswordValid(password)){
+        } else if (!viewModel.isPasswordValid(password)) {
             binding.textInputLayoutOtherPassword.error = "비밀번호는 6자리 이상 입력해주세요"
         } else {
             binding.textInputLayoutOtherPassword.error = null
@@ -145,6 +158,8 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "이메일 로그인 성공")
+                    // 커스텀 토스트 메시지 추가
+                    showCustomToast("이메일 로그인 성공", R.drawable.email_login_logo)
                     // 메인 화면으로 이동
                     navigateToBottomNaviFragment()
                 }
@@ -183,6 +198,24 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         parentFragmentManager.commit {
             replace(R.id.containerMain, BottomNaviFragment())
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
+        }
+    }
+
+    // 커스텀 토스트 표시 메서드
+    private fun showCustomToast(message: String, iconResId: Int) {
+        val inflater = LayoutInflater.from(requireContext())
+        val layout = inflater.inflate(R.layout.custom_toast_login, null)
+
+        val toastIcon = layout.findViewById<ImageView>(R.id.toast_icon)
+        val toastMessage = layout.findViewById<TextView>(R.id.toast_message)
+
+        toastIcon.setImageResource(iconResId)
+        toastMessage.text = message
+
+        with(Toast(requireContext())) {
+            duration = Toast.LENGTH_SHORT
+            view = layout
+            show()
         }
     }
 }

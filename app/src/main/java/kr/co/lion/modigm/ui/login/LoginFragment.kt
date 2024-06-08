@@ -2,14 +2,21 @@ package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.kakao.sdk.common.KakaoSdk
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
@@ -39,6 +46,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         // 초기 뷰 설정
         initView(binding)
 
+        // Glide를 사용하여 이미지에 블러 효과 적용
+        Glide.with(this)
+            .load(R.drawable.background_login2)
+            .transform(CenterCrop(), BlurTransformation(5, 3)) // 블러 반경과 샘플 크기 설정
+            .into(binding.imageViewLoginBackground)
+
         // ViewModel의 데이터 변경 관찰
         observeViewModel()
     }
@@ -53,6 +66,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "카카오 로그인 성공")
+                    // 커스텀 토스트 메시지 추가
+                    showCustomToast("카카오 로그인 성공", R.drawable.kakaotalk_sharing_btn_small)
+                    Log.i("LoginFragment", "카카오 로그인 토스트")
                     // 스터디 목록 화면으로 이동
                     navigateToBottomNaviFragment()
                 }
@@ -80,6 +96,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "깃허브 로그인 성공")
+                    // 커스텀 토스트 메시지 추가
+                    showCustomToast("깃허브 로그인 성공", R.drawable.icon_github_logo)
+                    Log.i("LoginFragment", "깃허브 로그인 토스트")
                     // 스터디 목록 화면으로 이동
                     navigateToBottomNaviFragment()
                 }
@@ -150,6 +169,24 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         parentFragmentManager.commit {
             replace(R.id.containerMain, BottomNaviFragment())
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
+        }
+    }
+
+    // 커스텀 토스트 표시 메서드
+    private fun showCustomToast(message: String, iconResId: Int) {
+        val inflater = LayoutInflater.from(requireContext())
+        val layout = inflater.inflate(R.layout.custom_toast_login, null)
+
+        val toastIcon = layout.findViewById<ImageView>(R.id.toast_icon)
+        val toastMessage = layout.findViewById<TextView>(R.id.toast_message)
+
+        toastIcon.setImageResource(iconResId)
+        toastMessage.text = message
+
+        with (Toast(requireContext())) {
+            duration = Toast.LENGTH_SHORT
+            view = layout
+            show()
         }
     }
 }
