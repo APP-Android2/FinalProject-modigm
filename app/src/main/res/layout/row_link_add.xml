@@ -1,46 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="20dp">
+    android:paddingBottom="10dp">
 
     <ImageView
         android:id="@+id/imageRowLinkAddIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:srcCompat="@drawable/icon_favorite_full_24px"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/icon_favorite_full_24px" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewRowLinkAdd"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
         android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="@+id/imageRowLinkAddIcon"
-        app:layout_constraintStart_toEndOf="@+id/imageRowLinkAddIcon"
-        app:layout_constraintTop_toTopOf="@+id/imageRowLinkAddIcon" />
-
-    <ImageView
-        android:id="@+id/imageView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="6dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textViewRowLinkAdd"
-        app:layout_constraintStart_toEndOf="@+id/textViewRowLinkAdd"
-        app:layout_constraintTop_toTopOf="@+id/textViewRowLinkAdd"
-        app:srcCompat="@drawable/icon_edit_24px" />
-
-    <ImageView
-        android:id="@+id/imageView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="6dp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView5"
-        app:layout_constraintStart_toEndOf="@+id/imageView5"
+        app:layout_constraintStart_toEndOf="@id/imageRowLinkAddIcon"
+        app:layout_constraintEnd_toStartOf="@id/iconRowLinkAddDelete"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/icon_delete_24px" />
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintWidth_default="wrap" />
+
+    <ImageView
+        android:id="@+id/iconRowLinkAddDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_gravity="end"
+        app:tint="@color/black"
+        app:srcCompat="@drawable/icon_close_24"
+        app:layout_constraintStart_toEndOf="@id/textViewRowLinkAdd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

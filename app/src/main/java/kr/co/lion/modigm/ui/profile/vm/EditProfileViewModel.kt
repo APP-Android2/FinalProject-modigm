@@ -82,4 +82,8 @@ class EditProfileViewModel: ViewModel() {
         }
     }
 
+    fun removeLink(link: String) {
+        _editProfileLinkList.value = _editProfileLinkList.value?.filter { it != link }
+    }
+
 }

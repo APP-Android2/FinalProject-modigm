@@ -8,16 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
-import kr.co.lion.modigm.ui.detail.SkillBottomSheetFragment
+import kr.co.lion.modigm.ui.profile.adapter.LinkAddAdapter
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
@@ -29,6 +31,9 @@ class EditProfileFragment : Fragment() {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var user: FirebaseUser
+
+    // 어댑터 선언
+    private lateinit var linkAddAdapter: LinkAddAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentEditProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_profile, container, false)
@@ -51,10 +56,8 @@ class EditProfileFragment : Fragment() {
     private fun initView() {
         setupToolbar()
         setupUserInfo()
-//        setupRecyclerViewLink()
-//        setupRecyclerViewPartStudy()
-//        setupRecyclerViewHostStudy()
-//
+        setupRecyclerViewLink()
+
         observeData()
     }
 
@@ -76,14 +79,17 @@ class EditProfileFragment : Fragment() {
     private fun setupUserInfo() {
         // 데이터베이스로부터 데이터를 불러와 뷰모델에 담기
         editProfileViewModel.loadUserData(user, requireContext(), fragmentEditProfileBinding.imageProfilePic)
-        // 해당 유저의 로그인 방식 표시
-        val provider = user.providerData
-        for (p in provider) {
-            Log.d("editprofile", "$p")
-        }
+    }
 
-//        editProfileViewModel.loadPartStudyList(uid)
-//        editProfileViewModel.loadHostStudyList(uid)
+    private fun setupRecyclerViewLink() {
+        // 리사이클러뷰 어댑터와 뷰모델을 함께 초기화
+        linkAddAdapter = LinkAddAdapter(emptyList(), requireContext(), editProfileViewModel)
+        fragmentEditProfileBinding.apply {
+            recyclerViewEditProfileLink.apply {
+                adapter = linkAddAdapter
+                layoutManager = LinearLayoutManager(requireContext())
+            }
+        }
     }
 
     fun observeData() {
@@ -137,18 +143,15 @@ class EditProfileFragment : Fragment() {
                 setChipBackgroundColorResource(android.R.color.white)
                 // 클릭하면 바텀시트 올라옴
                 setOnClickListener {
-                    val bottomSheet = InterestBottomSheetFragment().apply {
-                        //setOnSkillSelectedListener(this@WriteSkillFragment)
-                    }
+                    val bottomSheet = InterestBottomSheetFragment()
                     bottomSheet.show(childFragmentManager, bottomSheet.tag)
-
                 }
             })
         }
 
         // 링크 리스트
-        editProfileViewModel.editProfileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
-            //linkAdapter.updateData(profileLinkList)
+        editProfileViewModel.editProfileLinkList.observe(viewLifecycleOwner) { linkList ->
+            linkAddAdapter.updateData(linkList)
         }
     }
 }
