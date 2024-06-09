@@ -12,7 +12,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/image_loading_gray"/>
+        android:src="@drawable/icon_account_circle"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -49,6 +49,6 @@
         android:textStyle="bold"
         android:layout_marginStart="16dp"
         android:layout_gravity="center"
-        android:text="내보내기"/>
+        android:text=""/>
 
 </LinearLayout>

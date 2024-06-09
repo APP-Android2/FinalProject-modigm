@@ -62,6 +62,7 @@ class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private va
             storageReference.downloadUrl.addOnSuccessListener { uri ->
                 Glide.with(itemView.context)
                     .load(uri)
+                    .error(R.drawable.icon_error_24px) // 로드 실패 시 표시할 이미지
                     .into(binding.imageViewDetailJoinMember) // ImageView에 이미지 로드
             }.addOnFailureListener {
                 // 에러 처리
