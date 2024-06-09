@@ -48,13 +48,18 @@ class ChatFragment : Fragment() {
     // 내가 속하며 검색 필터에 맞는 그룹 채팅 방들을 담고 있을 리스트
     var chatSearchRoomDataList = mutableListOf<ChatRoomData>()
 
-    // 현재 로그인 한 사용자 정보
-    private val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    // private val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 프로필 있는 사용자의 UID (DB 연동 후 교체)
+    // 현재 로그인 한 사용자 정보 (현재 임시 데이터로 사용중)
+    val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정
+    val loginUserName = "아무개" // 현재 사용자의 ID를 설정
+    // val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 테스트 아이디 (프사 O, 1:1 방 O)
+    // val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 홍길동 아이디 (프사 O, 1:1 방 O)
+    // val loginUserId = "5mmOdaJFUTbzwUm2398oBYLeOJr1" // 김철수 아이디
+    // val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 아무개 아이디 (1:1 방 O)
+
 
     // FirebaseAuth 인스턴스를 가져옴 (사용하지 않을 예정)
-    val auth = FirebaseAuth.getInstance()
-    val authCurrentUser = auth.currentUser
+    // val auth = FirebaseAuth.getInstance()
+    // val authCurrentUser = auth.currentUser
     // val loginUserId = (authCurrentUser?.uid).toString()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
