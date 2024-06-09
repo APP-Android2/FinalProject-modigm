@@ -386,6 +386,8 @@ class DetailFragment : Fragment() {
                     .replace(R.id.containerMain, detailMemberFragment)
                     .addToBackStack(FragmentName.DETAIL_MEMBER.str)
                     .commit()
+
+                popupWindow.dismiss()
             }
 
             // 글 편집

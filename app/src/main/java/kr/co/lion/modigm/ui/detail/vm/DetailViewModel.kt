@@ -40,6 +40,12 @@ class DetailViewModel : ViewModel() {
     private val _userImageUri = MutableLiveData<Uri>()
     val userImageUri: LiveData<Uri> = _userImageUri
 
+    private val _studyUids = MutableLiveData<List<String>>()
+    val studyUids: LiveData<List<String>> = _studyUids
+
+    private val _userDetails = MutableLiveData<List<UserData>>()
+    val userDetails: LiveData<List<UserData>> = _userDetails
+
     fun selectContentData(studyIdx: Int) {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
         viewModelScope.launch {
@@ -132,6 +138,21 @@ class DetailViewModel : ViewModel() {
                 _userImageUri.postValue(it)
             }.onFailure {
                 Log.e("ViewModel", "Failed to load user image: ${it.message}")
+            }
+        }
+    }
+
+    fun loadStudyUids(studyIdx: Int) {
+        viewModelScope.launch {
+            _studyUids.value = studyRepository.getStudyUidListByStudyIdx(studyIdx)
+        }
+    }
+
+    fun loadUserDetails(uids: List<String>) {
+        viewModelScope.launch {
+            _userDetails.value = uids.mapNotNull { uid ->
+                studyRepository.getUserDetailsByUid(uid)
+
             }
         }
     }
