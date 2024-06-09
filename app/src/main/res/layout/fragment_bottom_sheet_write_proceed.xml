@@ -28,7 +28,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout_writeProceed_bottomSheet"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/style_searchview_write_proceed"
             app:endIconMode="clear_text"
 
@@ -41,9 +41,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/textField_writeProceed_bottomSheet_search"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@drawable/style_searchview_write_proceed"
-                android:text="@={writeViewModel.studyPlace}"
                 android:hint="주소 검색"
                 android:inputType="text"
                 android:singleLine="true"
