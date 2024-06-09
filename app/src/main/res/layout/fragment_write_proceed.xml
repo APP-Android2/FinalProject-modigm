@@ -187,7 +187,6 @@
                             android:layout_height="match_parent"
                             android:hint="인원 수 입력"
                             android:inputType="number"
-                            android:text="@={writeViewModel.studyPlace}"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                             android:textSize="16dp" />
 
