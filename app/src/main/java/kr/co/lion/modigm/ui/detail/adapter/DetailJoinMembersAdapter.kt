@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.detail.adapter
 
 import android.app.AlertDialog
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +20,7 @@ import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.detail.Member
 
-class DetailJoinMembersAdapter: ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+class DetailJoinMembersAdapter(private val currentUserId: String) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = RowDetailJoinMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -41,6 +42,20 @@ class DetailJoinMembersAdapter: ListAdapter<UserData, DetailJoinMembersAdapter.M
 
             Log.d("DetailAdapter", "name: ${user.userName}, intro:${user.userIntro}")
 
+            if (user.userUid == currentUserId) {
+                binding.textViewDetailJoinKick.text = "스터디장"
+                binding.textViewDetailJoinKick.setTextColor(Color.BLACK) // 글씨 색상을 검은색으로 설정
+                binding.textViewDetailJoinKick.isClickable = false // 클릭 비활성화
+                binding.textViewDetailJoinKick.setOnClickListener {
+                    // "스터디장"일 때 아무 동작도 하지 않도록 빈 리스너 설정
+                }
+            } else {
+                binding.textViewDetailJoinKick.text = "내보내기"
+                binding.textViewDetailJoinKick.setOnClickListener {
+                    showKickDialog(user) // 강퇴 다이얼로그 표시
+                }
+            }
+
             // Firebase Storage에서 이미지 URL 가져오기
             val storageReference =
                 FirebaseStorage.getInstance().reference.child("userProfile/${user.userProfilePic}")
@@ -50,10 +65,6 @@ class DetailJoinMembersAdapter: ListAdapter<UserData, DetailJoinMembersAdapter.M
                     .into(binding.imageViewDetailJoinMember) // ImageView에 이미지 로드
             }.addOnFailureListener {
                 // 에러 처리
-            }
-
-            binding.textViewDetailJoinKick.setOnClickListener {
-                showKickDialog(user)
             }
         }
 

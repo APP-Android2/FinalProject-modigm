@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
@@ -22,12 +23,19 @@ class DetailJoinMemberFragment : Fragment() {
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
 
+    private lateinit var auth: FirebaseAuth
+    private lateinit var currentUserId: String
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDetailJoinMemberBinding.inflate(layoutInflater)
-        adapter = DetailJoinMembersAdapter()  // adapter 초기화
+
+        auth = FirebaseAuth.getInstance()
+        currentUserId = auth.currentUser?.uid ?: ""
+
+        adapter = DetailJoinMembersAdapter(currentUserId)  // adapter 초기화
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
@@ -58,7 +66,6 @@ class DetailJoinMemberFragment : Fragment() {
     }
 
     fun setupRecyclerView() {
-        adapter = DetailJoinMembersAdapter()
         binding.recyclerviewDetailJoin.layoutManager = LinearLayoutManager(context)
         binding.recyclerviewDetailJoin.adapter = adapter
     }
