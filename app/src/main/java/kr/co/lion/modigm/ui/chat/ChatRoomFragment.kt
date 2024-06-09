@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -40,7 +41,9 @@ import kr.co.lion.modigm.ui.chat.adapter.ChatRoomMemberAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatMessagesViewModel
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.CameraUtil
+import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -117,8 +120,11 @@ class ChatRoomFragment : Fragment() {
         // 뒤로 가기 콜백 설정
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // 이전 프래그먼트를 스택에서 팝
-                parentFragmentManager.popBackStack()
+                // 뒤로가기
+                // parentFragmentManager.popBackStack()
+                parentFragmentManager.commit() {
+                    replace(R.id.containerMain, BottomNaviFragment())
+                }
             }
         })
 
@@ -242,9 +248,10 @@ class ChatRoomFragment : Fragment() {
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
                     // 뒤로가기
-                    parentFragmentManager.popBackStack()
-                    // requireActivity().supportFragmentManager.popBackStack()
-                    // mainActivity.removeFragment(FragmentName.CHAT_ROOM)
+                    // parentFragmentManager.popBackStack()
+                    parentFragmentManager.commit() {
+                        replace(R.id.containerMain, BottomNaviFragment())
+                    }
                 }
                 // 오른쪽 툴바 버튼(Menu)
                 setOnMenuItemClickListener {
