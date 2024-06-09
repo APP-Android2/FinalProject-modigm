@@ -1,8 +1,10 @@
 package kr.co.lion.modigm.repository
 
 import android.content.Context
+import android.net.Uri
 import android.widget.ImageView
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 
 class StudyRepository {
@@ -41,4 +43,30 @@ class StudyRepository {
     }
 
     suspend fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) = remoteStudyDataSource.updateStudyCanApplyByStudyIdx(studyIdx, canApply)
+
+    // 스터디 데이터 업데이트
+    suspend fun updateStudyDataByStudyIdx(studyIdx: Int, updatedStudyData: Map<String, Any>) =
+        remoteStudyDataSource.updateStudyDataByStudyIdx(studyIdx, updatedStudyData)
+
+
+    // 스터디 커버
+    suspend fun loadStudyPicUrl(studyPic: String): Result<Uri> {
+        return try {
+            val uri = remoteStudyDataSource.loadStudyPicUrl(studyPic)
+            if (uri != null) Result.success(uri) else Result.failure(Exception("Image not found"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 유저 프로필
+    suspend fun loadUserPicUrl(userProfilePic: String): Result<Uri> {
+        return try {
+            val uri = remoteStudyDataSource.loadUserPicUrl(userProfilePic)
+            if (uri != null) Result.success(uri) else Result.failure(Exception("Image not found"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

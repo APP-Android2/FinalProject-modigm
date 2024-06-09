@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.db.study
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -8,6 +9,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -258,4 +260,46 @@ class RemoteStudyDataSource {
             Log.e("Firebase Error", "Error dbAddStudyData: ${e.message}")
         }
     }
+
+    suspend fun updateStudyDataByStudyIdx(studyIdx: Int, updatedStudyData: Map<String, Any>) {
+        try {
+            val querySnapshot = studyCollection
+                .whereEqualTo("studyIdx", studyIdx)
+                .get()
+                .await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents.first()
+                studyCollection.document(document.id).update(updatedStudyData).await()
+                Log.d("RemoteStudyDataSource", "Document updated successfully: $updatedStudyData")
+            } else {
+                Log.e("RemoteStudyDataSource", "No document found with studyIdx: $studyIdx")
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Failed to update study data: ${e.message}", e)
+            throw e
+        }
+    }
+
+
+    suspend fun loadStudyPicUrl(studyPic: String): Uri? {
+        val storageRef = FirebaseStorage.getInstance().reference.child("studyPic/$studyPic")
+        return try {
+            storageRef.downloadUrl.await()
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Error fetching image URL: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun loadUserPicUrl(userProfilePic: String): Uri? {
+        val storageRef = FirebaseStorage.getInstance().reference.child("userProfile/$userProfilePic")
+        return try {
+            storageRef.downloadUrl.await()
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Error fetching image URL: ${e.message}")
+            null
+        }
+    }
+
 }

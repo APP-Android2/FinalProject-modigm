@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,91 +21,61 @@ import com.google.android.material.chip.Chip
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSkillBottomSheetBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.util.Skill
 
 class SkillBottomSheetFragment : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentSkillBottomSheetBinding
-
-    private lateinit var selectedChips: MutableSet<String>  // 선택된 카테고리 관리
-
+    private var selectedSkills: MutableSet<Skill> = mutableSetOf()  // 선택된 스킬 관리
     private var skillSelectedListener: OnSkillSelectedListener? = null
+
+    private var initialSkills: List<Skill> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentSkillBottomSheetBinding.inflate(inflater)
-
         return binding.root
     }
 
-    // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // bottomSheet 배경 설정
-        view.background =
-            ContextCompat.getDrawable(requireContext(), R.drawable.style_bottom_sheet_background)
+        view.background = ContextCompat.getDrawable(requireContext(), R.drawable.style_bottom_sheet_background)
         initializeCategoryChips()
-
-        // 선택된 칩 초기화
-        selectedChips = mutableSetOf<String>()
-
         setupCompleteButton()
         setupScrollView()
-
-        // ScrollViewSkillSelect에 대한 스크롤바 설정
         setupSkillSelectScrollView()
         ScrollViewSkillSelectVisibility()
+        binding.imageViewSkillBottomSheetClose.setOnClickListener { dismiss() }
 
-        // ImageView 클릭 시 BottomSheet 닫기
-        binding.imageViewSkillBottomSheetClose.setOnClickListener {
-            dismiss()
-        }
+        // 초기 선택된 스킬 설정
+        setSelectedSkills(initialSkills)
     }
 
     override fun onStart() {
         super.onStart()
         val dialog = dialog as? BottomSheetDialog
-
         dialog?.let {
-            val bottomSheet =
-                dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
-
-            // 바텀 시트의 행동을 제어하는 BottomSheetBehavior 객체를 가져옴
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as FrameLayout
             val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-
-            // 바텀 시트를 확장된 상태로 설정
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
-            // 바텀 시트의 드래그를 비활성화 (x버튼을 눌러야만 닫히고 손으로 잡아끌 수 없음)
             bottomSheetBehavior.isDraggable = false
-
-            // 바텀시트의 높이를 화면 높이의 80%로 설정
             bottomSheet.layoutParams.height = (getScreenHeight(requireContext()) * 0.8).toInt()
         }
     }
 
     fun getScreenHeight(context: Context): Int {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-        // Android 11 (API 레벨 30) 이상
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // 현재 창의 전체 화면 메트릭스를 가져옴
             val metrics = windowManager.currentWindowMetrics
-            // 화면의 인셋을 가져와서 보이지 않는 시스템 바 영역을 계산
             val insets = metrics.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
-            // 화면의 전체 높이에서 상단 및 하단 인셋을 제외한 순수 사용 가능한 높이를 반환
             metrics.bounds.height() - insets.top - insets.bottom
         } else {
-            // Android 11 미만 버전
             val displayMetrics = DisplayMetrics()
-
-            //deprecated 경고 억제
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getMetrics(displayMetrics)
-            // 화면의 전체 높이를 반환
             displayMetrics.heightPixels
         }
     }
@@ -115,192 +84,178 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
         skillSelectedListener = listener
     }
 
-
-    // 카테고리 스크롤뷰 스크롤바
-    fun setupScrollView() {
-        val scrollView = binding.ScrollViewSkill
-
-        // ScrollView의 스크롤바를 항상 보이게 설정
-        scrollView.isVerticalScrollBarEnabled = true
-        scrollView.isScrollbarFadingEnabled = false
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // Android 10 (API level 29)
-            // 스크롤바 커스텀 Drawable 생성 및 적용
-            val thumbDrawable = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(ContextCompat.getColor(requireContext(), R.color.buttonGray)) // 스크롤바 색상
-                setSize(dpToPx(requireContext(), 4f).toInt(), -1) // 스크롤바 너비
-                cornerRadius = dpToPx(requireContext(), 4f) // 스크롤바 모서리 둥글기
-            }
-            scrollView.verticalScrollbarThumbDrawable = thumbDrawable
-        } else {
+    fun setSelectedSkills(skills: List<Skill>) {
+        initialSkills = skills
+        if (::binding.isInitialized) {
+            selectedSkills.clear()
+            selectedSkills.addAll(skills)
+            updateSelectedChipsUI()
         }
     }
 
-    // 선택된 칩을 보여주는 스크롤 뷰 스크롤 바 설정
-    fun setupSkillSelectScrollView() {
-        val scrollViewSkillSelect = binding.ScrollViewSkillSelect
-        // 스크롤바가 항상 보이도록 설정
-        scrollViewSkillSelect.isVerticalScrollBarEnabled = true
-        scrollViewSkillSelect.isScrollbarFadingEnabled = false
-
-        // 스크롤바의 커스텀 스타일 적용
+    fun setupScrollView() {
+        val scrollView = binding.ScrollViewSkill
+        scrollView.isVerticalScrollBarEnabled = true
+        scrollView.isScrollbarFadingEnabled = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val thumbDrawable = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(ContextCompat.getColor(requireContext(), R.color.buttonGray)) // 스크롤바 색상 지정
-                setSize(dpToPx(requireContext(), 4f).toInt(), -1) // 너비 4dp
-                cornerRadius = dpToPx(requireContext(), 2f) // 모서리 둥글기 2dp
+                setColor(ContextCompat.getColor(requireContext(), R.color.buttonGray))
+                setSize(dpToPx(requireContext(), 4f).toInt(), -1)
+                cornerRadius = dpToPx(requireContext(), 4f)
+            }
+            scrollView.verticalScrollbarThumbDrawable = thumbDrawable
+        }
+    }
+
+    fun setupSkillSelectScrollView() {
+        val scrollViewSkillSelect = binding.ScrollViewSkillSelect
+        scrollViewSkillSelect.isVerticalScrollBarEnabled = true
+        scrollViewSkillSelect.isScrollbarFadingEnabled = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val thumbDrawable = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(ContextCompat.getColor(requireContext(), R.color.buttonGray))
+                setSize(dpToPx(requireContext(), 4f).toInt(), -1)
+                cornerRadius = dpToPx(requireContext(), 2f)
             }
             scrollViewSkillSelect.verticalScrollbarThumbDrawable = thumbDrawable
         }
     }
 
-    // 스낵바 글씨 크기 설정을 위해 dp를 px로 변환
     fun dpToPx(context: Context, dp: Float): Float {
         return dp * context.resources.displayMetrics.density
     }
 
-    // 선택된 칩 스크롤뷰 가시성 설정
     fun ScrollViewSkillSelectVisibility() {
         val scrollViewSkillSelect = binding.ScrollViewSkillSelect
-
-        // 선택된 칩이 있을 경우 ScrollViewSkillSelect를 보이게 함
-        scrollViewSkillSelect.visibility = if (selectedChips.isNotEmpty()) View.VISIBLE else View.GONE
-
-        // 스크롤뷰 스킬 선택이 보이면 스크롤뷰 스킬의 스크롤을 맨 아래로 이동
+        scrollViewSkillSelect.visibility = if (selectedSkills.isNotEmpty()) View.VISIBLE else View.GONE
         if (scrollViewSkillSelect.visibility == View.VISIBLE) {
             scrollToBottom()
         }
     }
 
     fun initializeCategoryChips() {
-        val categories = listOf("전체", "프로그래밍 언어", "백엔드", "프론트 엔드","모바일 개발","데이터 사이언스","데브옵스 및 시스템 관리" ,"클라우드 및 인프라","게임 개발","보안","인공지능","UI/UX 디자인","빅데이터","기타")
-        categories.forEach { category ->
+        Skill.Category.values().forEach { category ->
+            val categoryName = getCategoryName(category)
             val chip = Chip(context).apply {
-                text = category
+                text = categoryName
                 isClickable = true
                 isCheckable = true
                 setTextAppearance(R.style.ChipTextStyle)
-                // 초기 스타일 설정
                 updateChipStyle(this, false)
             }
-            chip.setOnCheckedChangeListener { compoundButton, isChecked ->
-                updateChipStyle(compoundButton as Chip, isChecked)  // 칩 스타일 업데이트
-                handleChipSelection(category, isChecked)  // 칩 선택 처리
-                displaySelectedCategory(category)  // 선택된 카테고리 표시
-                displaySubCategories(category)  // 선택된 카테고리의 서브 카테고리 표시
-            }
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                updateChipStyle(chip, isChecked)
+                if (isChecked) {
+                    if (category == Skill.Category.OTHER) {
+                        selectedSkills.clear()
+                        selectedSkills.add(Skill.OTHER)
+                        updateSelectedChipsUI()
+                    } else {
+                        selectedSkills.remove(Skill.OTHER)
+                        updateCategoryChipState(Skill.OTHER, false)
+                        displaySubCategories(category)
+                    }
 
-            // 칩 추가
+                }else {
+                    if (category == Skill.Category.OTHER) {
+                        binding.subCategoryChipGroupSkill.removeAllViews()
+                    }
+                }
+            }
             binding.chipGroupSkill.addView(chip)
         }
     }
 
-    fun handleChipSelection(category: String, isChecked: Boolean) {
-
-        if (isChecked) {
-            // 모든 칩의 선택 상태를 업데이트
-            binding.chipGroupSkill.children.forEach {
-                (it as Chip).isChecked = it.text.toString() == category
-            }
-
-            if (category == "전체" || category == "기타") {
-                selectedChips.clear() // 선택된 칩 집합을 초기화
-                selectedChips.add(category) // "전체" 또는 "기타"를 선택된 칩 집합에 추가
-                showSubCategories(false) // 서브 카테고리를 표시하지 않음
-            } else {
-                selectedChips.remove("전체") // "전체" 카테고리를 선택된 칩 집합에서 제거
-                binding.chipGroupSkill.findViewWithTag<Chip>("전체")?.isChecked = false
-                showSubCategories(true, category) // 선택된 카테고리에 해당하는 서브 카테고리를 표시
-            }
-        } else {
-            selectedChips.remove(category) // 해당 카테고리를 선택된 칩 집합에서 제거
-            showSubCategories(false) // 서브 카테고리 표시하지 않음
+    fun getCategoryName(category: Skill.Category): String {
+        return when (category) {
+            Skill.Category.PROGRAMMING -> "프로그래밍 언어"
+            Skill.Category.FRONT_END -> "프론트 엔드"
+            Skill.Category.BACK_END -> "백엔드"
+            Skill.Category.MOBILE -> "모바일 개발"
+            Skill.Category.DATA_SCIENCE -> "데이터 사이언스"
+            Skill.Category.DEVOPS -> "데브옵스 및 시스템 관리"
+            Skill.Category.CLOUD -> "클라우드 및 인프라"
+            Skill.Category.GAME_DEVELOPMENT -> "게임 개발"
+            Skill.Category.SECURITY -> "보안"
+            Skill.Category.AI -> "인공지능"
+            Skill.Category.UI_UX -> "UI/UX 디자인"
+            Skill.Category.BIG_DATA -> "빅데이터"
+            Skill.Category.OTHER -> "기타"
         }
-        updateSelectedChipsUI() // 선택된 칩 UI 업데이트
-
     }
 
-    fun showSubCategories(show: Boolean, category: String = "") {
-        if (show) {
-            if (category == "전체" || category == "기타" ) {
-                // "전체" 선택 시 서브 카테고리는 표시하지 않지만 ScrollView를 보이게 함
-                binding.subCategoryChipGroupSkill.removeAllViews()
-            } else if (category.isNotEmpty() && category != "기타") {
-                displaySubCategories(category)
-            }
-        } else {
-            // 서브 카테고리가 숨겨지거나 없는 경우
-            binding.subCategoryChipGroupSkill.removeAllViews()
+    fun displaySubCategories(category: Skill.Category) {
+        binding.subCategoryChipGroupSkill.removeAllViews()
+        if (category == Skill.Category.OTHER) {
+            selectedSkills.clear()
+            updateSelectedChipsUI()
+            return
         }
-        // 가시성 업데이트 호출을 모든 조건문 밖으로 이동
+        Skill.values().filter { it.category == category }.forEach { skill ->
+            val chip = Chip(context).apply {
+                text = skill.displayName
+                isClickable = true
+                isCheckable = true
+                setTextAppearance(R.style.ChipTextStyle)
+                updateChipStyle(this, false)
+            }
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                updateChipStyle(chip, isChecked)
+                if (isChecked) {
+                    selectedSkills.add(skill)
+                } else {
+                    selectedSkills.remove(skill)
+                }
+                updateSelectedChipsUI()
+            }
+            binding.subCategoryChipGroupSkill.addView(chip)
+        }
         ScrollViewSkillSelectVisibility()
     }
 
-
     fun updateSelectedChipsUI() {
-        //ChipGroup의 모든 뷰를 제거
         binding.chipGroupSelectedItems.removeAllViews()
-
-        //각 카테고리에 대한 칩 생성
-        selectedChips.forEach { category ->
+        selectedSkills.forEach { skill ->
             val chip = Chip(context).apply {
-                text = category
+                text = skill.displayName
                 isCloseIconVisible = true
-                setTextAppearance(R.style.ChipTextStyle) // 칩의 텍스트 스타일 설정
-                // 칩의 배경색 설정
-                chipBackgroundColor =ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
-
-                // 닫기 아이콘 클릭 리스너 설정
+                setTextAppearance(R.style.ChipTextStyle)
+                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
                 setOnCloseIconClickListener {
-                    // 선택된 칩 목록에서 현재 칩 제거
-                    selectedChips.remove(category)
-                    // 칩 그룹에서 해당 카테고리의 선택 상태를 false로 설정
-                    updateCategoryChipState(category, false)
-                    // 메인 카테고리 내의 서브 카테고리 칩의 선택 상태 업데이트
-                    updateSubCategoryChipState(category, false)
-
-                    // UI를 다시 업데이트
+                    selectedSkills.remove(skill)
+                    updateCategoryChipState(skill, false)
                     updateSelectedChipsUI()
                 }
             }
-            // 칩 추가
             binding.chipGroupSelectedItems.addView(chip)
         }
-
-        // 선택된 칩 스크롤뷰 가시성 설정
+        if (selectedSkills.isEmpty() ) {
+            val chip = Chip(context).apply {
+                text = "기타"
+                isCloseIconVisible = false
+                setTextAppearance(R.style.ChipTextStyle)
+                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
+            }
+            binding.chipGroupSelectedItems.addView(chip)
+        }
         ScrollViewSkillSelectVisibility()
     }
 
-    fun updateCategoryChipState(category: String, isSelected: Boolean) {
-        // 카테고리 칩 그룹에서 모든 칩을 순회하며 해당 카테고리의 칩 찾기
+    fun updateCategoryChipState(skill: Skill, isSelected: Boolean) {
         binding.chipGroupSkill.children.forEach {
             val chip = it as Chip
-            if (chip.text.toString() == category) {
-                // 해당 카테고리의 칩의 선택 상태를 업데이트
+            if (chip.text.toString() == getCategoryName(skill.category ?: Skill.Category.OTHER)) {
                 chip.isChecked = isSelected
+                updateChipStyle(chip, isSelected)
             }
         }
     }
 
-    fun updateSubCategoryChipState(subCategory: String, isSelected: Boolean) {
-        binding.subCategoryChipGroupSkill.children.forEach {
-            val chip = it as Chip
-            if (chip.text.toString() == subCategory) {
-                chip.isChecked = isSelected
-            }
-        }
-    }
-
-    // 바텀시트 하단 완료 버튼
     fun setupCompleteButton() {
         binding.buttonComplete.setOnClickListener {
-
-            val selectedSkills = selectedChips.toList()
-            // 인터페이스를 사용하여 부모 프래그먼트에 데이터 전달
-            skillSelectedListener?.onSkillSelected(selectedSkills)
-
+            skillSelectedListener?.onSkillSelected(selectedSkills.toList())
             dismiss()
         }
     }
@@ -315,88 +270,10 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
-    fun displaySelectedCategory(category: String) {
-        if (category == "전체" || category == "기타") {
-            // '전체' 카테고리 선택 시 텍스트 뷰를 숨김
-            binding.selectedCategoryTextView.visibility = View.GONE
-        } else {
-            // 다른 카테고리 선택 시 텍스트 뷰를 보이게 하고 카테고리 이름을 표시
-            binding.selectedCategoryTextView.visibility = View.VISIBLE
-            binding.selectedCategoryTextView.text = category
-        }
-    }
-
-    fun displaySubCategories(category: String) {
-        binding.subCategoryChipGroupSkill.removeAllViews()
-        val subCategories = getSubCategoriesFor(category)
-        subCategories.forEach { subCategory ->
-            val chip = Chip(context).apply {
-                text = subCategory
-                isClickable = true
-                isCheckable = true  // 칩이 선택 가능하도록 설정
-                setTextAppearance(R.style.ChipTextStyle)
-                // 초기 스타일 설정
-                updateChipStyle(this, false)
-            }
-            chip.setOnCheckedChangeListener { compoundButton, isChecked ->
-                updateChipStyle(compoundButton as Chip, isChecked)
-
-                val chipText = (compoundButton as Chip).text.toString()
-                if (isChecked) {
-                    selectedChips.add(chipText)  // 선택된 칩 목록에 추가
-                    updateChipStyle(chip, true)  // 칩 스타일을 '선택됨'으로 업데이트
-                } else {
-                    selectedChips.remove(chipText)  // 선택된 칩 목록에서 제거
-                    updateChipStyle(chip, false)  // 칩 스타일을 '선택 해제됨'으로 업데이트
-                }
-                updateSelectedChipsUI()  // 선택된 칩 목록 UI 업데이트
-
-                // 선택된 칩 스크롤뷰 가시성 설정
-                ScrollViewSkillSelectVisibility()
-            }
-            // 칩추가
-            binding.subCategoryChipGroupSkill.addView(chip)
-        }
-        scrollToSubCategories()
-    }
-
-    // 서브카테고리 위치로 스크롤 이동
-    fun scrollToSubCategories() {
-        binding.ScrollViewSkill.post {
-            val scrollView = binding.ScrollViewSkill
-            val subCategoryChipGroup = binding.subCategoryChipGroupSkill
-            val location = IntArray(2)
-            subCategoryChipGroup.getLocationOnScreen(location)
-            val scrollY = location[1] - scrollView.scrollY - scrollView.height / 3 // 스크롤 위치를 서브 카테고리 그룹의 상단으로 조정, 조금 더 시각적 중앙에 오도록 함
-            scrollView.smoothScrollTo(0, scrollY)
-        }
-    }
-
-    // 선택된 칩이 있는 경우 스크롤 맨 아래로
     fun scrollToBottom() {
         binding.ScrollViewSkill.post {
             val scrollView = binding.ScrollViewSkill
             scrollView.fullScroll(View.FOCUS_DOWN)
-        }
-    }
-
-    fun getSubCategoriesFor(category: String): List<String> {
-        return when (category) {
-            "프로그래밍 언어" -> listOf("Python", "Java", "C#", "JavaScript", "Ruby", "Go", "Swift", "Kotlin", "R", "C++", "PHP", "Rust", "TypeScript", "기타")
-            "프론트 엔드" -> listOf("HTML", "CSS", "JavaScript", "React", "Angular", "Vue.js", "NPM", "Webpack", "Babel", "기타")
-            "백엔드" -> listOf("Java", "Python", "Ruby", "Node.js", "PHP", "C#", "Express", "Django", "Flask", "Spring", ".NET", "MySQL", "PostgreSQL", "MongoDB", "Redis", "기타")
-            "모바일 개발" -> listOf("Swift(iOS)", "Kotlin(Android)", "React Native", "Flutter", "Xamarin", "기타")
-            "데이터 사이언스" -> listOf("Python", "R", "Pandas", "NumPy", "SciPy", "scikit-learn", "TensorFlow", "PyTorch", "Jupyter Notebook", "Anaconda", "기타")
-            "데브옵스 및 시스템 관리" -> listOf("Jenkins", "Ansible", "Terraform", "Docker", "Kubernetes", "Prometheus", "Grafana", "ELK Stack", "기타")
-            "클라우드 및 인프라" -> listOf("AWS", "Google Cloud", "Azure", "AWS Lambda", "Azure Functions", "Terraform", "CloudFormation", "기타")
-            "게임 개발" -> listOf("Unity", "Unreal Engine", "C#", "C++", "Blender", "Maya","기타")
-            "보안" -> listOf("Wireshark", "Metasploit", "암호화", "인증", "네트워크 보안", "Kali Linux", "OWASP","기타")
-            "인공지능" -> listOf("Python", "R", "TensorFlow", "PyTorch", "Keras", "자연어 처리", "컴퓨터 비전", "머신러닝","기타")
-            "UI/UX 디자인" -> listOf("Sketch", "Adobe XD", "Figma", "사용자 중심 디자인", "인터랙션 디자인","기타")
-            "빅데이터" -> listOf("Hadoop", "Spark", "HDFS", "Cassandra", "Apache Kafka", "Apache Flink","기타")
-            "전체" -> listOf()  // "전체"에 대한 서브 카테고리는 없음
-            "기타" -> listOf()  // "기타"에 대한 서브 카테고리는 없음
-            else -> listOf("No sub-categories")
         }
     }
 

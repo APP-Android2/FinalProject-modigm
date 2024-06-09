@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.detail.vm
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,14 +21,24 @@ class DetailViewModel : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    // UserData가 데이터 모델이라고 가정
-    private val _userNameData = MutableLiveData<UserData?>()
-    val userNameData: LiveData<UserData?> = _userNameData
+    private val _userData = MutableLiveData<UserData?>()
+    val userData: LiveData<UserData?> = _userData
 
     // 기존 코드...
     private val _userProfilePicUrl = MutableLiveData<String?>()
     val userProfilePicUrl: LiveData<String?> = _userProfilePicUrl
 
+    private val _errorMessages = MutableLiveData<String>()
+    val errorMessages: MutableLiveData<String> = _errorMessages
+
+    private val _updateResult = MutableLiveData<Boolean>()
+    val updateResult: MutableLiveData<Boolean> get() = _updateResult
+
+    private val _imageUri = MutableLiveData<Uri>()
+    val imageUri: LiveData<Uri> = _imageUri
+
+    private val _userImageUri = MutableLiveData<Uri>()
+    val userImageUri: LiveData<Uri> = _userImageUri
 
     fun selectContentData(studyIdx: Int) {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
@@ -44,27 +55,18 @@ class DetailViewModel : ViewModel() {
             }
         }
     }
-
     fun loadUserDetailsByUid(uid: String) {
         _isLoading.value = true
         viewModelScope.launch {
-            try {
-                val userDetails = studyRepository.loadUserDetailsByUid(uid)
-                userDetails?.let {
-                    _userNameData.value =
-                        UserData(userName = it.userName, userProfilePic = it.userProfilePic)
-                    _userProfilePicUrl.value = it.userProfilePic
-                }
-                Log.d("DetailVM", "User details loaded successfully.")
-            } catch (e: Exception) {
-                Log.e("DetailVM Error", "Error in fetching user details: ${e.message}")
-                _userNameData.value = null
-                _userProfilePicUrl.value = null
-            } finally {
-                _isLoading.value = false
+            studyRepository.loadUserDetailsByUid(uid)?.let {
+                _userData.value = it
+            } ?: run {
+                _errorMessages.value = "Failed to load user details"
             }
+            _isLoading.value = false
         }
     }
+
 
     fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) {
         viewModelScope.launch {
@@ -77,4 +79,62 @@ class DetailViewModel : ViewModel() {
             }
         }
     }
+
+    fun updateStudyDataByStudyIdx(studyIdx: Int, studyData: StudyData) {
+        viewModelScope.launch {
+            try {
+                val dataMap = studyData.toMap() // StudyData 객체를 Map으로 변환
+                studyRepository.updateStudyDataByStudyIdx(studyIdx, dataMap)
+                _updateResult.postValue(true)  // UI에 변경 사항 반영
+                Log.d("DetailViewModel", "Study data updated successfully for studyIdx: $studyIdx")
+            } catch (e: Exception) {
+                Log.e("DetailViewModel", "Update failed: ${e.message}")
+                _updateResult.postValue(false)
+            }
+        }
+    }
+
+    fun StudyData.toMap(): Map<String, Any> = mapOf(
+        "studyIdx" to studyIdx,
+        "studyTitle" to studyTitle,
+        "studyContent" to studyContent,
+        "studyType" to studyType,
+        "studyPlace" to studyPlace,
+        "studyDetailPlace" to studyDetailPlace,
+        "studyOnOffline" to studyOnOffline,
+        "studyApplyMethod" to studyApplyMethod,
+        "studyPic" to studyPic,
+        "studySkillList" to studySkillList,
+        "studyCanApply" to studyCanApply,
+        "studyPic" to studyPic,
+        "studyMaxMember" to studyMaxMember,
+        "studyUidList" to studyUidList,
+        "chatIdx" to chatIdx,
+        "studyState" to studyState,
+        "studyWriteUid" to studyWriteUid
+    )
+
+    fun loadStudyPic(studyPic: String) {
+        viewModelScope.launch {
+            val result = studyRepository.loadStudyPicUrl(studyPic)
+            result.onSuccess {
+                _imageUri.postValue(it)
+            }.onFailure {
+                Log.e("ViewModel", "Failed to load cover image: ${it.message}")
+            }
+        }
+    }
+
+    fun loadUserPicUrl(userProfilePic: String) {
+        viewModelScope.launch {
+            val result = studyRepository.loadUserPicUrl(userProfilePic)
+            result.onSuccess {
+                _userImageUri.postValue(it)
+            }.onFailure {
+                Log.e("ViewModel", "Failed to load user image: ${it.message}")
+            }
+        }
+    }
+
+
 }
