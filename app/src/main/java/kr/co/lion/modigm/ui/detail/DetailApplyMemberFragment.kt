@@ -14,7 +14,11 @@ import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 
-
+// 오류 방지 나중에 삭제 예정
+data class Member(
+    val name: String,
+    val intro: String
+)
 class DetailApplyMemberFragment : Fragment() {
 
     lateinit var fragmentDetailApplyMemberBinding: FragmentDetailApplyMemberBinding

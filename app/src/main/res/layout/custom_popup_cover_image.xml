@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingVertical="10dp"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:id="@+id/layoutCameraLauncher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:gravity="center"
+        android:paddingVertical="4dp"
+        android:orientation="horizontal"
+        android:visibility="visible">
+        <ImageView
+            android:id="@+id/imageViewCamera"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_camera_alt_24"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/textView_cameraLauncher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="사진 촬영"
+            android:textSize="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutAlbumLauncher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="4dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="visible">
+        <ImageView
+            android:id="@+id/imageView_Album"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_photo_plus_24px"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/textView_albumLauncher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="앨범에서 찾기"
+            android:textSize="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="@color/black" />
+    </LinearLayout>
+</LinearLayout>

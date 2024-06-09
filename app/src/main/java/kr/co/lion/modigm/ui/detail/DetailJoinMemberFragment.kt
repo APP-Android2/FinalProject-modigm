@@ -6,31 +6,42 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
-
-data class Member(
-    val name: String,
-    val intro: String
-)
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
 class DetailJoinMemberFragment : Fragment() {
 
-    lateinit var fragmentDetailJoinMemberBinding: FragmentDetailJoinMemberBinding
+    lateinit var binding: FragmentDetailJoinMemberBinding
+    private val viewModel: DetailViewModel by activityViewModels()
+    private lateinit var adapter: DetailJoinMembersAdapter
 
-    lateinit var mainActivity: MainActivity
+    // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
+    var studyIdx = 0
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var currentUserId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        fragmentDetailJoinMemberBinding = FragmentDetailJoinMemberBinding.inflate(layoutInflater)
-        mainActivity = activity as MainActivity
+        binding = FragmentDetailJoinMemberBinding.inflate(layoutInflater)
+
+        auth = FirebaseAuth.getInstance()
+        currentUserId = auth.currentUser?.uid ?: ""
+
+        // 상품 idx
+        studyIdx = arguments?.getInt("studyIdx")!!
+
+        adapter = DetailJoinMembersAdapter(viewModel,currentUserId, studyIdx)  // adapter 초기화
 
 
-        return fragmentDetailJoinMemberBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -38,19 +49,27 @@ class DetailJoinMemberFragment : Fragment() {
 
         setupRecyclerView()
 
+        viewModel.loadStudyUids(studyIdx)
+
+        viewModel.studyUids.observe(viewLifecycleOwner) { uids ->
+            viewModel.loadUserDetails(uids)
+            uids.forEach { uid ->
+                Log.d("DetailJoinMemberFragment", "User UID: $uid")
+            }
+        }
+
+
+        viewModel.userDetails.observe(viewLifecycleOwner) { userDetails ->
+            userDetails?.let {
+                adapter.submitList(it)
+            }
+        }
+
     }
 
     fun setupRecyclerView() {
-        val layoutManager = LinearLayoutManager(context)
-        fragmentDetailJoinMemberBinding.recyclerviewDetailJoin.layoutManager = layoutManager
-        // 임시 데이터(확인용)
-        val members = listOf(
-            Member("홍길동", "열심히 일하는 개발자입니다."),
-            Member("김철수", "디자인을 사랑하는 크리에이터입니다."),
-            Member("이영희", "프로젝트 매니지먼트가 전문인 매니저입니다.")
-        )
-        fragmentDetailJoinMemberBinding.recyclerviewDetailJoin.adapter = DetailJoinMembersAdapter(members)
-        Log.d("DetailJoinMemberFragment", "Adapter set with ${members.size} members.")
+        binding.recyclerviewDetailJoin.layoutManager = LinearLayoutManager(context)
+        binding.recyclerviewDetailJoin.adapter = adapter
     }
 
 

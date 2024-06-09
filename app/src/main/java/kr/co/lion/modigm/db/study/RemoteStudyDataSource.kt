@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.db.study
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -8,13 +9,18 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class RemoteStudyDataSource {
 
@@ -258,4 +264,71 @@ class RemoteStudyDataSource {
             Log.e("Firebase Error", "Error dbAddStudyData: ${e.message}")
         }
     }
+
+    suspend fun updateStudyDataByStudyIdx(studyIdx: Int, updatedStudyData: Map<String, Any>) {
+        try {
+            val querySnapshot = studyCollection
+                .whereEqualTo("studyIdx", studyIdx)
+                .get()
+                .await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents.first()
+                studyCollection.document(document.id).update(updatedStudyData).await()
+                Log.d("RemoteStudyDataSource", "Document updated successfully: $updatedStudyData")
+            } else {
+                Log.e("RemoteStudyDataSource", "No document found with studyIdx: $studyIdx")
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Failed to update study data: ${e.message}", e)
+            throw e
+        }
+    }
+
+
+    suspend fun loadStudyPicUrl(studyPic: String): Uri? {
+        val storageRef = FirebaseStorage.getInstance().reference.child("studyPic/$studyPic")
+        return try {
+            storageRef.downloadUrl.await()
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Error fetching image URL: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun loadUserPicUrl(userProfilePic: String): Uri? {
+        val storageRef = FirebaseStorage.getInstance().reference.child("userProfile/$userProfilePic")
+        return try {
+            storageRef.downloadUrl.await()
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Error fetching image URL: ${e.message}")
+            null
+        }
+    }
+
+
+    suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean = suspendCoroutine { continuation ->
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    continuation.resume(false)
+                } else {
+                    val document = documents.first()  // 첫 번째 문서 사용
+                    val userList = document.get("studyUidList") as List<String>
+                    if (userList.contains(userUid)) {
+                        val updatedList = ArrayList(userList).apply { remove(userUid) }
+                        document.reference.update("studyUidList", updatedList)
+                            .addOnSuccessListener { continuation.resume(true) }
+                            .addOnFailureListener { continuation.resumeWithException(it) }
+                    } else {
+                        continuation.resume(false)
+                    }
+                }
+            }
+            .addOnFailureListener { continuation.resumeWithException(it) }
+    }
+
+
 }
