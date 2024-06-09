@@ -76,11 +76,11 @@ class ChatRoomAdapter(
                             Log.v("chatLog2", "RoomAdapter - $userProfile")
                             ChatRoomDataSource.loadUserProfilePic(context, userProfile, roomImageImageView)
                         } else {
-                            roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                            roomImageImageView.setImageResource(R.drawable.base_profile_image2)
                         }
                     }
                 }
-                roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                roomImageImageView.setImageResource(R.drawable.base_profile_image2)
             }
             // 그룹 채팅 사진은 글 작성 -> 그 이미지로 설정 (아직 Firebase 정보 없음) - DB 연동해야함
             else {
@@ -88,7 +88,7 @@ class ChatRoomAdapter(
                 roomTitleTextView.text = room.chatTitle
                 // 채팅 방 이미지 존재 X
                 if (room.chatRoomImage.isNullOrEmpty()){
-                    roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                    roomImageImageView.setImageResource(R.drawable.image_detail_1)
                 }
                 // 채팅 방 이미지 존재 O
                 else {

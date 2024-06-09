@@ -121,7 +121,7 @@ class MessageAdapter(
         private val messageImageBody: ImageView = itemView.findViewById(R.id.image_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
-        private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatroomFiledImage)
+        private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatMessageProfileImage)
         fun bind(message: ChatMessagesData, userData: UserData?, dateCheck: Boolean, currentDate: String) {
 
             // 해당 메시지가 사진인지 판독
@@ -156,7 +156,7 @@ class MessageAdapter(
             // UserData 유무 검사
             if (userData == null) {
                 messageSender.text = "알 수 없는 사용자" // 기본값 설정
-                imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image) // 기본 이미지 설정
+                imageChatroomFiledImage.setImageResource(R.drawable.base_profile_image2) // 기본 이미지 설정
                 // messageSender.text = message.chatSenderName
             }
             else {
@@ -165,7 +165,7 @@ class MessageAdapter(
 
             // 프로필 사진 유무 검사
             if (userData?.userProfilePic.isNullOrEmpty()){
-                imageChatroomFiledImage.setImageResource(R.drawable.test_profile_image)
+                imageChatroomFiledImage.setImageResource(R.drawable.base_profile_image2)
             } else {
                 // 이미지가 있으면 Glide 등을 사용하여 이미지를 로드합니다.
                 val context = itemView.context
