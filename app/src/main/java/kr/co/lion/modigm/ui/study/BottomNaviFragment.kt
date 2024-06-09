@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -11,6 +12,7 @@ import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 
 
 class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
@@ -83,12 +85,21 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
                         // 마이 클릭 시
                         R.id.bottomNaviMy -> {
-                            childFragmentManager.commit {
-                                replace(R.id.containerBottomNavi, ProfileFragment())
+                            val profileFragment = ProfileFragment()
 
+                            // Bundle 생성 및 현재 사용자 uid 담기
+                            val bundle = Bundle()
+                            Log.d("zunione", ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!)
+                            bundle.putString("uid", ModigmApplication.prefs.getUserData("currentUserData")?.userUid)
+
+                            // Bundle을 ProfileFragment에 설정
+                            profileFragment.arguments = bundle
+
+                            // Fragment 교체
+                            childFragmentManager.commit {
+                                replace(R.id.containerBottomNavi, profileFragment)
                             }
                         }
-
                     }
                     true
                 }

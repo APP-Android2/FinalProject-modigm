@@ -24,14 +24,15 @@ import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
+import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
     private val profileViewModel: ProfileViewModel by viewModels()
 
-    // arguments에서 불러옴
-    val uid = "J04y39mPQ8fLIm2LukmdpRVGN8b2"
-    var myProfile = true
+    // onCreateView에서 초기화
+    var uid: String? = null
+    var myProfile: Boolean = false
 
     // 어댑터 선언
     val linkAdapter: LinkAdapter = LinkAdapter(
@@ -98,6 +99,9 @@ class ProfileFragment: Fragment() {
         fragmentProfileBinding.profileViewModel = profileViewModel
         fragmentProfileBinding.lifecycleOwner = this
 
+        uid = arguments?.getString("uid")
+        myProfile = uid == ModigmApplication.prefs.getUserData("currentUserData")?.userUid
+
         return fragmentProfileBinding.root
     }
 
@@ -128,11 +132,6 @@ class ProfileFragment: Fragment() {
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.menu_item_profile_setting -> {
-//                            parentFragmentManager.beginTransaction()
-//                                .replace(R.id.containerMain, SettingsFragment())
-//                                .addToBackStack(FragmentName.SETTINGS.str)
-//                                .commit()
-
                             // 현재 프래그먼트의 부모 프래그먼트 (BottomNaviFragment) 가져오기
                             val bottomNaviFragment = parentFragment
 
@@ -205,9 +204,9 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupUserInfo() {
-        profileViewModel.loadUserData(uid, requireContext(), fragmentProfileBinding.imageProfilePic)
-        profileViewModel.loadPartStudyList(uid)
-        profileViewModel.loadHostStudyList(uid)
+        profileViewModel.loadUserData(uid!!, requireContext(), fragmentProfileBinding.imageProfilePic)
+        profileViewModel.loadPartStudyList(uid!!)
+        profileViewModel.loadHostStudyList(uid!!)
     }
 
     private fun setupRecyclerViewLink() {
