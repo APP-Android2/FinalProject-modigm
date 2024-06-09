@@ -136,5 +136,21 @@ class DetailViewModel : ViewModel() {
         }
     }
 
+    // 특정 studyIdx의 studyState를 업데이트하는 함수
+    fun updateStudyStateByStudyIdx(studyIdx: Int) {
+        viewModelScope.launch {
+            try {
+                val studyData = studyRepository.selectContentData(studyIdx)
+                if (studyData != null) {
+                    studyRepository.updateStudyStateByStudyIdx(studyIdx, false)
+                } else {
+                    Log.e("ViewModel", "No study found with the given index.")
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to update study state: ${e.message}")
+            }
+        }
+    }
+
 
 }
