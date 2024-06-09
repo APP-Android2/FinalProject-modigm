@@ -109,27 +109,12 @@
             app:rippleColor="#00FFFFFF"
             />
 
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/checkboxAutoLogin"
-            style="@style/Widget.Material3.CompoundButton.CheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="44dp"
-            android:fontFamily="@font/one_mobile_pop_otf"
-            android:text="자동 로그인"
-            android:textColor="@color/white"
-            android:textSize="10dp"
-            android:textStyle="normal"
-            app:buttonTint="@color/white"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageButtonLoginGithub" />
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/textButtonLoginOther"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="104dp"
+            android:layout_marginTop="20dp"
             android:fontFamily="@font/one_mobile_pop_otf"
             android:stateListAnimator="@animator/button_click"
             android:text="다른 방법으로 로그인"
