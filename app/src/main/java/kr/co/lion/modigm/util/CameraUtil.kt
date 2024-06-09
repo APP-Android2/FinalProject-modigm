@@ -6,8 +6,10 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
+import java.io.File
+import java.io.FileOutputStream
 
-class Camera {
+class CameraUtil {
     companion object {
         // 사진의 회전 각도값을 반환하는 메서드
         // ExifInterface : 사진, 영상, 소리 등의 파일에 기록한 정보
@@ -77,6 +79,24 @@ class Camera {
             val resizedBitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, false)
 
             return resizedBitmap
+        }
+
+        // 이미지뷰의 이미지를 추출해 로컬에 저장한다.
+        fun saveImageViewIndividualItemData(context: Context, bitmap: Bitmap, fileName: String) {
+            // 외부 저장소까지의 경로를 가져온다.
+            val filePath = context.getExternalFilesDir(null).toString()
+
+            // 로컬에 저장할 경로
+            val file = File("${filePath}/${fileName}")
+            // 스트림 추출
+            val fileOutputStream = FileOutputStream(file)
+            // 이미지를 저장한다.
+            // 첫 번째 : 이미지 데이터 포멧(JPEG, PNG, WEBP_LOSSLESS, WEBP_LOSSY)
+            // 두 번째 : 이미지의 퀄리티
+            // 세 번째 : 이미지 데이터를 저장할 파일과 연결된 스트림
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+            fileOutputStream.flush()
+            fileOutputStream.close()
         }
     }
 }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.db.chat.ChatMessagesDataSource
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.UserData
@@ -80,11 +81,28 @@ class MessageAdapter(
     class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val textDate: TextView = itemView.findViewById(R.id.text_date)
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
+        private val messageImageBody: ImageView = itemView.findViewById(R.id.image_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
 
         fun bind(message: ChatMessagesData, dateCheck: Boolean, currentDate: String) {
 
-            messageBody.text = message.chatMessage
+            if (message.chatMessage.endsWith(".jpg")) {
+                // 이미지가 있으면 Glide 등을 사용하여 이미지를 로드합니다.
+                val context = itemView.context
+                try {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        ChatMessagesDataSource.loadChatImageMessage(context,
+                            message.chatMessage, messageImageBody)
+                    }
+                    messageImageBody.visibility = View.VISIBLE
+                    messageBody.visibility = View.GONE
+                } catch (e: Exception) {
+                    Log.v("chatLog2", "$e")
+                    messageBody.text = message.chatMessage
+                }
+            } else {
+                messageBody.text = message.chatMessage
+            }
             messageTime.text = message.chatTime
 
             // 날자 구분선
@@ -100,11 +118,31 @@ class MessageAdapter(
     class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val textDate: TextView = itemView.findViewById(R.id.text_date)
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
+        private val messageImageBody: ImageView = itemView.findViewById(R.id.image_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
         private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatroomFiledImage)
         fun bind(message: ChatMessagesData, userData: UserData?, dateCheck: Boolean, currentDate: String) {
-            messageBody.text = message.chatMessage
+
+            // 해당 메시지가 사진인지 판독
+            if (message.chatMessage.endsWith(".jpg")) {
+                // 이미지가 있으면 Glide 등을 사용하여 이미지를 로드합니다.
+                val context = itemView.context
+                try {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        ChatMessagesDataSource.loadChatImageMessage(context,
+                            message.chatMessage, messageImageBody)
+                    }
+                    messageImageBody.visibility = View.VISIBLE
+                    messageBody.visibility = View.GONE
+                } catch (e: Exception) {
+                    Log.v("chatLog2", "$e")
+                    messageBody.text = message.chatMessage
+                }
+            } else {
+                messageBody.text = message.chatMessage
+            }
+            
             messageTime.text = message.chatTime
 
             // 날자 구분선
