@@ -189,46 +189,45 @@ class ChatRoomFragment : Fragment() {
         albumLauncher = registerForActivityResult(albumContract) {
             // 사진 선택을 완료한 후 돌아왔다면
             if (it.resultCode == AppCompatActivity.RESULT_OK) {
-                // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출한다.
+                // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출
                 val uri = it.data?.data
                 if (uri != null) {
-                    // 안드로이드 Q(10) 이상이라면
+                    // 안드로이드 Q(10) 이상 시
                     val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        // 이미지를 생성할 수 있는 객체를 생성한다.
+                        // 이미지 생성 할 수 있는 객체 생성
                         val source = ImageDecoder.createSource(context.contentResolver, uri)
-                        // Bitmap을 생성한다.
+                        // Bitmap 생성
                         ImageDecoder.decodeBitmap(source)
-                    } else {
-                        // 컨텐츠 프로바이더를 통해 이미지 데이터에 접근한다.
+                    }
+                    else {
+                        // Content Provider 를 통해 이미지 데이터에 접근
                         val cursor = context.contentResolver.query(uri, null, null, null, null)
                         if (cursor != null) {
                             cursor.moveToNext()
-
-                            // 이미지의 경로를 가져온다.
+                            // 이미지의 경로를 가져옴
                             val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
                             val source = cursor.getString(idx)
-
-                            // 이미지를 생성한다
+                            // 이미지 생성
                             BitmapFactory.decodeFile(source)
-                        } else {
-                            null
-                        }
+                        } else { null }
                     }
 
-                    // 회전 각도값을 가져온다.
+                    // 회전 각도 값
                     val degree = CameraUtil.getDegree(context, uri)
-                    // 회전 이미지를 가져온다
-                    val bitmap2 = CameraUtil.rotateBitmap(bitmap!!, degree.toFloat())
-                    // 크기를 줄인 이미지를 가져온다.
-                    val bitmap3 = CameraUtil.resizeBitmap(bitmap2, 1024)
+                    // 회전 이미지
+                    val rotateImage = CameraUtil.rotateBitmap(bitmap!!, degree.toFloat())
+                    // 크기를 줄인 이미지
+                    val resultImage = CameraUtil.resizeBitmap(rotateImage, 1024)
 
-                    // 이미지 비트맵이 추가되는지 확인하고 추가
-                    imageBitmap = bitmap3
+                    // imageBitmap 에 Bitmap 을 담음
+                    imageBitmap = resultImage
 
+                    // 현재 시간 (경로 이름에 쓰일 예정)
                     val currentTimeText = SimpleDateFormat("yyMMdd_HHmm_ss").format(Date())
                     var serverFileName = "${chatIdx}_ImageMessage_${currentTimeText}.jpg"
                     imagePath = serverFileName
 
+                    // 사진 첨부 여부
                     isProductAddPicture = true
 
                     // 이미지 추가 후 메시지 전송
@@ -306,7 +305,6 @@ class ChatRoomFragment : Fragment() {
                 // 현재 시간
                 val now = System.currentTimeMillis()
                 val currentTimeText = SimpleDateFormat("HH:mm").format(Date())
-
 
                 val chatIdx = chatIdx
                 // 현재 로그인 한 계정의 아이디
@@ -538,7 +536,9 @@ class ChatRoomFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             val coroutine1 = chatRoomViewModel.removeUserFromChatMemberList(chatIdx, loginUserId)
             coroutine1.join()
-            parentFragmentManager.popBackStack()
+            parentFragmentManager.commit() {
+                replace(R.id.containerMain, BottomNaviFragment())
+            }
         }
     }
 

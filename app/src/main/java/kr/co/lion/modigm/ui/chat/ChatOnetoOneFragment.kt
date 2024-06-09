@@ -21,6 +21,7 @@ import kr.co.lion.modigm.util.FragmentName
 
 class ChatOnetoOneFragment : Fragment() {
 
+    // 바인딩 및 메인 Activity 세팅
     lateinit var fragmentChatOnetoOneBinding: FragmentChatOnetoOneBinding
     lateinit var mainActivity: MainActivity
     

@@ -35,6 +35,7 @@ import kr.co.lion.modigm.util.hideSoftInput
 
 class ChatFragment : Fragment() {
 
+    // 바인딩 및 메인 Activity 세팅
     lateinit var fragmentChatBinding: FragmentChatBinding
     lateinit var mainActivity: MainActivity
 
@@ -51,7 +52,7 @@ class ChatFragment : Fragment() {
     private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     // private val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 프로필 있는 사용자의 UID (DB 연동 후 교체)
 
-    // FirebaseAuth 인스턴스를 가져옴
+    // FirebaseAuth 인스턴스를 가져옴 (사용하지 않을 예정)
     val auth = FirebaseAuth.getInstance()
     val authCurrentUser = auth.currentUser
     // val loginUserId = (authCurrentUser?.uid).toString()
@@ -179,18 +180,16 @@ class ChatFragment : Fragment() {
     // 검색 로직 처리
     private fun searchResult(query: String) {
         // 검색 결과를 가져와 RecyclerView에 표시
-        if (query.isNullOrEmpty()){
-            with(fragmentChatBinding){
+        with(fragmentChatBinding){
+            if (query.isNullOrEmpty()){
                 viewPagerContainer.visibility = View.VISIBLE
                 recyclerViewChatSearchResults.visibility = View.GONE
             }
-        }
-        else {
-            with(fragmentChatBinding){
+            else {
                 viewPagerContainer.visibility = View.GONE
                 recyclerViewChatSearchResults.visibility = View.VISIBLE
+                chatSearchResultsAdapter.filter(query)
             }
-            chatSearchResultsAdapter.filter(query)
         }
     }
 
@@ -209,8 +208,7 @@ class ChatFragment : Fragment() {
             TabLayoutMediator(tabsChat, viewPagerChat) { tab, position ->
                 tab.text = titles.get(position)
             }.attach()
-
-            // ViewPager 드래그 비활성화
+            // 6. ViewPager 드래그 비활성화
             viewPagerChat.isUserInputEnabled = false
         }
     }
@@ -243,32 +241,29 @@ class ChatFragment : Fragment() {
 
     // 리사이클러 뷰 세팅
     private fun setupRecyclerView() {
-        with(fragmentChatBinding) {
-            with(recyclerViewChatSearchResults){
-                layoutManager = LinearLayoutManager(requireContext())
-                // onItemClick 시
-                chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
-                    Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
+        with(fragmentChatBinding.recyclerViewChatSearchResults) {
+            layoutManager = LinearLayoutManager(requireContext())
+            // onItemClick 시
+            chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
+                Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
 
-                    // ChatRoomFragment로 이동
-                    val chatRoomFragment = ChatRoomFragment().apply {
-                        arguments = Bundle().apply {
-                            putInt("chatIdx", roomItem.chatIdx)
-                            putString("chatTitle", roomItem.chatTitle)
-                            putStringArrayList("chatMemberList", ArrayList(roomItem.chatMemberList))
-                            putInt("participantCount", roomItem.participantCount)
-                            putBoolean("groupChat", roomItem.groupChat)
-                        }
+                // ChatRoomFragment로 이동
+                val chatRoomFragment = ChatRoomFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("chatIdx", roomItem.chatIdx)
+                        putString("chatTitle", roomItem.chatTitle)
+                        putStringArrayList("chatMemberList", ArrayList(roomItem.chatMemberList))
+                        putInt("participantCount", roomItem.participantCount)
+                        putBoolean("groupChat", roomItem.groupChat)
                     }
+                }
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, chatRoomFragment)
+                    addToBackStack(FragmentName.CHAT_ROOM.str)
+                }
+            }, loginUserId)
 
-                    requireActivity().supportFragmentManager.commit {
-                        replace(R.id.containerMain, chatRoomFragment)
-                        addToBackStack(FragmentName.CHAT_ROOM.str)
-                    }
-
-                }, loginUserId)
-                adapter = chatSearchResultsAdapter
-            }
+            adapter = chatSearchResultsAdapter
         }
     }
 
