@@ -16,6 +16,7 @@ import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginResult
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 
@@ -44,6 +45,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     // ViewModel의 데이터 변경을 관찰하는 메서드
     private fun observeViewModel() {
+        // 카카오 로그인 데이터 관찰
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Loading -> {
@@ -51,8 +53,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "카카오 로그인 성공")
-                    // 로그인 성공 후 커스텀 토큰과 JoinType을 받아 회원가입 화면으로 이동
-                    viewModel.customToken.observe(viewLifecycleOwner, Observer { token ->
+                    // 스터디 목록 화면으로 이동
+                    navigateToBottomNaviFragment()
+                }
+                is LoginResult.NeedSignUp -> {
+                    Log.i("LoginFragment", "카카오 로그인 성공, 회원가입 필요")
+                    viewModel.kakaoCustomToken.observe(viewLifecycleOwner, Observer { token ->
                         Log.i("LoginFragment", "커스텀 토큰 업데이트됨: $token")
                         val joinType = viewModel.joinType.value ?: JoinType.KAKAO
                         if (token != null) {
@@ -66,6 +72,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             }
         })
 
+        // 깃허브 로그인 데이터 관찰
         viewModel.githubLoginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Loading -> {
@@ -73,7 +80,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "깃허브 로그인 성공")
-                    // 로그인 성공 후 커스텀 토큰과 JoinType을 받아 회원가입 화면으로 이동
+                    // 스터디 목록 화면으로 이동
+                    navigateToBottomNaviFragment()
+                }
+                is LoginResult.NeedSignUp -> {
+                    Log.i("LoginFragment", "깃허브 로그인 성공, 회원가입 필요")
                     viewModel.credential.observe(viewLifecycleOwner, Observer { credential ->
                         Log.i("LoginFragment", "자격 증명 업데이트됨: $credential")
                         val joinType = viewModel.joinType.value ?: JoinType.GITHUB
@@ -94,13 +105,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         // 카카오 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginKakao.setOnClickListener {
             Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
-            viewModel.loginWithKakao(requireContext())
+            val autoLogin = binding.checkboxAutoLogin.isChecked
+            viewModel.loginWithKakao(requireContext(), autoLogin)
         }
 
         // 깃허브 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginGithub.setOnClickListener {
             Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
-            viewModel.loginWithGithub(requireContext())
+            val autoLogin = binding.checkboxAutoLogin.isChecked
+            viewModel.loginWithGithub(requireContext(), autoLogin)
         }
 
         // 다른 방법으로 로그인 버튼 클릭 리스너 설정
@@ -115,6 +128,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     // 회원가입 화면으로 이동하는 메서드
     private fun navigateToJoinFragment(token: Any, joinType: JoinType) {
+
+        // 회원가입으로 넘겨줄 데이터
         val bundle = Bundle().apply {
             when (token) {
                 is String -> {
@@ -128,7 +143,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
-            addToBackStack(FragmentName.LOGIN.str)
+            addToBackStack(FragmentName.JOIN.str)
+        }
+    }
+    private fun navigateToBottomNaviFragment() {
+        parentFragmentManager.commit {
+            replace(R.id.containerMain, BottomNaviFragment())
+            addToBackStack(FragmentName.BOTTOM_NAVI.str)
         }
     }
 }

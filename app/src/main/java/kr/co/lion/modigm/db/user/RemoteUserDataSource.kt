@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.google.firebase.Firebase
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
@@ -28,40 +29,74 @@ class RemoteUserDataSource {
 
     // ----------------- 로그인 데이터 처리 -----------------
 
-    // Firebase Functions를 통해 Custom Token 획득
-    suspend fun getKakaoCustomToken(accessToken: String): String {
-        // Firebase Function 호출에 전달할 데이터 생성
-        val data = hashMapOf("token" to accessToken)
+    // 이메일과 비밀번호로 로그인
+    suspend fun loginWithEmailPassword(email: String, password: String): Result<AuthResult?> {
         return try {
-            // Firebase Function 호출 및 결과 대기
-            val result = functions.getHttpsCallable("getKakaoCustomAuth").call(data).await()
-            // 결과 데이터를 맵으로 캐스팅하여 커스텀 토큰 추출
-            val customToken = result.data as Map<*, *>
-            // 커스텀 토큰을 문자열로 반환
-            customToken["custom_token"] as String
+            Log.d("RemoteUserDataSource", "이메일과 비밀번호로 로그인 시도: $email")
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            if (result.user != null) {
+                Log.d("RemoteUserDataSource", "로그인 성공 - 사용자 UID: ${result.user?.uid}")
+                Result.success(result)
+            } else {
+                Log.e("RemoteUserDataSource", "로그인 실패 - 사용자 UID가 null입니다.")
+                Result.failure(Exception("인증 실패: 사용자 UID가 null입니다."))
+            }
         } catch (e: Exception) {
-            // 에러 발생 시 예외를 던져 호출자에게 알림
-            throw Exception("Failed to get custom token: ${e.message}", e)
+            Log.e("RemoteUserDataSource", "로그인 시도 중 예외 발생", e)
+            Result.failure(e)
         }
     }
 
-    // Firebase Custom Token으로 로그인
-    suspend fun signInWithCustomToken(customToken: String) {
-        // Firebase Custom Token을 사용하여 Firebase에 로그인
-        auth.signInWithCustomToken(customToken).await()
+    // Firebase Functions를 통해 카카오 Custom Token 획득
+    suspend fun getKakaoCustomToken(accessToken: String): String {
+        val data = hashMapOf("token" to accessToken)
+        return try {
+            Log.d("RemoteUserDataSource", "Firebase Functions를 통해 Custom Token 획득 시도")
+            val result = functions.getHttpsCallable("getKakaoCustomAuth").call(data).await()
+            val customToken = result.data as Map<*, *>
+            Log.d("RemoteUserDataSource", "Custom Token 획득 성공")
+            customToken["custom_token"] as String
+        } catch (e: Exception) {
+            Log.e("RemoteUserDataSource", "Custom Token 획득 실패", e)
+            throw Exception("Custom Token 획득 실패: ${e.message}", e)
+        }
+    }
+
+    // Firebase에 카카오 Custom Token으로 로그인
+    suspend fun signInWithCustomToken(customToken: String): String {
+        return try {
+            Log.d("RemoteUserDataSource", "Firebase Custom Token으로 로그인 시도")
+            val authResult = auth.signInWithCustomToken(customToken).await()
+            val uid = authResult.user?.uid ?: throw Exception("Firebase 사용자 UID를 가져올 수 없음")
+            Log.d("RemoteUserDataSource", "Firebase Custom Token으로 로그인 성공 - UID: $uid")
+            uid
+        } catch (e: Exception) {
+            Log.e("RemoteUserDataSource", "Firebase Custom Token으로 로그인 실패", e)
+            throw e
+        }
     }
 
     // 깃허브 로그인
-    suspend fun signInWithGithub(context: Activity) = suspendCancellableCoroutine { cont ->
-        // GitHub OAuthProvider 생성
+    suspend fun signInWithGithub(context: Activity): AuthResult = suspendCancellableCoroutine { cont ->
         val provider = OAuthProvider.newBuilder("github.com")
-        // GitHub 로그인 시도 및 결과 대기
+        Log.d("RemoteUserDataSource", "깃허브 로그인 시도")
         auth.startActivityForSignInWithProvider(context, provider.build()).addOnSuccessListener { authResult ->
-            // 로그인 성공 시 자격 증명을 코루틴으로 반환
-            cont.resume(authResult.credential)
+            Log.d("RemoteUserDataSource", "깃허브 로그인 성공")
+            cont.resume(authResult)
         }.addOnFailureListener { e ->
-            // 로그인 실패 시 예외를 코루틴으로 반환
+            Log.e("RemoteUserDataSource", "깃허브 로그인 실패", e)
             cont.resumeWithException(e)
+        }
+    }
+
+    // 사용자 UID를 통해 사용자가 이미 가입된 계정인지 확인
+    suspend fun isUserAlreadyRegistered(uid: String): Boolean {
+        return try {
+            val querySnapshot = userCollection.whereEqualTo("userUid", uid).get().await()
+            !querySnapshot.isEmpty
+        } catch (e: Exception) {
+            Log.e("RemoteUserDataSource", "사용자 가입 여부 확인 중 에러 발생", e)
+            false
         }
     }
 

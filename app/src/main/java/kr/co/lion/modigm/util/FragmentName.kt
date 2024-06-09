@@ -30,7 +30,9 @@ enum class FragmentName (var str: String){
     // 프로필
     PROFILE("ProfileFragment"),
     PROFILE_WEB("ProfileWebFragment"),
+    EDIT_PROFILE("EditProfileFragment"),
     SETTINGS("SettingsFragment"),
+    CHANGE_PW("ChangePwFragment"),
 
     // 스터디
     STUDY("StudyFragment"),
@@ -38,6 +40,7 @@ enum class FragmentName (var str: String){
     STUDY_MY("StudyMyFragment"),
     FILTER_SORT("FilterSortFragment"),
     BOTTOM_NAVI("BottomNaviFragment"),
+    FIND_EMAIL("FindEmailFragment"),
 
     // 글 작성
     WRITE("WriteFragment"),

@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.join
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -28,7 +27,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
-import kr.co.lion.modigm.ui.study.StudyFragment
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -45,18 +44,6 @@ class JoinFragment : Fragment() {
 
     private val joinType: JoinType? by lazy {
         JoinType.getType(arguments?.getString("joinType")?:"")
-    }
-
-    private val customToken: String? by lazy {
-        arguments?.getString("customToken")
-    }
-
-    private val credential: AuthCredential? by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getParcelable("credential", AuthCredential::class.java)
-        } else {
-            arguments?.getParcelable("credential")
-        }
     }
 
     override fun onCreateView(
@@ -76,21 +63,14 @@ class JoinFragment : Fragment() {
 
     // 번들로 전달받은 값들을 뷰모델 라이브 데이터에 셋팅
     private fun settingValuesFromBundle(){
-        if(customToken != null){
-            viewModel.setSnsCustomToken(customToken?:"")
-        }
-        if(credential != null){
-            viewModel.setSnsCredential(credential!!)
-        }
         if(joinType != null){
-            when(joinType){
-                JoinType.EMAIL -> viewModel.setUserProvider(JoinType.EMAIL.provider)
-                else -> {
-                    // sns 계정의 프로바이더 셋팅
-                    viewModel.setUserProvider(joinType?.provider?:"")
-                    // sns 계정의 email 셋팅
-                    viewModel.setSnsEmail()
-                }
+            // 프로바이더 셋팅
+            viewModel.setUserProvider(joinType?.provider?:"")
+            // email 셋팅
+            viewModel.setUserEmail()
+            // SNS계정인경우 uid 셋팅
+            if(joinType != JoinType.EMAIL){
+                viewModel.setUserUid()
             }
         }
     }
@@ -150,7 +130,7 @@ class JoinFragment : Fragment() {
 
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            parentFragmentManager.popBackStack(FragmentName.JOIN.str, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             dialog.dismiss()
         }
 
@@ -253,11 +233,11 @@ class JoinFragment : Fragment() {
         lifecycleScope.launch {
             showLoading()
             // 처음 화면인 경우
-            if(viewModel.verifiedEmail.isEmpty()
+            if(viewModel.verifiedEmail.value.isNullOrEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
-                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty())
+                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && !viewModel.verifiedEmail.value.isNullOrEmpty())
                 ){
-                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail && viewModel.verifiedEmail.isNotEmpty()){
+                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && !viewModel.verifiedEmail.value.isNullOrEmpty()){
                     // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
                     viewModel.deleteCurrentUser()
                 }
@@ -288,8 +268,11 @@ class JoinFragment : Fragment() {
         lifecycleScope.launch {
             // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
             if(viewModel.phoneVerification.value==true){
-                binding.viewPagerJoin.currentItem += 1
-                return@launch
+                // 전화번호를 변경하지 않은 경우에 넘어갈 수 있음
+                if(viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
+                    binding.viewPagerJoin.currentItem += 1
+                    return@launch
+                }
             }
             showLoading()
 
@@ -297,14 +280,15 @@ class JoinFragment : Fragment() {
             if(result.isEmpty()){
                 // 인증 번호 확인 성공
                 viewModelStep2.credential.value?.let { viewModel.setPhoneCredential(it) }
-                viewModel.setPhoneVerificated(true)
+                viewModel.setPhoneVerified(true)
+                viewModelStep2.userPhone.value?.let { viewModel.setVerifiedPhoneNumber(it) }
                 viewModelStep2.cancelTimer()
             }else{
                 // 인증 번호 확인 실패
-                viewModel.setPhoneVerificated(false)
+                viewModel.setPhoneVerified(false)
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
-                viewModel.setAleradyRegisteredUser(
+                viewModel.setAlreadyRegisteredUser(
                     viewModelStep2.alreadyRegisteredUserEmail.value?:"",
                     viewModelStep2.alreadyRegisteredUserProvider.value?:""
                 )
@@ -379,7 +363,7 @@ class JoinFragment : Fragment() {
         // 인증하기를 다시 했을 때 기존의 인증 완료 취소
         viewModelStep2.isVerifiedPhone.observe(viewLifecycleOwner){
             if(!it){
-                viewModel.setPhoneVerificated(false)
+                viewModel.setPhoneVerified(false)
             }
         }
 
@@ -405,12 +389,9 @@ class JoinFragment : Fragment() {
         viewModel.joinCompleted.observe(viewLifecycleOwner){
             hideLoading()
 
-            // SharedPreferences에 uid값 저장
-            viewModel.user.value?.let { it1 -> prefs.setString("uid", it1.uid) }
-
             if(it){
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, StudyFragment())
+                    .replace(R.id.containerMain, BottomNaviFragment())
                     .commit()
             }
         }
