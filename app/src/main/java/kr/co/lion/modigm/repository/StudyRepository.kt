@@ -69,6 +69,19 @@ class StudyRepository {
         }
     }
 
+    suspend fun getStudyUidListByStudyIdx(studyIdx: Int): List<String>? {
+        return remoteStudyDataSource.selectContentData(studyIdx)?.studyUidList
+    }
+
+    suspend fun getUserDetailsByUid(uid: String): UserData? {
+        return remoteStudyDataSource.loadUserDetailsByUid(uid)
+    }
+
+    ////////////////////////////////////
+    suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean {
+        return remoteStudyDataSource.updateStudyUserList(userUid, studyIdx)
+    }
+
     // 특정 studyIdx에 대한 스터디 정보를 가져오고 studyState를 업데이트한다.
     suspend fun updateStudyStateByStudyIdx(studyIdx: Int, newState: Boolean) {
         remoteStudyDataSource.updateStudyStateByStudyIdx(studyIdx, newState)

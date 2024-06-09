@@ -375,9 +375,15 @@ class DetailFragment : Fragment() {
             // 각 메뉴 아이템에 대한 클릭 리스너 설정
             // 멤버목록
             popupView.findViewById<TextView>(R.id.menuItem1).setOnClickListener {
+                val detailMemberFragment = DetailMemberFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", currentStudyData?.studyIdx?:0)
+                    }
+                }
+
                 // 화면이동 로직 추가
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, DetailMemberFragment())
+                    .replace(R.id.containerMain, detailMemberFragment)
                     .addToBackStack(FragmentName.DETAIL_MEMBER.str)
                     .commit()
 
