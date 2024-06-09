@@ -52,6 +52,8 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
                 // 엔터키 클릭 시
                 setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        val location = text.toString()
+                        viewModel.gettingLocation(location)
                         // 종료
                         dismiss()
                         true
