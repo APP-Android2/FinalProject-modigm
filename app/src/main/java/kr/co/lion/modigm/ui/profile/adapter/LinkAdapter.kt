@@ -11,12 +11,10 @@ import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowLinkBinding
 import java.util.Locale
 
-// 배송지 화면의 RecyclerView의 어뎁터
 class LinkAdapter(
     private var linkList: List<String>,
     private val rowClickListener: (String) -> Unit,
 ) : RecyclerView.Adapter<LinkViewHolder>() {
-
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): LinkViewHolder {
         val rowLinkBinding: RowLinkBinding = RowLinkBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
