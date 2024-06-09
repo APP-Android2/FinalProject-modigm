@@ -95,6 +95,8 @@ class ChatFragment : Fragment() {
 
         // 옵션 메뉴가 있다는 것을 시스템에 알림
         setHasOptionsMenu(true)
+
+        /*
         toolbar.setNavigationIcon(R.drawable.icon_add_24px)
         toolbar.setNavigationOnClickListener {
             Log.d("chatLog1", "테스트 실행 버튼 클릭")
@@ -140,6 +142,7 @@ class ChatFragment : Fragment() {
 //                addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
 //            }
         }
+        */
     }
 
     // 툴바의 메뉴 세팅(검색)
