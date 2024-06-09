@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.launch
@@ -25,14 +26,17 @@ class LoginViewModel : ViewModel() {
     private val userInfoRepository = UserInfoRepository() // UserInfoRepository 초기화
     private val prefs: PreferenceUtil = ModigmApplication.prefs // SharedPreferences 인스턴스 가져오기
 
-    private val _loginResult = MutableLiveData<LoginResult>() // 로그인 결과를 저장하는 LiveData
-    val loginResult: LiveData<LoginResult> = _loginResult // 외부에서 접근 가능한 로그인 결과 LiveData
-
     private val _kakaoLoginResult = MutableLiveData<LoginResult>() // 카카오 로그인 결과를 저장하는 LiveData
     val kakaoLoginResult: LiveData<LoginResult> = _kakaoLoginResult // 외부에서 접근 가능한 카카오 로그인 결과 LiveData
 
     private val _githubLoginResult = MutableLiveData<LoginResult>() // 깃허브 로그인 결과를 저장하는 LiveData
     val githubLoginResult: LiveData<LoginResult> = _githubLoginResult // 외부에서 접근 가능한 깃허브 로그인 결과 LiveData
+
+    private val _autoLoginResult = MutableLiveData<LoginResult>() // 자동로그인 결과를 저장하는 LiveData
+    val autoLoginResult: LiveData<LoginResult> = _autoLoginResult // 외부에서 접근 가능한 로그인 결과 LiveData
+
+    private val _emailLoginResult = MutableLiveData<LoginResult>() // 이메일 로그인 결과를 저장하는 LiveData
+    val emailLoginResult: LiveData<LoginResult> = _emailLoginResult // 외부에서 접근 가능한 이메일 로그인 결과 LiveData
 
     private val _loginFormState = MutableLiveData<LoginFormState>() // 로그인 폼 상태를 저장하는 LiveData
     val loginFormState: LiveData<LoginFormState> = _loginFormState // 외부에서 접근 가능한 로그인 폼 상태 LiveData
@@ -77,51 +81,51 @@ class LoginViewModel : ViewModel() {
 
     // ----------------- 이메일/비밀번호 로그인 처리 -----------------
     fun login(email: String, password: String, autoLogin: Boolean) {
-        _loginResult.value = LoginResult.Loading
+        _emailLoginResult.value = LoginResult.Loading
         viewModelScope.launch {
             try {
-                Log.d("LoginViewModel", "자동 로그인 상태: $autoLogin")
                 Log.d("LoginViewModel", "로그인 시도 중... 이메일: $email")
                 val authResult = userInfoRepository.loginWithEmailPassword(email, password)
                 val uid = authResult.getOrNull()?.user?.uid
+
                 if (uid != null) {
                     Log.d("LoginViewModel", "로그인 성공 - 사용자 UID: $uid")
                     val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
                     if (isRegistered) {
-                        _loginResult.postValue(LoginResult.Success)
+                        _emailLoginResult.postValue(LoginResult.Success)
+                        saveCurrentUserData(uid, "email")
                         if (autoLogin) {
-                            saveCurrentUserData(uid)
-                        } else {
-                            clearCurrentUserData()
+                            prefs.setAutoLogin(true)  // 자동 로그인 설정 저장
                         }
                     } else {
                         _joinType.postValue(JoinType.EMAIL)
-                        _loginResult.postValue(LoginResult.NeedSignUp)
+                        _emailLoginResult.postValue(LoginResult.NeedSignUp)
                     }
                 } else {
-                    Log.e("LoginViewModel", "로그인 실패 - 사용자 UID를 가져올 수 없음")
-                    _loginFormState.postValue(LoginFormState(emailError = "일치하는 이메일이 없습니다.", passwordError = null, isDataValid = false))
-                    _loginResult.postValue(LoginResult.Error(Exception("로그인 실패 - 사용자 UID를 가져올 수 없음")))
+                    _loginFormState.postValue(LoginFormState(emailError = "일치하는 이메일이 없습니다."))
+                    _emailLoginResult.postValue(LoginResult.Error(Exception("로그인 실패: 이메일이 존재하지 않음")))
                 }
+            } catch (e: FirebaseAuthInvalidCredentialsException) {
+                Log.e("LoginViewModel", "비밀번호가 일치하지 않습니다.", e)
+                _loginFormState.postValue(LoginFormState(passwordError = "비밀번호가 일치하지 않습니다."))
+                _emailLoginResult.postValue(LoginResult.Error(e))
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "로그인 시도 중 예외 발생", e)
-                _loginFormState.postValue(LoginFormState(emailError = "비밀번호가 일치하지 않습니다.", passwordError = null, isDataValid = false))
-                _loginResult.postValue(LoginResult.Error(e))
+                _emailLoginResult.postValue(LoginResult.Error(e))
             }
         }
     }
 
-
     // ----------------- 이메일/비밀번호 로그인 처리 끝 -----------------
 
-    // ----------------- Shared Prefereces 처리 -----------------
+    // ----------------- Shared Preferences 처리 -----------------
 
     // 유저 정보를 SharedPreferences에 저장
-    private suspend fun saveCurrentUserData(uid:String) {
+    private suspend fun saveCurrentUserData(uid: String, provider: String) {
         val userData = userInfoRepository.loadUserData(uid)
         if (userData != null) {
-            Log.d("LoginViewModel","saveCurrentUser 저장중 : $userData")
-            prefs.setUserData("currentUserData", userData)
+            Log.d("LoginViewModel", "saveCurrentUser 저장중 : $userData")
+            prefs.setUserData("currentUserData", userData.copy(userProvider = provider))
         }
     }
 
@@ -137,12 +141,20 @@ class LoginViewModel : ViewModel() {
 
     // 메인 화면 자동 로그인 처리 메소드
     fun attemptAutoLogin(context: Context) {
+        val autoLogin = prefs.getAutoLogin()
+
+        if (!autoLogin) {
+            Log.i("LoginViewModel", "attemptAutoLogin: 자동 로그인 설정이 꺼져 있습니다.")
+            _autoLoginResult.postValue(LoginResult.Error(Exception("자동 로그인 설정이 꺼져 있습니다.")))
+            return
+        }
+
         val user = getCurrentUserData()
 
         Log.i("LoginViewModel", "attemptAutoLogin: 자동 로그인 시도 $user")
         if (user != null) {
             val userAccess = FirebaseAuth.getInstance().currentUser?.uid == user.userUid
-            _loginResult.value = LoginResult.Loading
+            _autoLoginResult.value = LoginResult.Loading
             viewModelScope.launch {
                 try {
                     when (user.userProvider) {
@@ -150,50 +162,47 @@ class LoginViewModel : ViewModel() {
                             if (userAccess) {
                                 Log.i("LoginViewModel", "attemptAutoLogin: 카카오 자동 로그인 성공")
                                 _kakaoLoginResult.postValue(LoginResult.Success)
-                                _loginResult.postValue(LoginResult.Success) // 추가
                             } else {
-                                loginWithKakao(context, true)
+                                loginWithKakao(context)
                             }
                         }
                         "github" -> {
                             if (userAccess) {
                                 Log.i("LoginViewModel", "attemptAutoLogin: 깃허브 자동 로그인 성공")
                                 _githubLoginResult.postValue(LoginResult.Success)
-                                _loginResult.postValue(LoginResult.Success) // 추가
                             } else {
-                                loginWithGithub(context, true)
+                                loginWithGithub(context)
                             }
                         }
                         "email" -> {
                             if (userAccess) {
                                 Log.i("LoginViewModel", "attemptAutoLogin: 이메일 자동 로그인 성공")
-                                _loginResult.postValue(LoginResult.Success)
+                                _emailLoginResult.postValue(LoginResult.Success)
                             } else {
-                                _loginResult.postValue(LoginResult.Error(Exception("이메일 자동 로그인 실패")))
+                                _emailLoginResult.postValue(LoginResult.Error(Exception("이메일 자동 로그인 실패")))
                             }
                         }
                         else -> {
                             Log.e("LoginViewModel", "attemptAutoLogin: 알 수 없는 사용자 제공자")
-                            _loginResult.postValue(LoginResult.Error(Exception("알 수 없는 사용자 제공자")))
+                            _autoLoginResult.postValue(LoginResult.Error(Exception("알 수 없는 사용자 제공자")))
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("LoginViewModel", "attemptAutoLogin: 자동 로그인 시도 중 에러 발생", e)
-                    _loginResult.postValue(LoginResult.Error(e))
+                    _autoLoginResult.postValue(LoginResult.Error(e))
                 }
             }
         } else {
             Log.e("LoginViewModel", "attemptAutoLogin: 자동 로그인 데이터 없음")
-            _loginResult.postValue(LoginResult.Error(Exception("자동 로그인 데이터 없음")))
+            _autoLoginResult.postValue(LoginResult.Error(Exception("자동 로그인 데이터 없음")))
         }
     }
 
-
-    // ----------------- Shared Prefereces 처리 끝 -----------------
+    // ----------------- Shared Preferences 처리 끝 -----------------
 
     // ----------------- 카카오 로그인 처리 -----------------
 
-    fun loginWithKakao(context: Context, autoLogin: Boolean) {
+    fun loginWithKakao(context: Context) {
         _kakaoLoginResult.value = LoginResult.Loading
         viewModelScope.launch {
             try {
@@ -202,7 +211,7 @@ class LoginViewModel : ViewModel() {
                 } else {
                     loginWithKakaoAccount(context)
                 }
-                handleKakaoResponse(token, autoLogin)
+                handleKakaoResponse(token)
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "loginWithKakao: 로그인 시도 중 에러 발생", e)
                 _kakaoLoginResult.postValue(LoginResult.Error(e))
@@ -240,7 +249,7 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    private suspend fun handleKakaoResponse(token: OAuthToken?, autoLogin: Boolean) {
+    private suspend fun handleKakaoResponse(token: OAuthToken?) {
         if (token != null) {
             try {
                 val customToken = userInfoRepository.getKakaoCustomToken(token.accessToken)
@@ -249,13 +258,9 @@ class LoginViewModel : ViewModel() {
                 Log.i("LoginViewModel", "Custom Token: $customToken")
                 val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
 
-                if (autoLogin) {
-                    saveCurrentUserData(uid)
-                } else {
-                    clearCurrentUserData()
-                }
-
                 if (isRegistered) {
+                    saveCurrentUserData(uid, "kakao")
+                    prefs.setAutoLogin(true)  // 카카오 자동 로그인 설정 저장
                     _kakaoLoginResult.postValue(LoginResult.Success)
                 } else {
                     _kakaoCustomToken.postValue(customToken)
@@ -275,7 +280,7 @@ class LoginViewModel : ViewModel() {
 
     // ----------------- 깃허브 로그인 처리 -----------------
 
-    fun loginWithGithub(context: Context, autoLogin: Boolean) {
+    fun loginWithGithub(context: Context) {
         _githubLoginResult.value = LoginResult.Loading
         viewModelScope.launch {
             try {
@@ -286,13 +291,9 @@ class LoginViewModel : ViewModel() {
                 if (credential != null && uid != null) {
                     val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
 
-                    if (autoLogin) {
-                        saveCurrentUserData(uid)
-                    } else {
-                        clearCurrentUserData()
-                    }
-
                     if (isRegistered) {
+                        saveCurrentUserData(uid, "github")
+                        prefs.setAutoLogin(true)  // 깃허브 자동 로그인 설정 저장
                         _githubLoginResult.postValue(LoginResult.Success)
                     } else {
                         _credential.postValue(credential)
@@ -312,6 +313,9 @@ class LoginViewModel : ViewModel() {
     // ----------------- 깃허브 로그인 처리 끝 -----------------
 
 }
+
+
+
 
 
 // 로그인 결과를 나타내는 sealed class
