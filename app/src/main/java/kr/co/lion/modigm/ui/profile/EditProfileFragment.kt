@@ -223,7 +223,7 @@ class EditProfileFragment : Fragment() {
                 // 자동 padding 없애기
                 setEnsureMinTouchTargetSize(false)
                 // 배경 흰색으로 지정
-                setChipBackgroundColorResource(android.R.color.white)
+                setChipBackgroundColorResource(R.color.dividerView)
                 // 클릭하면 바텀시트 올라옴
                 setOnClickListener {
                     val bottomSheet = InterestBottomSheetFragment()
