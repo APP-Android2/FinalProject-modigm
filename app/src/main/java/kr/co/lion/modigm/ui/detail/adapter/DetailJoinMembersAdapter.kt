@@ -13,14 +13,18 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.detail.Member
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
-class DetailJoinMembersAdapter(private val currentUserId: String) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private val currentUserId: String, private val studyIdx: Int) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = RowDetailJoinMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -31,8 +35,6 @@ class DetailJoinMembersAdapter(private val currentUserId: String) : ListAdapter<
         val userData = getItem(position)
         holder.bind(userData)
     }
-
-//    override fun getItemCount() = members.size
 
     inner class MemberViewHolder(private val binding: RowDetailJoinMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -46,13 +48,11 @@ class DetailJoinMembersAdapter(private val currentUserId: String) : ListAdapter<
                 binding.textViewDetailJoinKick.text = "스터디장"
                 binding.textViewDetailJoinKick.setTextColor(Color.BLACK) // 글씨 색상을 검은색으로 설정
                 binding.textViewDetailJoinKick.isClickable = false // 클릭 비활성화
-                binding.textViewDetailJoinKick.setOnClickListener {
-                    // "스터디장"일 때 아무 동작도 하지 않도록 빈 리스너 설정
-                }
+                binding.textViewDetailJoinKick.setOnClickListener(null)
             } else {
                 binding.textViewDetailJoinKick.text = "내보내기"
                 binding.textViewDetailJoinKick.setOnClickListener {
-                    showKickDialog(user) // 강퇴 다이얼로그 표시
+                    showKickDialog(user, studyIdx) // 강퇴 다이얼로그 표시
                 }
             }
 
@@ -70,7 +70,7 @@ class DetailJoinMembersAdapter(private val currentUserId: String) : ListAdapter<
 
 
         // custom dialog
-        fun showKickDialog(member: UserData) {
+        fun showKickDialog(member: UserData, studyIdx: Int) {
 //            val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.custom_dialog, null)
             val dialogBinding = CustomDialogBinding.inflate(LayoutInflater.from(itemView.context))
             val dialog =MaterialAlertDialogBuilder(itemView.context,R.style.dialogColor)
@@ -80,6 +80,8 @@ class DetailJoinMembersAdapter(private val currentUserId: String) : ListAdapter<
                 .create()
 
             dialogBinding.btnYes.setOnClickListener {
+                viewModel.updateStudyUserList(member.userUid, studyIdx)
+                removeItem(position)
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
                 dialog.dismiss()
@@ -93,6 +95,16 @@ class DetailJoinMembersAdapter(private val currentUserId: String) : ListAdapter<
 
             dialog.show()
         }
+
+        fun removeItem(position: Int) {
+            // 현재 리스트에서 해당 아이템을 제거
+            val newList = currentList.toMutableList().apply {
+                removeAt(position)
+            }
+            submitList(newList)  // 변경된 리스트를 다시 제출
+            notifyItemRemoved(position)  // 특정 위치의 아이템 제거 알림
+        }
+
     }
 
         class UserDiffCallback : DiffUtil.ItemCallback<UserData>() {

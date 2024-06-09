@@ -35,9 +35,11 @@ class DetailJoinMemberFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         currentUserId = auth.currentUser?.uid ?: ""
 
-        adapter = DetailJoinMembersAdapter(currentUserId)  // adapter 초기화
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
+
+        adapter = DetailJoinMembersAdapter(viewModel,currentUserId, studyIdx)  // adapter 초기화
+
 
         return binding.root
     }

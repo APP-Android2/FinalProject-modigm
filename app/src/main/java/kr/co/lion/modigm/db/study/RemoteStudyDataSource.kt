@@ -15,8 +15,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class RemoteStudyDataSource {
 
@@ -301,5 +305,30 @@ class RemoteStudyDataSource {
             null
         }
     }
+
+
+    suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean = suspendCoroutine { continuation ->
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    continuation.resume(false)
+                } else {
+                    val document = documents.first()  // 첫 번째 문서 사용
+                    val userList = document.get("studyUidList") as List<String>
+                    if (userList.contains(userUid)) {
+                        val updatedList = ArrayList(userList).apply { remove(userUid) }
+                        document.reference.update("studyUidList", updatedList)
+                            .addOnSuccessListener { continuation.resume(true) }
+                            .addOnFailureListener { continuation.resumeWithException(it) }
+                    } else {
+                        continuation.resume(false)
+                    }
+                }
+            }
+            .addOnFailureListener { continuation.resumeWithException(it) }
+    }
+
 
 }

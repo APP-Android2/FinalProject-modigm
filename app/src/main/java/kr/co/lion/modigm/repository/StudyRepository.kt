@@ -77,4 +77,9 @@ class StudyRepository {
         return remoteStudyDataSource.loadUserDetailsByUid(uid)
     }
 
+    ////////////////////////////////////
+    suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean {
+        return remoteStudyDataSource.updateStudyUserList(userUid, studyIdx)
+    }
+
 }

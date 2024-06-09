@@ -46,6 +46,9 @@ class DetailViewModel : ViewModel() {
     private val _userDetails = MutableLiveData<List<UserData>>()
     val userDetails: LiveData<List<UserData>> = _userDetails
 
+    private val _removalStatus = MutableLiveData<Result<Boolean>>()
+    val removalStatus: LiveData<Result<Boolean>> = _removalStatus
+
     fun selectContentData(studyIdx: Int) {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
         viewModelScope.launch {
@@ -157,5 +160,15 @@ class DetailViewModel : ViewModel() {
         }
     }
 
+    fun updateStudyUserList(userUid: String, studyIdx: Int) {
+        viewModelScope.launch {
+            val result = studyRepository.updateStudyUserList(userUid, studyIdx)
+            if (result) {
+                // 성공적으로 처리됐을 때 UI 업데이트
+            } else {
+                // 실패 처리
+            }
+        }
+    }
 
 }
