@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -22,12 +23,10 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
     private lateinit var binding: FragmentWriteSkillBinding
     private val viewModel: WriteViewModel by activityViewModels()
     private val tabName = "skill"
-    // 첫 번째 입력 했나?
-    var didAnswer1 = 0
-    // 두 번째 입력 했나?
-    var didAnswer2 = 0
-    // 입력 다 했나?
-    var didAnswer = 0
+
+    // 신청방식
+    var applyMethod = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -79,8 +78,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
 
-                        // ViewModel에 데이터 해제
-                        viewModel.gettingApplyMethod(0)
+                        applyMethod = 0
 
                     } else {
 
@@ -92,9 +90,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                         cardElevation = 20F
                         cardviewWriteSkillFirstCome.cardElevation = 0F
 
-
-                        // ViewModel에 데이터 전달
-                        viewModel.gettingApplyMethod(1)
+                        applyMethod = 1
                     }
                 }
 
@@ -107,8 +103,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                         cardElevation = 0F
                         strokeColor = unclickedStrokeColor
 
-                        // ViewModel에 데이터 전달
-                        viewModel.gettingApplyMethod(1)
+                        applyMethod = 0
                     } else {
 
                         // Stroke 색상 변경
@@ -120,8 +115,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                         cardviewWriteSkillApplicationSystem.cardElevation = 0F
 
 
-                        // ViewModel에 데이터 전달
-                        viewModel.gettingApplyMethod(2)
+                        applyMethod = 2
                     }
                 }
             }
@@ -140,8 +134,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
 
         // 들어온 skill이 존재한다면
         if (skills.size != 0){
-            // ViewModel에 전달받은 스킬 리스트 저장
-            viewModel.gettingStudySkillList(skills as MutableList<String>) // X 버튼 클릭 시 제거하기 위해서 MutableList로 Casting
+            // 스킬 리스트 저장
         }
 
         // 전달받은 스킬 리스트를 이용하여 칩을 생성 및 추가
@@ -161,7 +154,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
                 setOnCloseIconClickListener {
                     chipGroup.removeView(this)  // 'this'는 현재 클릭된 Chip 인스턴스를 참조
                     // skill List에서 목록 제거
-                    viewModel.removeStudySkill(skill)
+//                    viewModel.removeStudySkill(skill)
                 }
             }
             chipGroup.addView(chip)

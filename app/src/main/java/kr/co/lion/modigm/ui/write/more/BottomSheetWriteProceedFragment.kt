@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.addTextChangedListener
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomSheetWriteProceedBinding
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
@@ -24,7 +26,9 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
     ): View? {
         // Inflate the layout for this fragment
 
-        binding = FragmentBottomSheetWriteProceedBinding.inflate(inflater)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_bottom_sheet_write_proceed, container, false)
+        binding.writeViewModel = viewModel
+        binding.lifecycleOwner = this
 
         return binding.root
     }
@@ -45,20 +49,10 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
 
             textFieldWriteProceedBottomSheetSearch.apply {
 
-                imeOptions = EditorInfo.IME_ACTION_DONE
-
-                addTextChangedListener {
-                    val location = textFieldWriteProceedBottomSheetSearch.text.toString()
-                    // viewModel에 데이터 전송
-                    viewModel.gettingStudyPlace(location)
-                }
-
                 // 엔터키 클릭 시
                 setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        val location = text.toString()
-                        // viewModel에 데이터 전송
-                        viewModel.gettingStudyPlace(location)
+                        // 종료
                         dismiss()
                         true
                     }

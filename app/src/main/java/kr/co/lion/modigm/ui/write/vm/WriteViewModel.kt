@@ -18,6 +18,9 @@ class WriteViewModel : ViewModel() {
     val chatRoomRepository = ChatRoomRepository()
 
     // ----------------- Remote Data Source에 전송할 내용 -----------------
+    // StudyData 객체 생성
+    private val _studyData = MutableLiveData<StudyData>()
+    val studyData: LiveData<StudyData> = _studyData
 
     // 데이터에서 가져올 부분
     private val _studyIdx = MutableLiveData<Int>() // 글 고유번호
@@ -64,8 +67,8 @@ class WriteViewModel : ViewModel() {
     val studyApplyMethod: LiveData<Int> = _studyApplyMethod
 
     // WriteSkill -> 필요 기술스택 목록
-    private val _studySkillList = MutableLiveData<MutableList<String>?>()
-    val studySkillList: LiveData<MutableList<String>?> = _studySkillList
+    private val _studySkillList = MutableLiveData<MutableList<Int>?>()
+    val studySkillList: LiveData<MutableList<Int>?> = _studySkillList
 
     // WriteIntro -> 썸네일 사진
     private val _studyPic = MutableLiveData<String>()
@@ -78,6 +81,10 @@ class WriteViewModel : ViewModel() {
     // WriteIntro -> 글 내용
     private val _studyContent = MutableLiveData<String>()
     val studyContent: LiveData<String> = _studyContent
+
+    // 글 작성자 Uid
+    private val _studyWriteUid = MutableLiveData<String>()
+    val studyWriteUid: LiveData<String> = _studyWriteUid
 
     // ----------------- 입력 상태 반환 -----------------
 
@@ -123,6 +130,44 @@ class WriteViewModel : ViewModel() {
         }
     }
 
+    fun userDidAnswer(tabName: String) {
+        when (tabName) {
+            "field" -> { _fieldClicked.value = true }
+
+            "period" -> { _periodClicked.value = true }
+
+            "proceed" -> { _proceedClicked.value = true }
+
+            "skill" -> { _skillClicked.value = true }
+
+            "intro" -> { _introClicked.value = true }
+        }
+        _buttonState.value = true
+    }
+
+    fun userDidNotAnswer(tabName: String) {
+        when (tabName) {
+            "field" -> { _fieldClicked.value = false }
+
+            "period" -> { _periodClicked.value = false }
+
+            "proceed" -> { _proceedClicked.value = false }
+
+            "skill" -> { _skillClicked.value = false }
+
+            "intro" -> { _introClicked.value = false }
+        }
+        _buttonState.value = false
+    }
+
+    fun activateButton() {
+        _buttonState.value = true
+    }
+
+    fun deactivateButton() {
+        _buttonState.value = false
+    }
+
     // ----------------- 초기화 함수 -----------------
     fun initField() {
         _studyType.value = 0
@@ -144,13 +189,42 @@ class WriteViewModel : ViewModel() {
     }
 
     fun initIntro() {
-        _studyPic.value = ""
+//        _studyPic.value = ""
         _studyTitle.value = ""
         _studyContent.value = ""
     }
     // --------------------------------------------
 
     // ----------------- 입력 처리 함수 -----------------
+
+    // studyField에서 입력받은 데이터 저장
+    fun gettingStudyField(type: Int) {
+        _studyType.value = type
+    }
+
+    // studyPeriod에서 입력받은 데이터 저장
+    fun gettingStudyPeriod(period: Int) {
+        _studyPeriod.value = period
+    }
+
+    // studyProceed에서 입력받은 데이터 저장
+    fun gettingStudyProceed(onOffline: Int, place: String, max: Int){
+        _studyOnOffline.value = onOffline
+        _studyPlace.value = place
+        _studyMaxMember.value = max
+    }
+
+    // studySkill에서 입력받은 데이터 저장
+    fun gettingStudySkill(method: Int, skillList: MutableList<Int>){
+        _studyApplyMethod.value = method
+        _studySkillList.value = skillList
+    }
+    // studyIntro에서 입력받은 데이터 저장
+    fun gettingStudyIntro(picture: String, title: String, content: String){
+        _studyPic.value = picture
+        _studyTitle.value = title
+        _studyContent.value = content
+    }
 
     // 완료 버튼 활성화 함수
     fun buttonFinalStateActivation(): Boolean {
@@ -161,56 +235,13 @@ class WriteViewModel : ViewModel() {
                 && introClicked.value == true)
     }
 
-    // 활동타입 저장
-    fun gettingStudyType(type: Int) {
-        _studyType.value = type
-    }
-
-    // 활동기간 저장
-    fun gettingStudyPeriod(period: Int) {
-        _studyPeriod.value = period
-    }
-
-    // 진행방식 저장 (온라인, 오프라인, 온오프 혼합)
-    fun gettingStudyOnOffLine(onOffline: Int) { // 1: 오프라인, 2: 온라인, 3: 온오프 혼합
-        _studyOnOffline.value = onOffline
-    }
-
-    // 오프라인 장소 저장
-    fun gettingStudyPlace(place: String) {
-        _studyPlace.value = place
-    }
-
-    // 최대 인원 수 저장
-    fun gettingStudyMaxMember(max: Int) {
-        _studyMaxMember.value = max
-    }
-    // 신청 방식 저장 - WriteSkillFragment
-    fun gettingApplyMethod(method: Int){
-        _studyApplyMethod.value = method
-    }
-    // 필요한 기술 스택 저장 - WriteSkillFragment
-    fun gettingStudySkillList(skillList: MutableList<String>){
-        _studySkillList.value = skillList
-    }
-    // 커버사진 경로 저장 - WriteIntroFragment
-    fun gettingStudyPic(picPath: String){
-        _studyPic.value = picPath
-    }
-    // 글 제목 저장 - WriteIntroFragment
-    fun gettingStudyTitle(title: String){
-        _studyTitle.value = title
-    }
-    // 글 내용 저장 - WriteIntroFragment
-    fun gettingStudyContent(content: String){
-        _studyContent.value = content
-    }
     // --------------------------------------------
+
 
     // ---------------- 입력된 리스트에서 해당 데이터를 찾아서 제거 ------------------
 
     // 필요한 기술 스택(_studySKillList)에서  X 버튼 클릭 시 해당 데이터 제거
-    fun removeStudySkill(skill: String){
+    fun removeStudySkill(skill: Int){
         // 필요한 기술 스택 리스트를 불러온다
         val skillList = studySkillList.value
 
@@ -238,7 +269,7 @@ class WriteViewModel : ViewModel() {
         }
     }
 
-    // --------------------------------------------
+    // ------------------------------------------------------------------
     // ----------------- ViewModel에 필요한 항목들 불러오기 -------------------
 
     // 글 고유번호(studyIdx)
@@ -260,10 +291,9 @@ class WriteViewModel : ViewModel() {
     }
     // 현재 참여자 목록(studyUidList) -> List<String> / List[0] = 진행자
     fun gettingStudyUidList() = viewModelScope.launch {
-        // auth 접근
-        val auth = FirebaseAuth.getInstance()
+
         // 현재 사용자 uid 받아오기
-        val uid = auth.currentUser?.uid.toString()
+        val uid = gettingCurrentUid()
         // 리스트 만들기
         val uidList = mutableListOf(uid)
 
@@ -287,79 +317,72 @@ class WriteViewModel : ViewModel() {
     fun gettingStudyState(){
         _studyState.value = true
     }
+    // 글 작성자(studyWriteUid)
+    fun gettingCurrentUid(): String {
+        // auth 접근
+        val auth = FirebaseAuth.getInstance()
+        // 현재 사용자 uid 받아오기
+        val uid = auth.currentUser?.uid.toString()
+        // 값을 담아준다
+        _studyWriteUid.value = uid
+        return uid
+    }
 
     // --------------------------------------------
 
     // ----------------- 스터디 데이터 저장 -------------------
-    fun saveStudyData() {
-        val studyType = studyType.value
-        val studyPeriod = studyPeriod.value
-        val studyOnOffLine = studyOnOffline.value
-        var studyData = StudyData()
 
+    // WriteFieldFragment 입력받은 데이터 불러오기(
+
+    // StudyData 생성
+    suspend fun saveStudyData() {
+        // studyIdx 불러오기
+        val studySequence = studyRepository.getStudySequence()
+        studyRepository.updateStudySequence(studySequence + 1)
+
+        // chatIdx 불러오기
+        val chatSequence = chatRoomRepository.getChatRoomSequence()
+        chatRoomRepository.updateChatRoomSequence(chatSequence + 1)
+
+
+        val studyIdx = studySequence + 1
+        val studyTitle = _studyTitle.value
+        val studyContent = _studyContent.value
+        val studyType = _studyType.value
+        val studyPeriod = _studyPeriod.value
+        val studyOnOffLine = _studyOnOffline.value
+        val studyPlace = _studyPlace.value
+        val studyDetailPlace = _studyDetailPlace.value
+        val studyApplyMethod = _studyApplyMethod.value
+        val studySkillList = _studySkillList.value
+        val studyCanApply = _studyCanApply.value
+        val studyPicture = _studyPic.value
+        val studyMaxMember = _studyMaxMember.value
+        val studyUidList = _studyUIdList.value
+        val chatIdx = chatSequence + 1
+        val studyState = _studyState.value
+        val studyWriteUid = _studyWriteUid.value
+
+
+        return
     }
 
-    // ----------------- 버튼 활성화 / 비활성화 처리 데이터 -------------------
-    fun userDidAnswer(tabName: String) {
-        when (tabName) {
-            "field" -> {
-                _fieldClicked.value = true
-            }
-
-            "period" -> {
-                _periodClicked.value = true
-            }
-
-            "proceed" -> {
-                _proceedClicked.value = true
-            }
-
-            "skill" -> {
-                _skillClicked.value = true
-            }
-
-            "intro" -> {
-                _introClicked.value = true
-            }
-        }
-        _buttonState.value = true
+    // studyIdx 반환
+    fun returnStudyIdx(): Int{
+        return studyIdx.value?: -1
     }
 
-    fun userDidNotAnswer(tabName: String) {
-        when (tabName) {
-            "field" -> {
-                _fieldClicked.value = false
-            }
-
-            "period" -> {
-                _periodClicked.value = false
-            }
-
-            "proceed" -> {
-                _proceedClicked.value = false
-            }
-
-            "skill" -> {
-                _skillClicked.value = false
-            }
-
-            "intro" -> {
-                _introClicked.value = false
-            }
-        }
-        _buttonState.value = false
-    }
-
-    fun activateButton() {
-        _buttonState.value = true
-    }
-
-    fun deactivateButton() {
-        _buttonState.value = false
-    }
 
     // ----------------- Repository에 데이터 전송 -----------------
 
+    // StudyData를 Repository에 전송
+    suspend fun uploadStudyData(){
+        // StudyData 불러오기
+        val studyData = saveStudyData()
+        // repository에 전송
+//        val uploadData = studyRepository.uploadStudyData(studyData)
+//        Log.d("uploadData", "${uploadData}")
+    }
 
     // ---------------------------------------------------------
 }

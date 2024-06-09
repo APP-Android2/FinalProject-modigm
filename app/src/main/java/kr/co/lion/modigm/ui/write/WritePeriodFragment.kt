@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
@@ -25,8 +27,9 @@ class WritePeriodFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        fragmentWritePeriodBinding = FragmentWritePeriodBinding.inflate(inflater, container, false)
+        fragmentWritePeriodBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_write_period, container, false)
+        fragmentWritePeriodBinding.writeViewModel = viewModel
+        fragmentWritePeriodBinding.lifecycleOwner = this
 
         return fragmentWritePeriodBinding.root
     }
@@ -36,6 +39,7 @@ class WritePeriodFragment : Fragment() {
 
         initData()
         settingEvent()
+        getAnswer()
     }
 
     fun initData(){
@@ -72,35 +76,47 @@ class WritePeriodFragment : Fragment() {
 
                             clickAnimation(it)
                             textinputWritePeriod.setText("1개월 이하")
-                            viewModel.userDidAnswer(tabName)
                             viewModel.gettingStudyPeriod(1)
-
-
                         }
 
                         textViewDialogWritePeriod02.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("1개월 이상")
-                            viewModel.userDidAnswer(tabName)
                             viewModel.gettingStudyPeriod(2)
                         }
 
                         textViewDialogWritePeriod03.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("3개월 이상")
-                            viewModel.userDidAnswer(tabName)
                             viewModel.gettingStudyPeriod(3)
                         }
 
                         textViewDialogWritePeriod04.setOnClickListener {
                             clickAnimation(it)
                             textinputWritePeriod.setText("6개월 이상")
-                            viewModel.userDidAnswer(tabName)
                             viewModel.gettingStudyPeriod(4)
                         }
                     }
                 }
                 builder.show()
+            }
+        }
+    }
+    //
+    private fun getAnswer(){
+        // writePeriod Observing!
+        viewModel.studyPeriod.observe(viewLifecycleOwner){ period ->
+            when (period){
+                0 -> {
+                    val toast = Toast.makeText(context, "활동하실 기간을 선택해주세요", Toast.LENGTH_SHORT)
+                    toast.show()
+                    // 미입력
+                    viewModel.userDidNotAnswer(tabName)
+                }
+                1, 2, 3, 4 -> {
+                    // 입력
+                    viewModel.userDidAnswer(tabName)
+                }
             }
         }
     }
@@ -110,5 +126,6 @@ class WritePeriodFragment : Fragment() {
         view.animate().scaleX(0.9f).scaleY(1.1f).setDuration(150).withEndAction {
             view.animate().scaleX(1f).scaleY(1f).setDuration(150)
         }
+
     }
 }

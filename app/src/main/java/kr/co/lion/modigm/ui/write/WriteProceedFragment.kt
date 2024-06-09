@@ -11,8 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import kr.co.lion.modigm.R
@@ -26,13 +28,16 @@ class WriteProceedFragment : Fragment() {
     lateinit var fragmentWriteProceedBinding: FragmentWriteProceedBinding
     private val viewModel: WriteViewModel by activityViewModels()
     val tabName = "proceed"
+
+    var onOffline: Int = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
 
-        fragmentWriteProceedBinding = FragmentWriteProceedBinding.inflate(inflater)
+        fragmentWriteProceedBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_write_proceed, container, false)
         return fragmentWriteProceedBinding.root
     }
 
@@ -44,85 +49,7 @@ class WriteProceedFragment : Fragment() {
     fun initData() {
         // 입력 초기화
         viewModel.userDidNotAnswer(tabName)
-
-        // 전에 받은 입력이 있다면~
-        if (viewModel.proceedClicked.value == true) {
-            // 버튼을 활성화
-            viewModel.activateButton()
-        } else {
-            // 버튼을 비활성화
-            viewModel.deactivateButton()
-        }
-
     }
-
-    // 입력 유효성 검사
-    fun validateInput(): Boolean {
-        var result1 = false
-        var result2 = false
-
-        // 입력받은 스터디 장소 가져옴
-        val location = fragmentWriteProceedBinding.textFieldWriteProceedLocation.text.toString()
-        // 입력받은 최대 정원 수 가져옴
-        val inputString = fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
-
-        // 정원수가
-        if (inputString.isEmpty()) {
-            // 빈 문자열 에러 처리
-            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "숫자를 입력하세요"
-            return false
-        }
-        val maxMember: Int? = try {
-            inputString.toInt()
-        } catch (e: NumberFormatException) {
-            // 변환 실패 에러 처리
-            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "유효한 숫자가 아닙니다"
-            null
-        }
-
-        // 멤버가 0명 || 멤버가 30명 이상
-        if (maxMember != null) {
-            if (maxMember > 30) {
-                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
-                viewModel.userDidNotAnswer(tabName)
-                result1 = false
-            } else {
-                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = null
-                // ViewModel에 입력 정보 전달
-                viewModel.gettingStudyMaxMember(maxMember.toInt())
-                result1 = true
-            }
-        }
-
-        // 오프라인 - 위치 정보
-        viewModel.studyOnOffline.observe(viewLifecycleOwner) {
-            if (it == 1 || it == 3) { // 오프라인 or 온오프 혼합
-                if (location.isEmpty()) { // 미입력
-                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = "스터디 할 장소를 입력해주세요"
-                    viewModel.gettingStudyPlace("")
-                    result2 = false
-                } else { // 입력
-                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = null
-                    viewModel.gettingStudyPlace(location)
-                    result2 = true
-                }
-            } else { // 온라인인 경우
-                viewModel.gettingStudyPlace("")
-                result2 = true
-            }
-        }
-
-        if (result1 && result2) {
-            // 모두 입력을 받은 경우 -> proceedClicked.value = true => 버튼 활성화
-            viewModel.userDidAnswer(tabName)
-        } else {
-            viewModel.userDidNotAnswer(tabName)
-        }
-
-        return result1 && result2
-    }
-
-
     fun settingEvent() {
         fragmentWriteProceedBinding.apply {
 
@@ -136,9 +63,8 @@ class WriteProceedFragment : Fragment() {
                     chipWriteProceedOnline.isChecked = false
                     chipWriteProceedMix.isChecked = false
 
-                    // ViewModel에 정보 전달
-                    viewModel.gettingStudyOnOffLine(1) // 1: 오프라인
-
+                    // 오프라인
+                    onOffline = 1
                 } else {
                     // 가리기
                     if (chipWriteProceedMix.isChecked) {
@@ -146,6 +72,7 @@ class WriteProceedFragment : Fragment() {
                     } else {
                         textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
                     }
+                    onOffline = 0
                 }
             }
 
@@ -159,8 +86,10 @@ class WriteProceedFragment : Fragment() {
                     chipWriteProceedOffline.isChecked = false
                     chipWriteProceedMix.isChecked = false
 
-                    // ViewModel에 정보 전달
-                    viewModel.gettingStudyOnOffLine(2) // 2: 온라인
+                    // 온라인
+                    onOffline = 2
+                } else {
+                    onOffline = 0
                 }
             }
 
@@ -175,8 +104,8 @@ class WriteProceedFragment : Fragment() {
                     chipWriteProceedOffline.isChecked = false
                     chipWriteProceedOnline.isChecked = false
 
-                    // ViewModel에 정보 전달
-                    viewModel.gettingStudyOnOffLine(3) // 3: 온오프 혼합
+                    // 온오프 혼합
+                    onOffline = 3
                 } else { // unchecked
                     // 가리기
                     if (chipWriteProceedOffline.isChecked) {
@@ -184,7 +113,7 @@ class WriteProceedFragment : Fragment() {
                     } else {
                         textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
                     }
-
+                    onOffline = 0
                 }
             }
 
@@ -205,16 +134,12 @@ class WriteProceedFragment : Fragment() {
 
             // 몇 명이서 진행할까요? textField 클릭 이벤트
             textFieldWriteProceedNumOfMember.apply {
-                imeOptions = EditorInfo.IME_ACTION_DONE
-
 
                 // 엔터키 클릭 시
                 setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        val maxMember = text.toString()
                         // 유효성 검사
                         validateInput()
-                        true
                     }
                     false
                 }
@@ -223,7 +148,80 @@ class WriteProceedFragment : Fragment() {
         }
     }
 
+    // 입력 유효성 검사
+    fun validateInput(): Boolean {
+        var result1 = false
+        var result2 = false
 
+        // 입력받은 진행방식 가져옴
+        val onOffline = onOffline
+        // 입력받은 스터디 장소 가져옴
+        val location = fragmentWriteProceedBinding.textFieldWriteProceedLocation.text.toString()
+        // 입력받은 최대 정원 수 가져옴
+        val inputString = fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
+
+        if (onOffline == 0){
+            val toast = Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT)
+            toast.show()
+            return false
+        }
+
+        // 정원수가
+        if (inputString.isEmpty()) {
+            // 빈 문자열 에러 처리
+            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "숫자를 입력하세요"
+            return false
+        }
+        val maxMember: Int? = try {
+            inputString.toInt()
+        } catch (e: NumberFormatException) {
+            // 변환 실패 에러 처리
+            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "유효한 숫자가 아닙니다"
+            null
+        }
+
+        // 멤버가 0명 || 멤버가 30명 이상
+        if (maxMember != null) {
+            if (maxMember > 30) {
+                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
+                result1 = false
+            } else {
+                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = null
+                result1 = true
+            }
+        }
+
+        // 오프라인 - 위치 정보
+        viewModel.studyOnOffline.observe(viewLifecycleOwner) {
+            if (it != 2) { // 오프라인 or 온오프 혼합
+                if (location.isEmpty()) { // 미입력
+                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = "스터디 할 장소를 입력해주세요"
+                    result2 = false
+                } else { // 입력
+                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = null
+                    result2 = true
+                }
+            } else { // 온라인인 경우
+                result2 = true
+            }
+        }
+
+        return result1 && result2
+    }
+
+    //
+    fun getAnswer(){
+        // 입력이 유효하다면
+        if (validateInput()){
+            val onOffline = onOffline
+            val place = fragmentWriteProceedBinding.textFieldWriteProceedLocation.text.toString()
+            val maxMember = fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
+            val max = maxMember.toInt()
+
+            viewModel.gettingStudyProceed(onOffline, place, max)
+        }
+
+    }
     private fun showBottomSheet() {
         val modal = BottomSheetWriteProceedFragment()
         modal.setStyle(DialogFragment.STYLE_NORMAL, R.style.roundCornerBottomSheetDialogTheme)

@@ -249,7 +249,7 @@ class RemoteStudyDataSource {
     }
 
     // 사용자 정보를 저장한다.
-    suspend fun addStudyData(study: StudyData){
+    suspend fun uploadStudyData(study: StudyData){
         try {
             studyCollection
                 .add(study)

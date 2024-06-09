@@ -199,7 +199,6 @@ class WriteIntroFragment : Fragment() {
         } else {
             fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
             // ViewModel에 제목 저장
-            viewModel.gettingStudyTitle(title)
         }
 
         // 소개글이 비어있거나 너무 짧은 경우 검사
@@ -211,7 +210,6 @@ class WriteIntroFragment : Fragment() {
         } else {
             fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
             // ViewModel에 내용 저장
-            viewModel.gettingStudyContent(description)
         }
 
         // 입력 완료 처리
@@ -377,8 +375,7 @@ class WriteIntroFragment : Fragment() {
 
             // 서버에서의 파일 이름
             serverFileName = "image_${System.currentTimeMillis()}.jpg"
-            // ViewModel에 저장
-            viewModel.gettingStudyPic(serverFileName)
+            // ViewModel에 사진 저장
         }
     }
 }

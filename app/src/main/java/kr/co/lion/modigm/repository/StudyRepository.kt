@@ -44,5 +44,5 @@ class StudyRepository {
     suspend fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) = remoteStudyDataSource.updateStudyCanApplyByStudyIdx(studyIdx, canApply)
 
     // 스터디 정보 업로드
-    suspend fun uploadStudyData(studyData: StudyData) = remoteStudyDataSource.addStudyData(studyData)
+    suspend fun uploadStudyData(studyData: StudyData) = remoteStudyDataSource.uploadStudyData(studyData)
 }
