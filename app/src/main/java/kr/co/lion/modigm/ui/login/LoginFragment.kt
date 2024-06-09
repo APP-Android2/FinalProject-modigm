@@ -2,11 +2,7 @@ package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -26,6 +22,7 @@ import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.showCustomSnackbar
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
@@ -67,7 +64,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "카카오 로그인 성공")
                     // 커스텀 토스트 메시지 추가
-                    showCustomToast("카카오 로그인 성공", R.drawable.kakaotalk_sharing_btn_small)
+                    requireActivity().showCustomSnackbar("카카오 로그인 성공", R.drawable.kakaotalk_sharing_btn_small)
                     Log.i("LoginFragment", "카카오 로그인 토스트")
                     // 스터디 목록 화면으로 이동
                     navigateToBottomNaviFragment()
@@ -97,7 +94,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "깃허브 로그인 성공")
                     // 커스텀 토스트 메시지 추가
-                    showCustomToast("깃허브 로그인 성공", R.drawable.icon_github_logo)
+                    requireActivity().showCustomSnackbar("깃허브 로그인 성공", R.drawable.icon_github_logo)
                     Log.i("LoginFragment", "깃허브 로그인 토스트")
                     // 스터디 목록 화면으로 이동
                     navigateToBottomNaviFragment()
@@ -124,15 +121,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         // 카카오 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginKakao.setOnClickListener {
             Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
-            val autoLogin = binding.checkboxAutoLogin.isChecked
-            viewModel.loginWithKakao(requireContext(), autoLogin)
+            viewModel.loginWithKakao(requireContext())
         }
 
         // 깃허브 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginGithub.setOnClickListener {
             Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
-            val autoLogin = binding.checkboxAutoLogin.isChecked
-            viewModel.loginWithGithub(requireContext(), autoLogin)
+            viewModel.loginWithGithub(requireContext())
         }
 
         // 다른 방법으로 로그인 버튼 클릭 리스너 설정
@@ -140,7 +135,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             Log.i("LoginFragment", "다른 방법으로 로그인 버튼 클릭됨")
             parentFragmentManager.commit {
                 replace(R.id.containerMain, OtherLoginFragment())
-                addToBackStack(null)
+                addToBackStack(FragmentName.OTHER_LOGIN.str)
             }
         }
     }
@@ -169,24 +164,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         parentFragmentManager.commit {
             replace(R.id.containerMain, BottomNaviFragment())
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
-        }
-    }
-
-    // 커스텀 토스트 표시 메서드
-    private fun showCustomToast(message: String, iconResId: Int) {
-        val inflater = LayoutInflater.from(requireContext())
-        val layout = inflater.inflate(R.layout.custom_toast_login, null)
-
-        val toastIcon = layout.findViewById<ImageView>(R.id.toast_icon)
-        val toastMessage = layout.findViewById<TextView>(R.id.toast_message)
-
-        toastIcon.setImageResource(iconResId)
-        toastMessage.text = message
-
-        with (Toast(requireContext())) {
-            duration = Toast.LENGTH_SHORT
-            view = layout
-            show()
         }
     }
 }

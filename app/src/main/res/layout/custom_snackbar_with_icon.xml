@@ -4,26 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingHorizontal= "16dp"
-    android:paddingVertical="8dp"
-    android:background="@drawable/login_toast_background">
+    android:padding="5dp"
+    android:layout_marginBottom="90dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/toast_icon"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:id="@+id/snackbar_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:src="@drawable/kakaotalk_sharing_btn_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginEnd="20dp"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/toast_message"
+            android:id="@+id/snackbar_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="카카오 로그인 성공"
@@ -31,7 +29,7 @@
             android:textSize="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/toast_icon"
+            app:layout_constraintStart_toEndOf="@+id/snackbar_icon"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginStart="20dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>

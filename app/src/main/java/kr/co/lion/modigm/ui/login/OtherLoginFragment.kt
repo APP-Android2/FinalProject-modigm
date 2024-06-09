@@ -3,12 +3,8 @@ package kr.co.lion.modigm.ui.login
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -22,16 +18,17 @@ import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.showCustomSnackbar
 
-class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
+class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄을 추가하여 올바른 레이아웃을 지정합니다.
 
     private val viewModel: LoginViewModel by viewModels() // LoginViewModel 인스턴스 생성
     private lateinit var binding: FragmentOtherLoginBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentOtherLoginBinding.bind(view) // 뷰 바인딩 설정
 
+        binding = FragmentOtherLoginBinding.bind(view) // view에서 binding을 초기화합니다.
         initView(binding) // 초기 UI 설정
         observeViewModel(binding) // ViewModel의 데이터 변경 관찰
     }
@@ -98,6 +95,11 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
                 addToBackStack(FragmentName.FIND_EMAIL.str)
             }
         }
+
+        // 돌아가기 버튼 클릭 시
+        binding.buttonOtherBack.setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
     }
 
     // 이메일 유효성 검사
@@ -151,7 +153,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         })
 
         // 이메일 로그인 데이터 관찰
-        viewModel.loginResult.observe(viewLifecycleOwner, Observer { result ->
+        viewModel.emailLoginResult.observe(viewLifecycleOwner, Observer { result ->
             when (result) {
                 is LoginResult.Loading -> {
                     Log.i("LoginFragment", "이메일 로그인 진행 중...")
@@ -159,7 +161,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "이메일 로그인 성공")
                     // 커스텀 토스트 메시지 추가
-                    showCustomToast("이메일 로그인 성공", R.drawable.email_login_logo)
+                    requireActivity().showCustomSnackbar("이메일 로그인 성공", R.drawable.email_login_logo)
                     // 메인 화면으로 이동
                     navigateToBottomNaviFragment()
                 }
@@ -198,24 +200,6 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
         parentFragmentManager.commit {
             replace(R.id.containerMain, BottomNaviFragment())
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
-        }
-    }
-
-    // 커스텀 토스트 표시 메서드
-    private fun showCustomToast(message: String, iconResId: Int) {
-        val inflater = LayoutInflater.from(requireContext())
-        val layout = inflater.inflate(R.layout.custom_toast_login, null)
-
-        val toastIcon = layout.findViewById<ImageView>(R.id.toast_icon)
-        val toastMessage = layout.findViewById<TextView>(R.id.toast_message)
-
-        toastIcon.setImageResource(iconResId)
-        toastMessage.text = message
-
-        with(Toast(requireContext())) {
-            duration = Toast.LENGTH_SHORT
-            view = layout
-            show()
         }
     }
 }
