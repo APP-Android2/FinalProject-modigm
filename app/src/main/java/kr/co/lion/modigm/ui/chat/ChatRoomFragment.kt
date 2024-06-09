@@ -93,8 +93,8 @@ class ChatRoomFragment : Fragment() {
     val auth = FirebaseAuth.getInstance()
     val authCurrentUser = auth.currentUser
     // val loginUserId = (authCurrentUser?.uid).toString()
-    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    private var loginUserName = "홍길동" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+    private val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private var loginUserName = "아무개" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 //    private val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 //    private var loginUserName = "테스트" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
 
@@ -281,7 +281,7 @@ class ChatRoomFragment : Fragment() {
     private fun setupMemberRecyclerView() {
         with(fragmentChatRoomBinding.recyclerViewChatRoomMemeberList){
             layoutManager = LinearLayoutManager(context)
-            chatRoomMemberAdapter = ChatRoomMemberAdapter(usersDataList)
+            chatRoomMemberAdapter = ChatRoomMemberAdapter(usersDataList, loginUserId)
             adapter = chatRoomMemberAdapter
         }
     }
@@ -323,6 +323,9 @@ class ChatRoomFragment : Fragment() {
                     ChatMessagesDataSource.uploadMessageImage(mainActivity, "uploadTemp.jpg", imagePath)
                     Log.v("chatLog 이거", "$imagePath")
                     chatMessage = imagePath
+
+                    // false 로 바꿔준다
+                    isProductAddPicture = false
 
                     val message = ChatMessagesData(
                         chatIdx,

@@ -41,7 +41,7 @@ class ChatOnetoOneFragment : Fragment() {
     val auth = FirebaseAuth.getInstance()
     val authCurrentUser = auth.currentUser
     // val loginUserId = (authCurrentUser?.uid).toString()
-    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
     // private val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
