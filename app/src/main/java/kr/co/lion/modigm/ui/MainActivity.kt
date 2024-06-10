@@ -69,14 +69,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun navigateToBottomNaviFragment() {
         supportFragmentManager.commit {
-            replace(R.id.containerMain, WriteFragment())
+            replace(R.id.containerMain, BottomNaviFragment())
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
         }
     }
 
     private fun navigateToLoginFragment() {
         supportFragmentManager.commit {
-            replace(R.id.containerMain, WriteFragment())
+            replace(R.id.containerMain, LoginFragment())
             addToBackStack(FragmentName.LOGIN.str)
         }
     }
