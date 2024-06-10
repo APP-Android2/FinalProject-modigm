@@ -65,23 +65,6 @@ class DetailJoinMemberFragment : Fragment() {
 
         viewModel.loadStudyUids(studyIdx)
 
-//        viewModel.loadStudyUids(studyIdx)
-//
-//        viewModel.studyUids.observe(viewLifecycleOwner) { uids ->
-//            viewModel.loadUserDetails(uids)
-//            uids.forEach { uid ->
-//                Log.d("DetailJoinMemberFragment", "User UID: $uid")
-//            }
-//        }
-//
-//
-//        viewModel.userDetails.observe(viewLifecycleOwner) { userDetails ->
-//            userDetails?.let {
-//                adapter.submitList(it)
-//            }
-//        }
-
-
     }
 
     fun setupRecyclerView() {

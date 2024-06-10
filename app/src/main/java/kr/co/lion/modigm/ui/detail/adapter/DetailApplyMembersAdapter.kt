@@ -31,8 +31,6 @@ class DetailApplyMembersAdapter (private val viewModel: DetailViewModel, private
         holder.bind(userData)
     }
 
-//    override fun getItemCount() = members.size
-
     inner class MemberViewHolder(private val binding: RowDetailApplyMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: UserData) {

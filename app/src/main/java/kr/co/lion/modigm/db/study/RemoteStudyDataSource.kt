@@ -3,22 +3,17 @@ package kr.co.lion.modigm.db.study
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kotlin.coroutines.resume
@@ -368,29 +363,6 @@ class RemoteStudyDataSource {
             documentReference.update("value", newLikeIdx.toLong()).await()
         } catch (e: Exception) {
             Log.e("Firestore Error", "Error updating likeSequence: ${e.message}")
-        }
-    }
-
-    // Firestore에 좋아요 데이터를 업데이트하는 메서드
-    suspend fun updateFirestoreLikeCollection(userUid: String, likeData: Map<String, Any>) {
-        val documentReference = FirebaseFirestore.getInstance().collection("like").document(userUid)
-        val document = documentReference.get().await()
-        if (document.exists()) {
-            documentReference.update("likes", FieldValue.arrayUnion(likeData)).await()
-        } else {
-            documentReference.set(mapOf("likes" to listOf(likeData))).await()
-        }
-    }
-
-    // studyLikeState 업데이트
-    suspend fun updateStudyLikeState(studyIdx: Int, isLiked: Boolean) {
-        val querySnapshot = studyCollection
-            .whereEqualTo("studyIdx", studyIdx)
-            .get()
-            .await()
-
-        querySnapshot.documents.forEach { document ->
-            document.reference.update("studyLikeState", isLiked).await()
         }
     }
 
