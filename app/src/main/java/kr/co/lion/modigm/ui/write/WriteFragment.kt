@@ -115,6 +115,8 @@ class WriteFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 writeViewModel.uploadStudyData()
+                // 채팅 방 생성
+                writeViewModel.uploadChatRoomData()
                 // 스터디 정보 업로드
                 Log.d("WriteFragment", "정보 업로드")
             } catch (e: Exception) {

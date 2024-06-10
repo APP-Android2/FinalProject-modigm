@@ -54,7 +54,8 @@ class ChatRoomDataSource {
     // 채팅 방을 생성함 (Create)
     suspend fun insertChatRoomData(chatRoomData: ChatRoomData){
         val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
-            collectionReference.add(chatRoomData)
+            val documentId = "${chatRoomData.chatIdx}_${chatRoomData.groupChat}_${chatRoomData.chatTitle}"
+            Companion.collectionReference.document(documentId).set(chatRoomData)
         }
         coroutine1.join()
     }
