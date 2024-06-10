@@ -73,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:text="인증"
+                    android:text="@{changePhoneViewModel.phoneAuthButtonText}"
                     android:textSize="14dp"
                     android:textStyle="bold" />
             </LinearLayout>

@@ -218,4 +218,18 @@ class RemoteUserDataSource {
         }
     }
 
+    // 해당 유저의 전화번호를 업데이트
+    suspend fun updatePhone(uid: String, phone: String): Boolean{
+        return try{
+            val result = userCollection.whereEqualTo("userUid", uid).get().await()
+            if(!result.isEmpty){
+                result.documents.first().reference.update("userPhone", phone).await()
+                true
+            }else{
+                false
+            }
+        }catch (e:Exception){
+            false
+        }
+    }
 }
