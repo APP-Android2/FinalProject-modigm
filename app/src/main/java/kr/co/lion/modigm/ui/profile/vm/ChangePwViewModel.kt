@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.profile.vm
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -92,7 +91,6 @@ class ChangePwViewModel: ViewModel() {
 }
 
 enum class ChangePwErrorMessage(var str:String) {
-    NONE(""),
     VALIDATE_FAIL("입력 내용을 다시 확인해주세요"),
     LOGIN_FAIL("현재 비밀번호가 일치하지 않습니다."),
     CHANGE_PW_FAIL("비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요"),
