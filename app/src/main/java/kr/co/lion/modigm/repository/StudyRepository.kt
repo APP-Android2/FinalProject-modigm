@@ -77,14 +77,25 @@ class StudyRepository {
         return remoteStudyDataSource.loadUserDetailsByUid(uid)
     }
 
-    ////////////////////////////////////
     suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean {
         return remoteStudyDataSource.updateStudyUserList(userUid, studyIdx)
     }
+
+    suspend fun addLike(uid: String, studyIdx: Int) {
+        remoteStudyDataSource.addLike(uid, studyIdx)
+    }
+
+    suspend fun removeLike(uid: String, studyIdx: Int) {
+        remoteStudyDataSource.removeLike(uid, studyIdx)
+    }
+
 
     // 특정 studyIdx에 대한 스터디 정보를 가져오고 studyState를 업데이트한다.
     suspend fun updateStudyStateByStudyIdx(studyIdx: Int, newState: Boolean) {
         remoteStudyDataSource.updateStudyStateByStudyIdx(studyIdx, newState)
     }
 
+
+    // 스터디 정보 업로드
+    suspend fun uploadStudyData(studyData: StudyData) = remoteStudyDataSource.uploadStudyData(studyData)
 }

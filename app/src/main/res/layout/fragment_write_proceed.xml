@@ -3,182 +3,199 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="writeViewModel"
+            type="kr.co.lion.modigm.ui.write.vm.WriteViewModel" />
+    </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".ui.write.WriteProceedFragment">
 
-        <TextView
-            android:id="@+id/textView_wrtieProceed_questionWhere"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="40dp"
-
-            android:layout_marginEnd="200dp"
-            android:text="어디서 진행할까요?"
-            android:textSize="18dp"
-
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_writeProceed_offline"
-            style="@style/Widget.Material3.Chip.Suggestion"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-
-            android:layout_marginTop="30dp"
-            android:backgroundTint="@color/white"
-
-            android:checkable="true"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="오프라인"
-
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="16dp"
-
-            app:chipCornerRadius="8dp"
-            app:chipStrokeColor="@color/textGray"
-
-            app:layout_constraintEnd_toStartOf="@id/chip_writeProceed_online"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView_wrtieProceed_questionWhere" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_writeProceed_online"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-
-            android:layout_marginTop="30dp"
-            android:backgroundTint="@color/white"
-
-            android:checkable="true"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="온라인"
-            android:textAlignment="center"
-
-            android:textColor="@color/black"
-            android:textSize="16dp"
-            app:chipCornerRadius="8dp"
-
-            app:chipStrokeColor="@color/textGray"
-
-            app:layout_constraintEnd_toStartOf="@id/chip_writeProceed_mix"
-            app:layout_constraintStart_toEndOf="@id/chip_writeProceed_offline"
-            app:layout_constraintTop_toBottomOf="@id/textView_wrtieProceed_questionWhere" />
-
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_writeProceed_mix"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginTop="30dp"
-
-            android:layout_marginEnd="16dp"
-            android:backgroundTint="@color/white"
-            android:checkable="true"
-
-            android:clickable="true"
-
-            android:focusable="true"
-            android:text="온·오프 혼합"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="16dp"
-
-            app:chipCornerRadius="8dp"
-            app:chipStrokeColor="@color/textGray"
-
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/chip_writeProceed_online"
-            app:layout_constraintTop_toBottomOf="@id/textView_wrtieProceed_questionWhere" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chip_writeProceed_mix">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayout_writeProceed_offline_clicked"
+            android:layout_height="match_parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="16dp"
+                android:layout_height="match_parent">
 
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:visibility="gone"
-
-                app:endIconMode="clear_text"
-                app:hintAnimationEnabled="false"
-                app:hintEnabled="false"
-
-                app:hintTextColor="@color/textGray"
-                app:startIconDrawable="@drawable/icon_location_on_24px"
-                app:startIconTint="@color/textGray">
-
-                <AutoCompleteTextView
-                    android:id="@+id/textField_writeProceed_location"
+                <TextView
+                    android:id="@+id/textView_wrtieProceed_questionWhere"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
+                    android:layout_height="wrap_content"
 
-                    android:hint="강남 XX카페"
-                    android:textSize="16dp" />
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="40dp"
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginEnd="200dp"
+                    android:text="어디서 진행할까요?"
+                    android:textSize="18dp"
 
-            <TextView
-                android:id="@+id/textView_writeProceed_question_numOfMember"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="26dp"
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_writeProceed_offline"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
 
-                android:layout_marginEnd="90dp"
-                android:text="몇 명이서 진행할까요?(최대 30명)"
-                android:textSize="18dp" />
+                    android:layout_marginTop="30dp"
+                    android:backgroundTint="@color/white"
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayout_writeProceed"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:endIconMode="clear_text"
-                app:hintAnimationEnabled="false"
-                app:hintEnabled="false"
-                app:hintTextColor="@color/textGray">
+                    android:checkable="true"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="오프라인"
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/textField_writeProceed_numOfMember"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="16dp"
+
+                    app:chipCornerRadius="8dp"
+                    app:chipStrokeColor="@color/textGray"
+
+                    app:layout_constraintEnd_toStartOf="@id/chip_writeProceed_online"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/textView_wrtieProceed_questionWhere" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_writeProceed_online"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+
+                    android:layout_marginTop="30dp"
+                    android:backgroundTint="@color/white"
+
+                    android:checkable="true"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="온라인"
+                    android:textAlignment="center"
+
+                    android:textColor="@color/black"
+                    android:textSize="16dp"
+                    app:chipCornerRadius="8dp"
+
+                    app:chipStrokeColor="@color/textGray"
+
+                    app:layout_constraintEnd_toStartOf="@id/chip_writeProceed_mix"
+                    app:layout_constraintStart_toEndOf="@id/chip_writeProceed_offline"
+                    app:layout_constraintTop_toBottomOf="@id/textView_wrtieProceed_questionWhere" />
+
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_writeProceed_mix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginTop="30dp"
+
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@color/white"
+                    android:checkable="true"
+
+                    android:clickable="true"
+
+                    android:focusable="true"
+                    android:text="온·오프 혼합"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="16dp"
+
+                    app:chipCornerRadius="8dp"
+                    app:chipStrokeColor="@color/textGray"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/chip_writeProceed_online"
+                    app:layout_constraintTop_toBottomOf="@id/textView_wrtieProceed_questionWhere" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="인원 수 입력"
-                    android:inputType="number"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textSize="16dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
 
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/chip_writeProceed_mix">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textInputLayout_writeProceed_offline_clicked"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginEnd="16dp"
+
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:visibility="gone"
+
+                        app:endIconMode="clear_text"
+                        app:hintAnimationEnabled="false"
+                        app:hintEnabled="false"
+
+                        app:hintTextColor="@color/textGray"
+                        app:startIconDrawable="@drawable/icon_location_on_24px"
+                        app:startIconTint="@color/textGray">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/textField_writeProceed_location"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+
+                            android:hint="강남 XX카페"
+                            android:textSize="16dp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/textView_writeProceed_question_numOfMember"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="26dp"
+
+                        android:layout_marginEnd="90dp"
+                        android:text="몇 명이서 진행할까요?(최대 30명)"
+                        android:textSize="18dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textInputLayout_writeProceed"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        app:endIconMode="clear_text"
+                        app:hintAnimationEnabled="false"
+                        app:hintEnabled="false"
+                        app:hintTextColor="@color/textGray">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/textField_writeProceed_numOfMember"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="인원 수 입력"
+                            android:inputType="number"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textSize="16dp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+
+    </LinearLayout>
 </layout>
 
