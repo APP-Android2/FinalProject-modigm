@@ -148,7 +148,7 @@ class JoinViewModel : ViewModel() {
         user.userUid = _uid.value?:""
 
         user.userProvider = _userProvider.value?:""
-        user.userEmail = _userEmail.value?:""
+        user.userEmail = _userEmail.value?:_email.value?:""
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return user
     }
