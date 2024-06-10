@@ -47,19 +47,51 @@ class DetailApplyMembersAdapter (private val viewModel: DetailViewModel, private
             // 승인 버튼
             binding.buttonDetailAccept.setOnClickListener {
 
-                val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
+//                val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
+//
+//                // 스낵바의 뷰를 가져옵니다.
+//                val snackbarView = snackbar.view
+//
+//                // 스낵바 텍스트 뷰 찾기
+//                val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+//
+//                // 텍스트 크기를 dp 단위로 설정
+//                val textSizeInPx = dpToPx(itemView.context, 16f)
+//                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+//
+//                snackbar.show()
 
-                // 스낵바의 뷰를 가져옵니다.
-                val snackbarView = snackbar.view
+//                viewModel.addUserToStudyUidList(studyIdx, user.userUid) { success ->
+//                    if (success) {
+//                        val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
+//                        val snackbarView = snackbar.view
+//                        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+//                        val textSizeInPx = dpToPx(itemView.context, 16f)
+//                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+//                        snackbar.show()
+//                    } else {
+//                        Log.d("Dialog", "Failed to add user to studyUidList")
+//                    }
+//                }
 
-                // 스낵바 텍스트 뷰 찾기
-                val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                viewModel.acceptUser(studyIdx, user.userUid) { success ->
+                    if (success) {
+                        val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
+                        val snackbarView = snackbar.view
+                        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                        val textSizeInPx = dpToPx(itemView.context, 16f)
+                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+                        snackbar.show()
 
-                // 텍스트 크기를 dp 단위로 설정
-                val textSizeInPx = dpToPx(itemView.context, 16f)
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
-                snackbar.show()
+                        // 리스트에서 아이템 제거
+                        val position = adapterPosition
+                        if (position != RecyclerView.NO_POSITION) {
+                            removeItem(position)
+                        }
+                    } else {
+                        Log.d("Dialog", "Failed to accept user")
+                    }
+                }
             }
 
             // Firebase Storage에서 이미지 URL 가져오기

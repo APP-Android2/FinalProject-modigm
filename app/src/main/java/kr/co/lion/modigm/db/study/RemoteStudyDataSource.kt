@@ -541,4 +541,38 @@ class RemoteStudyDataSource {
             }
     }
 
+    fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val studyDoc = documents.documents[0]
+                    val studyRef = studyDoc.reference
+                    val uidList = studyDoc.get("studyUidList") as MutableList<String>
+
+                    if (!uidList.contains(userUid)) {
+                        uidList.add(userUid)
+                        studyRef.update("studyUidList", uidList)
+                            .addOnSuccessListener {
+                                Log.d("FirestoreDataSource", "User added to studyUidList")
+                                callback(true)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("FirestoreDataSource", "Error adding user to studyUidList", e)
+                                callback(false)
+                            }
+                    } else {
+                        callback(true)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(false)
+            }
+    }
+
 }

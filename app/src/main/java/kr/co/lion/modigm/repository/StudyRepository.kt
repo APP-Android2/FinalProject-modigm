@@ -124,4 +124,8 @@ class StudyRepository {
     fun removeUserFromStudyApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
         remoteStudyDataSource.removeUserFromStudyApplyList(studyIdx, userUid, callback)
     }
+
+    fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        remoteStudyDataSource.addUserToStudyUidList(studyIdx, userUid, callback)
+    }
 }

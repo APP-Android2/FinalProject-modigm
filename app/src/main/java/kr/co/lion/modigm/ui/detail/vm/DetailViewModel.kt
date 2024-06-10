@@ -273,4 +273,21 @@ class DetailViewModel : ViewModel() {
         studyRepository.removeUserFromStudyApplyList(studyIdx, userUid, callback)
     }
 
+    fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyRepository.addUserToStudyUidList(studyIdx, userUid) { success ->
+            callback(success)
+        }
+    }
+
+    fun acceptUser(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        addUserToStudyUidList(studyIdx, userUid) { addSuccess ->
+            if (addSuccess) {
+                removeUserFromApplyList(studyIdx, userUid) { removeSuccess ->
+                    callback(removeSuccess)
+                }
+            } else {
+                callback(false)
+            }
+        }
+    }
 }
