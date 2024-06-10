@@ -29,7 +29,7 @@
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/image_detail_2"/>
+                    android:src="@drawable/image_loading_gray"/>
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -51,7 +51,7 @@
                         android:layout_marginEnd="4dp"
                         android:layout_gravity="center"
                         android:textStyle="bold"
-                        android:text="모집중"
+                        android:text=""
                         android:textColor="@color/pointColor"
                         android:textSize="14dp"/>
                     <com.google.android.material.textview.MaterialTextView
@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textStyle="bold"
-                        android:text="온라인"
+                        android:text=""
                         android:textColor="#0FA981"
                         android:textSize="14dp"/>
                 </LinearLayout>
@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="20dp"
-                    android:text="Kotlin 스터디 모집합니다!dddddddddd"
+                    android:text=""
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:textStyle="bold"
@@ -102,7 +102,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:paddingHorizontal="2dp"
-                        android:text="스터디"
+                        android:text=""
                         android:textColor="@color/textGray"
                         android:textSize="14dp"/>
                     <ImageView
@@ -120,7 +120,7 @@
                         android:layout_marginStart="4dp"
                         android:layout_gravity="center"
                         android:textColor="@color/textGray"
-                        android:text="1"
+                        android:text=""
                         android:textSize="14dp" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -139,7 +139,7 @@
                         android:layout_marginStart="2dp"
                         android:textColor="@color/textGray"
                         android:layout_gravity="center"
-                        android:text="20"
+                        android:text=""
                         android:textSize="14dp" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -166,7 +166,7 @@
                         android:layout_marginStart="2dp"
                         android:textColor="@color/textGray"
                         android:layout_gravity="center"
-                        android:text="신청제"
+                        android:text=""
                         android:textSize="14dp" />
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
