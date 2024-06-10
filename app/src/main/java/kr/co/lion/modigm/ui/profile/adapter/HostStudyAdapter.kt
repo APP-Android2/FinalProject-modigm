@@ -11,7 +11,7 @@ import kr.co.lion.modigm.model.StudyData
 
 class HostStudyAdapter(
     private var hostStudyList: List<StudyData>,
-    private val rowClickListener: (String) -> Unit,
+    private val rowClickListener: (Int) -> Unit,
 ) : RecyclerView.Adapter<HostStudyViewHolder>() {
 
 

@@ -67,12 +67,22 @@ class ProfileFragment: Fragment() {
 
         // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
         rowClickListener = { studyIdx ->
-            Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
             viewLifecycleOwner.lifecycleScope.launch {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, DetailFragment())
-                    .addToBackStack(FragmentName.FILTER_SORT.str)
-                    .commit()
+                val detailFragment = DetailFragment()
+
+                // Bundle 생성 및 현재 사용자 uid 담기
+                val bundle = Bundle()
+                Log.d("zunione", "$studyIdx")
+                bundle.putInt("studyIdx", studyIdx)
+
+                // Bundle을 ProfileFragment에 설정
+                detailFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    add(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
             }
         }
     )
@@ -83,12 +93,22 @@ class ProfileFragment: Fragment() {
 
         // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
         rowClickListener = { studyIdx ->
-            Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
             viewLifecycleOwner.lifecycleScope.launch {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, DetailFragment())
-                    .addToBackStack(FragmentName.FILTER_SORT.str)
-                    .commit()
+                val detailFragment = DetailFragment()
+
+                // Bundle 생성 및 현재 사용자 uid 담기
+                val bundle = Bundle()
+                Log.d("zunione", "$studyIdx")
+                bundle.putInt("studyIdx", studyIdx)
+
+                // Bundle을 ProfileFragment에 설정
+                detailFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    add(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
             }
         }
     )
@@ -134,8 +154,9 @@ class ProfileFragment: Fragment() {
                     when (it.itemId) {
                         R.id.menu_item_profile_setting -> {
                             requireActivity().supportFragmentManager.commit {
+                                setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                 add(R.id.containerMain, SettingsFragment())
-                                addToBackStack(null)
+                                addToBackStack(FragmentName.SETTINGS.str)
                             }
                         }
 
@@ -182,10 +203,11 @@ class ProfileFragment: Fragment() {
                 }
 
                 setOnClickListener {
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, ChatFragment())
-                        .addToBackStack(FragmentName.FILTER_SORT.str)
-                        .commit()
+                    requireActivity().supportFragmentManager.commit {
+                        setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                        add(R.id.containerMain, ChatFragment())
+                        addToBackStack(FragmentName.CHAT.str)
+                    }
                 }
             }
         }
