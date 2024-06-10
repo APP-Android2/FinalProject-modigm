@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLikeBinding
 import kr.co.lion.modigm.model.StudyData
@@ -31,7 +33,19 @@ class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter
         fun bind(study: StudyData) {
             binding.apply {
 
-                imageViewLikeCover.setImageResource(R.drawable.image_detail_1)
+//                imageViewLikeCover.setImageResource(R.drawable.image_detail_1)
+
+                // Firebase Storage에서 이미지 URL 가져오기
+                val storageReference =
+                    FirebaseStorage.getInstance().reference.child("studyPic/${study.studyPic}")
+                storageReference.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(itemView.context)
+                        .load(uri)
+                        .error(R.drawable.icon_error_24px) // 로드 실패 시 표시할 이미지
+                        .into(imageViewLikeCover) // ImageView에 이미지 로드
+                }.addOnFailureListener {
+                    // 에러 처리
+                }
 
                 // 모집 상태에 따라 텍스트와 색상 설정
                 textViewLikeState.text = if (study.studyState) "모집 중" else "모집 마감"
