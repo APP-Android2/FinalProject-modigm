@@ -1,21 +1,49 @@
 package kr.co.lion.modigm.ui.write.vm
 
-import android.graphics.Color
 import android.util.Log
-import android.widget.Button
-import android.widget.ProgressBar
-import androidx.core.content.ContextCompat
-import androidx.databinding.adapters.SeekBarBindingAdapter.setProgress
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.repository.ChatRoomRepository
+import kr.co.lion.modigm.repository.StudyRepository
+import kr.co.lion.modigm.util.Skill
 
 class WriteViewModel : ViewModel() {
+    // 스터디 Repository
+    val studyRepository = StudyRepository()
 
+    // 채팅 Repository
+    val chatRoomRepository = ChatRoomRepository()
 
+    // ----------------- Remote Data Source에 전송할 내용 -----------------
+    // StudyData 객체 생성
+    private val _studyData = MutableLiveData<StudyData>()
+    val studyData: LiveData<StudyData> = _studyData
+
+    // 데이터에서 가져올 부분
+    private val _studyIdx = MutableLiveData<Int>() // 글 고유번호
+    val studyIdx: LiveData<Int> = _studyIdx
+
+    private val _studyDetailPlace = MutableLiveData<String>() // 오프라인 진행장소 상세 주소
+    val studyDetailPlace: LiveData<String> = _studyDetailPlace
+
+    private val _studyUIdList = MutableLiveData<MutableList<String>>() // 현재 참여자 목록
+    val studyUIdList: LiveData<MutableList<String>> = _studyUIdList
+
+    private val _chatIdx = MutableLiveData<Int>() // 연결된 채팅방 고유 번호
+    val chatIdx: LiveData<Int> = _chatIdx
+
+    private val _studyState = MutableLiveData<Boolean>() // 삭제 여부 (존재함, 삭제됨)
+    val studyState: LiveData<Boolean> = _studyState
+
+    private val _studyCanApply = MutableLiveData<Boolean>() // 모집상태(모집중, 모집완료)
+    val studyCanApply: LiveData<Boolean> = _studyCanApply
+
+    // 이 프래그먼트에 존재하는 부분
     // WriteField -> 활동타입 (스터디 : 1, 프로젝트 : 2, 공모전 : 3)
     private val _studyType = MutableLiveData<Int>()
     val studyType: LiveData<Int> = _studyType
@@ -41,8 +69,8 @@ class WriteViewModel : ViewModel() {
     val studyApplyMethod: LiveData<Int> = _studyApplyMethod
 
     // WriteSkill -> 필요 기술스택 목록
-    private val _studySkillList = MutableLiveData<List<String>>()
-    val studySkillList: LiveData<List<String>> = _studySkillList
+    private val _studySkillList = MutableLiveData<List<Int>?>()
+    val studySkillList: LiveData<List<Int>?> = _studySkillList
 
     // WriteIntro -> 썸네일 사진
     private val _studyPic = MutableLiveData<String>()
@@ -55,6 +83,10 @@ class WriteViewModel : ViewModel() {
     // WriteIntro -> 글 내용
     private val _studyContent = MutableLiveData<String>()
     val studyContent: LiveData<String> = _studyContent
+
+    // 글 작성자 Uid
+    private val _studyWriteUid = MutableLiveData<String>()
+    val studyWriteUid: LiveData<String> = _studyWriteUid
 
     // ----------------- 입력 상태 반환 -----------------
 
@@ -90,7 +122,6 @@ class WriteViewModel : ViewModel() {
         viewModelScope.launch {
             // 버튼 상태 비활성화
             _buttonState.value = false
-
             // 클릭 상태 설정
             _fieldClicked.value = false
             _periodClicked.value = false
@@ -98,55 +129,6 @@ class WriteViewModel : ViewModel() {
             _skillClicked.value = false
             _introClicked.value = false
         }
-    }
-    // ----------------- 초기화 함수 -----------------
-    fun initField(){ _studyType.value = 0 }
-    fun initPeriod(){ _studyPeriod.value = 0 }
-    fun initProceed(){
-        _studyOnOffline.value = 0
-        _studyPlace.value = ""
-        _studyMaxMember.value = 0
-    }
-    fun initSkill(){
-        _studyApplyMethod.value = 0
-        _studySkillList.value = listOf()
-    }
-    fun initIntro(){
-        _studyPic.value = ""
-        _studyTitle.value = ""
-        _studyContent.value = ""
-    }
-    // --------------------------------------------
-
-    // ----------------- 입력 처리 함수 -----------------
-
-    // 완료 버튼 활성화 함수
-    fun buttonFinalStateActivation(): Boolean{
-        return (fieldClicked.value == true
-                && periodClicked.value == true
-                && proceedClicked.value == true
-                && skillClicked.value == true
-                && introClicked.value == true)
-    }
-
-    // 활동타입 저장
-    fun gettingStudyType(type: Int){
-        _studyType.value = type
-    }
-
-    // 활동기간 저장
-    fun gettingStudyPeriod(period: Int){
-        _studyPeriod.value = period
-    }
-    //
-
-    // 스터디 데이터를 저장한다
-    fun saveStudyData(){
-        val studyType = studyType.value
-        val studyPeriod = studyPeriod.value
-        val studyOnOffLine = studyOnOffline.value
-        var studyData = StudyData()
-
     }
 
     fun userDidAnswer(tabName: String) {
@@ -207,4 +189,175 @@ class WriteViewModel : ViewModel() {
         _buttonState.value = false
     }
 
+    // --------------------------------------------
+    fun gettingStudyOnOffline(onOffline: Int) {
+        _studyOnOffline.value = onOffline
+    }
+
+    // ----------------- 입력 처리 함수 -----------------
+
+    // studyField에서 입력받은 데이터 저장
+    fun gettingStudyField(type: Int) {
+        _studyType.value = type
+    }
+
+    // studyPeriod에서 입력받은 데이터 저장
+    fun gettingStudyPeriod(period: Int) {
+        _studyPeriod.value = period
+    }
+
+    // studyProceed에서 입력받은 데이터 저장
+    // location입력
+    fun gettingLocation(location: String) {
+        _studyPlace.value = location
+    }
+
+    fun gettingMaxMember(max: Int) {
+        _studyMaxMember.value = max
+    }
+
+    // studySkill에서 입력받은 데이터 저장
+    fun gettingApplyMethod(method: Int) {
+        _studyApplyMethod.value = method
+    }
+
+    fun gettingSkillList(skillList: List<Int>) {
+        _studySkillList.value = skillList
+    }
+
+    fun gettingStudyPic(picture: String) {
+        _studyPic.value = picture
+    }
+
+    fun gettingStudyTitle(title: String) {
+        _studyTitle.value = title
+    }
+
+    fun gettingStudyContent(content: String) {
+        _studyContent.value = content
+    }
+
+    // 완료 버튼 활성화 함수
+    fun buttonFinalStateActivation(): Boolean {
+        return (fieldClicked.value == true
+                && periodClicked.value == true
+                && proceedClicked.value == true
+                && skillClicked.value == true
+                && introClicked.value == true)
+    }
+
+    // --------------------------------------------
+
+    // ----------------- ViewModel에 필요한 항목들 불러오기 -------------------
+
+    // 글 고유번호(studyIdx)
+    suspend fun gettingStudyIdx() = viewModelScope.launch {
+        try {3
+            // 스터디 시퀀스 값을 가져온다
+            val studySequence = studyRepository.getStudySequence()
+            // 스터디 시퀀스 값을 업데이트 한다
+            studyRepository.updateStudySequence(studySequence + 1)
+            // 저장할 값을 담아준다
+            _studyIdx.value = studySequence + 1
+        } catch (e: Exception) {
+            Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
+        }
+    }
+
+    // 현재 참여자 목록(studyUidList) -> List<String> / List[0] = 진행자
+    suspend fun gettingStudyUidList() = viewModelScope.launch {
+
+        try {
+            // 현재 사용자 uid 받아오기
+            val uid = gettingCurrentUid()
+            // 리스트 만들기
+            val uidList = mutableListOf(uid)
+
+            // 리스트에 답아준다
+            _studyUIdList.value = uidList
+        }catch (e: Exception){
+            Log.e("TedMoon", "${e}")
+        }
+    }
+
+    // 연결된 채팅방 고유번호(chatIdx)
+    suspend fun gettingChatIdx() = viewModelScope.launch {
+        try {
+            // 채팅방 시퀀스 값을 가져온다
+            val chatRoomSequence = chatRoomRepository.getChatRoomSequence()
+            // 채팅방 시퀀스 값을 업데이트해서 서버로 올려준다
+            chatRoomRepository.updateChatRoomSequence(chatRoomSequence + 1)
+            // 저장할 값을 담아준다
+            _chatIdx.value = chatRoomSequence + 1
+        } catch (e: Exception) {
+            Log.e("Firebase Error12", "Error dbUpdateStudySequence : ${e.message}")
+        }
+    }
+
+    // 글 작성자(studyWriteUid)
+    suspend fun gettingCurrentUid(): String {
+        // auth 접근
+        val auth = FirebaseAuth.getInstance()
+        // 현재 사용자 uid 받아오기
+        val uid = auth.currentUser?.uid.toString()
+        // 값을 담아준다
+        _studyWriteUid.value = uid
+        return uid
+    }
+
+    // --------------------------------------------
+
+
+    // studyIdx 반환
+    fun returnStudyIdx(): Int {
+        return studyIdx.value ?: -1
+    }
+
+
+    // ----------------- Repository에 데이터 전송 -----------------
+
+    // StudyData 객체를 생성
+    suspend fun setStudyData() {
+        gettingStudyIdx()
+        gettingChatIdx()
+        gettingStudyUidList()
+
+        val study = StudyData(
+            studyIdx = _studyIdx.value ?: -1,
+            studyTitle = _studyTitle.value ?: "",
+            studyContent = _studyContent.value ?: "",
+            studyType = _studyType.value ?: 0,
+            studyPeriod = _studyPeriod.value ?: 0,
+            studyOnOffline = _studyOnOffline.value ?: 0,
+            studyPlace = _studyPlace.value ?: "",
+            studyDetailPlace = _studyDetailPlace.value ?: "",
+            studyApplyMethod = _studyApplyMethod.value ?: 0,
+            studySkillList = _studySkillList.value ?: emptyList(),
+            studyCanApply = _studyCanApply.value ?: true,
+            studyPic = _studyPic.value ?: "",
+            studyMaxMember = _studyMaxMember.value ?: 0,
+            studyUidList = _studyUIdList.value ?: emptyList(),
+            chatIdx = _chatIdx.value ?: -1,
+            studyState = _studyState.value ?: true,
+            studyWriteUid = _studyWriteUid.value ?: "",
+            studyApplyList = emptyList()
+        )
+        _studyData.value = study
+    }
+
+    // StudyData를 Repository에 전송
+    suspend fun uploadStudyData(){
+        // StudyData 값 가져오기
+        setStudyData()
+        // StudyData 받아오기
+        val studyData = studyData.value
+
+        // repository에 전송
+        if (studyData != null) {
+            val uploadData = studyRepository.uploadStudyData(studyData)
+            Log.d("uploadData", "${uploadData}")
+        }
+    }
+
+    // ---------------------------------------------------------
 }

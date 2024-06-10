@@ -7,6 +7,7 @@ data class ChatMessagesData(
     val chatMessage: String, // 채팅 메세지 내용
     val chatFullTime : Long, // 메시지 고유 Index
     val chatTime: String, // 채팅 전송한 시간
+    val chatDateSeparator: String // 날짜 구분자 사용
 ) {
-    constructor(): this(0,"", "", "",0L, "")
+    constructor(): this(0,"", "", "",0L, "", "")
 }

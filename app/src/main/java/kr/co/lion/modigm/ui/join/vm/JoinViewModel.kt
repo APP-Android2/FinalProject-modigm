@@ -8,7 +8,6 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
-import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
@@ -149,7 +148,7 @@ class JoinViewModel : ViewModel() {
         user.userUid = _uid.value?:""
 
         user.userProvider = _userProvider.value?:""
-        user.userEmail = _userEmail.value?:""
+        user.userEmail = _userEmail.value?:_email.value?:""
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return user
     }

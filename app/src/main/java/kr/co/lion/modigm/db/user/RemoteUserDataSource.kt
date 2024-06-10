@@ -124,7 +124,7 @@ class RemoteUserDataSource {
 
 
     // uid를 통해 사용자 정보를 가져오는 메서드
-    suspend fun loadUserDataByUid(uid: String): UserData? {
+    suspend fun loadUserDataByUid(uid: String?): UserData? {
         // 사용자 정보 객체를 담을 변수
         var user: UserData? = null
 
@@ -226,4 +226,18 @@ class RemoteUserDataSource {
         }
     }
 
+    // 해당 유저의 전화번호를 업데이트
+    suspend fun updatePhone(uid: String, phone: String): Boolean{
+        return try{
+            val result = userCollection.whereEqualTo("userUid", uid).get().await()
+            if(!result.isEmpty){
+                result.documents.first().reference.update("userPhone", phone).await()
+                true
+            }else{
+                false
+            }
+        }catch (e:Exception){
+            false
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.showCustomSnackbar
+import kr.co.lion.modigm.util.ModigmApplication
 
 class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
@@ -60,7 +62,6 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 replace<StudyFragment>(R.id.containerBottomNavi)
             }
         }
-
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
             when(item.itemId) {
                 R.id.bottomNaviStudy -> {

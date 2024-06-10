@@ -14,12 +14,12 @@ import kr.co.lion.modigm.repository.StudyRepository
 class PartStudyViewHolder(
     private val context: Context,
     private val rowPartStudyBinding: RowPartStudyBinding,
-    private val rowClickListener: (String) -> Unit, ): RecyclerView.ViewHolder(rowPartStudyBinding.root) {
+    private val rowClickListener: (Int) -> Unit, ): RecyclerView.ViewHolder(rowPartStudyBinding.root) {
 
     private val studyRepository = StudyRepository()
 
     // 구성요소 세팅
-    fun bind(data: StudyData, rowClickListener: (String) -> Unit) {
+    fun bind(data: StudyData, rowClickListener: (Int) -> Unit) {
         rowPartStudyBinding.apply {
             CoroutineScope(Dispatchers.Main).launch {
                 // 데이터베이스로부터 썸네일을 불러온다
@@ -38,7 +38,7 @@ class PartStudyViewHolder(
 
                 // 클릭 리스너 설정: 스터디 고유번호 전달
                 setOnClickListener {
-                    rowClickListener.invoke("https://github.com/orgs/APP-Android2/projects/25/views/1")
+                    rowClickListener.invoke(data.studyIdx)
                 }
             }
         }

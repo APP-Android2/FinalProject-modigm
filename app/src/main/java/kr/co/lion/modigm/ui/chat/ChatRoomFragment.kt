@@ -2,10 +2,10 @@ package kr.co.lion.modigm.ui.chat
 
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.ImageDecoder
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -31,8 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChatRoomBinding
+import kr.co.lion.modigm.db.chat.ChatMessagesDataSource
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
-import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
@@ -40,9 +41,10 @@ import kr.co.lion.modigm.ui.chat.adapter.ChatRoomMemberAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatMessagesViewModel
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
-import kr.co.lion.modigm.ui.study.StudyFragment
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
+import kr.co.lion.modigm.util.CameraUtil
+import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -50,6 +52,27 @@ class ChatRoomFragment : Fragment() {
 
     lateinit var fragmentChatRoomBinding: FragmentChatRoomBinding
     lateinit var mainActivity: MainActivity
+
+    // 앨범 실행을 위한 런처
+    lateinit var albumLauncher: ActivityResultLauncher<Intent>
+
+    // 메시지 사진 등록 여부
+    var isProductAddPicture = false
+
+    // 리사이클러뷰 아이템의 개수에 맞게 비트맵 배열 초기화
+    lateinit var imageBitmap: Bitmap
+
+    // firestore 이미지 경로 배열
+    lateinit var imagePath: String
+
+    // 현재 입력 한 채팅 메시지
+    var chatMessage = ""
+
+    // 확인할 권한 목록
+    val permissionList = arrayOf(
+        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        android.Manifest.permission.ACCESS_MEDIA_LOCATION
+    )
 
     private val usersDataList = mutableListOf<UserData>()
     private val usersDataHashMap = HashMap<String, UserData>()
@@ -66,14 +89,8 @@ class ChatRoomFragment : Fragment() {
     private val messages = mutableListOf<ChatMessagesData>()
 
     // 현재 로그인 한 사용자 정보
-    // FirebaseAuth 인스턴스를 가져옴
-    val auth = FirebaseAuth.getInstance()
-    val authCurrentUser = auth.currentUser
-    // val loginUserId = (authCurrentUser?.uid).toString()
-    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    private var loginUserName = "유저 아이디" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
-    // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    // private val loginUserName = "주성원" // 현재 사용자의 Name을 설정 (DB 연동 후 교체)
+    private val loginUserId = ChatFragment().loginUserId
+    private var loginUserName = ChatFragment().loginUserName
 
     // 현재 방 번호, 제목, 그룹 채팅방 여부 변수 초기 세팅
     var chatIdx = 0
@@ -94,6 +111,19 @@ class ChatRoomFragment : Fragment() {
             isGroupChat = it.getBoolean("groupChat")
         }
 
+        // 뒤로 가기 콜백 설정
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // 뒤로가기
+                // parentFragmentManager.popBackStack()
+                parentFragmentManager.commit() {
+                    replace(R.id.containerMain, BottomNaviFragment())
+                }
+            }
+        })
+
+
+
         return fragmentChatRoomBinding.root
     }
 
@@ -101,10 +131,11 @@ class ChatRoomFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.v("chatLog1", "BackStackEntryCount: ${parentFragmentManager.backStackEntryCount}")
-
         // 로그인 유저 Name 값 가져오기 (로그인 처리 하고 주석 풀어서 사용)
         // getUserNameByUid()
+
+        // 카메라 InitData
+        cameraInitData()
 
         // 입장시 -> 메시지 읽음 처리
         readMessage()
@@ -137,8 +168,67 @@ class ChatRoomFragment : Fragment() {
     // Pause 상태 - 채팅방 나갈때도 포함되며 Destory에 안쓴 이유는 (onDestory 보다 먼저 실행되서...) 어차피 readMessage 처리 해야해서
     override fun onPause() {
         super.onPause()
-        Log.d("chatLog1", "Room - onPause 실행")
         readMessage()
+    }
+
+    // 카메라 관련 데이터 초기 세팅
+    fun cameraInitData() {
+        val context = requireContext()
+
+        // 권한 확인
+        requestPermissions(permissionList, 0)
+
+        // 앨범 실행을 위한 런처
+        val albumContract = ActivityResultContracts.StartActivityForResult()
+        albumLauncher = registerForActivityResult(albumContract) {
+            // 사진 선택을 완료한 후 돌아왔다면
+            if (it.resultCode == AppCompatActivity.RESULT_OK) {
+                // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출
+                val uri = it.data?.data
+                if (uri != null) {
+                    // 안드로이드 Q(10) 이상 시
+                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        // 이미지 생성 할 수 있는 객체 생성
+                        val source = ImageDecoder.createSource(context.contentResolver, uri)
+                        // Bitmap 생성
+                        ImageDecoder.decodeBitmap(source)
+                    }
+                    else {
+                        // Content Provider 를 통해 이미지 데이터에 접근
+                        val cursor = context.contentResolver.query(uri, null, null, null, null)
+                        if (cursor != null) {
+                            cursor.moveToNext()
+                            // 이미지의 경로를 가져옴
+                            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+                            val source = cursor.getString(idx)
+                            // 이미지 생성
+                            BitmapFactory.decodeFile(source)
+                        } else { null }
+                    }
+
+                    // 회전 각도 값
+                    val degree = CameraUtil.getDegree(context, uri)
+                    // 회전 이미지
+                    val rotateImage = CameraUtil.rotateBitmap(bitmap!!, degree.toFloat())
+                    // 크기를 줄인 이미지
+                    val resultImage = CameraUtil.resizeBitmap(rotateImage, 1024)
+
+                    // imageBitmap 에 Bitmap 을 담음
+                    imageBitmap = resultImage
+
+                    // 현재 시간 (경로 이름에 쓰일 예정)
+                    val currentTimeText = SimpleDateFormat("yyMMdd_HHmm_ss").format(Date())
+                    var serverFileName = "${chatIdx}_ImageMessage_${currentTimeText}.jpg"
+                    imagePath = serverFileName
+
+                    // 사진 첨부 여부
+                    isProductAddPicture = true
+
+                    // 이미지 추가 후 메시지 전송
+                    addChatMessagesData()
+                }
+            }
+        }
     }
 
     // 툴바 세팅
@@ -151,9 +241,10 @@ class ChatRoomFragment : Fragment() {
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
                     // 뒤로가기
-                    parentFragmentManager.popBackStack()
-                    // requireActivity().supportFragmentManager.popBackStack()
-                    // mainActivity.removeFragment(FragmentName.CHAT_ROOM)
+                    // parentFragmentManager.popBackStack()
+                    parentFragmentManager.commit() {
+                        replace(R.id.containerMain, BottomNaviFragment())
+                    }
                 }
                 // 오른쪽 툴바 버튼(Menu)
                 setOnMenuItemClickListener {
@@ -184,7 +275,7 @@ class ChatRoomFragment : Fragment() {
     private fun setupMemberRecyclerView() {
         with(fragmentChatRoomBinding.recyclerViewChatRoomMemeberList){
             layoutManager = LinearLayoutManager(context)
-            chatRoomMemberAdapter = ChatRoomMemberAdapter(usersDataList)
+            chatRoomMemberAdapter = ChatRoomMemberAdapter(usersDataList, loginUserId)
             adapter = chatRoomMemberAdapter
         }
     }
@@ -203,6 +294,7 @@ class ChatRoomFragment : Fragment() {
     fun addChatMessagesData() {
         CoroutineScope(Dispatchers.Main).launch {
             with(fragmentChatRoomBinding){
+
                 val text = editTextMessage.text.toString().trim()
                 // 현재 시간
                 val now = System.currentTimeMillis()
@@ -212,11 +304,23 @@ class ChatRoomFragment : Fragment() {
                 // 현재 로그인 한 계정의 아이디
                 val chatSenderId = loginUserId
                 val chatSenderName = loginUserName
-                val chatMessage = text
+                chatMessage = text
                 val chatFullTime = now
                 val chatTime = currentTimeText.toString()
+                val chatDateSeparator = SimpleDateFormat("yyyy년 MM월 dd일").format(Date())
 
-                if (text.isNotEmpty()) {
+                if (isProductAddPicture == true){
+                    // 이미지의 뷰의 이미지 데이터를 파일로 저장한다.
+                    CameraUtil.saveImageViewIndividualItemData(mainActivity, imageBitmap, "uploadTemp.jpg")
+                    Log.v("chatLog 이거", "$imageBitmap")
+                    // 서버로 업로드한다.
+                    ChatMessagesDataSource.uploadMessageImage(mainActivity, "uploadTemp.jpg", imagePath)
+                    Log.v("chatLog 이거", "$imagePath")
+                    chatMessage = imagePath
+
+                    // false 로 바꿔준다
+                    isProductAddPicture = false
+
                     val message = ChatMessagesData(
                         chatIdx,
                         chatSenderId,
@@ -224,13 +328,14 @@ class ChatRoomFragment : Fragment() {
                         chatMessage,
                         chatFullTime,
                         chatTime,
+                        chatDateSeparator,
                     )
 
                     // 메세지 전송 후 저장
                     chatMessagesViewModel.insertChatMessagesData(message, chatIdx, loginUserName, now)
                     CoroutineScope(Dispatchers.Main).launch {
                         // 메세지 전송 후 해당 채팅 방 마지막 메세지 및 시간 변경
-                        val coroutine1 = chatRoomViewModel.updateChatRoomLastMessageAndTime(chatIdx, chatMessage, chatFullTime, chatTime)
+                        val coroutine1 = chatRoomViewModel.updateChatRoomLastMessageAndTime(chatIdx, "사진", chatFullTime, chatTime)
                         coroutine1.join()
                         // 안읽은 메시지 카운트 증가
                         chatRoomViewModel.increaseUnreadMessageCount(chatIdx, chatSenderId)
@@ -243,6 +348,39 @@ class ChatRoomFragment : Fragment() {
 
                     // 전송 후 키보드 숨기기
                     activity?.hideSoftInput()
+                }
+                else {
+
+                    if (text.isNotEmpty()) {
+                        val message = ChatMessagesData(
+                            chatIdx,
+                            chatSenderId,
+                            chatSenderName,
+                            chatMessage,
+                            chatFullTime,
+                            chatTime,
+                            chatDateSeparator,
+                        )
+
+                        // 메세지 전송 후 저장
+                        chatMessagesViewModel.insertChatMessagesData(message, chatIdx, loginUserName, now)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            // 메세지 전송 후 해당 채팅 방 마지막 메세지 및 시간 변경
+                            val coroutine1 = chatRoomViewModel.updateChatRoomLastMessageAndTime(chatIdx, chatMessage, chatFullTime, chatTime)
+                            coroutine1.join()
+                            // 안읽은 메시지 카운트 증가
+                            chatRoomViewModel.increaseUnreadMessageCount(chatIdx, chatSenderId)
+                        }
+
+                        messages.add(message)
+                        messageAdapter.notifyItemInserted(messages.size - 1)
+                        fragmentChatRoomBinding.recyclerView.scrollToPosition(messages.size - 1)
+                        editTextMessage.text.clear()
+
+                        // 전송 후 키보드 숨기기
+                        activity?.hideSoftInput()
+                    }
+
                 }
             }
         }
@@ -277,7 +415,10 @@ class ChatRoomFragment : Fragment() {
         chatMessagesViewModel.chatMessages.observe(viewLifecycleOwner) { updatedMessages ->
             messages.clear()
             messages.addAll(updatedMessages)
-            messageAdapter.notifyDataSetChanged()
+            if (::messageAdapter.isInitialized) {
+                messageAdapter.notifyDataSetChanged()
+            }
+            // messageAdapter.notifyDataSetChanged()
             scrollToBottom()
             Log.d("chatLog1", "Room - observeData() 메시지 데이터 변경")
         }
@@ -289,8 +430,13 @@ class ChatRoomFragment : Fragment() {
                 // 각 사용자의 UID를 키로 사용하여 사용자 데이터를 HashMap에 저장
                 usersDataHashMap[userData.userUid] = userData
             }
-            Log.v("chatLog1", "Room - ${usersDataHashMap}")
+
             chatRoomMemberAdapter.notifyDataSetChanged()
+
+            if (::messageAdapter.isInitialized) {
+                messageAdapter.notifyDataSetChanged()
+            }
+            // messageAdapter.notifyDataSetChanged()
             Log.d("chatLog1", "Room - observeData() 채팅 방 멤버 데이터 변경")
         }
     }
@@ -387,13 +533,20 @@ class ChatRoomFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             val coroutine1 = chatRoomViewModel.removeUserFromChatMemberList(chatIdx, loginUserId)
             coroutine1.join()
-            parentFragmentManager.popBackStack()
+            parentFragmentManager.commit() {
+                replace(R.id.containerMain, BottomNaviFragment())
+            }
         }
     }
 
     // 메세지 읽음 처리
     fun readMessage() {
-        chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+        Log.d("chatLog1", "ReadMessage 실행")
+        CoroutineScope(Dispatchers.Main).launch {
+            val coroutine1 = chatRoomViewModel.chatRoomMessageAsRead(chatIdx, loginUserId)
+            coroutine1.join()
+            ChatRoomDataSource.chatRoomMessageAsRead(chatIdx, loginUserId)
+        }
     }
 
     // 카메라 앨범 관련 설정 해야함
@@ -402,8 +555,24 @@ class ChatRoomFragment : Fragment() {
         with(fragmentChatRoomBinding.imageButtonChatRoomAdd){
             setOnClickListener {
                 Log.d("chatLog1", "addIconButton 클릭")
+                // 앨범 띄워주기
+                startAlbum()
             }
         }
+    }
+
+    // 앨범 사용 시작
+    fun startAlbum(){
+        // 앨범에서 사진을 선택할 수 있도록 셋팅된 인텐트를 생성한다.
+        val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        // 실행할 액티비티의 타입을 설정(이미지를 선택할 수 있는 것이 뜨게 한다)
+        albumIntent.setType("image/*")
+        // 선택할 수 있는 파들의 MimeType을 설정한다.
+        // 여기서 선택한 종류의 파일만 선택이 가능하다. 모든 이미지로 설정한다.
+        val mimeType = arrayOf("image/*")
+        albumIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeType)
+        // 액티비티를 실행한다.
+        albumLauncher.launch(albumIntent)
     }
 
     // 로그인 유저 Name 값 가져오기
