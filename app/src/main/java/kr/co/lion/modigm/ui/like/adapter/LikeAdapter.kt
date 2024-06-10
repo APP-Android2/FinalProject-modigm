@@ -29,7 +29,23 @@ class LikeAdapter(private var studyList: List<StudyData>, private val onLikeClic
         notifyDataSetChanged()
     }
 
+    // 클릭 리스너 선언
+    private var onItemClickListener: ((StudyData) -> Unit)? = null
+    // 클릭 리스너 설정 함수
+    fun setOnItemClickListener(listener: (StudyData) -> Unit) {
+        onItemClickListener = listener
+    }
+
     inner class StudyViewHolder(private val binding: RowLikeBinding) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val study = studyList[position]
+                    onItemClickListener?.invoke(study) // 클릭된 항목 정보 전달
+                }
+            }
+        }
         fun bind(study: StudyData) {
             binding.apply {
 
