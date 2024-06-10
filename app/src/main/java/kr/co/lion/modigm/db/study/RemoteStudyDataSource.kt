@@ -3,8 +3,10 @@ package kr.co.lion.modigm.db.study
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -437,6 +439,48 @@ class RemoteStudyDataSource {
         }
     }
 
+    // UID를 스터디의 신청 리스트에 추가
+//    suspend fun addToApplyList(studyIdx: Int, uid: String) {
+//        val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
+//        studyDocument?.reference?.update("studyApplyList", FieldValue.arrayUnion(uid))
+//    }
+//
+//    // UID를 스터디의 참여자 리스트에 추가
+//    suspend fun addToStudyUidList(studyIdx: Int, uid: String) {
+//        val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
+//        studyDocument?.reference?.update("studyUidList", FieldValue.arrayUnion(uid))
+//    }
 
+    suspend fun addToApplyList(studyIdx: Int, uid: String) {
+        try {
+            Log.d("StudyDataSource", "Fetching document with studyIdx: $studyIdx")
+            val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
+            if (studyDocument != null) {
+                Log.d("StudyDataSource", "Document found, updating apply list")
+                studyDocument.reference.update("studyApplyList", FieldValue.arrayUnion(uid))
+                Log.d("StudyDataSource", "Apply list updated with UID: $uid")
+            } else {
+                Log.e("StudyDataSource", "No document found for studyIdx: $studyIdx")
+            }
+        } catch (e: Exception) {
+            Log.e("StudyDataSource", "Error in addToApplyList: ${e.message}")
+        }
+    }
+
+    suspend fun addToStudyUidList(studyIdx: Int, uid: String) {
+        try {
+            Log.d("StudyDataSource", "Fetching document with studyIdx: $studyIdx")
+            val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
+            if (studyDocument != null) {
+                Log.d("StudyDataSource", "Document found, updating study UID list")
+                studyDocument.reference.update("studyUidList", FieldValue.arrayUnion(uid))
+                Log.d("StudyDataSource", "Study UID list updated with UID: $uid")
+            } else {
+                Log.e("StudyDataSource", "No document found for studyIdx: $studyIdx")
+            }
+        } catch (e: Exception) {
+            Log.e("StudyDataSource", "Error in addToStudyUidList: ${e.message}")
+        }
+    }
 
 }

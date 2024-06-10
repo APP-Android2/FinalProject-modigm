@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
@@ -507,6 +508,7 @@ class DetailFragment : Fragment() {
             // 버튼 클릭 이벤트(채팅 방 이동)
             binding.buttonDetailApply.setOnClickListener {
                 Log.d("DetailFragment", "채팅방 이동1")
+
                 moveChatRoom()
             }
 
@@ -526,14 +528,42 @@ class DetailFragment : Fragment() {
                 if (currentStudyData?.studyApplyMethod==1) {
                     binding.buttonDetailApply.setOnClickListener {
                         Log.d("DetailFragment", "신청")
+                        val method = currentStudyData?.studyApplyMethod // 예: 신청방식을 가져오는 방법에 따라 달라질 수 있음
+                        Log.d("DetailFragment", "Button clicked, method: $method")
+
+                        if (method == 1) {  // 신청하기
+                            viewModel.applyToStudy(studyIdx, uid)
+                            view?.let { v ->
+                                Snackbar.make(v, "신청이 완료되었습니다", Snackbar.LENGTH_LONG).show()
+                                Log.d("DetailFragment", "Snackbar shown for apply")
+                            }
+                        } else {  // 참여하기
+
+                            Log.d("DetailFragment", "Changed button text for join study")
+                        }
                     }
                 }else{
+
+
                     // 선착순일 경우
-                    binding.buttonDetailApply.setOnClickListener {
+                    binding.buttonDetailApply.setOnClickListener {view ->
                         Log.d("DetailFragment", "채팅방 이동2")
-                        // 추후에 주석 풀고 써야함
-                        // addUserToChatMemberList()
-                        moveChatRoom()
+                        // 스터디 참여 인원 확인
+                        val currentSize = currentStudyData?.studyUidList?.size ?: 0
+                        val maxSize = currentStudyData?.studyMaxMember ?: 0
+
+                        if(currentSize >= maxSize){
+                            // 스낵바를 통해 메시지 표시
+                            Snackbar.make(view, "스터디 인원이 이미 가득 찼습니다.", Snackbar.LENGTH_LONG).show()
+                            Log.d("DetailFragment", "스터디 인원이 가득 찼으므로 참여할 수 없습니다.")
+                            return@setOnClickListener  // 추가 동작을 중지
+                        }else{
+                            viewModel.joinStudy(studyIdx, uid)
+                            // 추후에 주석 풀고 써야함
+//                        addUserToChatMemberList()
+                            moveChatRoom()
+                        }
+
                     }
                 }
 

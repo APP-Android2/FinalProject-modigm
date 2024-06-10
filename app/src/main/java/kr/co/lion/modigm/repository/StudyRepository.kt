@@ -2,6 +2,7 @@ package kr.co.lion.modigm.repository
 
 import android.content.Context
 import android.net.Uri
+import android.view.View
 import android.widget.ImageView
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.StudyData
@@ -98,4 +99,13 @@ class StudyRepository {
 
     // 스터디 정보 업로드
     suspend fun uploadStudyData(studyData: StudyData) = remoteStudyDataSource.uploadStudyData(studyData)
+
+
+    suspend fun applyToStudy(studyIdx: Int, uid: String) {
+        remoteStudyDataSource.addToApplyList(studyIdx, uid)
+    }
+
+    suspend fun joinStudy(studyIdx: Int, uid: String) {
+        remoteStudyDataSource.addToStudyUidList(studyIdx, uid)
+    }
 }
