@@ -348,6 +348,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="80dp"
             android:backgroundTint="@color/pointColor"
+            app:layout_behavior=" "
             app:tint="@color/white"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

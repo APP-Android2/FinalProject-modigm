@@ -1,8 +1,10 @@
 package kr.co.lion.modigm.ui.detail
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -534,7 +536,20 @@ class DetailFragment : Fragment() {
                         if (method == 1) {  // 신청하기
                             viewModel.applyToStudy(studyIdx, uid)
                             view?.let { v ->
-                                Snackbar.make(v, "신청이 완료되었습니다", Snackbar.LENGTH_LONG).show()
+//                                Snackbar.make(v, "신청이 완료되었습니다", Snackbar.LENGTH_LONG).show()
+
+                                val message = "신청이 완료되었습니다"
+                                val snackbar = Snackbar.make(v,message, Snackbar.LENGTH_LONG)
+
+                                // 스낵바의 텍스트 뷰 찾기
+                                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
+                                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
+                                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
+                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+                                snackbar.show()
+
                                 Log.d("DetailFragment", "Snackbar shown for apply")
                             }
                         } else {  // 참여하기
@@ -554,9 +569,23 @@ class DetailFragment : Fragment() {
 
                         if(currentSize >= maxSize){
                             // 스낵바를 통해 메시지 표시
-                            Snackbar.make(view, "스터디 인원이 이미 가득 찼습니다.", Snackbar.LENGTH_LONG).show()
+                            view?.let { v ->
+                                val message = "스터디 인원이 이미 가득 찼습니다."
+                                val snackbar = Snackbar.make(v,message, Snackbar.LENGTH_LONG)
+
+                                // 스낵바의 텍스트 뷰 찾기
+                                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
+                                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
+                                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
+                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+                                snackbar.show()
+
+                            }
                             Log.d("DetailFragment", "스터디 인원이 가득 찼으므로 참여할 수 없습니다.")
                             return@setOnClickListener  // 추가 동작을 중지
+
                         }else{
                             viewModel.joinStudy(studyIdx, uid)
                             // 추후에 주석 풀고 써야함
@@ -577,6 +606,11 @@ class DetailFragment : Fragment() {
             }
         }
     }
+
+    fun dpToPx(context: Context, dp: Float): Float {
+        return dp * context.resources.displayMetrics.density
+    }
+
 
     fun showStatePopup(anchorView: View) {
         val layoutInflater = LayoutInflater.from(requireContext())
