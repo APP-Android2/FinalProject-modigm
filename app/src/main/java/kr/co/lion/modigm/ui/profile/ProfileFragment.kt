@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -132,22 +133,9 @@ class ProfileFragment: Fragment() {
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.menu_item_profile_setting -> {
-                            // 현재 프래그먼트의 부모 프래그먼트 (BottomNaviFragment) 가져오기
-                            val bottomNaviFragment = parentFragment
-
-                            // bottomNaviFragment가 null이 아니고 상위 액티비티가 존재하는 경우
-                            bottomNaviFragment?.let {
-                                val fragmentManager = it.requireActivity().supportFragmentManager
-
-                                // FragmentTransaction을 통해 containerMain에 SettingsFragment를 교체
-                                fragmentManager.beginTransaction().apply {
-                                    replace(R.id.containerMain, SettingsFragment())
-                                    addToBackStack(FragmentName.SETTINGS.str)
-                                    commit()
-                                }
-                            } ?: run {
-                                // 예외 처리: bottomNaviFragment가 null인 경우 로그 출력
-                                Log.e("FragmentReplace", "Cannot access BottomNaviFragment or its FragmentManager")
+                            requireActivity().supportFragmentManager.commit {
+                                add(R.id.containerMain, SettingsFragment())
+                                addToBackStack(null)
                             }
                         }
 
