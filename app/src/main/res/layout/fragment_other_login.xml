@@ -14,8 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:text="모우다임"
         android:fontFamily="@font/one_mobile_pop_otf"
+        android:text="모우다임"
         android:textColor="@color/black"
         android:textSize="55dp"
         android:textStyle="normal" />
@@ -24,23 +24,23 @@
         android:id="@+id/textViewOtherSecondTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="개발자 스터디의 새로운 패러다임"
+        android:layout_marginTop="10dp"
         android:fontFamily="@font/one_mobile_pop_otf"
+        android:text="개발자 스터디의 새로운 패러다임"
         android:textColor="@color/black"
         android:textSize="22dp"
-        android:textStyle="normal"
-        android:layout_marginTop="10dp"/>
+        android:textStyle="normal" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayoutOtherEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         app:endIconMode="clear_text"
+        app:errorTextAppearance="@style/ErrorTextAppearance"
         app:hintAnimationEnabled="false"
         app:hintEnabled="false"
-        android:layout_marginTop="30dp"
-        app:startIconDrawable="@drawable/icon_mail_24px"
-        app:errorTextAppearance="@style/ErrorTextAppearance">
+        app:startIconDrawable="@drawable/icon_mail_24px">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textInputEditOtherEmail"
@@ -50,97 +50,147 @@
             android:inputType="text|textEmailAddress"
             android:textSize="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayoutOtherPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         app:endIconMode="clear_text"
+        app:errorTextAppearance="@style/ErrorTextAppearance"
         app:hintAnimationEnabled="false"
         app:hintEnabled="false"
-        android:layout_marginTop="20dp"
-        app:startIconDrawable="@drawable/icon_key_24px"
-        app:errorTextAppearance="@style/ErrorTextAppearance">
+        app:startIconDrawable="@drawable/icon_key_24px">
 
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/textInputEditOtherPassword"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditOtherPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호"
+            android:inputType="text|textPassword"
+            android:textSize="16dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkBoxOtherAutoLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="자동 로그인"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonOtherFindEmail"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:text="이메일 찾기"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/textViewFindDevider"
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="#00FFFFFF"
+            android:stateListAnimator="@animator/button_click"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textViewFindDevider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" |  "
+            android:padding="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonOtherFindPassword"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonOtherFindPassword"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:text="비밀번호 찾기"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="#00FFFFFF"
+            android:layout_marginEnd="10dp"
+            android:stateListAnimator="@animator/button_click"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonOtherLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="비밀번호"
-        android:inputType="text|textPassword"
-        android:textSize="16dp" />
-</com.google.android.material.textfield.TextInputLayout>
+        android:text="로그인"
+        android:textSize="14dp" />
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="0dp">
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/checkBoxOtherAutoLogin"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="자동 로그인"
-        android:textSize="14dp"/>
+        >
 
-    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:id="@+id/buttonOtherFindEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="이메일   |"
-        android:padding="0dp"
-        android:textSize="14dp"
-        android:textColor="@color/black"
-        app:rippleColor="#00FFFFFF"/>
-    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:id="@+id/buttonOtherFindPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="비밀번호 찾기"
-        android:padding="0dp"
-        android:textSize="14dp"
-        android:textColor="@color/black"
-        app:rippleColor="#00FFFFFF"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonOtherBack"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/icon_back_24px"
+            android:padding="0dp"
+            android:text="돌아가기"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="#00FFFFFF"
+            android:layout_marginStart="5dp"
+            android:stateListAnimator="@animator/button_click"/>
 
 
-</LinearLayout>
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:text="계정이 없으신가요? "
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonOtherJoin"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="10dp"/>
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/buttonOtherLogin"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="로그인"
-    android:textSize="14dp"/>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:textAlignment="center"
-    android:gravity="center">
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="계정이 없으신가요? "
-        android:padding="0dp"
-        android:textSize="14dp"
-        />
-    <com.google.android.material.button.MaterialButton
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:id="@+id/buttonOtherJoin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="회원가입"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        android:padding="0dp"
-        android:textSize="14dp"
-        app:rippleColor="#00FFFFFF"
-        />
-</LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonOtherJoin"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/icon_person_add_24px"
+            android:padding="0dp"
+            android:text="회원가입"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="#00FFFFFF"
+            android:layout_marginEnd="10dp"
+            android:stateListAnimator="@animator/button_click"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 

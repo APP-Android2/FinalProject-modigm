@@ -12,15 +12,16 @@ import kr.co.lion.modigm.util.FragmentName
 
 class StudyFragment : Fragment(R.layout.fragment_study) {
 
+    private lateinit var binding: FragmentStudyBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentStudyBinding.bind(view)
+        binding = FragmentStudyBinding.bind(view)
 
         // 초기 프래그먼트 설정
         if (savedInstanceState == null) {
-            parentFragmentManager.commit {
+            childFragmentManager.commit {
                 replace(R.id.fragmentContainerStudy, StudyAllFragment())
             }
         }
@@ -29,12 +30,9 @@ class StudyFragment : Fragment(R.layout.fragment_study) {
         initView(binding)
     }
 
-    // 초기 뷰 세팅
     private fun initView(binding: FragmentStudyBinding) {
-
         // 바인딩
-        with(binding){
-
+        with(binding) {
             // 탭 레이아웃 설정
             val tabLayout: TabLayout = tabLayoutStudy
 
@@ -46,10 +44,9 @@ class StudyFragment : Fragment(R.layout.fragment_study) {
                         1 -> StudyMyFragment()
                         else -> StudyAllFragment()
                     }
-                    parentFragmentManager.commit {
+                    childFragmentManager.commit {
                         replace(R.id.fragmentContainerStudy, fragment)
                     }
-
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -59,17 +56,15 @@ class StudyFragment : Fragment(R.layout.fragment_study) {
                 override fun onTabReselected(tab: TabLayout.Tab) {
                     // 필요시 구현
                 }
-
             })
 
             // FAB 설정
-            with(fabStudyWrite){
-                setOnClickListener{
+            with(fabStudyWrite) {
+                setOnClickListener {
                     requireActivity().supportFragmentManager.commit {
                         replace(R.id.containerMain, WriteFragment())
                         addToBackStack(FragmentName.WRITE.str)
                     }
-
                 }
             }
         }

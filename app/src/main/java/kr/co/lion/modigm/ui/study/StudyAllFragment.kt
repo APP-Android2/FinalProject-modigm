@@ -3,6 +3,7 @@ package kr.co.lion.modigm.ui.study
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
@@ -34,10 +35,11 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
                 }
             }
 
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.containerMain, detailFragment)
-                .addToBackStack(null) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
-                .commit()
+            requireActivity().supportFragmentManager.commit {
+                replace(R.id.containerMain, detailFragment)
+                addToBackStack(null)
+            }
+
         }
     )
 
