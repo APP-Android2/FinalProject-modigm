@@ -108,7 +108,7 @@ class DetailFragment : Fragment() {
                 binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
             } else {
                 binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
-                binding.buttonDetailLike.clearColorFilter()
+                binding.buttonDetailLike.setColorFilter(ContextCompat.getColor(requireContext(), R.color.pointColor))
             }
         }
 
