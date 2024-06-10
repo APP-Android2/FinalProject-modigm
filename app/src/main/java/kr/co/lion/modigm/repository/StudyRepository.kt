@@ -69,4 +69,17 @@ class StudyRepository {
         }
     }
 
+    suspend fun getStudyUidListByStudyIdx(studyIdx: Int): List<String>? {
+        return remoteStudyDataSource.selectContentData(studyIdx)?.studyUidList
+    }
+
+    suspend fun getUserDetailsByUid(uid: String): UserData? {
+        return remoteStudyDataSource.loadUserDetailsByUid(uid)
+    }
+
+    ////////////////////////////////////
+    suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean {
+        return remoteStudyDataSource.updateStudyUserList(userUid, studyIdx)
+    }
+
 }

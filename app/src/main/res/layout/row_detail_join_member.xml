@@ -12,7 +12,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/image_detail_1"/>
+        android:src="@drawable/icon_account_circle"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16dp"
-            android:text="OOO"/>
+            android:text=""/>
         <TextView
             android:id="@+id/textViewDetailJoinMemberIntro"
             android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textSize="14dp"
-            android:text="소개글소개글소개글소개글소개글소개글소개글소개글소개글"/>
+            android:text=""/>
 
     </LinearLayout>
 
@@ -49,6 +49,6 @@
         android:textStyle="bold"
         android:layout_marginStart="16dp"
         android:layout_gravity="center"
-        android:text="내보내기"/>
+        android:text=""/>
 
 </LinearLayout>
