@@ -58,7 +58,7 @@ class DetailMemberFragment : Fragment() {
                 //네비게이션
                 setNavigationIcon(R.drawable.icon_arrow_back_24px)
                 setNavigationOnClickListener {
-                    // mainActivity.removeFragment(FragmentName.DETAIL_MEMBER)
+                    parentFragmentManager.popBackStack()
                 }
             }
 
