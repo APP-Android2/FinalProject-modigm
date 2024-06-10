@@ -91,6 +91,7 @@ class ChangePhoneFragment : Fragment() {
         changePhoneViewModel.isVerified.observe(viewLifecycleOwner){
             if(it){
                 parentFragmentManager.popBackStack()
+                binding.changePWButtonDone.isClickable = true
             }
         }
     }
@@ -108,6 +109,12 @@ class ChangePhoneFragment : Fragment() {
 
     private fun settingChangePWButtonDone(){
         binding.changePWButtonDone.setOnClickListener {
+            binding.changePWButtonDone.isClickable = false
+            // 인증번호 입력칸이 비어있으면 안됨
+            if(changePhoneViewModel.validateAuth()){
+                binding.changePWButtonDone.isClickable = true
+                return@setOnClickListener
+            }
             lifecycleScope.launch {
                 changePhoneViewModel.changePhone()
             }
