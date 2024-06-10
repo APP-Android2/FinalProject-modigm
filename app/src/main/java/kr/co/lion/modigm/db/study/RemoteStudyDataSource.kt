@@ -507,4 +507,38 @@ class RemoteStudyDataSource {
             }
     }
 
+    fun removeUserFromStudyApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val studyDoc = documents.documents[0]
+                    val studyRef = studyDoc.reference
+                    val applyList = studyDoc.get("studyApplyList") as MutableList<String>
+
+                    if (applyList.contains(userUid)) {
+                        applyList.remove(userUid)
+                        studyRef.update("studyApplyList", applyList)
+                            .addOnSuccessListener {
+                                Log.d("FirestoreDataSource", "User removed from apply list")
+                                callback(true)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("FirestoreDataSource", "Error removing user from apply list", e)
+                                callback(false)
+                            }
+                    } else {
+                        callback(false)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(false)
+            }
+    }
+
 }

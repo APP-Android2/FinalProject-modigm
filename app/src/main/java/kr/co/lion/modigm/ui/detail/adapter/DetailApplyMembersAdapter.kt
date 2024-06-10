@@ -95,6 +95,17 @@ class DetailApplyMembersAdapter (private val viewModel: DetailViewModel, private
             dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
+                viewModel.removeUserFromApplyList(studyIdx, user.userUid) { success ->
+                    if (success) {
+                        Log.d("Dialog", "User removed from apply list")
+                        val position = adapterPosition
+                        if (position != RecyclerView.NO_POSITION) {
+                            removeItem(position)
+                        }
+                    } else {
+                        Log.d("Dialog", "Failed to remove user from apply list")
+                    }
+                }
                 dialog.dismiss()
             }
 
@@ -115,6 +126,11 @@ class DetailApplyMembersAdapter (private val viewModel: DetailViewModel, private
         }
         submitList(newList)  // 변경된 리스트를 다시 제출
         notifyItemRemoved(position)  // 특정 위치의 아이템 제거 알림
+
+        // If the list is empty after removing the item, update LiveData
+        if (newList.isEmpty()) {
+            viewModel.loadApplyMembers(studyIdx)
+        }
     }
 
     class UserDiffCallback : DiffUtil.ItemCallback<UserData>() {

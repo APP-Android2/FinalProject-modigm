@@ -53,11 +53,17 @@ class DetailApplyMemberFragment : Fragment() {
 
         viewModel.applyMembers.observe(viewLifecycleOwner) { members ->
             Log.d("DetailApplyMemberFragment", "Observed members: $members")
-            adapter.submitList(members)
+            if (members.isEmpty()) {
+                binding.recyclerviewDetailApply.visibility = View.GONE
+                binding.blankLayoutDetail.visibility = View.VISIBLE
+            } else {
+                binding.recyclerviewDetailApply.visibility = View.VISIBLE
+                binding.blankLayoutDetail.visibility = View.GONE
+                adapter.submitList(members)
+            }
         }
 
         viewModel.loadApplyMembers(studyIdx)
-
 
     }
 

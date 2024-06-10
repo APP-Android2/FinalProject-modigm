@@ -269,4 +269,8 @@ class DetailViewModel : ViewModel() {
         }
     }
 
+    fun removeUserFromApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyRepository.removeUserFromStudyApplyList(studyIdx, userUid, callback)
+    }
+
 }
