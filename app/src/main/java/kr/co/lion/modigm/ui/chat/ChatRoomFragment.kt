@@ -596,7 +596,7 @@ class ChatRoomFragment : Fragment() {
     suspend fun getUserNameByUid(uid: String): String {
         var userName = "알수 없음"
         val job1 = CoroutineScope(Dispatchers.Main).launch {
-            userName = ChatRoomDataSource.getUserNameByUid("5mmOdaJFUTbzwUm2398oBYLeOJr1")!!
+            userName = ChatRoomDataSource.getUserNameByUid(uid)!!
         }
         job1.join()
 
