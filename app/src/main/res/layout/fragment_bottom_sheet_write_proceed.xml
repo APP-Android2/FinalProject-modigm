@@ -1,65 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".ui.write.more.BottomSheetWriteProceedFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageButton
-        android:id="@+id/imageButton_writeProceed_bottomSheet_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:backgroundTint="@color/white"
-        app:tint="@color/black"
-        app:srcCompat = "@drawable/icon_close_24"/>
+    <data>
+        <variable
+            name="writeViewModel"
+            type="kr.co.lion.modigm.ui.write.vm.WriteViewModel" />
+    </data>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout_writeProceed_bottomSheet"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@drawable/style_searchview_write_proceed"
-        app:startIconDrawable="@drawable/icon_search_24px"
-
-        app:startIconTint="@color/black"
-        app:hintTextColor="@color/black"
-        app:hintAnimationEnabled="false"
-        app:hintEnabled="false"
-        app:endIconMode="clear_text">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/textField_writeProceed_bottomSheet_search"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="주소 검색"
-            android:inputType="text"
-            android:textSize="16dp"
-            android:background="@drawable/style_searchview_write_proceed"
-            android:singleLine="true"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <ImageView
-        android:id="@+id/imageView_writeProceed_bottomSheet"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="100dp"
-        android:layout_marginStart="134dp"
-        android:layout_marginEnd="134dp"
-        app:srcCompat="@drawable/icon_location_on_24px"/>
-
-    <TextView
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="장소 또는 지역을 검색해주세요"
-        android:textAlignment="center"
-        android:textSize="18dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="360dp"/>
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:context=".ui.write.more.BottomSheetWriteProceedFragment">
 
-</LinearLayout>
+        <ImageButton
+            android:id="@+id/imageButton_writeProceed_bottomSheet_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:backgroundTint="@color/white"
+            app:srcCompat="@drawable/icon_close_24"
+            app:tint="@color/black" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout_writeProceed_bottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/style_searchview_write_proceed"
+            app:endIconMode="clear_text"
+
+            app:hintAnimationEnabled="false"
+            app:hintEnabled="false"
+            app:hintTextColor="@color/black"
+            app:startIconDrawable="@drawable/icon_search_24px"
+            app:startIconTint="@color/black">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textField_writeProceed_bottomSheet_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/style_searchview_write_proceed"
+                android:hint="주소 검색"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textSize="16dp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/imageView_writeProceed_bottomSheet"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="134dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="134dp"
+            app:srcCompat="@drawable/icon_location_on_24px" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="360dp"
+            android:text="장소 또는 지역을 검색해주세요"
+            android:textAlignment="center"
+            android:textSize="18dp" />
+
+    </LinearLayout>
+</layout>

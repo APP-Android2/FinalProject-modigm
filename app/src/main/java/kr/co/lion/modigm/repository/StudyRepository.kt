@@ -95,4 +95,7 @@ class StudyRepository {
         remoteStudyDataSource.updateStudyStateByStudyIdx(studyIdx, newState)
     }
 
+
+    // 스터디 정보 업로드
+    suspend fun uploadStudyData(studyData: StudyData) = remoteStudyDataSource.uploadStudyData(studyData)
 }

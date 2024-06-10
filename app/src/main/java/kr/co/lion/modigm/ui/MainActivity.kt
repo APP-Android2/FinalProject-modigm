@@ -11,6 +11,7 @@ import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import android.util.Log
+import kr.co.lion.modigm.ui.write.WriteFragment
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -68,14 +69,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun navigateToBottomNaviFragment() {
         supportFragmentManager.commit {
-            replace(R.id.containerMain, BottomNaviFragment())
+            replace(R.id.containerMain, WriteFragment())
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
         }
     }
 
     private fun navigateToLoginFragment() {
         supportFragmentManager.commit {
-            replace(R.id.containerMain, LoginFragment())
+            replace(R.id.containerMain, WriteFragment())
             addToBackStack(FragmentName.LOGIN.str)
         }
     }
