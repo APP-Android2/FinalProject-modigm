@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -65,11 +64,10 @@ class JoinFragment : Fragment() {
         if(joinType != null){
             // 프로바이더 셋팅
             viewModel.setUserProvider(joinType?.provider?:"")
-            // email 셋팅
-            viewModel.setUserEmail()
-            // SNS계정인경우 uid 셋팅
+            // SNS계정인경우 uid, email 셋팅
             if(joinType != JoinType.EMAIL){
                 viewModel.setUserUid()
+                viewModel.setUserEmail()
             }
         }
     }
