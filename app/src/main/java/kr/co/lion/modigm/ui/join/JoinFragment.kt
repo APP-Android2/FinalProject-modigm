@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.AuthCredential
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
@@ -27,10 +26,10 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
+import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
-import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.hideSoftInput
 
 class JoinFragment : Fragment() {
@@ -130,7 +129,7 @@ class JoinFragment : Fragment() {
 
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            parentFragmentManager.popBackStack()
             dialog.dismiss()
         }
 
@@ -390,9 +389,23 @@ class JoinFragment : Fragment() {
             hideLoading()
 
             if(it){
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, BottomNaviFragment())
-                    .commit()
+                when(viewModel.userProvider.value){
+                    // 이메일 계정 회원가입인 경우에는 로그인 화면으로 돌아오기
+                    JoinType.EMAIL.provider ->{
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, OtherLoginFragment())
+                            .commit()
+                    }
+                    // SNS 계정인 경우에는 메인으로 넘어가기
+                    else -> {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, BottomNaviFragment())
+                            .commit()
+                    }
+                }
+                viewModelStep1.reset()
+                viewModelStep2.reset()
+                viewModelStep3.reset()
             }
         }
     }
