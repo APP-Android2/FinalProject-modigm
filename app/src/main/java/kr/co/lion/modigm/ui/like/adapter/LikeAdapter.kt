@@ -53,8 +53,8 @@ class LikeAdapter(private var studyList: List<StudyData>, private val onLikeClic
 
                 // 스터디 진행 방식
                 textViewLikeStateMeet.text = when (study.studyOnOffline) {
-                    0 -> "오프라인"
                     1 -> "온라인"
+                    2 -> "오프라인"
                     else -> "온오프혼합"
                 }
 
@@ -77,8 +77,8 @@ class LikeAdapter(private var studyList: List<StudyData>, private val onLikeClic
                 // 스터디 종류
                 textViewLikeStatePeriod.apply {
                     text = when (study.studyType) {
-                        0 -> "스터디"
-                        1 -> "프로젝트"
+                        1 -> "스터디"
+                        2 -> "프로젝트"
                         else -> "공모전"
                     }
                 }
@@ -99,9 +99,8 @@ class LikeAdapter(private var studyList: List<StudyData>, private val onLikeClic
 
                 // 스터디 신청 방식에 따른 텍스트 설정
                 textViewLikeApplyType.text = when (study.studyApplyMethod) {
-                    0 -> "신청제"
-                    1 -> "선착순"
-                    else -> "기타"
+                    1 -> "신청제"
+                    else -> "선착순"
                 }
 
                 // 좋아요 상태에 따라 하트 아이콘 및 색상 변경
