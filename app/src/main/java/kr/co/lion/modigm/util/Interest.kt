@@ -1,10 +1,10 @@
 package kr.co.lion.modigm.util
 
 enum class Interest(var str: String, var num: Int) {
-    WEB("Web", 1),
-    SERVER("Server", 2),
-    FRONT_END("Frontend", 3),
-    BACK_END("Backend", 4),
+    WEB("웹", 1),
+    SERVER("서버", 2),
+    FRONT_END("프론트엔드", 3),
+    BACK_END("백엔드", 4),
     IOS("iOS", 5),
     AOS("Android", 6),
     C_C_PLUS_PLUS("C, C++", 7),

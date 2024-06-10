@@ -10,10 +10,15 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.repository.UserInfoRepository
+import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileViewModel : ViewModel() {
     private val userRepository = UserInfoRepository()
     private val studyRepository = StudyRepository()
+
+    // 사용자 uid
+    private val _profileUid = MutableLiveData<String>()
+    val profileUid: MutableLiveData<String> = _profileUid
 
     // 사용자 이름
     private val _profileName = MutableLiveData<String>()
@@ -43,22 +48,40 @@ class ProfileViewModel : ViewModel() {
     /** functions **/
 
     // 유저 기본 정보를 불러온다.
-    fun loadUserData(uid: String, context: Context, imageView: ImageView) = viewModelScope.launch {
-        try {
-            val response = userRepository.loadUserData(uid)
+    fun loadUserData(context: Context, imageView: ImageView) = viewModelScope.launch {
+        val uid = _profileUid.value
+        val currentUser = ModigmApplication.prefs.getUserData("currentUserData")
 
+        // Uid가 현재 로그인된 사용자 uid와 같을 경우 SharedPreference에서 정보를 가지고 온다.
+        if (uid == currentUser?.userUid) {
             // 사용자 이름
-            _profileName.value = response?.userName
+            _profileName.value = currentUser?.userName
             // 자기소개
-            _profileIntro.value = response?.userIntro
+            _profileIntro.value = currentUser?.userIntro
             // 관심분야 리스트
-            _profileInterestList.value = response?.userInterestList
+            _profileInterestList.value = currentUser?.userInterestList
             // 링크 리스트
-            _profileLinkList.value = response?.userLinkList
+            _profileLinkList.value = currentUser?.userLinkList
             // 프로필 사진
-            userRepository.loadUserProfilePic(context, response?.userProfilePic!!, imageView)
-        } catch (e: Exception) {
-            Log.e("profilevm", "loadUserData(): ${e.message}")
+            userRepository.loadUserProfilePic(context, currentUser?.userProfilePic!!, imageView)
+        } else {
+            // Uid가 현재 로그인된 사용자 uid와 다를 경우 데이터베이스에서 정보를 가지고 온다.
+            try {
+                val response = userRepository.loadUserData(uid)
+
+                // 사용자 이름
+                _profileName.value = response?.userName
+                // 자기소개
+                _profileIntro.value = response?.userIntro
+                // 관심분야 리스트
+                _profileInterestList.value = response?.userInterestList
+                // 링크 리스트
+                _profileLinkList.value = response?.userLinkList
+                // 프로필 사진
+                userRepository.loadUserProfilePic(context, response?.userProfilePic!!, imageView)
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "loadUserData(): ${e.message}")
+            }
         }
     }
 

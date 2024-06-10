@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -24,14 +25,15 @@ import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
+import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
     private val profileViewModel: ProfileViewModel by viewModels()
 
-    // arguments에서 불러옴
-    val uid = "J04y39mPQ8fLIm2LukmdpRVGN8b2"
-    var myProfile = true
+    // onCreateView에서 초기화
+    var uid: String? = null
+    var myProfile: Boolean = false
 
     // 어댑터 선언
     val linkAdapter: LinkAdapter = LinkAdapter(
@@ -65,12 +67,22 @@ class ProfileFragment: Fragment() {
 
         // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
         rowClickListener = { studyIdx ->
-            Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
             viewLifecycleOwner.lifecycleScope.launch {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, DetailFragment())
-                    .addToBackStack(FragmentName.FILTER_SORT.str)
-                    .commit()
+                val detailFragment = DetailFragment()
+
+                // Bundle 생성 및 현재 사용자 uid 담기
+                val bundle = Bundle()
+                Log.d("zunione", "$studyIdx")
+                bundle.putInt("studyIdx", studyIdx)
+
+                // Bundle을 ProfileFragment에 설정
+                detailFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    add(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
             }
         }
     )
@@ -81,12 +93,22 @@ class ProfileFragment: Fragment() {
 
         // 항목을 클릭: 스터디 고유번호를 이용하여 해당 스터디 화면으로 이동한다
         rowClickListener = { studyIdx ->
-            Log.d("테스트 rowClickListener deliveryIdx", studyIdx)
             viewLifecycleOwner.lifecycleScope.launch {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, DetailFragment())
-                    .addToBackStack(FragmentName.FILTER_SORT.str)
-                    .commit()
+                val detailFragment = DetailFragment()
+
+                // Bundle 생성 및 현재 사용자 uid 담기
+                val bundle = Bundle()
+                Log.d("zunione", "$studyIdx")
+                bundle.putInt("studyIdx", studyIdx)
+
+                // Bundle을 ProfileFragment에 설정
+                detailFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    add(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
             }
         }
     )
@@ -97,6 +119,9 @@ class ProfileFragment: Fragment() {
         // Bind ViewModel and lifecycle owner
         fragmentProfileBinding.profileViewModel = profileViewModel
         fragmentProfileBinding.lifecycleOwner = this
+
+        uid = arguments?.getString("uid")
+        myProfile = uid == ModigmApplication.prefs.getUserData("currentUserData")?.userUid
 
         return fragmentProfileBinding.root
     }
@@ -128,27 +153,10 @@ class ProfileFragment: Fragment() {
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.menu_item_profile_setting -> {
-//                            parentFragmentManager.beginTransaction()
-//                                .replace(R.id.containerMain, SettingsFragment())
-//                                .addToBackStack(FragmentName.SETTINGS.str)
-//                                .commit()
-
-                            // 현재 프래그먼트의 부모 프래그먼트 (BottomNaviFragment) 가져오기
-                            val bottomNaviFragment = parentFragment
-
-                            // bottomNaviFragment가 null이 아니고 상위 액티비티가 존재하는 경우
-                            bottomNaviFragment?.let {
-                                val fragmentManager = it.requireActivity().supportFragmentManager
-
-                                // FragmentTransaction을 통해 containerMain에 SettingsFragment를 교체
-                                fragmentManager.beginTransaction().apply {
-                                    replace(R.id.containerMain, SettingsFragment())
-                                    addToBackStack(FragmentName.SETTINGS.str)
-                                    commit()
-                                }
-                            } ?: run {
-                                // 예외 처리: bottomNaviFragment가 null인 경우 로그 출력
-                                Log.e("FragmentReplace", "Cannot access BottomNaviFragment or its FragmentManager")
+                            requireActivity().supportFragmentManager.commit {
+                                setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                                add(R.id.containerMain, SettingsFragment())
+                                addToBackStack(FragmentName.SETTINGS.str)
                             }
                         }
 
@@ -195,19 +203,21 @@ class ProfileFragment: Fragment() {
                 }
 
                 setOnClickListener {
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, ChatFragment())
-                        .addToBackStack(FragmentName.FILTER_SORT.str)
-                        .commit()
+                    requireActivity().supportFragmentManager.commit {
+                        setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                        add(R.id.containerMain, ChatFragment())
+                        addToBackStack(FragmentName.CHAT.str)
+                    }
                 }
             }
         }
     }
 
     private fun setupUserInfo() {
-        profileViewModel.loadUserData(uid, requireContext(), fragmentProfileBinding.imageProfilePic)
-        profileViewModel.loadPartStudyList(uid)
-        profileViewModel.loadHostStudyList(uid)
+        profileViewModel.profileUid.value = uid
+        profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
+        profileViewModel.loadPartStudyList(uid!!)
+        profileViewModel.loadHostStudyList(uid!!)
     }
 
     private fun setupRecyclerViewLink() {

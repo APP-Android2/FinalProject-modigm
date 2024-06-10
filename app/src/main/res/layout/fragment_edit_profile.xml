@@ -15,6 +15,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:transitionGroup="true"
+        android:background="@color/white"
         tools:context=".ui.profile.EditProfileFragment">
 
         <com.google.android.material.appbar.MaterialToolbar
