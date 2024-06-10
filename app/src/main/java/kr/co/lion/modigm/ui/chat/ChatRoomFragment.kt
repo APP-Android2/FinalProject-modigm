@@ -236,8 +236,18 @@ class ChatRoomFragment : Fragment() {
         fragmentChatRoomBinding.apply {
             toolbarChatRoom.apply {
                 setNavigationViewWidth()
-                title = "$chatTitle"
-                if (isGroupChat == true) subtitle = "현재인원 ${chatMemberList.size}명"
+                // 1:1 챗 일때
+                if (isGroupChat == false) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val titleName = getUserNameByUid("${(chatMemberList.filter { it != loginUserId })[0]}")
+                        title = titleName
+                    }
+                }
+                // 그룹 챗일때
+                else {
+                    title = "$chatTitle"
+                    subtitle = "현재인원 ${chatMemberList.size}명"
+                }
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
                     // 뒤로가기
@@ -580,5 +590,16 @@ class ChatRoomFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             loginUserName = ChatRoomDataSource.getUserNameByUid(loginUserId)!!
         }
+    }
+
+    // 유저 Name 값 가져오기
+    suspend fun getUserNameByUid(uid: String): String {
+        var userName = "알수 없음"
+        val job1 = CoroutineScope(Dispatchers.Main).launch {
+            userName = ChatRoomDataSource.getUserNameByUid("5mmOdaJFUTbzwUm2398oBYLeOJr1")!!
+        }
+        job1.join()
+
+        return userName
     }
 }
