@@ -56,6 +56,8 @@ class ChangePwFragment : Fragment() {
     // 확인 버튼 클릭 이벤트
     private fun settingChangePWButtonDone(){
         binding.changePWButtonDone.setOnClickListener {
+            // 버튼 클릭 방지
+            it.isClickable = false
             requireActivity().hideSoftInput()
             lifecycleScope.launch {
                 viewModel.changePw()
@@ -70,6 +72,8 @@ class ChangePwFragment : Fragment() {
                 ChangePwErrorMessage.CHANGE_PW_SUCCESS -> parentFragmentManager.popBackStack()
                 else -> showSnackBar(it.str)
             }
+            // 버튼 클릭 방지 해제
+            binding.changePWButtonDone.isClickable = true
         }
     }
 
