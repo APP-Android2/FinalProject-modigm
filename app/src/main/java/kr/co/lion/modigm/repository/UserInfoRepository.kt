@@ -22,6 +22,9 @@ class UserInfoRepository {
     // 해당 전화 번호의 계정이 있는지 확인 (중복 확인)
     suspend fun checkUserByPhone(phoneNumber: String): Map<String, String>? = _remoteUserDataSource.checkUserByPhone(phoneNumber)
 
+    // 해당 유저의 전화번호 업데이트
+    suspend fun updatePhone(uid: String, phone: String): Boolean = _remoteUserDataSource.updatePhone(uid, phone)
+
 
     // ----------------- 로그인 데이터 처리 -----------------
 

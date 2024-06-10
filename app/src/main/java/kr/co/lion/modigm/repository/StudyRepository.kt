@@ -82,4 +82,9 @@ class StudyRepository {
         return remoteStudyDataSource.updateStudyUserList(userUid, studyIdx)
     }
 
+    // 특정 studyIdx에 대한 스터디 정보를 가져오고 studyState를 업데이트한다.
+    suspend fun updateStudyStateByStudyIdx(studyIdx: Int, newState: Boolean) {
+        remoteStudyDataSource.updateStudyStateByStudyIdx(studyIdx, newState)
+    }
+
 }
