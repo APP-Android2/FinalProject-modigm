@@ -369,29 +369,6 @@ class RemoteStudyDataSource {
         }
     }
 
-    // Firestore에 좋아요 데이터를 업데이트하는 메서드
-    suspend fun updateFirestoreLikeCollection(userUid: String, likeData: Map<String, Any>) {
-        val documentReference = FirebaseFirestore.getInstance().collection("like").document(userUid)
-        val document = documentReference.get().await()
-        if (document.exists()) {
-            documentReference.update("likes", FieldValue.arrayUnion(likeData)).await()
-        } else {
-            documentReference.set(mapOf("likes" to listOf(likeData))).await()
-        }
-    }
-
-    // studyLikeState 업데이트
-    suspend fun updateStudyLikeState(studyIdx: Int, isLiked: Boolean) {
-        val querySnapshot = studyCollection
-            .whereEqualTo("studyIdx", studyIdx)
-            .get()
-            .await()
-
-        querySnapshot.documents.forEach { document ->
-            document.reference.update("studyLikeState", isLiked).await()
-        }
-    }
-
     suspend fun addLike(uid: String, studyIdx: Int) {
         val newLikeIdx = getLikeSequence() + 1  // likeIdx 값 증가
         updateLikeSequence(newLikeIdx)  // 새로운 likeIdx로 업데이트
