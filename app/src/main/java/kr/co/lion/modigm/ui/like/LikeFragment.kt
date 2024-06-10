@@ -63,7 +63,6 @@ class LikeFragment : Fragment() {
 
     fun setupRecyclerView() {
         binding.recyclerviewLike.layoutManager = LinearLayoutManager(context)
-//        likeAdapter = LikeAdapter(emptyList())
         likeAdapter = LikeAdapter(emptyList()) { study ->
             viewModel.toggleLike(uid, study.studyIdx)
         }

@@ -33,8 +33,6 @@ class LikeAdapter(private var studyList: List<StudyData>, private val onLikeClic
         fun bind(study: StudyData) {
             binding.apply {
 
-//                imageViewLikeCover.setImageResource(R.drawable.image_detail_1)
-
                 // Firebase Storage에서 이미지 URL 가져오기
                 val storageReference =
                     FirebaseStorage.getInstance().reference.child("studyPic/${study.studyPic}")
