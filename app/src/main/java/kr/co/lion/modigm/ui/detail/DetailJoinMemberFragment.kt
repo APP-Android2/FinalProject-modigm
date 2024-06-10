@@ -7,9 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
@@ -49,15 +53,9 @@ class DetailJoinMemberFragment : Fragment() {
 
         setupRecyclerView()
 
-        viewModel.loadStudyUids(studyIdx)
-
         viewModel.studyUids.observe(viewLifecycleOwner) { uids ->
             viewModel.loadUserDetails(uids)
-            uids.forEach { uid ->
-                Log.d("DetailJoinMemberFragment", "User UID: $uid")
-            }
         }
-
 
         viewModel.userDetails.observe(viewLifecycleOwner) { userDetails ->
             userDetails?.let {
@@ -65,12 +63,30 @@ class DetailJoinMemberFragment : Fragment() {
             }
         }
 
+        viewModel.loadStudyUids(studyIdx)
+
+//        viewModel.loadStudyUids(studyIdx)
+//
+//        viewModel.studyUids.observe(viewLifecycleOwner) { uids ->
+//            viewModel.loadUserDetails(uids)
+//            uids.forEach { uid ->
+//                Log.d("DetailJoinMemberFragment", "User UID: $uid")
+//            }
+//        }
+//
+//
+//        viewModel.userDetails.observe(viewLifecycleOwner) { userDetails ->
+//            userDetails?.let {
+//                adapter.submitList(it)
+//            }
+//        }
+
+
     }
 
     fun setupRecyclerView() {
         binding.recyclerviewDetailJoin.layoutManager = LinearLayoutManager(context)
         binding.recyclerviewDetailJoin.adapter = adapter
     }
-
 
 }

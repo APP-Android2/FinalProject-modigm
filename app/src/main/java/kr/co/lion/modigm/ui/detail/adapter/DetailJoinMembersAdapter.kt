@@ -71,7 +71,6 @@ class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private va
 
         // custom dialog
         fun showKickDialog(member: UserData, studyIdx: Int) {
-//            val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.custom_dialog, null)
             val dialogBinding = CustomDialogBinding.inflate(LayoutInflater.from(itemView.context))
             val dialog =MaterialAlertDialogBuilder(itemView.context,R.style.dialogColor)
                 .setTitle("내보내기 확인")

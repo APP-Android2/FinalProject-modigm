@@ -270,12 +270,29 @@ class DetailViewModel : ViewModel() {
     }
 
     fun removeUserFromApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
-        studyRepository.removeUserFromStudyApplyList(studyIdx, userUid, callback)
+        studyRepository.removeUserFromStudyApplyList(studyIdx, userUid) { success ->
+            if (success) {
+                val currentList = _applyMembers.value?.toMutableList() ?: mutableListOf()
+                currentList.removeAll { it.userUid == userUid }
+                _applyMembers.value = currentList
+                callback(true)
+            } else {
+                callback(false)
+            }
+        }
     }
 
     fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
         studyRepository.addUserToStudyUidList(studyIdx, userUid) { success ->
-            callback(success)
+            if (success) {
+                val currentUids = _studyUids.value?.toMutableList() ?: mutableListOf()
+                currentUids.add(userUid)
+                _studyUids.value = currentUids
+                loadUserDetails(currentUids)
+                callback(true)
+            } else {
+                callback(false)
+            }
         }
     }
 
