@@ -37,19 +37,22 @@ class WriteProceedFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
 
-        fragmentWriteProceedBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_write_proceed, container, false)
+        fragmentWriteProceedBinding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_write_proceed, container, false)
         return fragmentWriteProceedBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initData()
         settingEvent()
+        validateAnswer()
     }
 
     fun initData() {
         // 입력 초기화
         viewModel.userDidNotAnswer(tabName)
     }
+
     fun settingEvent() {
         fragmentWriteProceedBinding.apply {
 
@@ -64,7 +67,7 @@ class WriteProceedFragment : Fragment() {
                     chipWriteProceedMix.isChecked = false
 
                     // 오프라인
-                    onOffline = 1
+                    viewModel.gettingStudyOnOffline(1)
                 } else {
                     // 가리기
                     if (chipWriteProceedMix.isChecked) {
@@ -72,7 +75,7 @@ class WriteProceedFragment : Fragment() {
                     } else {
                         textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
                     }
-                    onOffline = 0
+                    viewModel.gettingStudyOnOffline(0)
                 }
             }
 
@@ -87,9 +90,9 @@ class WriteProceedFragment : Fragment() {
                     chipWriteProceedMix.isChecked = false
 
                     // 온라인
-                    onOffline = 2
+                    viewModel.gettingStudyOnOffline(2)
                 } else {
-                    onOffline = 0
+                    viewModel.gettingStudyOnOffline(0)
                 }
             }
 
@@ -105,7 +108,7 @@ class WriteProceedFragment : Fragment() {
                     chipWriteProceedOnline.isChecked = false
 
                     // 온오프 혼합
-                    onOffline = 3
+                    viewModel.gettingStudyOnOffline(3)
                 } else { // unchecked
                     // 가리기
                     if (chipWriteProceedOffline.isChecked) {
@@ -113,7 +116,7 @@ class WriteProceedFragment : Fragment() {
                     } else {
                         textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
                     }
-                    onOffline = 0
+                    viewModel.gettingStudyOnOffline(0)
                 }
             }
 
@@ -126,24 +129,97 @@ class WriteProceedFragment : Fragment() {
                 }
             }
 
-            // BottomSheetWriteProceedFragment에서 스터디 장소를 입력받으면 작동
-            viewModel.studyPlace.observe(viewLifecycleOwner) {
-                // location이 바뀌면 적용함
-                textFieldWriteProceedLocation.setText(it)
-            }
 
             // 몇 명이서 진행할까요? textField 클릭 이벤트
             textFieldWriteProceedNumOfMember.apply {
 
-                // 엔터키 클릭 시
-                setOnEditorActionListener { _, actionId, _ ->
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        // 유효성 검사
-                        validateInput()
+                addTextChangedListener {
+                    val max = it.toString()
+                    if (max.isNotEmpty()) {
+                        viewModel.gettingMaxMember(max.toInt())
+                    } else {
+                        Log.d("WriteProceed", " Empty")
                     }
-                    false
                 }
 
+                // 엔터키 클릭 시
+                setOnEditorActionListener { v, actionId, _ ->
+
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+
+                        // 키보드 숨기기
+                        val imm =
+                            v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        imm.hideSoftInputFromWindow(v.windowToken, 0)
+                        true
+                    } else {
+                        false
+                    }
+                }
+
+            }
+        }
+    }
+
+    fun validateAnswer() {
+
+        // 온오프라인
+        viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
+            when (onOffline) {
+                0 -> {
+                    val toast = Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT)
+                    toast.show()
+                }
+
+                1, 2, 3 -> {
+
+                }
+
+                else -> {
+                    Log.e("WriteProceed", "잘못된 입력")
+                }
+            }
+        }
+        // BottomSheetWriteProceedFragment에서 스터디 장소를 입력받으면 작동
+        viewModel.studyPlace.observe(viewLifecycleOwner) {
+            // location이 바뀌면 적용함
+            fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(it)
+        }
+
+        // 최대 인원
+        viewModel.studyMaxMember.observe(viewLifecycleOwner) { max ->
+            if (max > 30) {
+                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
+            } else {
+                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = null
+            }
+
+            // 스터디 장소
+            viewModel.studyPlace.observe(viewLifecycleOwner) { place ->
+                // 온오프라인
+
+                viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
+                    when (onOffline) {
+                        1, 3 -> { // 오프라인
+                            if (max < 30 && place.isNotEmpty()){
+                                viewModel.userDidAnswer(tabName)
+                            }
+                        }
+                        2 -> { // 온라인인 경우
+                            if (max < 30){
+                                viewModel.userDidAnswer(tabName)
+                            }
+                        }
+                        0 -> {
+                            val toast = Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT)
+                            toast.show()
+                            viewModel.userDidNotAnswer(tabName)
+                        }
+                        else -> {
+                            viewModel.userDidNotAnswer(tabName)
+                        }
+                    }
+                }
             }
         }
     }
@@ -158,11 +234,11 @@ class WriteProceedFragment : Fragment() {
         // 입력받은 스터디 장소 가져옴
         val location = fragmentWriteProceedBinding.textFieldWriteProceedLocation.text.toString()
         // 입력받은 최대 정원 수 가져옴
-        val inputString = fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
+        val inputString =
+            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
 
-        if (onOffline == 0){
-            val toast = Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT)
-            toast.show()
+        if (onOffline == 0) {
+
             return false
         }
 
@@ -195,7 +271,8 @@ class WriteProceedFragment : Fragment() {
         viewModel.studyOnOffline.observe(viewLifecycleOwner) {
             if (it != 2) { // 오프라인 or 온오프 혼합
                 if (location.isEmpty()) { // 미입력
-                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = "스터디 할 장소를 입력해주세요"
+                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error =
+                        "스터디 할 장소를 입력해주세요"
                     result2 = false
                 } else { // 입력
                     fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = null
@@ -205,23 +282,15 @@ class WriteProceedFragment : Fragment() {
                 result2 = true
             }
         }
+        if (result1 && result2){
+            viewModel.userDidAnswer(tabName)
+        } else {
+            viewModel.userDidAnswer(tabName)
+        }
 
         return result1 && result2
     }
 
-    //
-    fun getAnswer(){
-        // 입력이 유효하다면
-        if (validateInput()){
-            val onOffline = onOffline
-            val place = fragmentWriteProceedBinding.textFieldWriteProceedLocation.text.toString()
-            val maxMember = fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
-            val max = maxMember.toInt()
-
-            viewModel.gettingStudyProceed(onOffline, place, max)
-        }
-
-    }
     private fun showBottomSheet() {
         val modal = BottomSheetWriteProceedFragment()
         modal.setStyle(DialogFragment.STYLE_NORMAL, R.style.roundCornerBottomSheetDialogTheme)

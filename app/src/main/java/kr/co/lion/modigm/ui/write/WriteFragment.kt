@@ -51,19 +51,11 @@ class WriteFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initData()
         settingView()
         settingEvent()
         viewPagerActivation()
     }
 
-    fun initData() {
-        writeViewModel.initField()
-        writeViewModel.initPeriod()
-        writeViewModel.initProceed()
-        writeViewModel.initSkill()
-        writeViewModel.initIntro()
-    }
 
     fun settingEvent() {
         fragmentWriteBinding.apply {
@@ -87,8 +79,9 @@ class WriteFragment : Fragment() {
                 }
                 // 완료 버튼 클릭 리스너
                 else if (writeViewModel?.buttonFinalStateActivation() == true) {
-                    // 입력된 정보를 DB에 저장
+                    // 입력된 정보를 모아서 DB에 저장
                     uploadStudyData()
+                    getLog()
 
                     // 데이터를 저장한 후, DetailFragment로 이동하면서 studyId를 전달
                     val studyIdx = (writeViewModel as WriteViewModel).returnStudyIdx()
@@ -110,7 +103,6 @@ class WriteFragment : Fragment() {
 
                 } else if (writeViewModel?.buttonFinalStateActivation() == false) {
                     Log.d("TedMoon", "Deactivated Button!!")
-                    noticeUserDidNotAnswer()
                 }
                 getLog()
             }
@@ -124,7 +116,7 @@ class WriteFragment : Fragment() {
             writeViewModel.uploadStudyData()
             try {
                 // 스터디 정보 업로드
-                Log.d("TedMoon", "정보 업로드")
+                Log.d("WriteFragment", "정보 업로드")
             } catch (e: Exception) {
                 Log.e("Finish Button", "Firebase Error ${e}")
             }
@@ -291,31 +283,6 @@ class WriteFragment : Fragment() {
 
             return fragment
         }
-    }
-
-    // 어디서 입력을 안 했는지 알려줌
-    fun noticeUserDidNotAnswer() {
-        val context = requireContext()
-        val tab0 = writeViewModel.fieldClicked.value!!
-        val tab1 = writeViewModel.periodClicked.value!!
-        val tab2 = writeViewModel.proceedClicked.value!!
-        val tab3 = writeViewModel.skillClicked.value!!
-        val tab4 = writeViewModel.introClicked.value!!
-
-        val toast = if (!tab0) {
-            // 분야
-            Toast.makeText(context, "분야를 입력해주세요", Toast.LENGTH_LONG)
-        } else if (!tab1) {
-            Toast.makeText(context, "기간을 입력해주세요", Toast.LENGTH_LONG)
-        } else if (!tab2) {
-            Toast.makeText(context, "진행방식을 입력해주세요", Toast.LENGTH_LONG)
-        } else if (!tab3) {
-            Toast.makeText(context, "기술을 입력해주세요", Toast.LENGTH_LONG)
-        } else if (!tab4) {
-            Toast.makeText(context, "소개를 입력해주세요", Toast.LENGTH_LONG)
-        } else null
-
-        toast?.show()
     }
 
     // Log를 찍어준다 - 테스트용

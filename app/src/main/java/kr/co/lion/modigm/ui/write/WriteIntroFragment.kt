@@ -69,6 +69,7 @@ class WriteIntroFragment : Fragment() {
 
         initData()
         settingEvent()
+        validateInput()
     }
 
     fun settingEvent() {
@@ -89,14 +90,14 @@ class WriteIntroFragment : Fragment() {
             // 제목 완료 처리 이벤트
             textInputWriteIntroTitle.apply {
                 addTextChangedListener {
-                    validateInput()
+                    viewModel.gettingStudyTitle(it.toString())
                 }
             }
 
             // 내용 완료 처리 이벤트
             textInputWriteIntroContent.apply {
                 addTextChangedListener {
-                    validateInput()
+                    viewModel.gettingStudyContent(it.toString())
                 }
             }
         }
@@ -104,6 +105,8 @@ class WriteIntroFragment : Fragment() {
 
     fun initData() {
         isAddPicture = false
+        // 입력상태 초기화
+        viewModel.userDidNotAnswer(tabName)
     }
 
     fun initLauncher() {
@@ -134,9 +137,6 @@ class WriteIntroFragment : Fragment() {
                 val file = File(contentUri.path)
                 file.delete()
             }
-
-            // 입력상태 초기화
-            viewModel.userDidNotAnswer(tabName)
         }
 
         // 앨범 실행을 위한 런처
@@ -184,39 +184,43 @@ class WriteIntroFragment : Fragment() {
         }
     }
 
-
     // 입력 유효성 검사
-    fun validateInput(): Boolean {
-        val title = fragmentWriteIntroBinding.textInputWriteIntroTitle.text.toString()
-        val description = fragmentWriteIntroBinding.textInputWriteIntroContent.text.toString()
+    fun validateInput() {
+        var result1 = false
+        var result2 = false
 
-        // 제목이 비어있거나 너무 짧은 경우 검사
-        if (title.isEmpty() || title.length < 8) {
-            fragmentWriteIntroBinding.textInputWriteIntroTitle.error = "제목은 최소 8자 이상이어야 합니다."
-            // 입력 미완료 처리
-            viewModel.userDidNotAnswer(tabName)
-            return false
-        } else {
-            fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
-            // ViewModel에 제목 저장
+        viewModel.studyTitle.observe(viewLifecycleOwner) { title ->
+            result1 = if (title.isEmpty() || title.length < 8) {
+                fragmentWriteIntroBinding.textInputWriteIntroTitle.error = "제목은 최소 8자 이상이어야 합니다."
+                false
+            } else {
+                fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
+                true
+            }
+            checkValidation(result1, result2)
         }
 
-        // 소개글이 비어있거나 너무 짧은 경우 검사
-        if (description.isEmpty() || description.length < 10) {
-            fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = "소개글은 최소 10자 이상이어야 합니다."
-            // 입력 미완료 처리
-            viewModel.userDidNotAnswer(tabName)
-            return false
-        } else {
-            fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
-            // ViewModel에 내용 저장
+        viewModel.studyContent.observe(viewLifecycleOwner) { content ->
+            result2 = if (content.isEmpty() || content.length < 10) {
+                fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = "소개글은 최소 10자 이상이어야 합니다."
+                false
+            } else {
+                fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
+                true
+            }
+            checkValidation(result1, result2)
         }
+    }
 
-        // 입력 완료 처리
-        viewModel.userDidAnswer(tabName)
-        // ViewModel에 사진 정보 저장
-        uploadPic()
-        return true
+    fun checkValidation(result1: Boolean, result2: Boolean) {
+        if (result1 && result2) {
+            // ViewModel에 사진 정보 저장
+            uploadPic()
+            // 입력 완료 처리
+            viewModel.userDidAnswer(tabName)
+        } else {
+            viewModel.userDidNotAnswer(tabName)
+        }
     }
 
     // 사진의 회전 각도값을 반환하는 메서드
@@ -376,6 +380,7 @@ class WriteIntroFragment : Fragment() {
             // 서버에서의 파일 이름
             serverFileName = "image_${System.currentTimeMillis()}.jpg"
             // ViewModel에 사진 저장
+            viewModel.gettingStudyPic(serverFileName)
         }
     }
 }

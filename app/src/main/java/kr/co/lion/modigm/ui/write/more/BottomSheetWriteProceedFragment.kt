@@ -48,7 +48,6 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
 
 
             textFieldWriteProceedBottomSheetSearch.apply {
-
                 // 엔터키 클릭 시
                 setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
