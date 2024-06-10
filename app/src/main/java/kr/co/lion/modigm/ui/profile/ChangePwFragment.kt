@@ -33,11 +33,24 @@ class ChangePwFragment : Fragment() {
         binding.changePwViewModel = viewModel
         binding.lifecycleOwner = this
 
+        settingToolbar()
         settingTextInputLayoutError()
         settingChangePWButtonDone()
         settingChangePwResultObserver()
 
         return binding.root
+    }
+
+    // 뒤로가기 버튼
+    private fun settingToolbar(){
+        binding.changePWToolbar.apply {
+            title = "설정"
+            setNavigationIcon(R.drawable.arrow_back_24px)
+            setNavigationOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
+        }
+
     }
 
     // 유효성 검사
