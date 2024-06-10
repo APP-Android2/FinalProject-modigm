@@ -21,6 +21,7 @@ import kr.co.lion.modigm.util.FragmentName
 
 class ChatOnetoOneFragment : Fragment() {
 
+    // 바인딩 및 메인 Activity 세팅
     lateinit var fragmentChatOnetoOneBinding: FragmentChatOnetoOneBinding
     lateinit var mainActivity: MainActivity
     
@@ -36,12 +37,7 @@ class ChatOnetoOneFragment : Fragment() {
     // private val usersDataList = mutableListOf<UserData>()
 
     // 현재 로그인 한 사용자 정보
-    // FirebaseAuth 인스턴스를 가져옴
-    val auth = FirebaseAuth.getInstance()
-    val authCurrentUser = auth.currentUser
-    // val loginUserId = (authCurrentUser?.uid).toString()
-    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-//    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserId = ChatFragment().loginUserId
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentChatOnetoOneBinding = FragmentChatOnetoOneBinding.inflate(layoutInflater)

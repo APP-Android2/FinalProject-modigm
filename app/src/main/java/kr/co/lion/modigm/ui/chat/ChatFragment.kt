@@ -28,11 +28,17 @@ import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 
+// Chat 관련 Log
+// ViewModel 관련 - 검색: chatLog / I(노란색) Log.i("chatLog", 값)
+// Fragment 관련 - 검색: chatLog1 / D(청록색) Log.d("chatLog1", 값)
+// Adapter 관련 - 검색: chatLog2 / V(흰색) Log.v("chatLog2", 값)
+
 class ChatFragment : Fragment() {
 
+    // 바인딩 및 메인 Activity 세팅
     lateinit var fragmentChatBinding: FragmentChatBinding
     lateinit var mainActivity: MainActivity
-    
+
     // 어댑터
     private lateinit var chatSearchResultsAdapter: ChatSearchResultsAdapter
 
@@ -42,13 +48,18 @@ class ChatFragment : Fragment() {
     // 내가 속하며 검색 필터에 맞는 그룹 채팅 방들을 담고 있을 리스트
     var chatSearchRoomDataList = mutableListOf<ChatRoomData>()
 
-    // 현재 로그인 한 사용자 정보
-    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-    // private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    // 현재 로그인 한 사용자 정보 (현재 임시 데이터로 사용중)
+    val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정
+    val loginUserName = "아무개" // 현재 사용자의 ID를 설정
+    // val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 테스트 아이디 (프사 O, 1:1 방 O)
+    // val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 홍길동 아이디 (프사 O, 1:1 방 O)
+    // val loginUserId = "5mmOdaJFUTbzwUm2398oBYLeOJr1" // 김철수 아이디
+    // val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 아무개 아이디 (1:1 방 O)
 
-    // FirebaseAuth 인스턴스를 가져옴
-    val auth = FirebaseAuth.getInstance()
-    val authCurrentUser = auth.currentUser
+
+    // FirebaseAuth 인스턴스를 가져옴 (사용하지 않을 예정)
+    // val auth = FirebaseAuth.getInstance()
+    // val authCurrentUser = auth.currentUser
     // val loginUserId = (authCurrentUser?.uid).toString()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -62,8 +73,6 @@ class ChatFragment : Fragment() {
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        Log.v("chatLog1", "BackStackEntryCount: ${parentFragmentManager.backStackEntryCount}")
 
         // 툴바 관련 세팅
         setupToolbar()
@@ -92,6 +101,8 @@ class ChatFragment : Fragment() {
 
         // 옵션 메뉴가 있다는 것을 시스템에 알림
         setHasOptionsMenu(true)
+
+        /*
         toolbar.setNavigationIcon(R.drawable.icon_add_24px)
         toolbar.setNavigationOnClickListener {
             Log.d("chatLog1", "테스트 실행 버튼 클릭")
@@ -119,6 +130,7 @@ class ChatFragment : Fragment() {
 //            }
             
             // 승현님 Detail 페이지에서 멤버 신청되면 해당 채팅방 멤버 추가 (코드) 작성 미완
+            // addUserToChatMemberList(1)
             
             // 승현님 Detail 페이지에서 ChatRoomFragment로 이동 (코드) 작성 완료 - 데이터는 가져와야함
 //            val chatRoomFragment = ChatRoomFragment().apply {
@@ -136,6 +148,7 @@ class ChatFragment : Fragment() {
 //                addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
 //            }
         }
+        */
     }
 
     // 툴바의 메뉴 세팅(검색)
@@ -172,18 +185,16 @@ class ChatFragment : Fragment() {
     // 검색 로직 처리
     private fun searchResult(query: String) {
         // 검색 결과를 가져와 RecyclerView에 표시
-        if (query.isNullOrEmpty()){
-            with(fragmentChatBinding){
+        with(fragmentChatBinding){
+            if (query.isNullOrEmpty()){
                 viewPagerContainer.visibility = View.VISIBLE
                 recyclerViewChatSearchResults.visibility = View.GONE
             }
-        }
-        else {
-            with(fragmentChatBinding){
+            else {
                 viewPagerContainer.visibility = View.GONE
                 recyclerViewChatSearchResults.visibility = View.VISIBLE
+                chatSearchResultsAdapter.filter(query)
             }
-            chatSearchResultsAdapter.filter(query)
         }
     }
 
@@ -202,8 +213,7 @@ class ChatFragment : Fragment() {
             TabLayoutMediator(tabsChat, viewPagerChat) { tab, position ->
                 tab.text = titles.get(position)
             }.attach()
-
-            // ViewPager 드래그 비활성화
+            // 6. ViewPager 드래그 비활성화
             viewPagerChat.isUserInputEnabled = false
         }
     }
@@ -236,32 +246,29 @@ class ChatFragment : Fragment() {
 
     // 리사이클러 뷰 세팅
     private fun setupRecyclerView() {
-        with(fragmentChatBinding) {
-            with(recyclerViewChatSearchResults){
-                layoutManager = LinearLayoutManager(requireContext())
-                // onItemClick 시
-                chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
-                    Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
+        with(fragmentChatBinding.recyclerViewChatSearchResults) {
+            layoutManager = LinearLayoutManager(requireContext())
+            // onItemClick 시
+            chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
+                Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
 
-                    // ChatRoomFragment로 이동
-                    val chatRoomFragment = ChatRoomFragment().apply {
-                        arguments = Bundle().apply {
-                            putInt("chatIdx", roomItem.chatIdx)
-                            putString("chatTitle", roomItem.chatTitle)
-                            putStringArrayList("chatMemberList", ArrayList(roomItem.chatMemberList))
-                            putInt("participantCount", roomItem.participantCount)
-                            putBoolean("groupChat", roomItem.groupChat)
-                        }
+                // ChatRoomFragment로 이동
+                val chatRoomFragment = ChatRoomFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("chatIdx", roomItem.chatIdx)
+                        putString("chatTitle", roomItem.chatTitle)
+                        putStringArrayList("chatMemberList", ArrayList(roomItem.chatMemberList))
+                        putInt("participantCount", roomItem.participantCount)
+                        putBoolean("groupChat", roomItem.groupChat)
                     }
+                }
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, chatRoomFragment)
+                    addToBackStack(FragmentName.CHAT_ROOM.str)
+                }
+            }, loginUserId)
 
-                    requireActivity().supportFragmentManager.commit {
-                        replace(R.id.containerMain, chatRoomFragment)
-                        addToBackStack(FragmentName.CHAT_ROOM.str)
-                    }
-
-                }, loginUserId)
-                adapter = chatSearchResultsAdapter
-            }
+            adapter = chatSearchResultsAdapter
         }
     }
 
@@ -312,6 +319,15 @@ class ChatFragment : Fragment() {
             // 채팅 방 생성
             ChatRoomDataSource.insertChatRoomData(chatRoomData)
             Log.d("test1234", "1:1 채팅방 생성 완료")
+        }
+    }
+
+    // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
+    fun addUserToChatMemberList(chatIdx: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(chatIdx, loginUserId)
+            coroutine1.join()
+            parentFragmentManager.popBackStack()
         }
     }
 }
