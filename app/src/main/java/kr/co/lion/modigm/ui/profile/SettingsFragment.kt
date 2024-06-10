@@ -67,7 +67,7 @@ class SettingsFragment : Fragment() {
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, EditProfileFragment())
+                    .add(R.id.containerMain, EditProfileFragment())
                     .addToBackStack(FragmentName.EDIT_PROFILE.str)
                     .commit()
             }
@@ -75,7 +75,7 @@ class SettingsFragment : Fragment() {
             // 비밀번호 변경
             layoutSettingsEditPw.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, ChangePwFragment())
+                    .add(R.id.containerMain, ChangePwFragment())
                     .addToBackStack(FragmentName.CHANGE_PW.str)
                     .commit()
             }
