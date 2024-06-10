@@ -113,14 +113,15 @@ class WriteFragment : Fragment() {
     // 글 작성처리 메서드
     fun uploadStudyData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            writeViewModel.uploadStudyData()
             try {
+                writeViewModel.uploadStudyData()
                 // 스터디 정보 업로드
                 Log.d("WriteFragment", "정보 업로드")
             } catch (e: Exception) {
                 Log.e("Finish Button", "Firebase Error ${e}")
             }
         }
+
     }
 
     fun settingView() {

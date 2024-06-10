@@ -162,6 +162,9 @@ class WriteProceedFragment : Fragment() {
     }
 
     fun validateAnswer() {
+        var result1 = 0
+        var result2 = false
+        var result3 = false
 
         // 온오프라인
         viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
@@ -172,13 +175,13 @@ class WriteProceedFragment : Fragment() {
                 }
 
                 1, 2, 3 -> {
-
                 }
 
                 else -> {
                     Log.e("WriteProceed", "잘못된 입력")
                 }
             }
+            result1 = onOffline
         }
         // BottomSheetWriteProceedFragment에서 스터디 장소를 입력받으면 작동
         viewModel.studyPlace.observe(viewLifecycleOwner) {
@@ -190,6 +193,7 @@ class WriteProceedFragment : Fragment() {
         viewModel.studyMaxMember.observe(viewLifecycleOwner) { max ->
             if (max > 30) {
                 fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
+                viewModel.userDidNotAnswer(tabName)
             } else {
                 fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = null
             }

@@ -15,6 +15,7 @@ import kr.co.lion.modigm.util.Skill
 class WriteViewModel : ViewModel() {
     // 스터디 Repository
     val studyRepository = StudyRepository()
+
     // 채팅 Repository
     val chatRoomRepository = ChatRoomRepository()
 
@@ -132,30 +133,50 @@ class WriteViewModel : ViewModel() {
 
     fun userDidAnswer(tabName: String) {
         when (tabName) {
-            "field" -> { _fieldClicked.value = true }
+            "field" -> {
+                _fieldClicked.value = true
+            }
 
-            "period" -> { _periodClicked.value = true }
+            "period" -> {
+                _periodClicked.value = true
+            }
 
-            "proceed" -> { _proceedClicked.value = true }
+            "proceed" -> {
+                _proceedClicked.value = true
+            }
 
-            "skill" -> { _skillClicked.value = true }
+            "skill" -> {
+                _skillClicked.value = true
+            }
 
-            "intro" -> { _introClicked.value = true }
+            "intro" -> {
+                _introClicked.value = true
+            }
         }
         _buttonState.value = true
     }
 
     fun userDidNotAnswer(tabName: String) {
         when (tabName) {
-            "field" -> { _fieldClicked.value = false }
+            "field" -> {
+                _fieldClicked.value = false
+            }
 
-            "period" -> { _periodClicked.value = false }
+            "period" -> {
+                _periodClicked.value = false
+            }
 
-            "proceed" -> { _proceedClicked.value = false }
+            "proceed" -> {
+                _proceedClicked.value = false
+            }
 
-            "skill" -> { _skillClicked.value = false }
+            "skill" -> {
+                _skillClicked.value = false
+            }
 
-            "intro" -> { _introClicked.value = false }
+            "intro" -> {
+                _introClicked.value = false
+            }
         }
         _buttonState.value = false
     }
@@ -169,7 +190,7 @@ class WriteViewModel : ViewModel() {
     }
 
     // --------------------------------------------
-    fun gettingStudyOnOffline(onOffline: Int){
+    fun gettingStudyOnOffline(onOffline: Int) {
         _studyOnOffline.value = onOffline
     }
 
@@ -187,29 +208,32 @@ class WriteViewModel : ViewModel() {
 
     // studyProceed에서 입력받은 데이터 저장
     // location입력
-    fun gettingLocation(location: String){
+    fun gettingLocation(location: String) {
         _studyPlace.value = location
     }
-    fun gettingMaxMember(max: Int){
+
+    fun gettingMaxMember(max: Int) {
         _studyMaxMember.value = max
     }
+
     // studySkill에서 입력받은 데이터 저장
-    fun gettingApplyMethod(method: Int){
+    fun gettingApplyMethod(method: Int) {
         _studyApplyMethod.value = method
     }
-    fun gettingSkillList(skillList: List<Int>){
+
+    fun gettingSkillList(skillList: List<Int>) {
         _studySkillList.value = skillList
     }
 
-    fun gettingStudyPic(picture: String){
+    fun gettingStudyPic(picture: String) {
         _studyPic.value = picture
     }
 
-    fun gettingStudyTitle(title: String){
+    fun gettingStudyTitle(title: String) {
         _studyTitle.value = title
     }
 
-    fun gettingStudyContent(content: String){
+    fun gettingStudyContent(content: String) {
         _studyContent.value = content
     }
 
@@ -224,67 +248,40 @@ class WriteViewModel : ViewModel() {
 
     // --------------------------------------------
 
-
-    // ---------------- 입력된 리스트에서 해당 데이터를 찾아서 제거 ------------------
-
-    // 필요한 기술 스택(_studySkillList)에서 X 버튼 클릭 시 해당 데이터 제거
-//    fun removeStudySkill(skill: Int) {
-//        // 필요한 기술 스택 리스트를 불러온다
-//        val skillList = studySkillList.value
-//
-//        // skill에 해당하는 내용이 있는지 확인한다
-//        // 비어있는 리스트가 아니면
-//        if (skillList != null) {
-//            // skill에 해당하는 내용을 가지고 있다면
-//            if (skillList.contains(Skill.fromNum(skill))) {
-//                // 해당 내용을 제거한 새로운 리스트를 만든다
-//                val newSkillList = skillList.filterNot { it.num == skill }
-//                // 비어있는 리스트가 되었다면!? -> 사용자 입력 false 처리
-//                if (newSkillList.isEmpty()) {
-//                    _skillClicked.value = false
-//                } else {
-//                    // 제거한 내용을 다시 필요한 기술 스택 리스트에 저장해준다
-//                    _studySkillList.value = newSkillList
-//                }
-//            }
-//            // skill에 해당하는 내용을 가지고 있지 않다면
-//            else {
-//                Log.d("TedMoon", "${skill}에 해당하는 내용이 필요한 기술 스택 리스트에 없습니다!")
-//            }
-//        } else {
-//            Log.d("TedMoon", "필요한 기술 스택 리스트에 아무것도 없습니다!")
-//        }
-//    }
-    // ------------------------------------------------------------------
     // ----------------- ViewModel에 필요한 항목들 불러오기 -------------------
 
     // 글 고유번호(studyIdx)
-    fun gettingStudyIdx() = viewModelScope.launch {
-        try {
+    suspend fun gettingStudyIdx() = viewModelScope.launch {
+        try {3
             // 스터디 시퀀스 값을 가져온다
             val studySequence = studyRepository.getStudySequence()
             // 스터디 시퀀스 값을 업데이트 한다
             studyRepository.updateStudySequence(studySequence + 1)
             // 저장할 값을 담아준다
             _studyIdx.value = studySequence + 1
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
         }
     }
 
     // 현재 참여자 목록(studyUidList) -> List<String> / List[0] = 진행자
-    fun gettingStudyUidList() = viewModelScope.launch {
+    suspend fun gettingStudyUidList() = viewModelScope.launch {
 
-        // 현재 사용자 uid 받아오기
-        val uid = gettingCurrentUid()
-        // 리스트 만들기
-        val uidList = mutableListOf(uid)
+        try {
+            // 현재 사용자 uid 받아오기
+            val uid = gettingCurrentUid()
+            // 리스트 만들기
+            val uidList = mutableListOf(uid)
 
-        // 리스트에 답아준다
-        _studyUIdList.value = uidList
+            // 리스트에 답아준다
+            _studyUIdList.value = uidList
+        }catch (e: Exception){
+            Log.e("TedMoon", "${e}")
+        }
     }
+
     // 연결된 채팅방 고유번호(chatIdx)
-    fun gettingChatIdx() = viewModelScope.launch {
+    suspend fun gettingChatIdx() = viewModelScope.launch {
         try {
             // 채팅방 시퀀스 값을 가져온다
             val chatRoomSequence = chatRoomRepository.getChatRoomSequence()
@@ -292,13 +289,13 @@ class WriteViewModel : ViewModel() {
             chatRoomRepository.updateChatRoomSequence(chatRoomSequence + 1)
             // 저장할 값을 담아준다
             _chatIdx.value = chatRoomSequence + 1
-        } catch (e: Exception){
-            Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
+        } catch (e: Exception) {
+            Log.e("Firebase Error12", "Error dbUpdateStudySequence : ${e.message}")
         }
     }
 
     // 글 작성자(studyWriteUid)
-    fun gettingCurrentUid(): String {
+    suspend fun gettingCurrentUid(): String {
         // auth 접근
         val auth = FirebaseAuth.getInstance()
         // 현재 사용자 uid 받아오기
@@ -312,21 +309,18 @@ class WriteViewModel : ViewModel() {
 
 
     // studyIdx 반환
-    fun returnStudyIdx(): Int{
-        return studyIdx.value?: -1
+    fun returnStudyIdx(): Int {
+        return studyIdx.value ?: -1
     }
 
 
     // ----------------- Repository에 데이터 전송 -----------------
 
     // StudyData 객체를 생성
-    fun setStudyData() {
-        viewModelScope.launch {
-            gettingStudyIdx()
-            gettingChatIdx()
-            gettingStudyUidList()
-
-        }
+    suspend fun setStudyData() {
+        gettingStudyIdx()
+        gettingChatIdx()
+        gettingStudyUidList()
 
         val study = StudyData(
             studyIdx = _studyIdx.value ?: -1,
@@ -359,7 +353,7 @@ class WriteViewModel : ViewModel() {
         val studyData = studyData.value
 
         // repository에 전송
-        if (studyData != null){
+        if (studyData != null) {
             val uploadData = studyRepository.uploadStudyData(studyData)
             Log.d("uploadData", "${uploadData}")
         }
