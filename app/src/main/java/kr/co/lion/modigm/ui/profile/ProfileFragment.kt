@@ -204,7 +204,8 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupUserInfo() {
-        profileViewModel.loadUserData(uid!!, requireContext(), fragmentProfileBinding.imageProfilePic)
+        profileViewModel.profileUid.value = uid
+        profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
         profileViewModel.loadPartStudyList(uid!!)
         profileViewModel.loadHostStudyList(uid!!)
     }

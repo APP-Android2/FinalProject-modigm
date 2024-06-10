@@ -16,6 +16,7 @@ import kr.co.lion.modigm.databinding.FragmentWriteSkillBinding
 import kr.co.lion.modigm.ui.detail.OnSkillSelectedListener
 import kr.co.lion.modigm.ui.detail.SkillBottomSheetFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
+import kr.co.lion.modigm.util.Skill
 
 class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
 
@@ -123,9 +124,9 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
         }
     }
 
-    override fun onSkillSelected(selectedSkills: List<String>) {
+    override fun onSkillSelected(selectedSkills: List<Skill>) {
         // ChipGroup에 칩 추가
-        addChipsToGroup(binding.chipGroupWriteSkill, selectedSkills)
+//        addChipsToGroup(binding.chipGroupWriteSkill, selectedSkills)
         checkAnswer()
     }
 

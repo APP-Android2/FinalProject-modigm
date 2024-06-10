@@ -116,7 +116,7 @@ class RemoteUserDataSource {
 
 
     // uid를 통해 사용자 정보를 가져오는 메서드
-    suspend fun loadUserDataByUid(uid: String): UserData? {
+    suspend fun loadUserDataByUid(uid: String?): UserData? {
         // 사용자 정보 객체를 담을 변수
         var user: UserData? = null
 
