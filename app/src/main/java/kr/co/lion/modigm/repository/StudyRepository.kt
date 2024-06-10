@@ -77,9 +77,17 @@ class StudyRepository {
         return remoteStudyDataSource.loadUserDetailsByUid(uid)
     }
 
-    ////////////////////////////////////
     suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean {
         return remoteStudyDataSource.updateStudyUserList(userUid, studyIdx)
     }
+
+    suspend fun addLike(uid: String, studyIdx: Int) {
+        remoteStudyDataSource.addLike(uid, studyIdx)
+    }
+
+    suspend fun removeLike(uid: String, studyIdx: Int) {
+        remoteStudyDataSource.removeLike(uid, studyIdx)
+    }
+
 
 }
