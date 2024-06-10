@@ -63,29 +63,27 @@ class ChangePwViewModel: ViewModel() {
     }
 
     // 비밀번호 변경
-    fun changePw() {
-
+    suspend fun changePw() {
         // 유효성 검사
-        if(checkValidation()) _changePwResult.value = ChangePwErrorMessage.VALIDATE_FAIL
+        if(checkValidation()){
+            _changePwResult.value = ChangePwErrorMessage.VALIDATE_FAIL
+            return
+        }
 
-        viewModelScope.launch {
-            // 다시 로그인을 시도해서 현재 비밀번호가 일치하는지 확인
-            try{
-                _auth.signInWithEmailAndPassword(_user?.email?:"", oldPw.value?:"").await()
-            }catch (e: Exception){
-                oldPwError.value = "현재 비밀번호가 일치하지 않습니다."
-                _changePwResult.value = ChangePwErrorMessage.LOGIN_FAIL
-                return@launch
-            }
+        try{
+            _auth.signInWithEmailAndPassword(_user?.email?:"", oldPw.value?:"").await()
+        }catch (e: Exception){
+            oldPwError.value = "현재 비밀번호가 일치하지 않습니다."
+            _changePwResult.value = ChangePwErrorMessage.LOGIN_FAIL
+            return
+        }
 
-            // 새로운 비밀번호로 업데이트
-            try {
-                _user?.updatePassword(newPw.value?:"")?.await()
-                _changePwResult.value = ChangePwErrorMessage.CHANGE_PW_SUCCESS
-            }catch (e: Exception){
-                _changePwResult.value = ChangePwErrorMessage.CHANGE_PW_FAIL
-                return@launch
-            }
+        // 새로운 비밀번호로 업데이트
+        try {
+            _user?.updatePassword(newPw.value?:"")?.await()
+            _changePwResult.value = ChangePwErrorMessage.CHANGE_PW_SUCCESS
+        }catch (e: Exception){
+            _changePwResult.value = ChangePwErrorMessage.CHANGE_PW_FAIL
         }
     }
 }

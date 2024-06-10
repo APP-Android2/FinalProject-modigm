@@ -10,7 +10,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChangePwBinding
 import kr.co.lion.modigm.ui.profile.vm.ChangePwViewModel
@@ -55,7 +57,9 @@ class ChangePwFragment : Fragment() {
     private fun settingChangePWButtonDone(){
         binding.changePWButtonDone.setOnClickListener {
             requireActivity().hideSoftInput()
-            viewModel.changePw()
+            lifecycleScope.launch {
+                viewModel.changePw()
+            }
         }
     }
 
