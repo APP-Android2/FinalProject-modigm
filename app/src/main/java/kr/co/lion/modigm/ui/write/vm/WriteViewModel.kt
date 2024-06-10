@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ChatRoomRepository
 import kr.co.lion.modigm.repository.StudyRepository
@@ -23,6 +24,10 @@ class WriteViewModel : ViewModel() {
     // StudyData 객체 생성
     private val _studyData = MutableLiveData<StudyData>()
     val studyData: LiveData<StudyData> = _studyData
+
+    // ChatData 객체 생성
+    private val _chatRoomData = MutableLiveData<ChatRoomData>()
+    val chatRoomData: LiveData<ChatRoomData> = _chatRoomData
 
     // 데이터에서 가져올 부분
     private val _studyIdx = MutableLiveData<Int>() // 글 고유번호
@@ -345,6 +350,26 @@ class WriteViewModel : ViewModel() {
         _studyData.value = study
     }
 
+    // ChatData 객체를 생성
+    suspend fun setChatRoomData() {
+        gettingStudyIdx()
+        gettingChatIdx()
+        gettingStudyUidList()
+
+        val chatRoom = ChatRoomData(
+            chatIdx = _chatIdx.value ?: -1,
+            chatTitle = _studyTitle.value ?: "",
+            chatRoomImage = _studyPic.value ?: "",
+            chatMemberList = listOf(_studyWriteUid.value ?: ""),
+            participantCount = 1,
+            groupChat = true,
+            lastChatMessage = "",
+            lastChatFullTime = 0L,
+            lastChatTime = ""
+        )
+        _chatRoomData.value = chatRoom
+    }
+
     // StudyData를 Repository에 전송
     suspend fun uploadStudyData(){
         // StudyData 값 가져오기
@@ -356,6 +381,20 @@ class WriteViewModel : ViewModel() {
         if (studyData != null) {
             val uploadData = studyRepository.uploadStudyData(studyData)
             Log.d("uploadData", "${uploadData}")
+        }
+    }
+
+    // StudyData를 Repository에 전송
+    suspend fun uploadChatRoomData(){
+        // ChatRoomData 값 가져오기
+        setChatRoomData()
+        // ChatRoomData 받아오기
+        val chatRoomData = chatRoomData.value
+
+        // repository에 전송
+        if (chatRoomData != null) {
+            val uploadData = chatRoomRepository.insertChatRoomData(chatRoomData)
+            Log.d("uploadData", "ChatRoomData 추가: ${uploadData}")
         }
     }
 

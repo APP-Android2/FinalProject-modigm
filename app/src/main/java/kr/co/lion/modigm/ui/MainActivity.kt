@@ -13,7 +13,6 @@ import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.showCustomSnackbar
-//import android.util.Log
 import kr.co.lion.modigm.ui.write.WriteFragment
 
 

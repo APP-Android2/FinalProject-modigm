@@ -29,7 +29,7 @@ class ChatRoomDataSource {
         var chatRoomSequence = -1
 
         val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
-            val documentReference = collectionReferenceSequence.document("ChatRoomSequence")
+            val documentReference = collectionReferenceSequence.document("ChatRoomGroupSequence")
             val documentSnapShot = documentReference.get().await()
             chatRoomSequence = documentSnapShot.getLong("value")?.toInt()!!
         }
@@ -41,7 +41,7 @@ class ChatRoomDataSource {
     // 채팅 방 시퀀스 값을 변경함 (Update)
     suspend fun updateChatRoomSequence(userSequence:Int) {
         val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
-            val documentReference = collectionReferenceSequence.document("ChatRoomSequence")
+            val documentReference = collectionReferenceSequence.document("ChatRoomGroupSequence")
             // 저장할 데이터를 담을 HashMap을 만들어준다.
             val map = mutableMapOf<String, Long>()
             map["value"] = userSequence.toLong()
@@ -54,7 +54,8 @@ class ChatRoomDataSource {
     // 채팅 방을 생성함 (Create)
     suspend fun insertChatRoomData(chatRoomData: ChatRoomData){
         val coroutine1 = CoroutineScope(Dispatchers.IO).launch {
-            collectionReference.add(chatRoomData)
+            val documentId = "${chatRoomData.chatIdx}_${chatRoomData.groupChat}_${chatRoomData.chatTitle}"
+            Companion.collectionReference.document(documentId).set(chatRoomData)
         }
         coroutine1.join()
     }

@@ -49,8 +49,8 @@ class ChatFragment : Fragment() {
     var chatSearchRoomDataList = mutableListOf<ChatRoomData>()
 
     // 현재 로그인 한 사용자 정보 (현재 임시 데이터로 사용중)
-    val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정
-    val loginUserName = "아무개" // 현재 사용자의 ID를 설정
+    // val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정
+    val loginUserName = "테스트 닉네임" // 현재 사용자의 ID를 설정
     // val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 테스트 아이디 (프사 O, 1:1 방 O)
     // val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 홍길동 아이디 (프사 O, 1:1 방 O)
     // val loginUserId = "5mmOdaJFUTbzwUm2398oBYLeOJr1" // 김철수 아이디
@@ -58,9 +58,8 @@ class ChatFragment : Fragment() {
 
 
     // FirebaseAuth 인스턴스를 가져옴 (사용하지 않을 예정)
-    // val auth = FirebaseAuth.getInstance()
-    // val authCurrentUser = auth.currentUser
-    // val loginUserId = (authCurrentUser?.uid).toString()
+    val auth = FirebaseAuth.getInstance()
+    val loginUserId = auth.currentUser?.uid.toString()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -128,27 +127,9 @@ class ChatFragment : Fragment() {
 //                replace(R.id.containerMain , chatRoomFragment)
 //                addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
 //            }
-            
-            // 승현님 Detail 페이지에서 멤버 신청되면 해당 채팅방 멤버 추가 (코드) 작성 미완
-            // addUserToChatMemberList(1)
-            
-            // 승현님 Detail 페이지에서 ChatRoomFragment로 이동 (코드) 작성 완료 - 데이터는 가져와야함
-//            val chatRoomFragment = ChatRoomFragment().apply {
-//                arguments = Bundle().apply {
-//                    putInt("chatIdx", 4)
-//                    putString("chatTitle", "제목")
-//                    putStringArrayList("chatMemberList", arrayListOf("fKdVSYNodxYgYJHq8MYKlAC2GCk1", "rH82PMELb2TimapTRzownbZekd13", "SRmFAkULY6XnwarEMom1BfCinff1", "tLp9iigU7HZoMCzTK2JRGJn0Y3T2", "JlDeVcmDkpRUXKvBrlTTiw1Ww8z2", "rOUEb1y9ZOX1Ut0PcP2zvrwqbE03", "J04y39mPQ8fLIm2LukmdpRVGN8b2"))
-//                    putInt("participantCount", 7)
-//                    putBoolean("groupChat", true)
-//                }
-//            }
-//
-//            parentFragmentManager.commit {
-//                replace(R.id.containerMain , chatRoomFragment)
-//                addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
-//            }
         }
         */
+
     }
 
     // 툴바의 메뉴 세팅(검색)
@@ -272,17 +253,18 @@ class ChatFragment : Fragment() {
         }
     }
 
-    // 채팅 방 데이터 추가 (예시)
+    // 채팅 방 데이터 추가 (예시) 그룹
     fun addChatGroupRoomData() {
         CoroutineScope(Dispatchers.Main).launch {
 
-            val chatGroupRoomSequence = ChatRoomDataSource.getChatRoomGroupSequence()
-            ChatRoomDataSource.updateChatRoomGroupSequence(chatGroupRoomSequence + 1)
+            //val chatGroupRoomSequence = ChatRoomDataSource.getChatRoomGroupSequence()
+            // ChatRoomDataSource.updateChatRoomGroupSequence(chatGroupRoomSequence + 1)
 
-            val chatIdx = chatGroupRoomSequence + 1
+            // val chatIdx = chatGroupRoomSequence + 1
+            val chatIdx =  10 // (임시로 10으로 써둠) studyIdx로 바꿔야함 그리고 위에 주석 지우고 DataSource에도 필요 없을 듯
             val chatTitle = ""
             val chatRoomImage = ""
-            val chatMemberList = listOf("currentUser")
+            val chatMemberList = listOf(loginUserId)
             val participantCount = 1
             val groupChat = true
             val lastChatMessage = ""
@@ -297,7 +279,7 @@ class ChatFragment : Fragment() {
         }
     }
 
-    // 채팅 방 데이터 추가 (예시)
+    // 채팅 방 데이터 추가 (예시) 1:1
     fun addChatRoomData() {
         CoroutineScope(Dispatchers.Main).launch {
 
@@ -307,7 +289,7 @@ class ChatFragment : Fragment() {
             val chatIdx = chatRoomSequence - 1
             val chatTitle = "1:1 채팅방"
             val chatRoomImage = ""
-            val chatMemberList = listOf("내 UID", "상대 UID")
+            val chatMemberList = listOf(loginUserId, "상대 프로필에 맞는 UID")
             val participantCount = 2
             val groupChat = false
             val lastChatMessage = ""
@@ -319,15 +301,6 @@ class ChatFragment : Fragment() {
             // 채팅 방 생성
             ChatRoomDataSource.insertChatRoomData(chatRoomData)
             Log.d("test1234", "1:1 채팅방 생성 완료")
-        }
-    }
-
-    // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
-    fun addUserToChatMemberList(chatIdx: Int) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(chatIdx, loginUserId)
-            coroutine1.join()
-            parentFragmentManager.popBackStack()
         }
     }
 }
