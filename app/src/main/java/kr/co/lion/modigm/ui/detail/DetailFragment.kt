@@ -15,18 +15,29 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.chat.ChatRoomFragment
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Skill
@@ -35,7 +46,9 @@ class DetailFragment : Fragment() {
 
     lateinit var binding: FragmentDetailBinding
 
+    // 뷰 모델
     private val viewModel: DetailViewModel by activityViewModels()
+    private val chatRoomViewModel: ChatRoomViewModel by viewModels()
 
     private var isPopupShown = false
 
@@ -44,6 +57,9 @@ class DetailFragment : Fragment() {
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
+    var likeIdx = 0
+
+    private var isLiked = false
 
     private var currentStudyData: StudyData? = null
     private var currentUserData: UserData? = null
@@ -80,9 +96,20 @@ class DetailFragment : Fragment() {
 
         // ViewModel에서 데이터 요청
         viewModel.selectContentData(studyIdx)
+        viewModel.loadInitialLikeState(studyIdx)
 
         viewModel.contentData.observe(viewLifecycleOwner) {
             updateUI(StudyData())
+        }
+
+        viewModel.isLiked.observe(viewLifecycleOwner) { isLiked ->
+            if (isLiked) {
+                binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
+                binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
+            } else {
+                binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
+                binding.buttonDetailLike.clearColorFilter()
+            }
         }
 
         observeViewModel()
@@ -142,6 +169,7 @@ class DetailFragment : Fragment() {
                 .error(R.drawable.icon_account_circle) // 에러 발생시 보여줄 이미지
                 .into(binding.imageViewDetailUserPic)
         }
+
     }
 
     fun updateUIIfReady() {
@@ -312,38 +340,16 @@ class DetailFragment : Fragment() {
     // 좋아요 버튼 설정
     fun setupLikeButtonListener() {
         binding.buttonDetailLike.setOnClickListener {
-            toggleLikeButton()
+            viewModel.toggleLike(uid, studyIdx)
         }
     }
+
+
 
     // 팝업 메뉴 설정
     fun setupPopupMenu() {
         binding.imageViewDetailMenu.setOnClickListener {
             showPopupWindow(it)
-        }
-    }
-
-    // 좋아요 버튼 상태 토글
-    fun toggleLikeButton() {
-        // 현재 설정된 이미지 리소스 ID를 확인하고 상태를 토글
-        val currentIconResId =
-            binding.buttonDetailLike.tag as? Int ?: R.drawable.icon_favorite_24px
-        if (currentIconResId == R.drawable.icon_favorite_24px) {
-            // 좋아요 채워진 아이콘으로 변경
-            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
-            // 상태 태그 업데이트
-            binding.buttonDetailLike.tag = R.drawable.icon_favorite_full_24px
-
-            // 새 색상을 사용하여 틴트 적용
-            binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
-        } else {
-            // 기본 아이콘으로 변경
-            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
-            // 상태 태그 업데이트
-            binding.buttonDetailLike.tag = R.drawable.icon_favorite_24px
-
-            // 틴트 제거 (원래 아이콘 색상으로 복원)
-            binding.buttonDetailLike.clearColorFilter()
         }
     }
 
@@ -375,9 +381,15 @@ class DetailFragment : Fragment() {
             // 각 메뉴 아이템에 대한 클릭 리스너 설정
             // 멤버목록
             popupView.findViewById<TextView>(R.id.menuItem1).setOnClickListener {
+                val detailMemberFragment = DetailMemberFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", currentStudyData?.studyIdx?:0)
+                    }
+                }
+
                 // 화면이동 로직 추가
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, DetailMemberFragment())
+                    .replace(R.id.containerMain, detailMemberFragment)
                     .addToBackStack(FragmentName.DETAIL_MEMBER.str)
                     .commit()
 
@@ -441,9 +453,11 @@ class DetailFragment : Fragment() {
             .create()
 
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
+            viewModel.updateStudyStateByStudyIdx(studyIdx)
             // 예 버튼 로직
             Log.d("Dialog", "확인을 선택했습니다.")
             dialog.dismiss()
+            parentFragmentManager.popBackStack()
         }
 
         dialogView.findViewById<TextView>(R.id.btnNo).setOnClickListener {
@@ -493,6 +507,7 @@ class DetailFragment : Fragment() {
             // 버튼 클릭 이벤트(채팅 방 이동)
             binding.buttonDetailApply.setOnClickListener {
                 Log.d("DetailFragment", "채팅방 이동1")
+                moveChatRoom()
             }
 
         } else {
@@ -516,6 +531,9 @@ class DetailFragment : Fragment() {
                     // 선착순일 경우
                     binding.buttonDetailApply.setOnClickListener {
                         Log.d("DetailFragment", "채팅방 이동2")
+                        // 추후에 주석 풀고 써야함
+                        // addUserToChatMemberList()
+                        moveChatRoom()
                     }
                 }
 
@@ -577,6 +595,32 @@ class DetailFragment : Fragment() {
             binding.textViewDetailState.text = (it as TextView).text
             viewModel.updateStudyCanApplyByStudyIdx(studyIdx, false)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+        }
+    }
+
+    // 채팅 방 이동
+    fun moveChatRoom() {
+        Log.v("chatLog4", "DetailFragment - chatIdx: ${studyIdx}\n studyTitle: ${currentStudyData?.studyTitle}\n chatMemberList: ${currentStudyData?.studyUidList?.let { ArrayList(it) }}\nparticipantCount: ${currentStudyData?.studyUidList!!.size}")
+        val chatRoomFragment = ChatRoomFragment().apply {
+            arguments = Bundle().apply {
+                putInt("chatIdx", studyIdx)
+                putString("chatTitle", currentStudyData?.studyTitle)
+                putStringArrayList("chatMemberList", currentStudyData?.studyUidList?.let { ArrayList(it) })
+                putInt("participantCount", currentStudyData?.studyUidList!!.size)
+                putBoolean("groupChat", true)
+            }
+        }
+        parentFragmentManager.commit {
+            replace(R.id.containerMain , chatRoomFragment)
+            addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+        }
+    }
+
+    // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
+    fun addUserToChatMemberList() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(studyIdx, uid)
+            coroutine1.join()
         }
     }
 }

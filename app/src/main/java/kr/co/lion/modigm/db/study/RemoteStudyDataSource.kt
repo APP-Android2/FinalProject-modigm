@@ -7,6 +7,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
@@ -15,8 +16,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class RemoteStudyDataSource {
 
@@ -29,7 +34,6 @@ class RemoteStudyDataSource {
     //유저 '컬렉션' 접근
     private val userCollection = FirebaseFirestore.getInstance().collection("User")
 
-    private val currentUserUid: String? = FirebaseAuth.getInstance().currentUser?.uid
 
     // 고유 StudyIdx 를 얻기 위한 시퀀스 값을 가져온다.
     suspend fun getStudySequence(): Int {
@@ -301,5 +305,138 @@ class RemoteStudyDataSource {
             null
         }
     }
+
+    // studyIdx를 이용해 해당 스터디의 정보를 가져오고 studyState를 업데이트한다.
+    suspend fun updateStudyStateByStudyIdx(studyIdx: Int, newState: Boolean) {
+        try {
+            val querySnapshot = studyCollection
+                .whereEqualTo("studyIdx", studyIdx)
+                .get()
+                .await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents.first()
+                studyCollection.document(document.id).update("studyState", newState).await()
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Failed to update study data: ${e.message}", e)
+            throw e
+        }
+    }
+
+    suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean = suspendCoroutine { continuation ->
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    continuation.resume(false)
+                } else {
+                    val document = documents.first()  // 첫 번째 문서 사용
+                    val userList = document.get("studyUidList") as List<String>
+                    if (userList.contains(userUid)) {
+                        val updatedList = ArrayList(userList).apply { remove(userUid) }
+                        document.reference.update("studyUidList", updatedList)
+                            .addOnSuccessListener { continuation.resume(true) }
+                            .addOnFailureListener { continuation.resumeWithException(it) }
+                    } else {
+                        continuation.resume(false)
+                    }
+                }
+            }
+            .addOnFailureListener { continuation.resumeWithException(it) }
+    }
+
+    // 좋아요 시퀀스 값을 가져오는 메서드
+    suspend fun getLikeSequence(): Int {
+        return try {
+            val documentReference = sequenceCollection.document("likeSequence")
+            val documentSnapShot = documentReference.get().await()
+            documentSnapShot.getLong("value")?.toInt() ?: 0
+        } catch (e: Exception) {
+            Log.e("Firestore Error", "Error fetching likeSequence: ${e.message}")
+            0
+        }
+    }
+
+    // 좋아요 시퀀스 값을 업데이트하는 메서드
+    suspend fun updateLikeSequence(newLikeIdx: Int) {
+        try {
+            val documentReference = sequenceCollection.document("likeSequence")
+            documentReference.update("value", newLikeIdx.toLong()).await()
+        } catch (e: Exception) {
+            Log.e("Firestore Error", "Error updating likeSequence: ${e.message}")
+        }
+    }
+
+    // Firestore에 좋아요 데이터를 업데이트하는 메서드
+    suspend fun updateFirestoreLikeCollection(userUid: String, likeData: Map<String, Any>) {
+        val documentReference = FirebaseFirestore.getInstance().collection("like").document(userUid)
+        val document = documentReference.get().await()
+        if (document.exists()) {
+            documentReference.update("likes", FieldValue.arrayUnion(likeData)).await()
+        } else {
+            documentReference.set(mapOf("likes" to listOf(likeData))).await()
+        }
+    }
+
+    // studyLikeState 업데이트
+    suspend fun updateStudyLikeState(studyIdx: Int, isLiked: Boolean) {
+        val querySnapshot = studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .await()
+
+        querySnapshot.documents.forEach { document ->
+            document.reference.update("studyLikeState", isLiked).await()
+        }
+    }
+
+    suspend fun addLike(uid: String, studyIdx: Int) {
+        val newLikeIdx = getLikeSequence() + 1  // likeIdx 값 증가
+        updateLikeSequence(newLikeIdx)  // 새로운 likeIdx로 업데이트
+
+        val likeData = mapOf("studyIdx" to studyIdx, "likeIdx" to newLikeIdx)
+        val documentReference = FirebaseFirestore.getInstance().collection("like").document(uid)
+        val snapshot = documentReference.get().await()
+
+        if (snapshot.exists()) {
+            FirebaseFirestore.getInstance().runTransaction { transaction ->
+                val currentLikes = snapshot.get("likes") as? List<Map<String, Int>> ?: emptyList()
+                transaction.update(documentReference, "likes", currentLikes + likeData)
+            }.await()
+        } else {
+            documentReference.set(mapOf("likes" to listOf(likeData))).await()
+        }
+    }
+
+    suspend fun removeLike(uid: String, studyIdx: Int) {
+        val documentReference = FirebaseFirestore.getInstance().collection("like").document(uid)
+        val snapshot = documentReference.get().await()
+
+        if (snapshot.exists()) {
+            val currentLikes = snapshot.get("likes") as? List<Map<String, Any>> ?: listOf()
+
+            // 로그 추가: 현재 좋아요 배열의 내용을 로그에 출력
+            Log.d("Firebase", "Current likes: $currentLikes")
+
+            val likesToRemove = currentLikes.filter { it["studyIdx"].toString() == studyIdx.toString() }
+
+            if (likesToRemove.isNotEmpty()) {
+                FirebaseFirestore.getInstance().runTransaction { transaction ->
+                    likesToRemove.forEach {
+                        transaction.update(documentReference, "likes", FieldValue.arrayRemove(it))
+                    }
+                }.await()
+                Log.d("Firebase", "Likes successfully removed for studyIdx: $studyIdx")
+            } else {
+                Log.d("Firebase", "No like found for studyIdx: $studyIdx to remove")
+            }
+        } else {
+            Log.e("Firebase", "No likes document found for user: $uid")
+        }
+    }
+
+
 
 }

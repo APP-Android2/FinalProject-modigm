@@ -16,8 +16,8 @@ class DetailMemberFragment : Fragment() {
 
     lateinit var fragmentDetailMemberBinding: FragmentDetailMemberBinding
 
-    lateinit var mainActivity: MainActivity
-
+    // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
+    var studyIdx = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,8 +25,8 @@ class DetailMemberFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         fragmentDetailMemberBinding = FragmentDetailMemberBinding.inflate(layoutInflater)
-        mainActivity = activity as MainActivity
-
+        // 상품 idx
+        studyIdx = arguments?.getInt("studyIdx")!!
 
         return fragmentDetailMemberBinding.root
     }
@@ -40,7 +40,7 @@ class DetailMemberFragment : Fragment() {
     }
 
     fun setupViewPagerAndTabs() {
-        val adapter = DetailViewPagerAdapter(this)
+        val adapter = DetailViewPagerAdapter(this, studyIdx)
         fragmentDetailMemberBinding.viewPagerDetail.adapter = adapter
 
         TabLayoutMediator(fragmentDetailMemberBinding.tabLayoutDetail, fragmentDetailMemberBinding.viewPagerDetail) { tab, position ->

@@ -21,6 +21,7 @@ import kr.co.lion.modigm.util.FragmentName
 
 class ChatGroupFragment : Fragment() {
 
+    // 바인딩 및 메인 Activity 세팅
     lateinit var fragmentChatGroupBinding: FragmentChatGroupBinding
     lateinit var mainActivity: MainActivity
     
@@ -34,12 +35,7 @@ class ChatGroupFragment : Fragment() {
     var chatRoomDataList = mutableListOf<ChatRoomData>()
 
     // 현재 로그인 한 사용자 정보
-    // FirebaseAuth 인스턴스를 가져옴
-    val auth = FirebaseAuth.getInstance()
-    val authCurrentUser = auth.currentUser
-    // val loginUserId = (authCurrentUser?.uid).toString()
-    private val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
-//    private val loginUserId = "swUser" // 현재 사용자의 ID를 설정 (DB 연동 후 교체)
+    private val loginUserId = ChatFragment().loginUserId
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -70,7 +66,7 @@ class ChatGroupFragment : Fragment() {
             chatRoomDataList.clear()
             chatRoomDataList.addAll(updatedChatRooms)
             chatRoomAdapter.notifyDataSetChanged()
-//            Log.d("chatLog1", "Group - observeData() 데이터 변경")
+            Log.d("chatLog1", "Group - observeData() 데이터 변경")
         }
     }
 

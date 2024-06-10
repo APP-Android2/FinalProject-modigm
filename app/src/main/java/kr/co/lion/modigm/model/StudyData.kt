@@ -1,7 +1,5 @@
 package kr.co.lion.modigm.model
 
-import kr.co.lion.modigm.util.Skill
-
 data class StudyData(
     var studyIdx: Int = -1,                     // 글 고유 번호
     var studyTitle: String = "",                // 글 제목
@@ -20,5 +18,6 @@ data class StudyData(
     var chatIdx: Int = -1,                      // 연결된 채팅방 고유번호
     var studyState: Boolean = true,             // 삭제 여부 (존재함, 삭제됨)
     var studyWriteUid: String = "",             // 글 작성자 uid
-    var studyApplyList: List<String> = listOf()
+    var studyApplyList: List<String> = listOf(),// 스터디 신청자 리스트
+    var studyLikeState: Boolean = false         // 스터디 좋아요 상태(좋아요, 좋아요 취소)
 )

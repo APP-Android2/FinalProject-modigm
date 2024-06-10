@@ -9,7 +9,12 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.profile.SettingsFragment
@@ -31,8 +36,31 @@ class ChatSearchResultsAdapter(
 
     // 검색어 필터
     fun filter(query: String) {
+
         val filtered = if (query.isNotEmpty()) {
-            chatSearchRoomDataList.filter { it.chatTitle.contains(query, ignoreCase = true) }
+            val oneToOneChatRooms = mutableListOf<ChatRoomData>()
+            val groupChatRooms = mutableListOf<ChatRoomData>()
+            // 검색 1:1 채팅 방의 제목
+            for (i in 0 until chatSearchRoomDataList.size) {
+                val chatRoom = chatSearchRoomDataList[i]
+                if (chatRoom.groupChat == false) {
+                    // 1:1 채팅 방은 제목이 아니라 상대 방의 이름으로 검색 가능하게 바꿔야함...
+                    val title = chatSearchRoomDataList[i].chatMemberList.filter { it != loginUserId }
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]) ?: "알 수 없는 사용자"
+                        withContext(Dispatchers.Main) {
+                            // 채팅 방 제목
+                            chatRoom.chatTitle = userNameTitle
+                        }
+                    }
+                    oneToOneChatRooms.add(chatRoom)
+                }
+                else {
+                    groupChatRooms.add(chatSearchRoomDataList[i])
+                }
+            }
+            // groupChatRooms.filter { it.chatTitle.contains(query, ignoreCase = true) }
+            groupChatRooms.filter { it.chatTitle.contains(query, ignoreCase = true) } + oneToOneChatRooms.filter { it.chatTitle.contains(query, ignoreCase = true) }
         } else {
             // 없어도 되는거 같은데 앞에서 다 걸러내서.. 혹시 모르니
             chatSearchRoomDataList
@@ -71,26 +99,56 @@ class ChatSearchResultsAdapter(
         }
 
         fun bind(room: ChatRoomData) {
-            // 채팅 방 제목
-            roomTitleTextView.text = room.chatTitle
+            val position = adapterPosition
+            val context = itemView.context
 
-            // 프로필 설정(회원 아이디 별 사진으로)
-            if (!room.groupChat) {
-                when {
-                    room.chatMemberList.contains("iuUser") -> roomImageImageView.setImageResource(R.drawable.test_profile_image_iu)
-                    room.chatMemberList.contains("sonUser") -> roomImageImageView.setImageResource(R.drawable.test_profile_image_son)
-                    room.chatMemberList.contains("ryuUser") -> roomImageImageView.setImageResource(R.drawable.test_profile_image_ryu)
-                    else -> roomImageImageView.setImageResource(R.drawable.test_profile_image)
+            // 프로필 설정(회원 아이디 별 사진으로) (아직 Firebase 정보 없음) - DB 연동해야함
+            if(room.groupChat == false){
+                val title = room.chatMemberList.filter { it != loginUserId }
+                CoroutineScope(Dispatchers.Main).launch {
+                    val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]) ?: "알 수 없는 사용자"
+                    val userProfile = ChatRoomDataSource.getUserProfilePicByUid(title[0]) ?: ""
+                    withContext(Dispatchers.Main) {
+                        // 채팅 방 제목
+                        roomTitleTextView.text = userNameTitle
+                        // 채팅 방 이미지 설정
+                        if (userProfile.isNotEmpty()) {
+                            Log.v("chatLog2", "RoomAdapter - $userProfile")
+                            ChatRoomDataSource.loadUserProfilePic(context, userProfile, roomImageImageView)
+                        } else {
+                            roomImageImageView.setImageResource(R.drawable.base_profile_image2)
+                        }
+                    }
                 }
-            } else {
-                roomImageImageView.setImageResource(R.drawable.test_profile_image)
+                roomImageImageView.setImageResource(R.drawable.base_profile_image2)
+            }
+            // 그룹 채팅 사진은 글 작성 -> 그 이미지로 설정 (아직 Firebase 정보 없음) - DB 연동해야함
+            else {
+                // 채팅 방 제목
+                roomTitleTextView.text = room.chatTitle
+                // 채팅 방 이미지 존재 X
+                if (room.chatRoomImage.isNullOrEmpty()){
+                    roomImageImageView.setImageResource(R.drawable.image_detail_1)
+                }
+                // 채팅 방 이미지 존재 O
+                else {
+                    // 채팅 방 대표 사진 설정
+                    CoroutineScope(Dispatchers.Main).launch {
+                        ChatRoomDataSource.loadChatRoomImage(context, room.chatRoomImage, roomImageImageView)
+                    }
+                }
             }
 
-            if (room.lastChatMessage.isNotEmpty()) {
+            if ((room.lastChatMessage).isNotEmpty()) {
                 // 마지막 대화 내용
+                roomLastTextView.visibility = View.VISIBLE
                 roomLastTextView.text = room.lastChatMessage
                 // 마지막 채팅 시간
+                roomTimeTextView.visibility = View.VISIBLE
                 roomTimeTextView.text = room.lastChatTime
+            } else {
+                roomLastTextView.visibility = View.GONE
+                roomTimeTextView.visibility = View.GONE
             }
 
             // 안 읽은 메시지 수 설정

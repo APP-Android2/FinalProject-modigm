@@ -6,7 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.StudyRepository
@@ -40,6 +44,18 @@ class DetailViewModel : ViewModel() {
     private val _userImageUri = MutableLiveData<Uri>()
     val userImageUri: LiveData<Uri> = _userImageUri
 
+    private val _studyUids = MutableLiveData<List<String>>()
+    val studyUids: LiveData<List<String>> = _studyUids
+
+    private val _userDetails = MutableLiveData<List<UserData>>()
+    val userDetails: LiveData<List<UserData>> = _userDetails
+
+    private val _removalStatus = MutableLiveData<Result<Boolean>>()
+    val removalStatus: LiveData<Result<Boolean>> = _removalStatus
+
+    private val _isLiked = MutableLiveData<Boolean>(false)
+    val isLiked: LiveData<Boolean> get() = _isLiked
+
     fun selectContentData(studyIdx: Int) {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
         viewModelScope.launch {
@@ -55,6 +71,7 @@ class DetailViewModel : ViewModel() {
             }
         }
     }
+
     fun loadUserDetailsByUid(uid: String) {
         _isLoading.value = true
         viewModelScope.launch {
@@ -136,5 +153,92 @@ class DetailViewModel : ViewModel() {
         }
     }
 
+
+    // 특정 studyIdx의 studyState를 업데이트하는 함수
+    fun updateStudyStateByStudyIdx(studyIdx: Int) {
+        viewModelScope.launch {
+            try {
+                val studyData = studyRepository.selectContentData(studyIdx)
+                if (studyData != null) {
+                    studyRepository.updateStudyStateByStudyIdx(studyIdx, false)
+                } else {
+                    Log.e("ViewModel", "No study found with the given index.")
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to update study state: ${e.message}")
+
+            }
+        }
+    }
+
+    fun loadStudyUids(studyIdx: Int) {
+        viewModelScope.launch {
+            _studyUids.value = studyRepository.getStudyUidListByStudyIdx(studyIdx)
+        }
+    }
+
+    fun loadUserDetails(uids: List<String>) {
+        viewModelScope.launch {
+            _userDetails.value = uids.mapNotNull { uid ->
+                studyRepository.getUserDetailsByUid(uid)
+            }
+        }
+    }
+
+    fun updateStudyUserList(userUid: String, studyIdx: Int) {
+        viewModelScope.launch {
+            val result = studyRepository.updateStudyUserList(userUid, studyIdx)
+            if (result) {
+                // 성공적으로 처리됐을 때 UI 업데이트
+            } else {
+                // 실패 처리
+            }
+        }
+    }
+
+    fun toggleLike(uid: String, studyIdx: Int) {
+        viewModelScope.launch {
+            val studyCollection = FirebaseFirestore.getInstance().collection("Study")
+            val query = studyCollection.whereEqualTo("studyIdx", studyIdx)
+            val querySnapshot = query.get().await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents[0]
+                val currentlyLiked = document.getBoolean("studyLikeState") ?: false
+                val newLikeState = !currentlyLiked
+
+                document.reference.update("studyLikeState", newLikeState).await()
+
+                if (newLikeState) {
+                    studyRepository.addLike(uid, studyIdx)
+                } else {
+                    studyRepository.removeLike(uid, studyIdx)
+                }
+
+                _isLiked.postValue(newLikeState)
+            } else {
+                studyRepository.removeLike(uid, studyIdx)
+                Log.e("DetailViewModel", "No matching document found for studyIdx: $studyIdx")
+            }
+        }
+    }
+
+    fun loadInitialLikeState(studyIdx: Int) {
+        viewModelScope.launch {
+            val studyCollection = FirebaseFirestore.getInstance().collection("Study")
+            val query = studyCollection.whereEqualTo("studyIdx", studyIdx)
+            val querySnapshot = query.get().await()
+
+            if (!querySnapshot.isEmpty) {
+                // 첫 번째 문서에서 좋아요 상태 가져오기
+                val document = querySnapshot.documents[0]
+                val isLiked = document.getBoolean("studyLikeState") ?: false
+                _isLiked.postValue(isLiked)
+            } else {
+                Log.e("ViewModel", "No study found with idx: $studyIdx")
+                _isLiked.postValue(false) // 문서가 없으면 기본값으로 false 설정
+            }
+        }
+    }
 
 }
