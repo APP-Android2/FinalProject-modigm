@@ -348,7 +348,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="80dp"
             android:backgroundTint="@color/pointColor"
-            app:layout_behavior=" "
+            app:layout_behavior="kr.co.lion.modigm.ui.detail.NoMoveBehavior"
             app:tint="@color/white"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
