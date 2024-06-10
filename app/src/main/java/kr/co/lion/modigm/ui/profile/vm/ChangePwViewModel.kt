@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.profile.vm
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,10 @@ class ChangePwViewModel: ViewModel() {
     val newPwCheck = MutableLiveData<String>()
     // 현재 비밀번호 에러 메시지
     val newPwCheckError = MutableLiveData<String>()
+
+    // 비밀번호 변경 결과
+    private var _changePwResult = MutableLiveData<ChangePwErrorMessage>()
+    val changePwResult: LiveData<ChangePwErrorMessage> = _changePwResult
 
 
     // 비밀번호 유효성 검사
@@ -59,11 +64,10 @@ class ChangePwViewModel: ViewModel() {
     }
 
     // 비밀번호 변경
-    suspend fun changePw(): Boolean {
-        var result = false
+    fun changePw() {
 
         // 유효성 검사
-        if(checkValidation()) return false
+        if(checkValidation()) _changePwResult.value = ChangePwErrorMessage.VALIDATE_FAIL
 
         viewModelScope.launch {
             // 다시 로그인을 시도해서 현재 비밀번호가 일치하는지 확인
@@ -71,22 +75,26 @@ class ChangePwViewModel: ViewModel() {
                 _auth.signInWithEmailAndPassword(_user?.email?:"", oldPw.value?:"").await()
             }catch (e: Exception){
                 oldPwError.value = "현재 비밀번호가 일치하지 않습니다."
-                Log.d("changePw","비밀번호 확인 실패 : ${_auth.currentUser?.email}")
-                result = false
+                _changePwResult.value = ChangePwErrorMessage.LOGIN_FAIL
                 return@launch
             }
 
             // 새로운 비밀번호로 업데이트
             try {
                 _user?.updatePassword(newPw.value?:"")?.await()
-                result = true
+                _changePwResult.value = ChangePwErrorMessage.CHANGE_PW_SUCCESS
             }catch (e: Exception){
-                Log.d("changePw", e.toString())
-                result = false
+                _changePwResult.value = ChangePwErrorMessage.CHANGE_PW_FAIL
                 return@launch
             }
         }
-
-        return result
     }
+}
+
+enum class ChangePwErrorMessage(var str:String) {
+    NONE(""),
+    VALIDATE_FAIL("입력 내용을 다시 확인해주세요"),
+    LOGIN_FAIL("현재 비밀번호가 일치하지 않습니다."),
+    CHANGE_PW_FAIL("비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요"),
+    CHANGE_PW_SUCCESS("비밀번호 변경 완료")
 }
