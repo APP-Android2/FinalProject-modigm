@@ -108,4 +108,16 @@ class StudyRepository {
     suspend fun joinStudy(studyIdx: Int, uid: String) {
         remoteStudyDataSource.addToStudyUidList(studyIdx, uid)
     }
+
+    fun fetchStudyApplyMembers(studyIdx: Int, callback: (List<UserData>) -> Unit) {
+        remoteStudyDataSource.getStudyApplyList(studyIdx) { userIds ->
+            if (userIds.isNotEmpty()) {
+                remoteStudyDataSource.getUsersByIds(userIds) { users ->
+                    callback(users)
+                }
+            } else {
+                callback(emptyList())
+            }
+        }
+    }
 }

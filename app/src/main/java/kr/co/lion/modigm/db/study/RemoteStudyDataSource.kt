@@ -439,18 +439,6 @@ class RemoteStudyDataSource {
         }
     }
 
-    // UID를 스터디의 신청 리스트에 추가
-//    suspend fun addToApplyList(studyIdx: Int, uid: String) {
-//        val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
-//        studyDocument?.reference?.update("studyApplyList", FieldValue.arrayUnion(uid))
-//    }
-//
-//    // UID를 스터디의 참여자 리스트에 추가
-//    suspend fun addToStudyUidList(studyIdx: Int, uid: String) {
-//        val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
-//        studyDocument?.reference?.update("studyUidList", FieldValue.arrayUnion(uid))
-//    }
-
     suspend fun addToApplyList(studyIdx: Int, uid: String) {
         try {
             Log.d("StudyDataSource", "Fetching document with studyIdx: $studyIdx")
@@ -481,6 +469,42 @@ class RemoteStudyDataSource {
         } catch (e: Exception) {
             Log.e("StudyDataSource", "Error in addToStudyUidList: ${e.message}")
         }
+    }
+
+    fun getStudyApplyList(studyIdx: Int, callback: (List<String>) -> Unit) {
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val study = documents.documents[0]
+                    val applyList = study.get("studyApplyList") as List<String>
+                    Log.d("FirestoreDataSource", "Apply List: $applyList")
+                    callback(applyList)
+                } else {
+                    Log.d("FirestoreDataSource", "No documents found")
+                    callback(emptyList())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(emptyList())
+            }
+    }
+
+    fun getUsersByIds(userIds: List<String>, callback: (List<UserData>) -> Unit) {
+        userCollection
+            .whereIn("userUid", userIds)
+            .get()
+            .addOnSuccessListener { documents ->
+                val users = documents.map { it.toObject(UserData::class.java) }
+                Log.d("FirestoreDataSource", "Users: $users")
+                callback(users)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(emptyList())
+            }
     }
 
 }

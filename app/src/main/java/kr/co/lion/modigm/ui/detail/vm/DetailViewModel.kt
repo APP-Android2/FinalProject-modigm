@@ -60,6 +60,9 @@ class DetailViewModel : ViewModel() {
     private val _applyResult = MutableLiveData<Boolean>()
     val applyResult: LiveData<Boolean> = _applyResult
 
+    private val _applyMembers = MutableLiveData<List<UserData>>()
+    val applyMembers: LiveData<List<UserData>> get() = _applyMembers
+
     fun selectContentData(studyIdx: Int) {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
         viewModelScope.launch {
@@ -255,6 +258,14 @@ class DetailViewModel : ViewModel() {
     fun joinStudy(studyIdx: Int, uid: String) {
         viewModelScope.launch {
             studyRepository.joinStudy(studyIdx, uid)
+        }
+    }
+
+    fun loadApplyMembers(studyIdx: Int) {
+        Log.d("DetailViewModel", "Loading apply members for studyIdx: $studyIdx")
+        studyRepository.fetchStudyApplyMembers(studyIdx) { members ->
+            Log.d("DetailViewModel", "Loaded members: $members")
+            _applyMembers.value = members
         }
     }
 

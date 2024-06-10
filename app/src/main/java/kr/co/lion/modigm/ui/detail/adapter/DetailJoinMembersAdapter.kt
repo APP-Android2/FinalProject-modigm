@@ -21,7 +21,6 @@ import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.ui.detail.Member
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
 class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private val currentUserId: String, private val studyIdx: Int) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
