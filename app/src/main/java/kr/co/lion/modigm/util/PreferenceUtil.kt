@@ -37,6 +37,7 @@ class PreferenceUtil(context: Context) {
 
     // 유저 정보를 SharedPreferences에 저장
     fun setUserData(key: String, user: UserData) {
+        Log.d("currentUserData",user.toString())
         val userJson = gson.toJson(user)
         prefs.edit().putString(key, userJson).apply()
     }

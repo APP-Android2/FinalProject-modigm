@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.launch
@@ -86,29 +87,46 @@ class LoginViewModel : ViewModel() {
             try {
                 Log.d("LoginViewModel", "로그인 시도 중... 이메일: $email")
                 val authResult = userInfoRepository.loginWithEmailPassword(email, password)
-                val uid = authResult.getOrNull()?.user?.uid
 
-                if (uid != null) {
-                    Log.d("LoginViewModel", "로그인 성공 - 사용자 UID: $uid")
-                    val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
-                    if (isRegistered) {
-                        _emailLoginResult.postValue(LoginResult.Success)
-                        saveCurrentUserData(uid, "email")
-                        if (autoLogin) {
-                            prefs.setAutoLogin(true)  // 자동 로그인 설정 저장
+                if (authResult.isFailure) {
+                    val exception = authResult.exceptionOrNull()
+                    when (exception) {
+                        is FirebaseAuthInvalidUserException -> {
+                            Log.e("LoginViewModel", "이메일이 존재하지 않습니다.", exception)
+                            _loginFormState.postValue(LoginFormState(emailError = "일치하는 이메일이 없습니다.", passwordError = null))
+                            _emailLoginResult.postValue(LoginResult.Error(exception))
                         }
-                    } else {
-                        _joinType.postValue(JoinType.EMAIL)
-                        _emailLoginResult.postValue(LoginResult.NeedSignUp)
+                        is FirebaseAuthInvalidCredentialsException -> {
+                            Log.e("LoginViewModel", "비밀번호가 일치하지 않습니다.", exception)
+                            _loginFormState.postValue(LoginFormState(passwordError = "비밀번호가 일치하지 않습니다.", emailError = null))
+                            _emailLoginResult.postValue(LoginResult.Error(exception))
+                        }
+                        else -> {
+                            Log.e("LoginViewModel", "로그인 시도 중 예외 발생", exception)
+                            _emailLoginResult.postValue(LoginResult.Error(exception ?: Exception("알 수 없는 에러 발생")))
+                        }
                     }
                 } else {
-                    _loginFormState.postValue(LoginFormState(emailError = "일치하는 이메일이 없습니다."))
-                    _emailLoginResult.postValue(LoginResult.Error(Exception("로그인 실패: 이메일이 존재하지 않음")))
+                    if (authResult.isSuccess) {
+                        val uid = authResult.getOrNull()?.user?.uid ?: ""
+                        Log.d("LoginViewModel", "로그인 성공 - 사용자 UID: $uid")
+                        val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
+                        if (isRegistered) {
+                            saveCurrentUserData(uid, "email", email)
+                            _emailLoginResult.postValue(LoginResult.Success)
+                            if (autoLogin) {
+                                prefs.setAutoLogin(true)  // 자동 로그인 설정 저장
+                            }
+                        } else {
+                            _joinType.postValue(JoinType.EMAIL)
+                            _emailLoginResult.postValue(LoginResult.NeedSignUp)
+                        }
+                    } else {
+                        Log.e("LoginViewModel", "로그인 실패: 이메일이 존재하지 않음 (uid가 null)")
+                        _loginFormState.postValue(LoginFormState(emailError = "일치하는 이메일이 없습니다.", passwordError = null))
+                        _emailLoginResult.postValue(LoginResult.Error(Exception("로그인 실패: 이메일이 존재하지 않음")))
+                    }
                 }
-            } catch (e: FirebaseAuthInvalidCredentialsException) {
-                Log.e("LoginViewModel", "비밀번호가 일치하지 않습니다.", e)
-                _loginFormState.postValue(LoginFormState(passwordError = "비밀번호가 일치하지 않습니다."))
-                _emailLoginResult.postValue(LoginResult.Error(e))
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "로그인 시도 중 예외 발생", e)
                 _emailLoginResult.postValue(LoginResult.Error(e))
@@ -121,11 +139,11 @@ class LoginViewModel : ViewModel() {
     // ----------------- Shared Preferences 처리 -----------------
 
     // 유저 정보를 SharedPreferences에 저장
-    private suspend fun saveCurrentUserData(uid: String, provider: String) {
+    private suspend fun saveCurrentUserData(uid: String, provider: String, email: String) {
         val userData = userInfoRepository.loadUserData(uid)
         if (userData != null) {
-            Log.d("LoginViewModel", "saveCurrentUser 저장중 : $userData")
-            prefs.setUserData("currentUserData", userData.copy(userProvider = provider))
+            val updatedUserData = userData.copy(userProvider = provider, userEmail = email)
+            prefs.setUserData("currentUserData", updatedUserData)
         }
     }
 
@@ -257,15 +275,26 @@ class LoginViewModel : ViewModel() {
                 Log.i("LoginViewModel", "handleKakaoResponse: Firebase 인증 성공")
                 Log.i("LoginViewModel", "Custom Token: $customToken")
                 val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
-
-                if (isRegistered) {
-                    saveCurrentUserData(uid, "kakao")
-                    prefs.setAutoLogin(true)  // 카카오 자동 로그인 설정 저장
-                    _kakaoLoginResult.postValue(LoginResult.Success)
-                } else {
-                    _kakaoCustomToken.postValue(customToken)
-                    _joinType.postValue(JoinType.KAKAO)
-                    _kakaoLoginResult.postValue(LoginResult.NeedSignUp)
+                // 카카오 사용자 정보 요청
+                UserApiClient.instance.me { user, error ->
+                    if (error != null) {
+                        Log.e("LoginViewModel", "사용자 정보 요청 실패", error)
+                        _kakaoLoginResult.postValue(LoginResult.Error(error))
+                    } else if (user != null) {
+                        val kakaoEmail = user.kakaoAccount?.email ?: ""
+                        Log.i("LoginViewModel", "사용자 정보 요청 성공 - 이메일: $kakaoEmail")
+                        viewModelScope.launch {
+                            if (isRegistered) {
+                                saveCurrentUserData(uid, "kakao", kakaoEmail)
+                                prefs.setAutoLogin(true)  // 카카오 자동 로그인 설정 저장
+                                _kakaoLoginResult.postValue(LoginResult.Success)
+                            } else {
+                                _kakaoCustomToken.postValue(customToken)
+                                _joinType.postValue(JoinType.KAKAO)
+                                _kakaoLoginResult.postValue(LoginResult.NeedSignUp)
+                            }
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "handleKakaoResponse: Firebase 인증 중 에러 발생", e)
@@ -292,7 +321,7 @@ class LoginViewModel : ViewModel() {
                     val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
 
                     if (isRegistered) {
-                        saveCurrentUserData(uid, "github")
+                        saveCurrentUserData(uid, "github", authResult.user?.email.toString())
                         prefs.setAutoLogin(true)  // 깃허브 자동 로그인 설정 저장
                         _githubLoginResult.postValue(LoginResult.Success)
                     } else {

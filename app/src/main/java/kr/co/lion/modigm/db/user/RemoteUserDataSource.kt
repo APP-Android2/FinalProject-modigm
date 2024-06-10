@@ -7,6 +7,8 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
@@ -41,6 +43,12 @@ class RemoteUserDataSource {
                 Log.e("RemoteUserDataSource", "로그인 실패 - 사용자 UID가 null입니다.")
                 Result.failure(Exception("인증 실패: 사용자 UID가 null입니다."))
             }
+        } catch (e: FirebaseAuthInvalidUserException) {
+            Log.e("RemoteUserDataSource", "이메일이 존재하지 않음", e)
+            Result.failure(e)
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Log.e("RemoteUserDataSource", "비밀번호가 틀림", e)
+            Result.failure(e)
         } catch (e: Exception) {
             Log.e("RemoteUserDataSource", "로그인 시도 중 예외 발생", e)
             Result.failure(e)

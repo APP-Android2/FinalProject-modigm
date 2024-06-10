@@ -18,12 +18,14 @@ import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.showCustomSnackbar
 
 class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄을 추가하여 올바른 레이아웃을 지정합니다.
 
     private val viewModel: LoginViewModel by viewModels() // LoginViewModel 인스턴스 생성
     private lateinit var binding: FragmentOtherLoginBinding
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,6 +65,10 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
         // 이메일 입력 중 에러 메시지 제거
         binding.textInputEditOtherEmail.addTextChangedListener {
             clearEmailError(binding)
+            viewModel.loginDataChanged(
+                binding.textInputEditOtherEmail.text.toString(),
+                binding.textInputEditOtherPassword.text.toString()
+            )
         }
 
         // 비밀번호 입력 중 에러 메시지 제거
@@ -76,6 +82,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
 
         // 로그인 버튼 클릭 시 로그인 시도
         binding.buttonOtherLogin.setOnClickListener {
+            requireActivity().hideSoftInput()
             val email = binding.textInputEditOtherEmail.text.toString()
             val password = binding.textInputEditOtherPassword.text.toString()
             val autoLogin = binding.checkBoxOtherAutoLogin.isChecked
@@ -160,7 +167,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "이메일 로그인 성공")
-                    // 커스텀 토스트 메시지 추가
+                    // 커스텀 스낵바 메시지 추가
                     requireActivity().showCustomSnackbar("이메일 로그인 성공", R.drawable.email_login_logo)
                     // 메인 화면으로 이동
                     navigateToBottomNaviFragment()
