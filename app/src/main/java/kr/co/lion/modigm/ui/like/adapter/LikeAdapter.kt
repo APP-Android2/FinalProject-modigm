@@ -11,7 +11,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLikeBinding
 import kr.co.lion.modigm.model.StudyData
 
-class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter<LikeAdapter.StudyViewHolder>() {
+class LikeAdapter(private var studyList: List<StudyData>, private val onLikeClick: (StudyData) -> Unit) : RecyclerView.Adapter<LikeAdapter.StudyViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudyViewHolder {
         val binding = RowLikeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -104,6 +104,20 @@ class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter
                     0 -> "신청제"
                     1 -> "선착순"
                     else -> "기타"
+                }
+
+                // 좋아요 상태에 따라 하트 아이콘 및 색상 변경
+                if (study.studyLikeState) {
+                    imageViewLikeHeart.setImageResource(R.drawable.icon_favorite_full_24px)
+                    imageViewLikeHeart.setColorFilter(Color.parseColor("#D73333"))
+                } else {
+                    imageViewLikeHeart.setImageResource(R.drawable.icon_favorite_24px)
+                    imageViewLikeHeart.setColorFilter(ContextCompat.getColor(itemView.context, R.color.pointColor))
+                }
+
+                // 좋아요 아이콘 클릭 이벤트 처리
+                imageViewLikeHeart.setOnClickListener {
+                    onLikeClick(study)
                 }
             }
         }
