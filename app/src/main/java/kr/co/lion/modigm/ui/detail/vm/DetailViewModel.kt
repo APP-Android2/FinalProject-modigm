@@ -71,6 +71,7 @@ class DetailViewModel : ViewModel() {
             }
         }
     }
+
     fun loadUserDetailsByUid(uid: String) {
         _isLoading.value = true
         viewModelScope.launch {
@@ -152,6 +153,24 @@ class DetailViewModel : ViewModel() {
         }
     }
 
+
+    // 특정 studyIdx의 studyState를 업데이트하는 함수
+    fun updateStudyStateByStudyIdx(studyIdx: Int) {
+        viewModelScope.launch {
+            try {
+                val studyData = studyRepository.selectContentData(studyIdx)
+                if (studyData != null) {
+                    studyRepository.updateStudyStateByStudyIdx(studyIdx, false)
+                } else {
+                    Log.e("ViewModel", "No study found with the given index.")
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Failed to update study state: ${e.message}")
+
+            }
+        }
+    }
+
     fun loadStudyUids(studyIdx: Int) {
         viewModelScope.launch {
             _studyUids.value = studyRepository.getStudyUidListByStudyIdx(studyIdx)
@@ -162,7 +181,6 @@ class DetailViewModel : ViewModel() {
         viewModelScope.launch {
             _userDetails.value = uids.mapNotNull { uid ->
                 studyRepository.getUserDetailsByUid(uid)
-
             }
         }
     }

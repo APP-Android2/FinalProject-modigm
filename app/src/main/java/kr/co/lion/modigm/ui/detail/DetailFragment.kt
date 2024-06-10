@@ -453,9 +453,11 @@ class DetailFragment : Fragment() {
             .create()
 
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
+            viewModel.updateStudyStateByStudyIdx(studyIdx)
             // 예 버튼 로직
             Log.d("Dialog", "확인을 선택했습니다.")
             dialog.dismiss()
+            parentFragmentManager.popBackStack()
         }
 
         dialogView.findViewById<TextView>(R.id.btnNo).setOnClickListener {

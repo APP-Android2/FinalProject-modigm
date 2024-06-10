@@ -306,6 +306,23 @@ class RemoteStudyDataSource {
         }
     }
 
+    // studyIdx를 이용해 해당 스터디의 정보를 가져오고 studyState를 업데이트한다.
+    suspend fun updateStudyStateByStudyIdx(studyIdx: Int, newState: Boolean) {
+        try {
+            val querySnapshot = studyCollection
+                .whereEqualTo("studyIdx", studyIdx)
+                .get()
+                .await()
+
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents.first()
+                studyCollection.document(document.id).update("studyState", newState).await()
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteStudyDataSource", "Failed to update study data: ${e.message}", e)
+            throw e
+        }
+    }
 
     suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean = suspendCoroutine { continuation ->
         studyCollection
