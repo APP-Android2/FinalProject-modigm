@@ -89,14 +89,14 @@ class RemoteStudyDataSource {
     }
 
     // 내 스터디 목록을 가져온다.
-    suspend fun getStudyMyData(): List<Pair<StudyData, Int>> {
+    suspend fun getStudyMyData(crrentUserUid:String): List<Pair<StudyData, Int>> {
         return try {
             // 현재 사용자 uid를 가져옵니다.(테스트용)
-            val currentUserUid = "3DAiWpgwoZShL21ehAQcgolHYRA3"
+            val uid = crrentUserUid
 
-            if (currentUserUid != null) {
+            if (uid != null) {
                 // studyUidList에 현재 사용자 uid가 포함된 스터디를 가져옵니다.
-                val query = studyCollection.whereArrayContains("studyUidList", currentUserUid)
+                val query = studyCollection.whereArrayContains("studyUidList", uid)
                 val querySnapshot = query.get().await()
                 querySnapshot.map { documentSnapshot ->
                     val studyData = documentSnapshot.toObject(StudyData::class.java)

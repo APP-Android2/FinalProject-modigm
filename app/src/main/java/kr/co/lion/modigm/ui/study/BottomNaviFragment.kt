@@ -1,25 +1,27 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.showCustomSnackbar
 import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.showCustomSnackbar
 
 class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
     private lateinit var binding: FragmentBottomNaviBinding
+
+    private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?:Firebase.auth.currentUser?.uid
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -79,16 +81,31 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                     }
                 }
                 R.id.bottomNaviChat -> {
+                    // 데이터
+                    val chatFragment = ChatFragment().apply {
+                        arguments = Bundle().apply {
+                            putString("uid", currentUserUid)
+                        }
+                    }
+
                     childFragmentManager.commit {
                         setReorderingAllowed(true)
-                        replace<ChatFragment>(R.id.containerBottomNavi)
+                        replace(R.id.containerBottomNavi,chatFragment)
                         addToBackStack(FragmentName.CHAT.str)
                     }
                 }
                 R.id.bottomNaviMy -> {
+                    // 데이터
+                    val profileFragment = ProfileFragment().apply {
+                        arguments = Bundle().apply {
+                            putString("uid", currentUserUid)
+                        }
+                    }
+
+
                     childFragmentManager.commit {
                         setReorderingAllowed(true)
-                        replace<ProfileFragment>(R.id.containerBottomNavi)
+                        replace(R.id.containerBottomNavi,profileFragment)
                         addToBackStack(FragmentName.PROFILE.str)
                     }
                 }
