@@ -7,9 +7,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.kakao.sdk.common.KakaoSdk
+import jp.wasabeef.glide.transformations.BlurTransformation
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
@@ -19,6 +22,7 @@ import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.showCustomSnackbar
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
@@ -39,6 +43,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         // 초기 뷰 설정
         initView(binding)
 
+        // Glide를 사용하여 이미지에 블러 효과 적용
+        Glide.with(this)
+            .load(R.drawable.background_login2)
+            .transform(CenterCrop(), BlurTransformation(5, 3)) // 블러 반경과 샘플 크기 설정
+            .into(binding.imageViewLoginBackground)
+
         // ViewModel의 데이터 변경 관찰
         observeViewModel()
     }
@@ -53,6 +63,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "카카오 로그인 성공")
+                    // 커스텀 토스트 메시지 추가
+                    requireActivity().showCustomSnackbar("카카오 로그인 성공", R.drawable.kakaotalk_sharing_btn_small)
+                    Log.i("LoginFragment", "카카오 로그인 토스트")
                     // 스터디 목록 화면으로 이동
                     navigateToBottomNaviFragment()
                 }
@@ -80,6 +93,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 }
                 is LoginResult.Success -> {
                     Log.i("LoginFragment", "깃허브 로그인 성공")
+                    // 커스텀 토스트 메시지 추가
+                    requireActivity().showCustomSnackbar("깃허브 로그인 성공", R.drawable.icon_github_logo)
+                    Log.i("LoginFragment", "깃허브 로그인 토스트")
                     // 스터디 목록 화면으로 이동
                     navigateToBottomNaviFragment()
                 }
@@ -105,15 +121,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         // 카카오 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginKakao.setOnClickListener {
             Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
-            val autoLogin = binding.checkboxAutoLogin.isChecked
-            viewModel.loginWithKakao(requireContext(), autoLogin)
+            viewModel.loginWithKakao(requireContext())
         }
 
         // 깃허브 로그인 버튼 클릭 리스너 설정
         binding.imageButtonLoginGithub.setOnClickListener {
             Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
-            val autoLogin = binding.checkboxAutoLogin.isChecked
-            viewModel.loginWithGithub(requireContext(), autoLogin)
+            viewModel.loginWithGithub(requireContext())
         }
 
         // 다른 방법으로 로그인 버튼 클릭 리스너 설정
@@ -121,7 +135,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             Log.i("LoginFragment", "다른 방법으로 로그인 버튼 클릭됨")
             parentFragmentManager.commit {
                 replace(R.id.containerMain, OtherLoginFragment())
-                addToBackStack(null)
+                addToBackStack(FragmentName.OTHER_LOGIN.str)
             }
         }
     }

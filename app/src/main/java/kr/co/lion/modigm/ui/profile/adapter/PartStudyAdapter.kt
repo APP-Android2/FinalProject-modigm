@@ -16,7 +16,7 @@ import java.util.Locale
 // 배송지 화면의 RecyclerView의 어뎁터
 class PartStudyAdapter(
     private var partStudyList: List<StudyData>, // 바꿔야함
-    private val rowClickListener: (String) -> Unit,
+    private val rowClickListener: (Int) -> Unit,
 ) : RecyclerView.Adapter<PartStudyViewHolder>() {
 
 

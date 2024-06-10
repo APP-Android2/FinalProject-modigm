@@ -1,17 +1,21 @@
 package kr.co.lion.modigm.ui.profile
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
 import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class SettingsFragment : Fragment() {
@@ -29,8 +33,18 @@ class SettingsFragment : Fragment() {
     }
 
     private fun initView() {
+        setupBackButton()
         setupToolbar()
         setupButtons()
+    }
+
+    private fun setupBackButton() {
+        // 뒤로 가기 물리키
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+        })
     }
 
     private fun setupToolbar() {
@@ -42,7 +56,7 @@ class SettingsFragment : Fragment() {
                 // 뒤로 가기
                 setNavigationIcon(R.drawable.icon_arrow_back_24px)
                 setNavigationOnClickListener {
-                    parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+                    requireActivity().supportFragmentManager.popBackStack()
                 }
             }
         }
@@ -53,7 +67,7 @@ class SettingsFragment : Fragment() {
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, EditProfileFragment())
+                    .add(R.id.containerMain, EditProfileFragment())
                     .addToBackStack(FragmentName.EDIT_PROFILE.str)
                     .commit()
             }
@@ -61,7 +75,7 @@ class SettingsFragment : Fragment() {
             // 비밀번호 변경
             layoutSettingsEditPw.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, ChangePwFragment())
+                    .add(R.id.containerMain, ChangePwFragment())
                     .addToBackStack(FragmentName.CHANGE_PW.str)
                     .commit()
             }

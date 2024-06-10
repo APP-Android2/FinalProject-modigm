@@ -2,7 +2,7 @@ package kr.co.lion.modigm.util
 
 import android.app.Application
 
-class ModigmApplication :Application(){
+class ModigmApplication: Application(){
     companion object {
         lateinit var prefs: PreferenceUtil
     }

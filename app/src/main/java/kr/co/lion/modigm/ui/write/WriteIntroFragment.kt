@@ -11,11 +11,9 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
@@ -25,7 +23,6 @@ import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.internal.ViewUtils.hideKeyboard
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
 import kr.co.lion.modigm.ui.write.more.CustomDialogWriteIntroExample
@@ -53,6 +50,9 @@ class WriteIntroFragment : Fragment() {
         android.Manifest.permission.ACCESS_MEDIA_LOCATION
     )
 
+    // 이미지를 첨부한 적이 있는지..
+    var isAddPicture = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,15 +60,16 @@ class WriteIntroFragment : Fragment() {
         // Inflate the layout for this fragment
         fragmentWriteIntroBinding = FragmentWriteIntroBinding.inflate(inflater)
         // 카메라 및 앨범 런처 설정
-        initData()
+        initLauncher()
         return fragmentWriteIntroBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        settingView()
+        initData()
         settingEvent()
+        validateInput()
     }
 
     fun settingEvent() {
@@ -89,22 +90,26 @@ class WriteIntroFragment : Fragment() {
             // 제목 완료 처리 이벤트
             textInputWriteIntroTitle.apply {
                 addTextChangedListener {
-                    validateInput()
+                    viewModel.gettingStudyTitle(it.toString())
                 }
             }
 
             // 내용 완료 처리 이벤트
-            textInputWriteIntroContent.apply{
+            textInputWriteIntroContent.apply {
                 addTextChangedListener {
-                    validateInput()
+                    viewModel.gettingStudyContent(it.toString())
                 }
-
             }
         }
-
     }
 
     fun initData() {
+        isAddPicture = false
+        // 입력상태 초기화
+        viewModel.userDidNotAnswer(tabName)
+    }
+
+    fun initLauncher() {
         val context = requireContext()
 
         // 권한 확인
@@ -126,15 +131,12 @@ class WriteIntroFragment : Fragment() {
                 val bitmap3 = resizeBitmap(bitmap2, 1024)
 
                 fragmentWriteIntroBinding.imageViewWriteIntroCoverImage.setImageBitmap(bitmap3)
+                isAddPicture = true
 
                 // 사진 파일을 삭제한다.
                 val file = File(contentUri.path)
                 file.delete()
             }
-
-            // 입력상태 초기화
-            viewModel.userDidNotAnswer(tabName)
-
         }
 
         // 앨범 실행을 위한 런처
@@ -176,42 +178,49 @@ class WriteIntroFragment : Fragment() {
                     val bitmap3 = resizeBitmap(bitmap2, 1024)
 
                     fragmentWriteIntroBinding.imageViewWriteIntroCoverImage.setImageBitmap(bitmap)
+                    isAddPicture = true
                 }
             }
         }
     }
 
-    fun settingView() {
+    // 입력 유효성 검사
+    fun validateInput() {
+        var result1 = false
+        var result2 = false
 
+        viewModel.studyTitle.observe(viewLifecycleOwner) { title ->
+            result1 = if (title.isEmpty() || title.length < 8) {
+                fragmentWriteIntroBinding.textInputWriteIntroTitle.error = "제목은 최소 8자 이상이어야 합니다."
+                false
+            } else {
+                fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
+                true
+            }
+            checkValidation(result1, result2)
+        }
+
+        viewModel.studyContent.observe(viewLifecycleOwner) { content ->
+            result2 = if (content.isEmpty() || content.length < 10) {
+                fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = "소개글은 최소 10자 이상이어야 합니다."
+                false
+            } else {
+                fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
+                true
+            }
+            checkValidation(result1, result2)
+        }
     }
 
-    // 입력 유효성 검사
-    fun validateInput(): Boolean {
-        val title = fragmentWriteIntroBinding.textInputWriteIntroTitle.text.toString()
-        val description = fragmentWriteIntroBinding.textInputWriteIntroContent.text.toString()
-
-        // 제목이 비어있거나 너무 짧은 경우 검사
-        if (title.isEmpty() || title.length < 8) {
-            fragmentWriteIntroBinding.textInputWriteIntroTitle.error = "제목은 최소 8자 이상이어야 합니다."
-            viewModel.userDidNotAnswer(tabName)
-            return false
+    fun checkValidation(result1: Boolean, result2: Boolean) {
+        if (result1 && result2) {
+            // ViewModel에 사진 정보 저장
+            uploadPic()
+            // 입력 완료 처리
+            viewModel.userDidAnswer(tabName)
         } else {
-            fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
-        }
-
-        // 소개글이 비어있거나 너무 짧은 경우 검사
-        if (description.isEmpty() || description.length < 10) {
-            fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error =
-                "소개글은 최소 10자 이상이어야 합니다."
             viewModel.userDidNotAnswer(tabName)
-            return false
-        } else {
-            fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
         }
-
-        viewModel.userDidAnswer(tabName)
-        Log.d("TedMoon", "Write Skill : ${viewModel.introClicked.value}")
-        return true
     }
 
     // 사진의 회전 각도값을 반환하는 메서드
@@ -324,6 +333,8 @@ class WriteIntroFragment : Fragment() {
             contentUri = FileProvider.getUriForFile(context, a1, file)
 
             if (contentUri != null) {
+                // 사진이 저장된 위치를 전송
+
                 // 실행할 액티비티를 카메라 액티비티로 지정한다.
                 // 단말기에 설치되어 있는 모든 애플리케이션이 가진 액티비티 중에 사진촬영이
                 // 가능한 액티비가 실행된다.
@@ -332,6 +343,7 @@ class WriteIntroFragment : Fragment() {
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri)
                 // 카메라 액티비티 실행
                 cameraLauncher.launch(cameraIntent)
+
             }
 
             popupWindow.dismiss()
@@ -356,5 +368,19 @@ class WriteIntroFragment : Fragment() {
         }
         // 팝업 윈도우 표시
         popupWindow.showAsDropDown(anchorView)
+    }
+
+    // 사진 저장 메서드
+    fun uploadPic() {
+        var serverFileName: String? = null
+
+        // 첨부된 이미지가 존재
+        if (isAddPicture == true) {
+
+            // 서버에서의 파일 이름
+            serverFileName = "image_${System.currentTimeMillis()}.jpg"
+            // ViewModel에 사진 저장
+            viewModel.gettingStudyPic(serverFileName)
+        }
     }
 }

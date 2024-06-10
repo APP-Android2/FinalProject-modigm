@@ -22,14 +22,18 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
+import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
@@ -53,6 +57,9 @@ class DetailFragment : Fragment() {
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
+    var likeIdx = 0
+
+    private var isLiked = false
 
     private var currentStudyData: StudyData? = null
     private var currentUserData: UserData? = null
@@ -89,9 +96,20 @@ class DetailFragment : Fragment() {
 
         // ViewModel에서 데이터 요청
         viewModel.selectContentData(studyIdx)
+        viewModel.loadInitialLikeState(studyIdx)
 
         viewModel.contentData.observe(viewLifecycleOwner) {
             updateUI(StudyData())
+        }
+
+        viewModel.isLiked.observe(viewLifecycleOwner) { isLiked ->
+            if (isLiked) {
+                binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
+                binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
+            } else {
+                binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
+                binding.buttonDetailLike.clearColorFilter()
+            }
         }
 
         observeViewModel()
@@ -151,6 +169,7 @@ class DetailFragment : Fragment() {
                 .error(R.drawable.icon_account_circle) // 에러 발생시 보여줄 이미지
                 .into(binding.imageViewDetailUserPic)
         }
+
     }
 
     fun updateUIIfReady() {
@@ -321,38 +340,16 @@ class DetailFragment : Fragment() {
     // 좋아요 버튼 설정
     fun setupLikeButtonListener() {
         binding.buttonDetailLike.setOnClickListener {
-            toggleLikeButton()
+            viewModel.toggleLike(uid, studyIdx)
         }
     }
+
+
 
     // 팝업 메뉴 설정
     fun setupPopupMenu() {
         binding.imageViewDetailMenu.setOnClickListener {
             showPopupWindow(it)
-        }
-    }
-
-    // 좋아요 버튼 상태 토글
-    fun toggleLikeButton() {
-        // 현재 설정된 이미지 리소스 ID를 확인하고 상태를 토글
-        val currentIconResId =
-            binding.buttonDetailLike.tag as? Int ?: R.drawable.icon_favorite_24px
-        if (currentIconResId == R.drawable.icon_favorite_24px) {
-            // 좋아요 채워진 아이콘으로 변경
-            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
-            // 상태 태그 업데이트
-            binding.buttonDetailLike.tag = R.drawable.icon_favorite_full_24px
-
-            // 새 색상을 사용하여 틴트 적용
-            binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
-        } else {
-            // 기본 아이콘으로 변경
-            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
-            // 상태 태그 업데이트
-            binding.buttonDetailLike.tag = R.drawable.icon_favorite_24px
-
-            // 틴트 제거 (원래 아이콘 색상으로 복원)
-            binding.buttonDetailLike.clearColorFilter()
         }
     }
 
@@ -456,9 +453,11 @@ class DetailFragment : Fragment() {
             .create()
 
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
+            viewModel.updateStudyStateByStudyIdx(studyIdx)
             // 예 버튼 로직
             Log.d("Dialog", "확인을 선택했습니다.")
             dialog.dismiss()
+            parentFragmentManager.popBackStack()
         }
 
         dialogView.findViewById<TextView>(R.id.btnNo).setOnClickListener {

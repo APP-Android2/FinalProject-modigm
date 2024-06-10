@@ -9,7 +9,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLikeBinding
 import kr.co.lion.modigm.model.StudyData
 
-class LikeAdapter(private val studyList: List<StudyData>) : RecyclerView.Adapter<LikeAdapter.StudyViewHolder>() {
+class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter<LikeAdapter.StudyViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudyViewHolder {
         val binding = RowLikeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -21,6 +21,11 @@ class LikeAdapter(private val studyList: List<StudyData>) : RecyclerView.Adapter
     }
 
     override fun getItemCount(): Int = studyList.size
+
+    fun updateData(newStudyList: List<StudyData>) {
+        studyList = newStudyList
+        notifyDataSetChanged()
+    }
 
     inner class StudyViewHolder(private val binding: RowLikeBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(study: StudyData) {

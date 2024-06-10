@@ -2,6 +2,7 @@ package kr.co.lion.modigm.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.google.gson.Gson
@@ -36,6 +37,7 @@ class PreferenceUtil(context: Context) {
 
     // 유저 정보를 SharedPreferences에 저장
     fun setUserData(key: String, user: UserData) {
+        Log.d("currentUserData",user.toString())
         val userJson = gson.toJson(user)
         prefs.edit().putString(key, userJson).apply()
     }
@@ -50,8 +52,25 @@ class PreferenceUtil(context: Context) {
         }
     }
 
+    // 자동 로그인 설정 저장
+    fun setAutoLogin(autoLogin: Boolean) {
+        prefs.edit().putBoolean("autoLogin", autoLogin).apply()
+    }
+
+    // 자동 로그인 설정 불러오기
+    fun getAutoLogin(): Boolean {
+        return prefs.getBoolean("autoLogin", false)
+    }
 
     fun clearUserData(key: String) {
         prefs.edit().remove(key).apply()
+    }
+
+    // 모든 SharedPreferences 데이터를 로그로 출력
+    fun logAllPreferences() {
+        val allEntries = prefs.all
+        for ((key, value) in allEntries) {
+            Log.d("SharedPreferences", "$key: $value")
+        }
     }
 }
