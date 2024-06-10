@@ -28,6 +28,7 @@ class ChangePhoneFragment : Fragment() {
         binding.changePhoneViewModel = changePhoneViewModel
         binding.lifecycleOwner = this
 
+        settingToolbar()
         settingTextInputUserPhone()
         settingErrorMessageObservers()
         settingPhoneAuthObservers()
@@ -35,6 +36,16 @@ class ChangePhoneFragment : Fragment() {
         settingChangePWButtonDone()
 
         return binding.root
+    }
+
+    private fun settingToolbar(){
+        with(binding.toolbarChangePhone){
+            title = "전화번호 변경"
+            setNavigationIcon(R.drawable.icon_arrow_back_24px)
+            setNavigationOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
+        }
     }
 
     private fun settingTextInputUserPhone(){
