@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
@@ -23,10 +25,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.chat.ChatRoomFragment
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Skill
@@ -35,7 +42,9 @@ class DetailFragment : Fragment() {
 
     lateinit var binding: FragmentDetailBinding
 
+    // 뷰 모델
     private val viewModel: DetailViewModel by activityViewModels()
+    private val chatRoomViewModel: ChatRoomViewModel by viewModels()
 
     private var isPopupShown = false
 
@@ -499,6 +508,7 @@ class DetailFragment : Fragment() {
             // 버튼 클릭 이벤트(채팅 방 이동)
             binding.buttonDetailApply.setOnClickListener {
                 Log.d("DetailFragment", "채팅방 이동1")
+                moveChatRoom()
             }
 
         } else {
@@ -522,6 +532,9 @@ class DetailFragment : Fragment() {
                     // 선착순일 경우
                     binding.buttonDetailApply.setOnClickListener {
                         Log.d("DetailFragment", "채팅방 이동2")
+                        // 추후에 주석 풀고 써야함
+                        // addUserToChatMemberList()
+                        moveChatRoom()
                     }
                 }
 
@@ -583,6 +596,32 @@ class DetailFragment : Fragment() {
             binding.textViewDetailState.text = (it as TextView).text
             viewModel.updateStudyCanApplyByStudyIdx(studyIdx, false)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+        }
+    }
+
+    // 채팅 방 이동
+    fun moveChatRoom() {
+        Log.v("chatLog4", "DetailFragment - chatIdx: ${studyIdx}\n studyTitle: ${currentStudyData?.studyTitle}\n chatMemberList: ${currentStudyData?.studyUidList?.let { ArrayList(it) }}\nparticipantCount: ${currentStudyData?.studyUidList!!.size}")
+        val chatRoomFragment = ChatRoomFragment().apply {
+            arguments = Bundle().apply {
+                putInt("chatIdx", studyIdx)
+                putString("chatTitle", currentStudyData?.studyTitle)
+                putStringArrayList("chatMemberList", currentStudyData?.studyUidList?.let { ArrayList(it) })
+                putInt("participantCount", currentStudyData?.studyUidList!!.size)
+                putBoolean("groupChat", true)
+            }
+        }
+        parentFragmentManager.commit {
+            replace(R.id.containerMain , chatRoomFragment)
+            addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+        }
+    }
+
+    // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
+    fun addUserToChatMemberList() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(studyIdx, uid)
+            coroutine1.join()
         }
     }
 }
