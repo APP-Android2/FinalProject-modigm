@@ -181,10 +181,7 @@ class ProfileFragment: Fragment() {
                     // 뒤로 가기
                     setNavigationIcon(R.drawable.icon_arrow_back_24px)
                     setNavigationOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, SettingsFragment())
-                            .addToBackStack(FragmentName.FILTER_SORT.str)
-                            .commit()
+                        parentFragmentManager.popBackStack()
                     }
 
                     // 더보기 아이콘 표시
