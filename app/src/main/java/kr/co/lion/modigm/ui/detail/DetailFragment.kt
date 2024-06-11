@@ -42,6 +42,7 @@ import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Skill
 
@@ -115,6 +116,7 @@ class DetailFragment : Fragment() {
             }
         }
 
+        userprofile()
         observeViewModel()
     }
 
@@ -173,6 +175,22 @@ class DetailFragment : Fragment() {
                 .into(binding.imageViewDetailUserPic)
         }
 
+    }
+
+    fun userprofile(){
+        binding.imageViewDetailUserPic.setOnClickListener {
+            val profileFragment = ProfileFragment().apply {
+                arguments = Bundle().apply {
+                    putString("uid", currentStudyData?.studyWriteUid)
+                }
+            }
+
+            // 화면이동 로직 추가
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, profileFragment)
+                .addToBackStack(FragmentName.DETAIL_MEMBER.str)
+                .commit()
+        }
     }
 
     fun updateUIIfReady() {
