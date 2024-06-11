@@ -310,6 +310,26 @@ class DetailFragment : Fragment() {
             }
             else{
                 fab.visibility = View.VISIBLE
+                // 1:1 채팅 방 생성 기능 추가 해서 Idx 값 바꾸기(아직 미구현)
+                // 1:1 채팅 방으로 이동
+                Log.v("chatLog5", "DetailFragment - ${data.studyWriteUid}, $uid")
+                fab.setOnClickListener {
+                    val chatRoomFragment = ChatRoomFragment().apply {
+                        arguments = Bundle().apply {
+                            // Idx 설정 바꿔야 함 지금 임시로 -100으로 넣어둔 상태
+                            putInt("chatIdx", -100)
+                            putString("chatTitle", "1:1")
+                            putStringArrayList("chatMemberList", arrayListOf(data.studyWriteUid, uid))
+                            putInt("participantCount", 2)
+                            putBoolean("groupChat", false)
+                        }
+                    }
+                    requireActivity().supportFragmentManager.commit {
+                        setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                        replace(R.id.containerMain, chatRoomFragment)
+                        addToBackStack(FragmentName.CHAT_ROOM.str)
+                    }
+                }
             }
         }
     }
