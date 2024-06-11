@@ -38,7 +38,12 @@ class ResetPwViewModel: ViewModel() {
     fun changePassword(){
         if(!newPassword.value.isNullOrEmpty()){
             _auth.currentUser?.updatePassword(newPassword.value!!)?.addOnCompleteListener {
-                _isComplete.value = it.isSuccessful
+                if(it.isSuccessful){
+                    _auth.signOut()
+                    _isComplete.value = true
+                }else{
+                    _isComplete.value = false
+                }
             }
         }
     }
