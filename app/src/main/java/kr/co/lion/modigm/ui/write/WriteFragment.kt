@@ -83,6 +83,7 @@ class WriteFragment : Fragment() {
                     // 입력된 정보를 모아서 DB에 저장
                     lifecycleScope.launch {
                         uploadStudyData()
+                        uploadChatRoomData()
                         // DetailFragment로 이동
                         navigateToDetailFragment()
                     }
@@ -119,8 +120,11 @@ class WriteFragment : Fragment() {
     // 글 작성처리 메서드
     private suspend fun uploadStudyData() {
         writeViewModel.uploadStudyData()
-        writeViewModel.uploadChatRoomData()
         Log.d("WriteFragment", "정보 업로드")
+    }
+
+    private suspend fun uploadChatRoomData(){
+        writeViewModel.uploadChatRoomData()
     }
 
     fun settingView() {
