@@ -11,12 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
-import kr.co.lion.modigm.databinding.FragmentDetailMemberBinding
-import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
-import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.util.FragmentName
 
 class DetailApplyMemberFragment : Fragment() {
 
@@ -43,7 +42,18 @@ class DetailApplyMemberFragment : Fragment() {
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        adapter = DetailApplyMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx)
+        adapter = DetailApplyMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx) { user ->
+            val profileFragment = ProfileFragment().apply {
+                arguments = Bundle().apply {
+                    putString("uid", user.userUid)
+                }
+            }
+
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, profileFragment)
+                .addToBackStack(FragmentName.PROFILE.str)
+                .commit()
+        }
 
         return binding.root
     }
