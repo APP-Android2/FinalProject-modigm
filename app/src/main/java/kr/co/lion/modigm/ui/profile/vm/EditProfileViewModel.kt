@@ -116,5 +116,7 @@ class EditProfileViewModel: ViewModel() {
         user.userProvider = ModigmApplication.prefs.getUserData("currentUserData")?.userProvider!!
 
         userRepository.updateUserData(user)
+        ModigmApplication.prefs.clearUserData("currentUserData")
+        ModigmApplication.prefs.setUserData("currentUserData", user)
     }
 }
