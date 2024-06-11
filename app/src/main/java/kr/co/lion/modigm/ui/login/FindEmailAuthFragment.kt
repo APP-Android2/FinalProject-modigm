@@ -13,6 +13,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindEmailAuthBinding
 import kr.co.lion.modigm.ui.login.vm.FindEmailAuthViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.hideSoftInput
 
 class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
 
@@ -59,6 +60,8 @@ class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
             // 완료 버튼
             with(buttonFindEmailAuthOK) {
                 setOnClickListener {
+                    binding.textInputEditFindPassCode.clearFocus()
+                    requireActivity().hideSoftInput()
                     isClickable = false
                     // 유효성 검사
                     val validate = viewModel!!.validateInput()
