@@ -13,6 +13,8 @@ import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -218,10 +220,8 @@ class JoinFragment : Fragment() {
                         }
                     }
                 }
-
             }
         }
-
     }
 
     private fun step1Process(){

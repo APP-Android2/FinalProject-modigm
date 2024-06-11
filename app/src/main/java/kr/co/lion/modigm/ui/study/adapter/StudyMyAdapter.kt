@@ -13,6 +13,7 @@ class StudyMyAdapter(
     private var studyList: List<Pair<StudyData, Int>>,
     // 항목 1개 클릭 리스너
     private val rowClickListener: (Int) -> Unit,
+    private val likeClickListener: (Int) -> Unit,
 ) : RecyclerView.Adapter<StudyMyViewHolder>() {
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): StudyMyViewHolder {
         val binding: RowStudyMyBinding =
@@ -20,6 +21,7 @@ class StudyMyAdapter(
         return StudyMyViewHolder(
             binding,
             rowClickListener,
+            likeClickListener,
         )
     }
 
