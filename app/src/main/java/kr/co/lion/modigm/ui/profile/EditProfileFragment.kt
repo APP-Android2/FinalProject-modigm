@@ -29,12 +29,14 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
 import kr.co.lion.modigm.ui.profile.adapter.LinkAddAdapter
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
+import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Picture
 
-class EditProfileFragment : Fragment() {
+class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragment() {
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
     private val editProfileViewModel: EditProfileViewModel by activityViewModels()
 
@@ -79,7 +81,7 @@ class EditProfileFragment : Fragment() {
     private fun setupToolbar() {
         fragmentEditProfileBinding.toolbarEditProfile.apply {
             setNavigationOnClickListener {
-                parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+                requireActivity().supportFragmentManager.popBackStack()
             }
         }
     }
@@ -117,8 +119,14 @@ class EditProfileFragment : Fragment() {
 
     private fun setupButtonDone() {
         fragmentEditProfileBinding.buttonEditProfileDone.setOnClickListener {
-            editProfileViewModel.updateUserData()
-            parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+            viewLifecycleOwner.lifecycleScope.launch {
+                editProfileViewModel.updateUserData(profileFragment)
+                Log.d("zunione", "${ModigmApplication.prefs.getUserData("currentUserData")}")
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+//            editProfileViewModel.updateUserData()
+//            profileFragment.updateViews()
+//            requireActivity().supportFragmentManager.popBackStack()
         }
     }
 

@@ -3,6 +3,7 @@ package kr.co.lion.modigm.ui.profile.vm
 import android.content.Context
 import android.util.Log
 import android.widget.ImageView
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.repository.UserInfoRepository
+import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication
@@ -103,7 +105,7 @@ class EditProfileViewModel: ViewModel() {
         _editProfileLinkList.value = _editProfileLinkList.value?.filter { it != link }
     }
 
-    fun updateUserData() = viewModelScope.launch {
+    fun updateUserData(profileFragment: ProfileFragment) = viewModelScope.launch {
         val user = UserData()
         user.userUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!
         user.userName = ModigmApplication.prefs.getUserData("currentUserData")?.userName!!
@@ -118,5 +120,8 @@ class EditProfileViewModel: ViewModel() {
         userRepository.updateUserData(user)
         ModigmApplication.prefs.clearUserData("currentUserData")
         ModigmApplication.prefs.setUserData("currentUserData", user)
+
+        // 프로필 화면 업데이트
+        profileFragment.updateViews()
     }
 }
