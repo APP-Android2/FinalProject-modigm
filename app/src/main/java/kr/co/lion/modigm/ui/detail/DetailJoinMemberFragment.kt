@@ -1,22 +1,16 @@
 package kr.co.lion.modigm.ui.detail
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
-import kr.co.lion.modigm.db.study.RemoteStudyDataSource
-import kr.co.lion.modigm.repository.StudyRepository
-import kr.co.lion.modigm.ui.MainActivity
-import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
@@ -26,6 +20,7 @@ class DetailJoinMemberFragment : Fragment() {
 
     lateinit var binding: FragmentDetailJoinMemberBinding
     private val viewModel: DetailViewModel by activityViewModels()
+    private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailJoinMembersAdapter
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
@@ -46,7 +41,7 @@ class DetailJoinMemberFragment : Fragment() {
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        adapter = DetailJoinMembersAdapter(viewModel, currentUserId, studyIdx) { user ->
+        adapter = DetailJoinMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putString("uid", user.userUid)
@@ -58,7 +53,6 @@ class DetailJoinMemberFragment : Fragment() {
                 .addToBackStack(FragmentName.PROFILE.str)
                 .commit()
         }
-
 
         return binding.root
     }

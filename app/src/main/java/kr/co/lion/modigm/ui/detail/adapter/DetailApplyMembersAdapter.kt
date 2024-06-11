@@ -13,13 +13,18 @@ import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowDetailApplyMemberBinding
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
 class DetailApplyMembersAdapter(
     private val viewModel: DetailViewModel,
+    private val chatRoomViewModel: ChatRoomViewModel,
     private val currentUserId: String,
     private val studyIdx: Int,
     private val onItemClicked: (UserData) -> Unit
@@ -62,6 +67,12 @@ class DetailApplyMembersAdapter(
                         val textSizeInPx = dpToPx(itemView.context, 16f)
                         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
                         snackbar.show()
+
+                        // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
+                        CoroutineScope(Dispatchers.Main).launch {
+                            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(studyIdx, user.userUid)
+                            coroutine1.join()
+                        }
 
                         // 리스트에서 아이템 제거
                         val position = adapterPosition

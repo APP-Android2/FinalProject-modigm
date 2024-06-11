@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
@@ -20,6 +21,7 @@ class DetailApplyMemberFragment : Fragment() {
 
     lateinit var binding: FragmentDetailApplyMemberBinding
     private val viewModel: DetailViewModel by activityViewModels()
+    private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailApplyMembersAdapter
 
     private lateinit var auth: FirebaseAuth
@@ -40,7 +42,7 @@ class DetailApplyMemberFragment : Fragment() {
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        adapter = DetailApplyMembersAdapter(viewModel, currentUserId, studyIdx) { user ->
+        adapter = DetailApplyMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putString("uid", user.userUid)
