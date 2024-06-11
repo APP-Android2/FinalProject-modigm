@@ -3,25 +3,29 @@ package kr.co.lion.modigm.ui.study
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
+import kr.co.lion.modigm.databinding.FragmentStudySearchBinding
 import kr.co.lion.modigm.databinding.RowStudyMyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.study.adapter.StudyMyAdapter
+import kr.co.lion.modigm.ui.study.adapter.StudySearchAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
 
+class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
 
-class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
+    private var _binding: FragmentStudySearchBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var rowbinding: RowStudyMyBinding
 
@@ -30,8 +34,7 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
     private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?: Firebase.auth.currentUser?.uid ?: ""
 
-    // 어답터
-    private val studyMyAdapter: StudyMyAdapter = StudyMyAdapter(
+    private val studySearchAdapter: StudySearchAdapter = StudySearchAdapter(
         // 최초 리스트
         emptyList(),
 
@@ -70,58 +73,49 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentStudyMyBinding.bind(view)
+        _binding = FragmentStudySearchBinding.bind(view)
         rowbinding = RowStudyMyBinding.inflate(layoutInflater)
 
-        // 초기 뷰 세팅
         initView(binding)
-        observeData()
+
+        viewModel.studyStateTrueDataList.observe(viewLifecycleOwner, Observer { studyList ->
+            studySearchAdapter.updateData(studyList)
+        })
     }
 
-    // 초기 뷰 세팅
-    fun initView(binding: FragmentStudyMyBinding) {
+    private fun initView(binding: FragmentStudySearchBinding) {
 
-        with(binding){
+        with(binding) {
+            // RecyclerView 설정
+            recyclerViewStudySearch.layoutManager = LinearLayoutManager(requireContext())
+            recyclerViewStudySearch.adapter = studySearchAdapter
 
+            toolbarStudySearch.setNavigationOnClickListener{
+                parentFragmentManager.popBackStack()
+            }
 
-            // 필터 버튼
-            with(imageViewStudyMyFilter){
-                // 클릭 시
-                setOnClickListener {
-                    // 필터 및 정렬 화면으로 이동
-                    requireActivity().supportFragmentManager.commit {
-                        replace(R.id.containerMain, FilterSortFragment())
-                        addToBackStack(FragmentName.FILTER_SORT.str)
+            // init SearchView
+            searchView.isSubmitButtonEnabled = true
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    query?.let {
+                        studySearchAdapter.filter(it)
                     }
+                    return false
                 }
-            }
 
-            // 리사이클러뷰
-            with(recyclerViewStudyMy) {
-                // 리사이클러뷰 어답터
-
-
-                adapter = studyMyAdapter
-
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(requireActivity())
-            }
-
-            with(searchBarStudyMy){
-                setOnClickListener{
-                    requireActivity().supportFragmentManager.commit {
-                        add(R.id.containerMain,StudySearchFragment())
-                        addToBackStack(FragmentName.STUDY_SEARCH.str)
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    newText?.let {
+                        studySearchAdapter.filter(it)
                     }
+                    return true
                 }
-            }
+            })
         }
     }
 
-    private fun observeData() {
-        // 데이터 변경 관찰
-        viewModel.studyMyDataList.observe(viewLifecycleOwner) { studyList ->
-            studyMyAdapter.updateData(studyList)
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
