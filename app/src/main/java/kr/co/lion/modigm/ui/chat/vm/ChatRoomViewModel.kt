@@ -28,6 +28,10 @@ class ChatRoomViewModel : ViewModel() {
     private val _allChatRoomsList = MutableLiveData<List<ChatRoomData>>()
     val allChatRoomsList: LiveData<List<ChatRoomData>> = _allChatRoomsList
 
+    // 1:1 채팅 방 찾기 시 반환 값
+    private val _chatRoomIdx = MutableLiveData<Int>()
+    val chatRoomIdx: LiveData<Int> get() = _chatRoomIdx
+
     private val _userDataList = MutableLiveData<List<UserData>>()
     val userDataList: LiveData<List<UserData>> get() = _userDataList
 
@@ -152,6 +156,16 @@ class ChatRoomViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("chatLog", "Error - getUsersDataList: ${e.message}")
             }
+        }
+    }
+
+    // 1:1 채팅 방 찾기
+    suspend fun findChatRoomIdx(loginUserId: String, opponentUserId: String) = viewModelScope.launch {
+        try {
+            val result = chatRoomRepository.findChatRoomIdx(loginUserId, opponentUserId)
+            _chatRoomIdx.postValue(result)
+        } catch (e:Exception) {
+
         }
     }
 }

@@ -47,7 +47,7 @@ class ChatSearchResultsAdapter(
                     // 1:1 채팅 방은 제목이 아니라 상대 방의 이름으로 검색 가능하게 바꿔야함...
                     val title = chatSearchRoomDataList[i].chatMemberList.filter { it != loginUserId }
                     CoroutineScope(Dispatchers.Main).launch {
-                        val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]) ?: "알 수 없는 사용자"
+                        val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]!!) ?: "알 수 없는 사용자"
                         withContext(Dispatchers.Main) {
                             // 채팅 방 제목
                             chatRoom.chatTitle = userNameTitle
@@ -106,8 +106,8 @@ class ChatSearchResultsAdapter(
             if(room.groupChat == false){
                 val title = room.chatMemberList.filter { it != loginUserId }
                 CoroutineScope(Dispatchers.Main).launch {
-                    val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]) ?: "알 수 없는 사용자"
-                    val userProfile = ChatRoomDataSource.getUserProfilePicByUid(title[0]) ?: ""
+                    val userNameTitle = ChatRoomDataSource.getUserNameByUid(title[0]!!) ?: "알 수 없는 사용자"
+                    val userProfile = ChatRoomDataSource.getUserProfilePicByUid(title[0]!!) ?: ""
                     withContext(Dispatchers.Main) {
                         // 채팅 방 제목
                         roomTitleTextView.text = userNameTitle

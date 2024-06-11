@@ -48,4 +48,8 @@ class ChatRoomRepository {
     // 실시간으로 여러 사용자 정보를 가져오는 함수
     fun getUsersDataListListener(chatMemberList: List<String>, onUpdate: (List<UserData>) -> Unit) =
         chatRoomDataSource.getUsersDataListListener(chatMemberList, onUpdate)
+
+    // 1:1 채팅 방 찾기
+    suspend fun findChatRoomIdx(loginUserId: String, opponentUserId: String) =
+        chatRoomDataSource.findChatRoomIdx(loginUserId, opponentUserId)
 }
