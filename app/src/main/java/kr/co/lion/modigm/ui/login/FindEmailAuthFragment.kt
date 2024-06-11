@@ -95,7 +95,7 @@ class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
         val dialog = CustomFindEmailDialog(requireContext())
         dialog.apply {
             setTitle("이메일 찾기")
-            setMessage("회원님의 휴대전화로 가입하신 이메일은 $email 입니다.")
+            setEmail(email)
             setPositiveButton("확인", onClickListener = {
                 parentFragmentManager.commit {
                     replace(R.id.containerMain,OtherLoginFragment())
