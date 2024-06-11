@@ -111,18 +111,12 @@ class ChatRoomFragment : Fragment() {
             isGroupChat = it.getBoolean("groupChat")
         }
 
-        // 뒤로 가기 콜백 설정
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+        // 뒤로 가기 콜백 설정 (핸드폰 물리 (Back)키 버튼)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // 뒤로가기
-                // parentFragmentManager.popBackStack()
-                parentFragmentManager.commit() {
-                    replace(R.id.containerMain, BottomNaviFragment())
-                }
+                requireActivity().supportFragmentManager.popBackStack()
             }
         })
-
-
 
         return fragmentChatRoomBinding.root
     }
@@ -132,7 +126,7 @@ class ChatRoomFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 로그인 유저 Name 값 가져오기 (로그인 처리 하고 주석 풀어서 사용)
-        // getUserNameByUid()
+        getUserNameByUid()
 
         // 카메라 InitData
         cameraInitData()
@@ -236,15 +230,22 @@ class ChatRoomFragment : Fragment() {
         fragmentChatRoomBinding.apply {
             toolbarChatRoom.apply {
                 setNavigationViewWidth()
-                title = "$chatTitle"
-                if (isGroupChat == true) subtitle = "현재인원 ${chatMemberList.size}명"
+                // 1:1 챗 일때
+                if (isGroupChat == false) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val titleName = getUserNameByUid("${(chatMemberList.filter { it != loginUserId })[0]}")
+                        title = titleName
+                    }
+                }
+                // 그룹 챗일때
+                else {
+                    title = "$chatTitle"
+                    subtitle = "현재인원 ${chatMemberList.size}명"
+                }
                 // 왼쪽 네비게이션 버튼(Back)
                 setNavigationOnClickListener {
                     // 뒤로가기
-                    // parentFragmentManager.popBackStack()
-                    parentFragmentManager.commit() {
-                        replace(R.id.containerMain, BottomNaviFragment())
-                    }
+                    requireActivity().supportFragmentManager.popBackStack()
                 }
                 // 오른쪽 툴바 버튼(Menu)
                 setOnMenuItemClickListener {
@@ -533,9 +534,8 @@ class ChatRoomFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             val coroutine1 = chatRoomViewModel.removeUserFromChatMemberList(chatIdx, loginUserId)
             coroutine1.join()
-            parentFragmentManager.commit() {
-                replace(R.id.containerMain, BottomNaviFragment())
-            }
+            // 뒤로가기
+            requireActivity().supportFragmentManager.popBackStack()
         }
     }
 
@@ -580,5 +580,16 @@ class ChatRoomFragment : Fragment() {
         CoroutineScope(Dispatchers.Main).launch {
             loginUserName = ChatRoomDataSource.getUserNameByUid(loginUserId)!!
         }
+    }
+
+    // 유저 Name 값 가져오기
+    suspend fun getUserNameByUid(uid: String): String {
+        var userName = "알수 없음"
+        val job1 = CoroutineScope(Dispatchers.Main).launch {
+            userName = ChatRoomDataSource.getUserNameByUid(uid)!!
+        }
+        job1.join()
+
+        return userName
     }
 }
