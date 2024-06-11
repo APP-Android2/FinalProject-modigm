@@ -105,9 +105,8 @@ class WriteFragment : Fragment() {
         }
     }
     private fun gettingCurrentUid(){
-//        firebaseAuth = Firebase.auth
-//        user = firebaseAuth.currentUser!!
-        val user = "테스트용 userIdx 출력"
+        firebaseAuth = Firebase.auth
+        user = firebaseAuth.currentUser!!
         writeViewModel.gettingCurrentUid(user.toString())
     }
 
