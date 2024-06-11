@@ -93,7 +93,7 @@ class StudyAllViewHolder(
                     text = "프로젝트"
                     binding.imageViewStudyAllStudyTypeIcon.setImageResource(R.drawable.icon_code_box_24px)
                 }
-                else -> {
+                3 -> {
                     text = "공모전"
                     binding.imageViewStudyAllStudyTypeIcon.setImageResource(R.drawable.icon_trophy_24px)
                 }

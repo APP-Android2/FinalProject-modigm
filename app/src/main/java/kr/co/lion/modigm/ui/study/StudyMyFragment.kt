@@ -2,10 +2,11 @@ package kr.co.lion.modigm.ui.study
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.ktx.auth
@@ -20,13 +21,12 @@ import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
 
-
 class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
     private lateinit var rowbinding: RowStudyMyBinding
 
     // 뷰모델
-    private val viewModel: StudyViewModel by viewModels()
+    private val viewModel: StudyViewModel by activityViewModels()
 
     private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?: Firebase.auth.currentUser?.uid ?: ""
 
@@ -37,19 +37,16 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
         // 항목 클릭 시
         rowClickListener = { studyIdx ->
-
             // DetailFragment로 이동
             val detailFragment = DetailFragment().apply {
                 arguments = Bundle().apply {
                     putInt("studyIdx", studyIdx)
                 }
             }
-
             requireActivity().supportFragmentManager.commit {
                 replace(R.id.containerMain, detailFragment)
                 addToBackStack(FragmentName.DETAIL.str)
             }
-
         },
         likeClickListener = { studyIdx ->
             viewModel.viewModelScope.launch {
@@ -76,52 +73,47 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
         // 초기 뷰 세팅
         initView(binding)
         observeData()
+        Log.d("StudyMyFragment", "onViewCreated 호출됨")
     }
 
     // 초기 뷰 세팅
-    fun initView(binding: FragmentStudyMyBinding) {
-
-        with(binding){
-
-
+    private fun initView(binding: FragmentStudyMyBinding) {
+        with(binding) {
             // 필터 버튼
-            with(imageViewStudyMyFilter){
-                // 클릭 시
-                setOnClickListener {
-                    // 필터 및 정렬 화면으로 이동
-                    requireActivity().supportFragmentManager.commit {
-                        replace(R.id.containerMain, FilterSortFragment())
-                        addToBackStack(FragmentName.FILTER_SORT.str)
-                    }
+            imageViewStudyMyFilter.setOnClickListener {
+                // 필터 및 정렬 화면으로 이동
+                requireActivity().supportFragmentManager.commit {
+                    add(R.id.containerMain, FilterSortFragment())
+                    addToBackStack(FragmentName.FILTER_SORT.str)
                 }
             }
 
             // 리사이클러뷰
-            with(recyclerViewStudyMy) {
-                // 리사이클러뷰 어답터
-
-
+            recyclerViewStudyMy.apply {
                 adapter = studyMyAdapter
-
-                // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(requireActivity())
             }
 
-            with(searchBarStudyMy){
-                setOnClickListener{
-                    requireActivity().supportFragmentManager.commit {
-                        add(R.id.containerMain,StudySearchFragment())
-                        addToBackStack(FragmentName.STUDY_SEARCH.str)
-                    }
+            searchBarStudyMy.setOnClickListener {
+                requireActivity().supportFragmentManager.commit {
+                    add(R.id.containerMain, StudySearchFragment())
+                    addToBackStack(FragmentName.STUDY_SEARCH.str)
                 }
             }
         }
     }
 
     private fun observeData() {
-        // 데이터 변경 관찰
+        // 필터링된 데이터 관찰
+        viewModel.filteredMyStudyList.observe(viewLifecycleOwner) { studyList ->
+            studyMyAdapter.updateData(studyList)
+            Log.d("StudyMyFragment", "필터링된 내 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
+        }
+
+        // 내 스터디 데이터 관찰 (필터링이 없을 때)
         viewModel.studyMyDataList.observe(viewLifecycleOwner) { studyList ->
             studyMyAdapter.updateData(studyList)
+            Log.d("StudyMyFragment", "내 스터디 목록 업데이트: ${studyList.size} 개")
         }
     }
 }

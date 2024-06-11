@@ -1,445 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".ui.study.FilterSortFragment"
-    android:transitionGroup="true">
+    android:transitionGroup="true"
+    tools:context=".ui.study.FilterSortFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarFilter"
+        style="@style/CustomToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/CustomToolbar"
-        app:titleTextAppearance="@style/toolbarText"
+        app:navigationIcon="@drawable/icon_back_24px"
         app:title="필터 및 정렬"
-        app:navigationIcon="@drawable/icon_back_24px" />
-    <LinearLayout
+        app:titleTextAppearance="@style/toolbarText" />
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:paddingHorizontal="16dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewFilterBunryu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="분류"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                />
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupBunryu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipBunryuAll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="전체"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipBunryuStudy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="스터디"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipBunryuGongmo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="공모전"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipBunryuProject"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="프로젝트"
-                    android:backgroundTint="@color/white"/>
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewFilterGigan"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="기간"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                />
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupGigan"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGiganAll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="전체"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGiganOne"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1개월 이하"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGiganTwo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2개월 이하"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGiganThree"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3개월 이하"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGiganFour"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="4개월 이하"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGiganFive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="5개월 이하"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGiganSix"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="6개월 이하"
-                    android:backgroundTint="@color/white"/>
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewFilterJangso"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="장소"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                />
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupJangso"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipJangsoAll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="전체"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipJangsoOff"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="오프라인"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipJangsoOn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="온라인"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipJangsoOnOff"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="온오프혼합"
-                    android:backgroundTint="@color/white"/>
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewFilterInWon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="인원수"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                />
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupInwon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipInwonAll"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="전체"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipInwonZero"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0~5명"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipInwonFive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="5~10명"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipInwonTen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="10명 이상"
-                    android:backgroundTint="@color/white"/>
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewFilterSinchung"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="신청 방식"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                />
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupSinchung"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="전체"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="신청제"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="선착순"
-                    android:backgroundTint="@color/white"/>
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp">
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewFilterGisul"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="기술 스택"
-                android:textSize="18dp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp"
-                />
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupGisul"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="전체"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="프론트엔드"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="백엔드"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="게임개발"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="데이터과학"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="데브옵스 및 시스템관리"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="클라우드 및 인프라"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="모바일개발"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="보안"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="프로그래밍 언어"
-                    android:backgroundTint="@color/white"/>
-            </com.google.android.material.chip.ChipGroup>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/layoutFilterPrograming"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp">
+            android:orientation="vertical">
+
+
+            <!-- 분류 필터 -->
             <LinearLayout
+                android:id="@+id/layoutFilterBunryu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterPrograming"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textViewFilterBunryu"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="프로그래밍 언어"
-                    android:textSize="18dp"
-                    android:textStyle="bold"
                     android:layout_marginBottom="8dp"
-                    />
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=" (선택한 기술스택 이름)"
-                    android:textColor="@color/textGray"/>
+                    android:text="분류"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupBunryu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupPrograming"
+            <!-- 기간 필터 -->
+            <LinearLayout
+                android:id="@+id/layoutFilterGigan"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewFilterGigan"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="전체"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="기간"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupGigan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <!-- 장소 필터 -->
+            <LinearLayout
+                android:id="@+id/layoutFilterJangso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewFilterJangso"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="C++"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="장소"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupJangso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+
+            <!-- 인원수 필터 -->
+            <LinearLayout
+                android:id="@+id/layoutFilterInwon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewFilterInWon"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Rust(컴파일언어)"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="인원수"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupInwon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- 신청 방식 필터 -->
+            <LinearLayout
+                android:id="@+id/layoutFilterSinchung"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewFilterSinchung"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="C"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="신청 방식"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupSinchung"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- 기술 스택 필터 -->
+            <LinearLayout
+                android:id="@+id/layoutFilterGisul"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewFilterGisul"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Python"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="기술 스택"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupGisul"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <!-- 프로그래밍 언어 필터 -->
+            <LinearLayout
+                android:id="@+id/layoutFilterPrograming"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="C#"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ruby(인터프리터언어)"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="JavaScript"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="PHP(스크립트언어)"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="React"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="JAVA"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Kotlin"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SwiftUI"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Dart"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="R"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ObjectC"
-                    android:backgroundTint="@color/white"/>
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TypeScript"
-                    android:backgroundTint="@color/white"/>
-            </com.google.android.material.chip.ChipGroup>
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/textViewFilterPrograming"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="프로그래밍 언어"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" (선택한 기술스택 이름)"
+                        android:textColor="@color/textGray" />
+
+                </LinearLayout>
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupPrograming"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+
+            </LinearLayout>
+
+
         </LinearLayout>
-
-
-    </LinearLayout>
+    </ScrollView>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonApplyFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginHorizontal="16dp"
+        android:text="적용"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/buttonGray"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </LinearLayout>
