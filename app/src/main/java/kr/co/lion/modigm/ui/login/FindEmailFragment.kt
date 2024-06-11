@@ -56,8 +56,8 @@ class FindEmailFragment : Fragment(R.layout.fragment_find_email) {
                         isClickable=true
                         return@setOnClickListener
                     }
-                    // 입력한 이름이 계정 정보와 일치하는지 확인
-                    viewModel!!.checkNameAndPhone()
+                    // 입력한 이름이 계정 정보와 일치하는지 확인하고 인증 문자 발송
+                    viewModel!!.checkNameAndPhone(requireActivity())
                     isClickable=true
                 }
             }
@@ -84,16 +84,17 @@ class FindEmailFragment : Fragment(R.layout.fragment_find_email) {
         viewModel.isComplete.observe(viewLifecycleOwner) {
             if(it){
                 moveToNext()
-                // 완료 여부는 초기화해서 popStackBack으로 돌아와도 문제 없게
-                viewModel.isComplete.value = false
             }
         }
     }
 
     private fun moveToNext(){
+        // 완료 여부는 초기화해서 popStackBack으로 돌아와도 문제 없게
+        viewModel.isComplete.value = false
+        // 다음 화면에 verficationId를 전달하여 번호 인증에 사용
         val fragment = FindEmailAuthFragment().apply {
             arguments = Bundle().apply {
-                putString("phone", viewModel.phone.value?:"")
+                putString("verificationId", viewModel.verificationId.value)
             }
         }
         parentFragmentManager.beginTransaction()
@@ -101,6 +102,5 @@ class FindEmailFragment : Fragment(R.layout.fragment_find_email) {
             .addToBackStack(FragmentName.FIND_EMAIL_AUTH.str)
             .commit()
     }
-
 
 }
