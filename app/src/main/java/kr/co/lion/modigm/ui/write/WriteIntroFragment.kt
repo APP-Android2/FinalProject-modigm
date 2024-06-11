@@ -97,7 +97,9 @@ class WriteIntroFragment : Fragment() {
             // 내용 완료 처리 이벤트
             textInputWriteIntroContent.apply {
                 addTextChangedListener {
-                    viewModel.gettingStudyContent(it.toString())
+                    // EditText로부터 텍스트를 가져와 줄바꿈 문자를 \n으로 변환
+                    val studyContent = text.toString().replace(System.getProperty("line.separator"), "\\n")
+                    viewModel.gettingStudyContent(studyContent)
                 }
             }
         }
