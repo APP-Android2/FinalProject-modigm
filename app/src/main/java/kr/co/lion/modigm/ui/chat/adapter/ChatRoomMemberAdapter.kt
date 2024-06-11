@@ -12,29 +12,57 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.auth.User
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
+import kr.co.lion.modigm.databinding.RowChatroomMemberBinding
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.db.user.RemoteUserDataSource
+import kr.co.lion.modigm.model.ChatMessagesData
+import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.model.UserData
 
 
-class ChatRoomMemberAdapter(private val members: List<UserData>, private val loginUserId: String) : RecyclerView.Adapter<ChatRoomMemberAdapter.ViewHolder>() {
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val memberName: TextView = view.findViewById(R.id.textViewChatRoomMemberName)
-        val memberProfile: ImageView = view.findViewById(R.id.imageViewRowChatRoomMemberProfile)
-        val memberMy: Button = view.findViewById(R.id.buttonRowChatRoomMemberMy)
-    }
+class ChatRoomMemberAdapter(
+    private val members: List<UserData>,
+    private val loginUserId: String,
+    private val onItemClick: (UserData) -> Unit,
+) : RecyclerView.Adapter<ChatRoomMemberAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.row_chatroom_member, viewGroup, false)
-        return ViewHolder(view)
+        val binding: RowChatroomMemberBinding =
+            RowChatroomMemberBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
+        return ViewHolder(binding, onItemClick, members)
     }
+
+    override fun getItemCount() = members.size
+
+    class ViewHolder(
+        binding: RowChatroomMemberBinding,
+        onItemClick: (UserData) -> Unit,
+        members: List<UserData>
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        val memberName: TextView = itemView.findViewById(R.id.textViewChatRoomMemberName)
+        val memberProfile: ImageView = itemView.findViewById(R.id.imageViewRowChatRoomMemberProfile)
+        val memberMy: Button = itemView.findViewById(R.id.buttonRowChatRoomMemberMy)
+
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val member = members[position]
+                    onItemClick(member)
+                }
+            }
+        }
+    }
+
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val userData = members[position]
@@ -59,5 +87,4 @@ class ChatRoomMemberAdapter(private val members: List<UserData>, private val log
             ChatRoomDataSource.loadUserProfilePic(context, userData.userProfilePic, holder.memberProfile)
         }
     }
-    override fun getItemCount() = members.size
 }
