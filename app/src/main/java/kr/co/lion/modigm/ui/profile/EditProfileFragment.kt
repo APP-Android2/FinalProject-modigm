@@ -79,7 +79,7 @@ class EditProfileFragment : Fragment() {
     private fun setupToolbar() {
         fragmentEditProfileBinding.toolbarEditProfile.apply {
             setNavigationOnClickListener {
-                parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+                requireActivity().supportFragmentManager.popBackStack()
             }
         }
     }
@@ -118,7 +118,7 @@ class EditProfileFragment : Fragment() {
     private fun setupButtonDone() {
         fragmentEditProfileBinding.buttonEditProfileDone.setOnClickListener {
             editProfileViewModel.updateUserData()
-            parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+            requireActivity().supportFragmentManager.popBackStack()
         }
     }
 
