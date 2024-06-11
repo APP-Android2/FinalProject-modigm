@@ -103,6 +103,13 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
             }
         }
 
+        // 비밀번호 찾기 버튼 클릭 시
+        binding.buttonOtherFindPassword.setOnClickListener {
+            parentFragmentManager.commit {
+                replace(R.id.containerMain, FindPwFragment())
+                addToBackStack(FragmentName.FIND_PW.str)
+            }
+        }
         // 돌아가기 버튼 클릭 시
         binding.buttonOtherBack.setOnClickListener {
             parentFragmentManager.popBackStack()

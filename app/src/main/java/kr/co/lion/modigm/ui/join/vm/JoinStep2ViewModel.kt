@@ -88,17 +88,6 @@ class JoinStep2ViewModel: ViewModel() {
         return result
     }
 
-    // 이름을 한글만 입력 가능하게
-    fun filterOnlyKorean(): InputFilter {
-        return InputFilter { source, _, _, _, _, _ ->
-            val ps = Pattern.compile("^[ㄱ-ㅣ가-힣]*$")
-            if (!ps.matcher(source).matches()) {
-                return@InputFilter ""
-            }
-            null
-        }
-    }
-
     // ================2. 전화번호 인증 관련==============================================================
 
     private val _auth = FirebaseAuth.getInstance()
