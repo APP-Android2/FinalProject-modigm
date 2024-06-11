@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.login.vm
 
 import android.app.Activity
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -69,7 +70,7 @@ class FindEmailViewModel: ViewModel() {
     // 인증 문자 발송
     private fun sendCode(activity: Activity){
         // 전화번호 앞에 "+82 " 국가코드 붙여주기
-        val setNumber = phone.value?:"".replaceRange(0,1,"+82 ")
+        val setNumber = phone.value?.replaceRange(0,1,"+82 ")?:""
 
         _auth.setLanguageCode("kr")
 
