@@ -9,16 +9,20 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
+import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
@@ -35,6 +39,7 @@ class ProfileFragment: Fragment() {
     // onCreateView에서 초기화
     var uid: String? = null
     var myProfile: Boolean = false
+    var loginUserId: String? = null
 
     // 어댑터 선언
     val linkAdapter: LinkAdapter = LinkAdapter(
@@ -123,6 +128,7 @@ class ProfileFragment: Fragment() {
 
         uid = arguments?.getString("uid")
         myProfile = uid == ModigmApplication.prefs.getUserData("currentUserData")?.userUid
+        loginUserId = arguments?.getString("uid") ?: Firebase.auth.currentUser?.uid ?: ""
 
         return fragmentProfileBinding.root
     }
@@ -203,12 +209,22 @@ class ProfileFragment: Fragment() {
                     // 본인의 프로필일 때
                     visibility = View.INVISIBLE
                 }
-
                 setOnClickListener {
+                    // 1:1 채팅 방 생성 기능 추가 해서 Idx 값 바꾸기(아직 미구현)
+                    val chatRoomFragment = ChatRoomFragment().apply {
+                        arguments = Bundle().apply {
+                            // Idx 설정 바꿔야 함 지금 임시로 -100으로 넣어둔 상태
+                            putInt("chatIdx", -100)
+                            putString("chatTitle", "1:1")
+                            putStringArrayList("chatMemberList", arrayListOf(uid, loginUserId))
+                            putInt("participantCount", 2)
+                            putBoolean("groupChat", false)
+                        }
+                    }
                     requireActivity().supportFragmentManager.commit {
                         setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                        add(R.id.containerMain, ChatFragment())
-                        addToBackStack(FragmentName.CHAT.str)
+                        replace(R.id.containerMain, chatRoomFragment)
+                        addToBackStack(FragmentName.CHAT_ROOM.str)
                     }
                 }
             }

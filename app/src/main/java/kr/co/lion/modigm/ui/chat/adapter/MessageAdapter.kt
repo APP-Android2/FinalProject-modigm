@@ -6,19 +6,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.commit
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.ItemMessageReceivedBinding
+import kr.co.lion.modigm.databinding.ItemMessageSentBinding
+import kr.co.lion.modigm.databinding.RowChatroomFiledBinding
 import kr.co.lion.modigm.db.chat.ChatMessagesDataSource
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.model.ChatMessagesData
+import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.util.FragmentName
 
 class MessageAdapter(
     private val loginUserId: String,
-    private val messages: MutableList<ChatMessagesData>,
+    private var messages: MutableList<ChatMessagesData>,
+    private val onItemClick: (ChatMessagesData) -> Unit,
     private val usersDataHashMap: HashMap<String, UserData>
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -36,11 +43,13 @@ class MessageAdapter(
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_SENT) {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_message_sent, viewGroup, false)
-            SentMessageViewHolder(view)
+            val binding: ItemMessageSentBinding =
+                ItemMessageSentBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
+            SentMessageViewHolder(binding)
         } else {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.item_message_received, viewGroup, false)
-            ReceivedMessageViewHolder(view)
+            val binding: ItemMessageReceivedBinding =
+                ItemMessageReceivedBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
+            ReceivedMessageViewHolder(binding, messages, onItemClick)
         }
     }
 
@@ -78,7 +87,11 @@ class MessageAdapter(
         return messages.size
     }
 
-    class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    // 송신자 ViewHolder
+    class SentMessageViewHolder(
+        binding: ItemMessageSentBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
         private val textDate: TextView = itemView.findViewById(R.id.text_date)
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageImageBody: ImageView = itemView.findViewById(R.id.image_message_body)
@@ -115,13 +128,29 @@ class MessageAdapter(
         }
     }
 
-    class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    // 수신자 ViewHolder
+    class ReceivedMessageViewHolder(
+        binding: ItemMessageReceivedBinding,
+        messages: MutableList<ChatMessagesData>,
+        onItemClick: (ChatMessagesData) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
+
         private val textDate: TextView = itemView.findViewById(R.id.text_date)
         private val messageBody: TextView = itemView.findViewById(R.id.text_message_body)
         private val messageImageBody: ImageView = itemView.findViewById(R.id.image_message_body)
         private val messageTime: TextView = itemView.findViewById(R.id.text_message_time)
         private val messageSender: TextView = itemView.findViewById(R.id.text_message_sender)
         private val imageChatroomFiledImage: ImageView = itemView.findViewById(R.id.imageViewRowChatMessageProfileImage)
+
+        init {
+            imageChatroomFiledImage.setOnClickListener {
+                val position = adapterPosition
+                val messageItem = messages[position]
+                onItemClick(messageItem)
+                Log.v("chatLog2", "메세지 어댑터 클릭: $messageItem")
+            }
+        }
+
         fun bind(message: ChatMessagesData, userData: UserData?, dateCheck: Boolean, currentDate: String) {
 
             // 해당 메시지가 사진인지 판독
@@ -174,6 +203,10 @@ class MessageAdapter(
                         userData?.userProfilePic.toString(), imageChatroomFiledImage)
                 }
             }
+
+//            imageChatroomFiledImage.setOnClickListener {
+//                Log.v("chatLog2", "${userData?.userUid} 프로필 클릭")
+//            }
         }
     }
 }

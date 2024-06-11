@@ -1,23 +1,34 @@
 package kr.co.lion.modigm.ui.study
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
+import kr.co.lion.modigm.databinding.RowStudyMyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyMyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 
 
 class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
+    private lateinit var rowbinding: RowStudyMyBinding
+
     // 뷰모델
     private val viewModel: StudyViewModel by viewModels()
+
+    private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?: Firebase.auth.currentUser?.uid ?: ""
 
     // 어답터
     private val studyMyAdapter: StudyMyAdapter = StudyMyAdapter(
@@ -39,6 +50,20 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
                 addToBackStack(FragmentName.DETAIL.str)
             }
 
+        },
+        likeClickListener = { studyIdx ->
+            viewModel.viewModelScope.launch {
+                viewModel.toggleLike(currentUserUid, studyIdx)
+                viewModel.isLiked.observe(viewLifecycleOwner) { isLiked ->
+                    if (isLiked) {
+                        rowbinding.imageViewStudyMyFavorite.setImageResource(R.drawable.icon_favorite_full_24px)
+                        rowbinding.imageViewStudyMyFavorite.setColorFilter(Color.parseColor("#D73333"))
+                    } else {
+                        rowbinding.imageViewStudyMyFavorite.setImageResource(R.drawable.icon_favorite_24px)
+                        rowbinding.imageViewStudyMyFavorite.clearColorFilter()
+                    }
+                }
+            }
         }
     )
 
@@ -46,6 +71,7 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentStudyMyBinding.bind(view)
+        rowbinding = RowStudyMyBinding.inflate(layoutInflater)
 
         // 초기 뷰 세팅
         initView(binding)

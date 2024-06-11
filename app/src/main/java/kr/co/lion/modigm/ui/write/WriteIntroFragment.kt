@@ -130,7 +130,8 @@ class WriteIntroFragment : Fragment() {
                 // 크기를 조정한 이미지를 구한다.
                 val bitmap3 = resizeBitmap(bitmap2, 1024)
 
-                fragmentWriteIntroBinding.imageViewWriteIntroCoverImage.setImageBitmap(bitmap3)
+                fragmentWriteIntroBinding.cardViewWriteIntroCreatedCardCover.visibility = View.VISIBLE
+                fragmentWriteIntroBinding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
                 isAddPicture = true
 
                 // 사진 파일을 삭제한다.
@@ -177,7 +178,8 @@ class WriteIntroFragment : Fragment() {
                     // 크기를 줄인 이미지를 가져온다.
                     val bitmap3 = resizeBitmap(bitmap2, 1024)
 
-                    fragmentWriteIntroBinding.imageViewWriteIntroCoverImage.setImageBitmap(bitmap)
+                    fragmentWriteIntroBinding.cardViewWriteIntroCreatedCardCover.visibility = View.VISIBLE
+                    fragmentWriteIntroBinding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
                     isAddPicture = true
                 }
             }

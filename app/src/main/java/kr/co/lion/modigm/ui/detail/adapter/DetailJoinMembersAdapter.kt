@@ -16,14 +16,25 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
-class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private val currentUserId: String, private val studyIdx: Int) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+class DetailJoinMembersAdapter(
+    private val viewModel: DetailViewModel,
+    private val chatRoomViewModel: ChatRoomViewModel,
+    private val currentUserId: String,
+    private val studyIdx: Int,
+    private val onItemClicked: (UserData) -> Unit
+) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = RowDetailJoinMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -38,6 +49,11 @@ class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private va
     inner class MemberViewHolder(private val binding: RowDetailJoinMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: UserData) {
+
+            itemView.setOnClickListener {
+                onItemClicked(user)
+            }
+
             binding.textViewDetailJoinMemberName.text = user.userName
             binding.textViewDetailJoinMemberIntro.text = user.userIntro
 
@@ -81,6 +97,11 @@ class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private va
             dialogBinding.btnYes.setOnClickListener {
                 viewModel.updateStudyUserList(member.userUid, studyIdx)
                 removeItem(position)
+                // 채팅방에 해당 사용자 제거 / chatMemberList 배열에 UID 제거
+                CoroutineScope(Dispatchers.Main).launch {
+                    val coroutine1 = chatRoomViewModel.removeUserFromChatMemberList(studyIdx, member.userUid)
+                    coroutine1.join()
+                }
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
                 dialog.dismiss()

@@ -26,6 +26,11 @@ enum class FragmentName (var str: String){
     // 로그인
     LOGIN("LoginFragment"),
     OTHER_LOGIN("OtherLoginFragment"),
+    FIND_EMAIL("FindEmailFragment"),
+    FIND_EMAIL_AUTH("FindEmailAuthFragment"),
+    FIND_PW("FindPwFragment"),
+    FIND_PW_AUTH("FindPwAuthFragment"),
+    RESET_PW("ResetPwFragment"),
 
     // 프로필
     PROFILE("ProfileFragment"),
@@ -41,7 +46,7 @@ enum class FragmentName (var str: String){
     STUDY_MY("StudyMyFragment"),
     FILTER_SORT("FilterSortFragment"),
     BOTTOM_NAVI("BottomNaviFragment"),
-    FIND_EMAIL("FindEmailFragment"),
+
 
     // 글 작성
     WRITE("WriteFragment"),

@@ -118,6 +118,9 @@ class DetailFragment : Fragment() {
 
         userprofile()
         observeViewModel()
+
+        // fab버튼 클릭
+        setupFabListener()
     }
 
     override fun onResume() {
@@ -175,6 +178,32 @@ class DetailFragment : Fragment() {
                 .into(binding.imageViewDetailUserPic)
         }
 
+    }
+
+    fun setupFabListener(){
+        binding.fab.setOnClickListener {
+            // fab 클릭
+            val writeUserUid = currentUserData?.userUid
+            Log.d("detailFragment","fabClick : ${writeUserUid}와 ${uid}의 1:1 대화")
+
+            // 1:1 채팅 방 생성 기능 추가 해서 Idx 값 바꾸기(아직 미구현)
+            // 1:1 채팅 방으로 이동
+            val chatRoomFragment = ChatRoomFragment().apply {
+                arguments = Bundle().apply {
+                    // Idx 설정 바꿔야 함 지금 임시로 -100으로 넣어둔 상태
+                    putInt("chatIdx", -100)
+                    putString("chatTitle", "1:1")
+                    putStringArrayList("chatMemberList", arrayListOf(writeUserUid, uid))
+                    putInt("participantCount", 2)
+                    putBoolean("groupChat", false)
+                }
+            }
+            requireActivity().supportFragmentManager.commit {
+                setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                replace(R.id.containerMain, chatRoomFragment)
+                addToBackStack(FragmentName.CHAT_ROOM.str)
+            }
+        }
     }
 
     fun userprofile(){
@@ -613,8 +642,9 @@ class DetailFragment : Fragment() {
 
                         }else{
                             viewModel.joinStudy(studyIdx, uid)
-                            // 추후에 주석 풀고 써야함
-//                        addUserToChatMemberList()
+                            // 멤버 추가
+                            addUserToChatMemberList()
+                            // 채팅방 이동
                             moveChatRoom()
                         }
 
