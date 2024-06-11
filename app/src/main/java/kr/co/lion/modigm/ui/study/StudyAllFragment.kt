@@ -110,6 +110,15 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
                 layoutManager = LinearLayoutManager(requireActivity())
             }
 
+            with(searchBarStudyAll){
+                setOnClickListener{
+                    requireActivity().supportFragmentManager.commit {
+                        add(R.id.containerMain,StudySearchFragment())
+                        addToBackStack(FragmentName.STUDY_SEARCH.str)
+                    }
+                }
+            }
+
         }
     }
     private fun observeData() {
