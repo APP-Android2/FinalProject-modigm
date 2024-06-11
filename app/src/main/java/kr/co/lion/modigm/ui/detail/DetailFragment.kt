@@ -118,6 +118,9 @@ class DetailFragment : Fragment() {
 
         userprofile()
         observeViewModel()
+
+        // fab버튼 클릭
+        setupFabListener()
     }
 
     override fun onResume() {
@@ -175,6 +178,15 @@ class DetailFragment : Fragment() {
                 .into(binding.imageViewDetailUserPic)
         }
 
+    }
+
+    fun setupFabListener(){
+        binding.fab.setOnClickListener {
+            // fab 클릭
+            val writeUserUid = currentUserData?.userUid
+            Log.d("detailFragment","fabclick")
+            Log.d("detailFragment","$writeUserUid")
+        }
     }
 
     fun userprofile(){
