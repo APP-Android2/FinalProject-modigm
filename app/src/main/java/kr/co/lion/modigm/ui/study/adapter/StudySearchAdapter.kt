@@ -47,6 +47,7 @@ class StudySearchAdapter(
         Log.d("update adapter", filteredList.toString())
     }
 
+
     // 목록 새로고침
     @SuppressLint("NotifyDataSetChanged")
     fun updateData(list: List<Pair<StudyData, Int>>) {
