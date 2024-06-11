@@ -827,7 +827,9 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
             studyUidList = currentStudyData?.studyUidList ?: listOf(),
             chatIdx = currentStudyData?.chatIdx!!.toInt(),
             studyState = currentStudyData?.studyState?: true,
-            studyWriteUid = currentStudyData?.studyWriteUid.toString()
+            studyWriteUid = currentStudyData?.studyWriteUid.toString(),
+            studyApplyList= currentStudyData?.studyApplyList?: listOf(),
+            studyLikeState = currentStudyData?.studyLikeState ?: false
 
         )
 
