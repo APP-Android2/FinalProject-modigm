@@ -3,7 +3,6 @@ package kr.co.lion.modigm.ui.study
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
