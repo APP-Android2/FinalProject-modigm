@@ -13,6 +13,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
 import kr.co.lion.modigm.databinding.FragmentDetailMemberBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
@@ -21,6 +22,7 @@ class DetailApplyMemberFragment : Fragment() {
 
     lateinit var binding: FragmentDetailApplyMemberBinding
     private val viewModel: DetailViewModel by activityViewModels()
+    private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailApplyMembersAdapter
 
     private lateinit var auth: FirebaseAuth
@@ -41,7 +43,7 @@ class DetailApplyMemberFragment : Fragment() {
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        adapter = DetailApplyMembersAdapter(viewModel,currentUserId,studyIdx)
+        adapter = DetailApplyMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx)
 
         return binding.root
     }
