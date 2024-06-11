@@ -110,7 +110,7 @@ class MessageAdapter(
                     messageImageBody.visibility = View.VISIBLE
                     messageBody.visibility = View.GONE
                 } catch (e: Exception) {
-                    Log.v("chatLog2", "$e")
+                    Log.v("chatLog2", "MessageAdapter MessageImage Error : $e")
                     messageBody.text = message.chatMessage
                 }
             } else {
@@ -165,7 +165,7 @@ class MessageAdapter(
                     messageImageBody.visibility = View.VISIBLE
                     messageBody.visibility = View.GONE
                 } catch (e: Exception) {
-                    Log.v("chatLog2", "$e")
+                    Log.v("chatLog2", "MessageAdapter MessageImage Error : $e")
                     messageBody.text = message.chatMessage
                 }
             } else {

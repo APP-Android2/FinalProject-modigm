@@ -198,7 +198,7 @@ class ChatRoomDataSource {
 //                            }
                         // 로그인 사용자만 빼고 Count 증가
                         if (participant != senderId) {
-                            it.unreadMessageCount[participant] = it.unreadMessageCount.getOrDefault(participant, 0) + 1
+                            it.unreadMessageCount[participant!!] = it.unreadMessageCount.getOrDefault(participant, 0) + 1
                         }
                     }
                     document.reference.set(it).await()
@@ -233,6 +233,22 @@ class ChatRoomDataSource {
                 }
             }
         }
+    }
+
+    // 1:1 채팅 방 찾기
+    suspend fun findChatRoomIdx(loginUserId: String, opponentUserId: String): Int {
+        val querySnapshot = collectionReference
+            .whereArrayContains("chatMemberList", loginUserId)
+            .get()
+            .await()
+
+        for (document in querySnapshot.documents) {
+            val chatRoom = document.toObject(ChatRoomData::class.java)
+            if (chatRoom != null && chatRoom.chatIdx <= 0 && chatRoom.chatMemberList.containsAll(listOf(loginUserId, opponentUserId))) {
+                return chatRoom.chatIdx
+            }
+        }
+        return 0
     }
 
     companion object {

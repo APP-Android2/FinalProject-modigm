@@ -20,6 +20,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
@@ -36,7 +37,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
+import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
@@ -44,6 +47,7 @@ import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Skill
 
 class DetailFragment : Fragment() {
@@ -184,25 +188,23 @@ class DetailFragment : Fragment() {
         binding.fab.setOnClickListener {
             // fab 클릭
             val writeUserUid = currentUserData?.userUid
-            Log.d("detailFragment","fabClick : ${writeUserUid}와 ${uid}의 1:1 대화")
-
-            // 1:1 채팅 방 생성 기능 추가 해서 Idx 값 바꾸기(아직 미구현)
-            // 1:1 채팅 방으로 이동
-            val chatRoomFragment = ChatRoomFragment().apply {
-                arguments = Bundle().apply {
-                    // Idx 설정 바꿔야 함 지금 임시로 -100으로 넣어둔 상태
-                    putInt("chatIdx", -100)
-                    putString("chatTitle", "1:1")
-                    putStringArrayList("chatMemberList", arrayListOf(writeUserUid, uid))
-                    putInt("participantCount", 2)
-                    putBoolean("groupChat", false)
+            // 1:1 채팅 방 찾기
+            lifecycleScope.launch {
+                chatRoomViewModel.findChatRoomIdx(ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!, writeUserUid!!)
+            }
+            chatRoomViewModel.chatRoomIdx.observe(viewLifecycleOwner, Observer { chatRoomIdx ->
+                // 채팅방 없음(생성 O)
+                if (chatRoomIdx == 0) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val thisChatRoomIdx = addChatRoomData(writeUserUid!!)
+                        enterChatRoom(thisChatRoomIdx, writeUserUid!!)
+                    }
                 }
-            }
-            requireActivity().supportFragmentManager.commit {
-                setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                replace(R.id.containerMain, chatRoomFragment)
-                addToBackStack(FragmentName.CHAT_ROOM.str)
-            }
+                // 채팅방 있음(생성 X)
+                else {
+                    enterChatRoom(chatRoomIdx, writeUserUid!!)
+                }
+            })
         }
     }
 
@@ -741,5 +743,59 @@ class DetailFragment : Fragment() {
             val coroutine1 = chatRoomViewModel.addUserToChatMemberList(studyIdx, uid)
             coroutine1.join()
         }
+    }
+
+    // 1:1 채팅 방 데이터 생성
+    suspend fun addChatRoomData(writeUserUid: String): Int {
+        var chatIdx = 0
+        val job1 = CoroutineScope(Dispatchers.Main).launch {
+
+            val chatRoomSequence = ChatRoomDataSource.getChatRoomSequence()
+            ChatRoomDataSource.updateChatRoomSequence(chatRoomSequence - 1)
+
+            chatIdx = chatRoomSequence - 1
+            val chatTitle = "1:1 채팅방"
+            val chatRoomImage = ""
+            val chatMemberList = listOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, writeUserUid)
+            val participantCount = 2
+            val groupChat = false
+            val lastChatMessage = ""
+            val lastChatFullTime = 0L
+            val lastChatTime = ""
+
+            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
+
+            // 채팅 방 생성
+            ChatRoomDataSource.insertChatRoomData(chatRoomData)
+            Log.w("chatLog5", "DetailFragment - 1:1 채팅방 생성")
+        }
+        job1.join()
+
+        return chatIdx
+    }
+
+    // 해당 채팅 방으로 입장
+    fun enterChatRoom(chatRoomIdx: Int, writeUserUid: String){
+        val chatRoomFragment = ChatRoomFragment().apply {
+            arguments = Bundle().apply {
+                putInt("chatIdx", chatRoomIdx)
+                putString("chatTitle", "1:1")
+                putStringArrayList("chatMemberList", arrayListOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, writeUserUid))
+                putInt("participantCount", 2)
+                putBoolean("groupChat", false)
+            }
+        }
+        requireActivity().supportFragmentManager.commit {
+            setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+            replace(R.id.containerMain, chatRoomFragment)
+            addToBackStack(FragmentName.CHAT_ROOM.str)
+        }
+        Log.w(
+            "chatLog5",
+            "DetailFragment\n" +
+                "${chatRoomIdx}번 채팅방 입장\n" +
+                "유저 1: ${ModigmApplication.prefs.getUserData("currentUserData")?.userUid}\n" +
+                "유저 2: $writeUserUid"
+        )
     }
 }

@@ -278,7 +278,7 @@ class ChatRoomFragment : Fragment() {
     private fun setupMemberRecyclerView() {
         with(fragmentChatRoomBinding.recyclerViewChatRoomMemeberList){
             layoutManager = LinearLayoutManager(context)
-            chatRoomMemberAdapter = ChatRoomMemberAdapter(usersDataList, loginUserId) { memberItem ->
+            chatRoomMemberAdapter = ChatRoomMemberAdapter(usersDataList, loginUserId, ) { memberItem ->
                 val profileFragment = ProfileFragment().apply {
                     arguments = Bundle().apply {
                         putString("uid", memberItem.userUid)
