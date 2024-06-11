@@ -43,6 +43,7 @@
                     android:id="@+id/cardview_writeIntro_cardCover"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:backgroundTint="@color/white"
