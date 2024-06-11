@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
@@ -33,7 +34,7 @@ import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
-    private val profileViewModel: ProfileViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
     // onCreateView에서 초기화
     var uid: String? = null
@@ -137,6 +138,10 @@ class ProfileFragment: Fragment() {
         initView()
     }
 
+    fun updateViews() {
+        setupUserInfo()
+    }
+
     private fun initView() {
         setupToolbar()
         setupFab()
@@ -161,7 +166,7 @@ class ProfileFragment: Fragment() {
                         R.id.menu_item_profile_setting -> {
                             requireActivity().supportFragmentManager.commit {
                                 setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                                add(R.id.containerMain, SettingsFragment())
+                                add(R.id.containerMain, SettingsFragment(this@ProfileFragment))
                                 addToBackStack(FragmentName.SETTINGS.str)
                             }
                         }
@@ -187,10 +192,7 @@ class ProfileFragment: Fragment() {
                     // 뒤로 가기
                     setNavigationIcon(R.drawable.icon_arrow_back_24px)
                     setNavigationOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, SettingsFragment())
-                            .addToBackStack(FragmentName.FILTER_SORT.str)
-                            .commit()
+                        parentFragmentManager.popBackStack()
                     }
 
                     // 더보기 아이콘 표시
@@ -230,6 +232,7 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupUserInfo() {
+        Log.d("zunione", "setupUserInfo")
         profileViewModel.profileUid.value = uid
         profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
         profileViewModel.loadPartStudyList(uid!!)
@@ -279,6 +282,9 @@ class ProfileFragment: Fragment() {
         // 데이터 변경 관찰
         // 관심 분야 chipGroup
         profileViewModel.profileInterestList.observe(viewLifecycleOwner, Observer { list ->
+            // 기존 칩들 제거
+            fragmentProfileBinding.chipGroupProfile.removeAllViews()
+
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
             for (interestNum in list) {
                 // 아이템 처리 코드
