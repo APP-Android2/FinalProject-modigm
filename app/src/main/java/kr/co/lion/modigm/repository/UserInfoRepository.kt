@@ -28,6 +28,9 @@ class UserInfoRepository {
     // 해당 유저의 전화번호 업데이트
     suspend fun updateUserData(user: UserData) = _remoteUserDataSource.updateUserData(user)
 
+    // 해당 전화 번호의 계정이 있는지 확인 후 이름과 이메일 반환 (이메일, 비밀번호 찾기)
+    suspend fun checkUserByPhoneFindNameAndEmail(phone: String): Map<String, String>? = _remoteUserDataSource.checkUserByPhoneFindNameAndEmail(phone)
+
 
     // ----------------- 로그인 데이터 처리 -----------------
 
