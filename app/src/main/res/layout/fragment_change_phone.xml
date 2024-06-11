@@ -106,9 +106,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="인증번호 입력"
-                        android:inputType="text"
-                        android:textSize="16dp"
-                        android:text="@={changePhoneViewModel.phoneAuth}" />
+                        android:inputType="number"
+                        android:text="@={changePhoneViewModel.phoneAuth}"
+                        android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
