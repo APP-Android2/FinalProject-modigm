@@ -2,6 +2,7 @@ package kr.co.lion.modigm.ui.detail.vm
 
 import android.net.Uri
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -55,6 +56,12 @@ class DetailViewModel : ViewModel() {
 
     private val _isLiked = MutableLiveData<Boolean>(false)
     val isLiked: LiveData<Boolean> get() = _isLiked
+
+    private val _applyResult = MutableLiveData<Boolean>()
+    val applyResult: LiveData<Boolean> = _applyResult
+
+    private val _applyMembers = MutableLiveData<List<UserData>>()
+    val applyMembers: LiveData<List<UserData>> get() = _applyMembers
 
     fun selectContentData(studyIdx: Int) {
         _isLoading.value = true // 작업 시작 시 로딩을 true로 정확히 설정
@@ -241,4 +248,63 @@ class DetailViewModel : ViewModel() {
         }
     }
 
+    fun applyToStudy(studyIdx: Int, uid: String) {
+        viewModelScope.launch {
+            studyRepository.applyToStudy(studyIdx, uid)
+            _applyResult.postValue(true)
+        }
+    }
+
+    fun joinStudy(studyIdx: Int, uid: String) {
+        viewModelScope.launch {
+            studyRepository.joinStudy(studyIdx, uid)
+        }
+    }
+
+    fun loadApplyMembers(studyIdx: Int) {
+        Log.d("DetailViewModel", "Loading apply members for studyIdx: $studyIdx")
+        studyRepository.fetchStudyApplyMembers(studyIdx) { members ->
+            Log.d("DetailViewModel", "Loaded members: $members")
+            _applyMembers.value = members
+        }
+    }
+
+    fun removeUserFromApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyRepository.removeUserFromStudyApplyList(studyIdx, userUid) { success ->
+            if (success) {
+                val currentList = _applyMembers.value?.toMutableList() ?: mutableListOf()
+                currentList.removeAll { it.userUid == userUid }
+                _applyMembers.value = currentList
+                callback(true)
+            } else {
+                callback(false)
+            }
+        }
+    }
+
+    fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyRepository.addUserToStudyUidList(studyIdx, userUid) { success ->
+            if (success) {
+                val currentUids = _studyUids.value?.toMutableList() ?: mutableListOf()
+                currentUids.add(userUid)
+                _studyUids.value = currentUids
+                loadUserDetails(currentUids)
+                callback(true)
+            } else {
+                callback(false)
+            }
+        }
+    }
+
+    fun acceptUser(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        addUserToStudyUidList(studyIdx, userUid) { addSuccess ->
+            if (addSuccess) {
+                removeUserFromApplyList(studyIdx, userUid) { removeSuccess ->
+                    callback(removeSuccess)
+                }
+            } else {
+                callback(false)
+            }
+        }
+    }
 }

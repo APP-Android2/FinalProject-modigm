@@ -6,61 +6,78 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.detail.Member
+import kr.co.lion.modigm.databinding.RowDetailApplyMemberBinding
+import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
-class DetailApplyMembersAdapter (private val members: List<Member>) : RecyclerView.Adapter<DetailApplyMembersAdapter.MemberViewHolder>() {
+class DetailApplyMembersAdapter (private val viewModel: DetailViewModel, private val currentUserId: String, private val studyIdx: Int) : ListAdapter<UserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.row_detail_apply_member, parent, false)
-        return MemberViewHolder(view)
+        val binding = RowDetailApplyMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MemberViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
-        val member = members[position]
-        holder.bind(member)
+        val userData = getItem(position)
+        holder.bind(userData)
     }
 
-    override fun getItemCount() = members.size
+    inner class MemberViewHolder(private val binding: RowDetailApplyMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
-    inner class MemberViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val nameTextView: TextView = itemView.findViewById(R.id.textViewDetailApplyMemberName)
-        private val introTextView: TextView = itemView.findViewById(R.id.textViewDetailApplyMemberIntro)
-        private val refuseButton: Button = itemView.findViewById(R.id.buttonDetailRefuse)
-        private val acceptButton: Button = itemView.findViewById(R.id.buttonDetailAccept)
-
-        fun bind(member: Member) {
-            nameTextView.text = member.name
-            introTextView.text = member.intro
+        fun bind(user: UserData) {
+            binding.textViewDetailApplyMemberName.text = user.userName
+            binding.textViewDetailApplyMemberIntro.text = user.userIntro
 
             // 거절 버튼
-            refuseButton.setOnClickListener {
-                showRefuseDialog(member)
+            binding.buttonDetailRefuse.setOnClickListener {
+                showRefuseDialog(user)
             }
 
             // 승인 버튼
-            acceptButton.setOnClickListener {
+            binding.buttonDetailAccept.setOnClickListener {
 
-                val snackbar = Snackbar.make(itemView, "${member.name}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
+                viewModel.acceptUser(studyIdx, user.userUid) { success ->
+                    if (success) {
+                        val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
+                        val snackbarView = snackbar.view
+                        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                        val textSizeInPx = dpToPx(itemView.context, 16f)
+                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+                        snackbar.show()
 
-                // 스낵바의 뷰를 가져옵니다.
-                val snackbarView = snackbar.view
+                        // 리스트에서 아이템 제거
+                        val position = adapterPosition
+                        if (position != RecyclerView.NO_POSITION) {
+                            removeItem(position)
+                        }
 
-                // 스낵바 텍스트 뷰 찾기
-                val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-
-                // 텍스트 크기를 dp 단위로 설정
-                val textSizeInPx = dpToPx(itemView.context, 16f)
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
-                snackbar.show()
+                    } else {
+                        Log.d("Dialog", "Failed to accept user")
+                    }
+                }
             }
+
+            // Firebase Storage에서 이미지 URL 가져오기
+            val storageReference =
+                FirebaseStorage.getInstance().reference.child("userProfile/${user.userProfilePic}")
+            storageReference.downloadUrl.addOnSuccessListener { uri ->
+                Glide.with(itemView.context)
+                    .load(uri)
+                    .error(R.drawable.icon_error_24px) // 로드 실패 시 표시할 이미지
+                    .into(binding.imageViewDetailApplyMember) // ImageView에 이미지 로드
+            }.addOnFailureListener {
+                // 에러 처리
+            }
+
         }
 
         // 스낵바 글시 크기 설정을 위해 dp를 px로 변환
@@ -71,17 +88,28 @@ class DetailApplyMembersAdapter (private val members: List<Member>) : RecyclerVi
 
 
         // custom dialog
-        fun showRefuseDialog(member: Member) {
+        fun showRefuseDialog(user: UserData) {
             val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.custom_dialog, null)
             val dialog = MaterialAlertDialogBuilder(itemView.context, R.style.dialogColor)
                 .setTitle("거절 확인")
-                .setMessage("정말로 ${member.name}을(를) 거절하시겠습니까?")
+                .setMessage("정말로 ${user.userName}을(를) 거절하시겠습니까?")
                 .setView(dialogView)
                 .create()
 
             dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
+                viewModel.removeUserFromApplyList(studyIdx, user.userUid) { success ->
+                    if (success) {
+                        Log.d("Dialog", "User removed from apply list")
+                        val position = adapterPosition
+                        if (position != RecyclerView.NO_POSITION) {
+                            removeItem(position)
+                        }
+                    } else {
+                        Log.d("Dialog", "Failed to remove user from apply list")
+                    }
+                }
                 dialog.dismiss()
             }
 
@@ -92,6 +120,30 @@ class DetailApplyMembersAdapter (private val members: List<Member>) : RecyclerVi
             }
 
             dialog.show()
+        }
+    }
+
+    fun removeItem(position: Int) {
+        // 현재 리스트에서 해당 아이템을 제거
+        val newList = currentList.toMutableList().apply {
+            removeAt(position)
+        }
+        submitList(newList)  // 변경된 리스트를 다시 제출
+        notifyItemRemoved(position)  // 특정 위치의 아이템 제거 알림
+
+        // If the list is empty after removing the item, update LiveData
+        if (newList.isEmpty()) {
+            viewModel.loadApplyMembers(studyIdx)
+        }
+    }
+
+    class UserDiffCallback : DiffUtil.ItemCallback<UserData>() {
+        override fun areItemsTheSame(oldItem: UserData, newItem: UserData): Boolean {
+            return oldItem.userUid == newItem.userUid
+        }
+
+        override fun areContentsTheSame(oldItem: UserData, newItem: UserData): Boolean {
+            return oldItem == newItem
         }
     }
 }
