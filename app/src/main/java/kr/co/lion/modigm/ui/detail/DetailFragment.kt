@@ -613,8 +613,9 @@ class DetailFragment : Fragment() {
 
                         }else{
                             viewModel.joinStudy(studyIdx, uid)
-                            // 추후에 주석 풀고 써야함
-//                        addUserToChatMemberList()
+                            // 멤버 추가
+                            addUserToChatMemberList()
+                            // 채팅방 이동
                             moveChatRoom()
                         }
 

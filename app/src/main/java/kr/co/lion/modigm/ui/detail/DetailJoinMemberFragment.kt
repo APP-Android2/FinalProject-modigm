@@ -15,6 +15,7 @@ import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
@@ -22,6 +23,7 @@ class DetailJoinMemberFragment : Fragment() {
 
     lateinit var binding: FragmentDetailJoinMemberBinding
     private val viewModel: DetailViewModel by activityViewModels()
+    private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailJoinMembersAdapter
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
@@ -42,7 +44,7 @@ class DetailJoinMemberFragment : Fragment() {
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        adapter = DetailJoinMembersAdapter(viewModel,currentUserId, studyIdx)  // adapter 초기화
+        adapter = DetailJoinMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx)  // adapter 초기화
 
 
         return binding.root
