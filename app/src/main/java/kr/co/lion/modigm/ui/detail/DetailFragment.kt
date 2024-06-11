@@ -286,6 +286,13 @@ class DetailFragment : Fragment() {
                 textViewDetailState.text = "모집 마감"
                 setupStatePopup()
             }
+
+            if (data.studyWriteUid == uid) {
+                fab.visibility = View.GONE
+            }
+            else{
+                fab.visibility = View.VISIBLE
+            }
         }
     }
 
