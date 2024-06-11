@@ -11,12 +11,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.util.FragmentName
 
 class DetailJoinMemberFragment : Fragment() {
 
@@ -42,7 +46,18 @@ class DetailJoinMemberFragment : Fragment() {
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        adapter = DetailJoinMembersAdapter(viewModel,currentUserId, studyIdx)  // adapter 초기화
+        adapter = DetailJoinMembersAdapter(viewModel, currentUserId, studyIdx) { user ->
+            val profileFragment = ProfileFragment().apply {
+                arguments = Bundle().apply {
+                    putString("uid", user.userUid)
+                }
+            }
+
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, profileFragment)
+                .addToBackStack(FragmentName.PROFILE.str)
+                .commit()
+        }
 
 
         return binding.root
