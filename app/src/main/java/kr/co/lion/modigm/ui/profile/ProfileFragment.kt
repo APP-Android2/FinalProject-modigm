@@ -7,17 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +21,6 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.db.chat.ChatRoomDataSource
 import kr.co.lion.modigm.model.ChatRoomData
-import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.DetailFragment
@@ -45,7 +40,6 @@ class ProfileFragment: Fragment() {
     // onCreateView에서 초기화
     var uid: String? = null
     var myProfile: Boolean = false
-    var loginUserId: String? = null
 
     // 어댑터 선언
     val linkAdapter: LinkAdapter = LinkAdapter(
