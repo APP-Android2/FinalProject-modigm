@@ -9,17 +9,22 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.repository.UserInfoRepository
 import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.ModigmApplication
 
 class EditProfileViewModel: ViewModel() {
     private val userRepository = UserInfoRepository()
-    private val studyRepository = StudyRepository()
 
     // 프로필 사진
+    private val _editProfilePicSrc = MutableLiveData<String>()
+    val editProfilePicSrc: MutableLiveData<String> = _editProfilePicSrc
 
     // 사용자 이름
     private val _editProfileName = MutableLiveData<String>()
@@ -78,6 +83,7 @@ class EditProfileViewModel: ViewModel() {
             // 링크 리스트
             _editProfileLinkList.value = response?.userLinkList
             // 프로필 사진
+            _editProfilePicSrc.value = response?.userProfilePic
             userRepository.loadUserProfilePic(context, response?.userProfilePic!!, imageView)
         } catch (e: Exception) {
             Log.e("profilevm", "loadUserData(): ${e.message}")
@@ -97,4 +103,20 @@ class EditProfileViewModel: ViewModel() {
         _editProfileLinkList.value = _editProfileLinkList.value?.filter { it != link }
     }
 
+    fun updateUserData() = viewModelScope.launch {
+        val user = UserData()
+        user.userUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!
+        user.userName = ModigmApplication.prefs.getUserData("currentUserData")?.userName!!
+        user.userEmail = ModigmApplication.prefs.getUserData("currentUserData")?.userEmail!!
+        user.userPhone = ModigmApplication.prefs.getUserData("currentUserData")?.userPhone!!
+        user.userProfilePic = _editProfilePicSrc.value!!
+        user.userIntro = _editProfileIntro.value!!
+        user.userInterestList = _editProfileInterestList.value!!.toMutableList()
+        user.userLinkList = _editProfileLinkList.value!!.toMutableList()
+        user.userProvider = ModigmApplication.prefs.getUserData("currentUserData")?.userProvider!!
+
+        userRepository.updateUserData(user)
+        ModigmApplication.prefs.clearUserData("currentUserData")
+        ModigmApplication.prefs.setUserData("currentUserData", user)
+    }
 }

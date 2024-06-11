@@ -1,9 +1,11 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.google.firebase.auth.ktx.auth
@@ -14,14 +16,14 @@ import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.like.LikeFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.showCustomSnackbar
+import kr.co.lion.modigm.util.ModigmApplication
 
 class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
     private lateinit var binding: FragmentBottomNaviBinding
 
-    private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?:Firebase.auth.currentUser?.uid
+    private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?: Firebase.auth.currentUser?.uid
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

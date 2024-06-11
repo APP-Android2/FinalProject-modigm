@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLikeBinding
 import kr.co.lion.modigm.model.StudyData
 
-class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter<LikeAdapter.StudyViewHolder>() {
+class LikeAdapter(private var studyList: List<StudyData>, private val onLikeClick: (StudyData) -> Unit) : RecyclerView.Adapter<LikeAdapter.StudyViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudyViewHolder {
         val binding = RowLikeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -27,11 +29,37 @@ class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter
         notifyDataSetChanged()
     }
 
+    // 클릭 리스너 선언
+    private var onItemClickListener: ((StudyData) -> Unit)? = null
+    // 클릭 리스너 설정 함수
+    fun setOnItemClickListener(listener: (StudyData) -> Unit) {
+        onItemClickListener = listener
+    }
+
     inner class StudyViewHolder(private val binding: RowLikeBinding) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val study = studyList[position]
+                    onItemClickListener?.invoke(study) // 클릭된 항목 정보 전달
+                }
+            }
+        }
         fun bind(study: StudyData) {
             binding.apply {
 
-                imageViewLikeCover.setImageResource(R.drawable.image_detail_1)
+                // Firebase Storage에서 이미지 URL 가져오기
+                val storageReference =
+                    FirebaseStorage.getInstance().reference.child("studyPic/${study.studyPic}")
+                storageReference.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(itemView.context)
+                        .load(uri)
+                        .error(R.drawable.icon_error_24px) // 로드 실패 시 표시할 이미지
+                        .into(imageViewLikeCover) // ImageView에 이미지 로드
+                }.addOnFailureListener {
+                    // 에러 처리
+                }
 
                 // 모집 상태에 따라 텍스트와 색상 설정
                 textViewLikeState.text = if (study.studyState) "모집 중" else "모집 마감"
@@ -41,8 +69,8 @@ class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter
 
                 // 스터디 진행 방식
                 textViewLikeStateMeet.text = when (study.studyOnOffline) {
-                    0 -> "오프라인"
                     1 -> "온라인"
+                    2 -> "오프라인"
                     else -> "온오프혼합"
                 }
 
@@ -65,8 +93,8 @@ class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter
                 // 스터디 종류
                 textViewLikeStatePeriod.apply {
                     text = when (study.studyType) {
-                        0 -> "스터디"
-                        1 -> "프로젝트"
+                        1 -> "스터디"
+                        2 -> "프로젝트"
                         else -> "공모전"
                     }
                 }
@@ -87,9 +115,22 @@ class LikeAdapter(private var studyList: List<StudyData>) : RecyclerView.Adapter
 
                 // 스터디 신청 방식에 따른 텍스트 설정
                 textViewLikeApplyType.text = when (study.studyApplyMethod) {
-                    0 -> "신청제"
-                    1 -> "선착순"
-                    else -> "기타"
+                    1 -> "신청제"
+                    else -> "선착순"
+                }
+
+                // 좋아요 상태에 따라 하트 아이콘 및 색상 변경
+                if (study.studyLikeState) {
+                    imageViewLikeHeart.setImageResource(R.drawable.icon_favorite_full_24px)
+                    imageViewLikeHeart.setColorFilter(Color.parseColor("#D73333"))
+                } else {
+                    imageViewLikeHeart.setImageResource(R.drawable.icon_favorite_24px)
+                    imageViewLikeHeart.setColorFilter(ContextCompat.getColor(itemView.context, R.color.pointColor))
+                }
+
+                // 좋아요 아이콘 클릭 이벤트 처리
+                imageViewLikeHeart.setOnClickListener {
+                    onLikeClick(study)
                 }
             }
         }

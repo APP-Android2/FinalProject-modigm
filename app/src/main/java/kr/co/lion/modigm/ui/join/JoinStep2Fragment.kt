@@ -29,7 +29,6 @@ class JoinStep2Fragment : Fragment() {
         binding.lifecycleOwner = this
 
         settingTextInputLayoutError()
-        settingTextInputUserName()
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
         settingObserver()
@@ -48,13 +47,6 @@ class JoinStep2Fragment : Fragment() {
         joinStep2ViewModel.inputSmsCodeValidation.observe(viewLifecycleOwner){
             binding.textInputLayoutJoinPhoneAuth.error = it
         }
-    }
-
-    private fun settingTextInputUserName(){
-        // 한글만 입력 되도록
-        val filterAlphaNum = joinStep2ViewModel.filterOnlyKorean()
-        // 아래와 같이 EditText에 적용 한다.
-        binding.textinputJoinUserName.setFilters(arrayOf(filterAlphaNum))
     }
 
     private fun settingTextInputUserPhone(){

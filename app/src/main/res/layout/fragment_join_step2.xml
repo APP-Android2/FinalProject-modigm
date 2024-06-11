@@ -50,7 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="이름 입력"
-                    android:inputType="text|textEmailAddress"
+                    android:inputType="text"
                     android:text="@={viewModel.userName}"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>

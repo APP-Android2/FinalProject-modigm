@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,18 +50,13 @@ class ChatFragment : Fragment() {
     // 내가 속하며 검색 필터에 맞는 그룹 채팅 방들을 담고 있을 리스트
     var chatSearchRoomDataList = mutableListOf<ChatRoomData>()
 
-    // 현재 로그인 한 사용자 정보 (현재 임시 데이터로 사용중)
-    // val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 현재 사용자의 ID를 설정
-    val loginUserName = "테스트 닉네임" // 현재 사용자의 ID를 설정
-    // val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 테스트 아이디 (프사 O, 1:1 방 O)
-    // val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 홍길동 아이디 (프사 O, 1:1 방 O)
+    // 현재 로그인 한 사용자 정보
+    // val loginUserId = "BZPI3tpRAeZ55jrenfuEFuyGc6B2" // 테스트 아이디
+    // val loginUserId = "b9TKzZEJfih7OOnOEoSQE2aNAWu2" // 홍길동 아이디
     // val loginUserId = "5mmOdaJFUTbzwUm2398oBYLeOJr1" // 김철수 아이디
-    // val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 아무개 아이디 (1:1 방 O)
-
-
-    // FirebaseAuth 인스턴스를 가져옴 (사용하지 않을 예정)
-    val auth = FirebaseAuth.getInstance()
-    val loginUserId = auth.currentUser?.uid.toString()
+    // val loginUserId = "usWkOfoJJzZDEn4zEH4uRZWgoZW2" // 아무개 아이디
+    val loginUserId = arguments?.getString("uid") ?:Firebase.auth.currentUser?.uid ?: ""
+    val loginUserName = "Name"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 

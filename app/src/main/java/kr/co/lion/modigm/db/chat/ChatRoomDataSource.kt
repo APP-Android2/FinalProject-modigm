@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.db.chat
 
 import android.content.Context
+import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.google.firebase.Firebase

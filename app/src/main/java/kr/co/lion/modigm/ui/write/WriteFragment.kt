@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.detail.DetailEditFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
@@ -80,26 +81,12 @@ class WriteFragment : Fragment() {
                 // 완료 버튼 클릭 리스너
                 else if (writeViewModel?.buttonFinalStateActivation() == true) {
                     // 입력된 정보를 모아서 DB에 저장
-                    uploadStudyData()
-                    getLog()
-
-                    // 데이터를 저장한 후, DetailFragment로 이동하면서 studyId를 전달
-                    val studyIdx = (writeViewModel as WriteViewModel).returnStudyIdx()
-
-                    // DetailFragment에 Bundle 객체로 studyIdx를 전달
-                    val detailFragment = DetailFragment().apply {
-                        val bundle = Bundle().apply {
-                            // studyIdx를 Bundle 객체에 포함
-                            putInt("studyIdx", studyIdx)
-                        }
-                        // argument에 전달
-                        arguments = bundle
+                    lifecycleScope.launch {
+                        uploadStudyData()
+                        // DetailFragment로 이동
+                        navigateToDetailFragment()
                     }
-                    // 저장 후 내 글 보기 화면으로 이동
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, detailFragment)
-                        .addToBackStack(FragmentName.DETAIL.str)
-                        .commit()
+                    getLog()
 
                 } else if (writeViewModel?.buttonFinalStateActivation() == false) {
                     Log.d("TedMoon", "Deactivated Button!!")
@@ -110,20 +97,30 @@ class WriteFragment : Fragment() {
         }
     }
 
-    // 글 작성처리 메서드
-    fun uploadStudyData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                writeViewModel.uploadStudyData()
-                // 채팅 방 생성
-                writeViewModel.uploadChatRoomData()
-                // 스터디 정보 업로드
-                Log.d("WriteFragment", "정보 업로드")
-            } catch (e: Exception) {
-                Log.e("Finish Button", "Firebase Error ${e}")
+    private fun navigateToDetailFragment() {
+        // 데이터를 저장한 후, DetailFragment로 이동하면서 studyIdx를 전달
+        val studyIdx = writeViewModel.returnStudyIdx()
+
+        // DetailFragment에 Bundle 객체로 studyIdx를 전달
+        val detailFragment = DetailFragment().apply {
+            arguments = Bundle().apply {
+                // studyIdx를 Bundle 객체에 포함
+                putInt("studyIdx", studyIdx)
             }
         }
 
+        // 저장 후 내 글 보기 화면으로 이동
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.containerMain, detailFragment)
+            .addToBackStack(FragmentName.DETAIL.str)
+            .commit()
+    }
+
+    // 글 작성처리 메서드
+    private suspend fun uploadStudyData() {
+        writeViewModel.uploadStudyData()
+        writeViewModel.uploadChatRoomData()
+        Log.d("WriteFragment", "정보 업로드")
     }
 
     fun settingView() {
