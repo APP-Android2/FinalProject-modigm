@@ -18,7 +18,7 @@ import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class SettingsFragment : Fragment() {
+class SettingsFragment(private val profileFragment: ProfileFragment) : Fragment() {
     lateinit var fragmentSettingsBinding: FragmentSettingsBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -67,7 +67,7 @@ class SettingsFragment : Fragment() {
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .add(R.id.containerMain, EditProfileFragment())
+                    .add(R.id.containerMain, EditProfileFragment(profileFragment))
                     .addToBackStack(FragmentName.EDIT_PROFILE.str)
                     .commit()
             }

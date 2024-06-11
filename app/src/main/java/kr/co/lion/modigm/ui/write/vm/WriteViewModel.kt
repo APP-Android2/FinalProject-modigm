@@ -20,6 +20,9 @@ class WriteViewModel : ViewModel() {
     // 채팅 Repository
     val chatRoomRepository = ChatRoomRepository()
 
+    var studyIndex = -1
+    lateinit var uidList: List<String>
+
     // ----------------- Remote Data Source에 전송할 내용 -----------------
     // StudyData 객체 생성
     private val _studyData = MutableLiveData<StudyData>()
@@ -269,30 +272,18 @@ class WriteViewModel : ViewModel() {
         }
     }
 
-    private suspend fun gettingChatIdx(): Int {
-        return try {
-            val chatRoomSequence = chatRoomRepository.getChatRoomSequence()
-            chatRoomRepository.updateChatRoomSequence(chatRoomSequence + 1)
-            chatRoomSequence + 1
-        } catch (e: Exception) {
-            Log.e("Firebase Error12", "Error dbUpdateStudySequence : ${e.message}")
-            -1
-        }
-    }
-
     private fun gettingCurrentUid(): String {
         val auth = FirebaseAuth.getInstance()
         return auth.currentUser?.uid.toString()
     }
 
     private suspend fun createStudyData(): StudyData? {
-        val studyIdx = gettingStudyIdx()
-        val chatIdx = gettingChatIdx()
-        val uidList = listOf(gettingCurrentUid())
+        studyIndex = gettingStudyIdx()
+        uidList = listOf(gettingCurrentUid())
 
-        return if (studyIdx != -1 && chatIdx != -1) {
+        return if (studyIndex != -1) {
             StudyData(
-                studyIdx = studyIdx,
+                studyIdx = studyIndex,
                 studyTitle = _studyTitle.value ?: "",
                 studyContent = _studyContent.value ?: "",
                 studyType = _studyType.value ?: 0,
@@ -306,7 +297,7 @@ class WriteViewModel : ViewModel() {
                 studyPic = _studyPic.value ?: "",
                 studyMaxMember = _studyMaxMember.value ?: 0,
                 studyUidList = uidList,
-                chatIdx = chatIdx,
+                chatIdx = studyIndex,
                 studyState = _studyState.value ?: true,
                 studyWriteUid = _studyWriteUid.value ?: "",
                 studyApplyList = emptyList()
@@ -314,6 +305,26 @@ class WriteViewModel : ViewModel() {
         } else {
             null
         }
+    }
+
+    // ChatData 객체를 생성
+    private fun setChatRoomData(): ChatRoomData? {
+        return if (studyIndex != -1) {
+            ChatRoomData(
+                chatIdx = studyIndex,
+                chatTitle = _studyTitle.value ?: "",
+                chatRoomImage = _studyPic.value ?: "",
+                chatMemberList = uidList,
+                participantCount = 1,
+                groupChat = true,
+                lastChatMessage = "",
+                lastChatFullTime = 0L,
+                lastChatTime = ""
+            )
+        } else {
+            null
+        }
+
     }
     // ----------------- ViewModel에 필요한 항목들 불러오기 -------------------
 
@@ -343,25 +354,7 @@ class WriteViewModel : ViewModel() {
 
     // ----------------- Repository에 데이터 전송 -----------------
 
-    // ChatData 객체를 생성
-    suspend fun setChatRoomData() {
-        gettingStudyIdx()
-        gettingChatIdx()
-        gettingStudyUidList()
 
-        val chatRoom = ChatRoomData(
-            chatIdx = _chatIdx.value ?: -1,
-            chatTitle = _studyTitle.value ?: "",
-            chatRoomImage = _studyPic.value ?: "",
-            chatMemberList = listOf(_studyWriteUid.value ?: ""),
-            participantCount = 1,
-            groupChat = true,
-            lastChatMessage = "",
-            lastChatFullTime = 0L,
-            lastChatTime = ""
-        )
-        _chatRoomData.value = chatRoom
-    }
 
     // StudyData를 Repository에 전송
     suspend fun uploadStudyData(){
@@ -381,7 +374,7 @@ class WriteViewModel : ViewModel() {
         // ChatRoomData 값 가져오기
         setChatRoomData()
         // ChatRoomData 받아오기
-        val chatRoomData = chatRoomData.value
+        val chatRoomData = setChatRoomData()
 
         // repository에 전송
         if (chatRoomData != null) {

@@ -7,17 +7,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
+import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
@@ -29,11 +34,12 @@ import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
-    private val profileViewModel: ProfileViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
     // onCreateView에서 초기화
     var uid: String? = null
     var myProfile: Boolean = false
+    var loginUserId: String? = null
 
     // 어댑터 선언
     val linkAdapter: LinkAdapter = LinkAdapter(
@@ -122,6 +128,7 @@ class ProfileFragment: Fragment() {
 
         uid = arguments?.getString("uid")
         myProfile = uid == ModigmApplication.prefs.getUserData("currentUserData")?.userUid
+        loginUserId = arguments?.getString("uid") ?: Firebase.auth.currentUser?.uid ?: ""
 
         return fragmentProfileBinding.root
     }
@@ -129,6 +136,10 @@ class ProfileFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
+    }
+
+    fun updateViews() {
+        setupUserInfo()
     }
 
     private fun initView() {
@@ -155,7 +166,7 @@ class ProfileFragment: Fragment() {
                         R.id.menu_item_profile_setting -> {
                             requireActivity().supportFragmentManager.commit {
                                 setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                                add(R.id.containerMain, SettingsFragment())
+                                add(R.id.containerMain, SettingsFragment(this@ProfileFragment))
                                 addToBackStack(FragmentName.SETTINGS.str)
                             }
                         }
@@ -181,10 +192,7 @@ class ProfileFragment: Fragment() {
                     // 뒤로 가기
                     setNavigationIcon(R.drawable.icon_arrow_back_24px)
                     setNavigationOnClickListener {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, SettingsFragment())
-                            .addToBackStack(FragmentName.FILTER_SORT.str)
-                            .commit()
+                        parentFragmentManager.popBackStack()
                     }
 
                     // 더보기 아이콘 표시
@@ -201,12 +209,22 @@ class ProfileFragment: Fragment() {
                     // 본인의 프로필일 때
                     visibility = View.INVISIBLE
                 }
-
                 setOnClickListener {
+                    // 1:1 채팅 방 생성 기능 추가 해서 Idx 값 바꾸기(아직 미구현)
+                    val chatRoomFragment = ChatRoomFragment().apply {
+                        arguments = Bundle().apply {
+                            // Idx 설정 바꿔야 함 지금 임시로 -100으로 넣어둔 상태
+                            putInt("chatIdx", -100)
+                            putString("chatTitle", "1:1")
+                            putStringArrayList("chatMemberList", arrayListOf(uid, loginUserId))
+                            putInt("participantCount", 2)
+                            putBoolean("groupChat", false)
+                        }
+                    }
                     requireActivity().supportFragmentManager.commit {
                         setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                        add(R.id.containerMain, ChatFragment())
-                        addToBackStack(FragmentName.CHAT.str)
+                        replace(R.id.containerMain, chatRoomFragment)
+                        addToBackStack(FragmentName.CHAT_ROOM.str)
                     }
                 }
             }
@@ -214,6 +232,7 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupUserInfo() {
+        Log.d("zunione", "setupUserInfo")
         profileViewModel.profileUid.value = uid
         profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
         profileViewModel.loadPartStudyList(uid!!)
@@ -263,6 +282,9 @@ class ProfileFragment: Fragment() {
         // 데이터 변경 관찰
         // 관심 분야 chipGroup
         profileViewModel.profileInterestList.observe(viewLifecycleOwner, Observer { list ->
+            // 기존 칩들 제거
+            fragmentProfileBinding.chipGroupProfile.removeAllViews()
+
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
             for (interestNum in list) {
                 // 아이템 처리 코드
