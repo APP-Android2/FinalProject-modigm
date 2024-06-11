@@ -95,9 +95,9 @@ class ChatOnetoOneFragment : Fragment() {
                     }
                 }
 
-                parentFragmentManager.commit {
-                    replace(R.id.containerMain , chatRoomFragment)
-                    addToBackStack(FragmentName.CHAT_ROOM.str) // 뒤로가기 버튼으로 이전 상태로 돌아갈 수 있도록
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, chatRoomFragment)
+                    addToBackStack(FragmentName.CHAT_ROOM.str)
                 }
             }, loginUserId)
             adapter = chatRoomAdapter
