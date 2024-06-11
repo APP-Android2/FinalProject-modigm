@@ -29,8 +29,6 @@ class WriteProceedFragment : Fragment() {
     private val viewModel: WriteViewModel by activityViewModels()
     val tabName = "proceed"
 
-    var onOffline: Int = 0
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -173,126 +171,61 @@ class WriteProceedFragment : Fragment() {
                     val toast = Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT)
                     toast.show()
                 }
-
                 1, 2, 3 -> {
+                    result1 = onOffline
+                    checkConditions(result1, result2, result3)
                 }
-
                 else -> {
                     Log.e("WriteProceed", "잘못된 입력")
+                    result1 = 0
+                    checkConditions(result1, result2, result3)
                 }
             }
-            result1 = onOffline
         }
+
         // BottomSheetWriteProceedFragment에서 스터디 장소를 입력받으면 작동
         viewModel.studyPlace.observe(viewLifecycleOwner) {
             // location이 바뀌면 적용함
-            fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(it)
+            result2 = it != null
+            if (result2) {
+                fragmentWriteProceedBinding.textFieldWriteProceedLocation.setText(it)
+            }
+            checkConditions(result1, result2, result3)
         }
 
         // 최대 인원
         viewModel.studyMaxMember.observe(viewLifecycleOwner) { max ->
             if (max > 30) {
                 fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
-                viewModel.userDidNotAnswer(tabName)
-            } else {
+                result3 = false
+            } else if (max <= 0){
+                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최소한 1명은 필요합니다"
+                result3 = false
+            }
+            else {
                 fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = null
+                result3 = true
             }
-
-            // 스터디 장소
-            viewModel.studyPlace.observe(viewLifecycleOwner) { place ->
-                // 온오프라인
-
-                viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
-                    when (onOffline) {
-                        1, 3 -> { // 오프라인
-                            if (max < 30 && place.isNotEmpty()){
-                                viewModel.userDidAnswer(tabName)
-                            }
-                        }
-                        2 -> { // 온라인인 경우
-                            if (max < 30){
-                                viewModel.userDidAnswer(tabName)
-                            }
-                        }
-                        0 -> {
-                            val toast = Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT)
-                            toast.show()
-                            viewModel.userDidNotAnswer(tabName)
-                        }
-                        else -> {
-                            viewModel.userDidNotAnswer(tabName)
-                        }
-                    }
-                }
-            }
+            checkConditions(result1, result2, result3)
         }
     }
 
-    // 입력 유효성 검사
-    fun validateInput(): Boolean {
-        var result1 = false
-        var result2 = false
-
-        // 입력받은 진행방식 가져옴
-        val onOffline = onOffline
-        // 입력받은 스터디 장소 가져옴
-        val location = fragmentWriteProceedBinding.textFieldWriteProceedLocation.text.toString()
-        // 입력받은 최대 정원 수 가져옴
-        val inputString =
-            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.text.toString()
-
-        if (onOffline == 0) {
-
-            return false
-        }
-
-        // 정원수가
-        if (inputString.isEmpty()) {
-            // 빈 문자열 에러 처리
-            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "숫자를 입력하세요"
-            return false
-        }
-        val maxMember: Int? = try {
-            inputString.toInt()
-        } catch (e: NumberFormatException) {
-            // 변환 실패 에러 처리
-            fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "유효한 숫자가 아닙니다"
-            null
-        }
-
-        // 멤버가 0명 || 멤버가 30명 이상
-        if (maxMember != null) {
-            if (maxMember > 30) {
-                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
-                result1 = false
+    private fun checkConditions(result1: Int, result2: Boolean, result3: Boolean) {
+        if (result1 == 2) { // 온라인
+            if (result3) { // 최대인원 입력받음
+                viewModel.userDidAnswer(tabName)
             } else {
-                fragmentWriteProceedBinding.textFieldWriteProceedNumOfMember.error = null
-                result1 = true
+                viewModel.userDidNotAnswer(tabName)
             }
-        }
-
-        // 오프라인 - 위치 정보
-        viewModel.studyOnOffline.observe(viewLifecycleOwner) {
-            if (it != 2) { // 오프라인 or 온오프 혼합
-                if (location.isEmpty()) { // 미입력
-                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error =
-                        "스터디 할 장소를 입력해주세요"
-                    result2 = false
-                } else { // 입력
-                    fragmentWriteProceedBinding.textFieldWriteProceedLocation.error = null
-                    result2 = true
-                }
-            } else { // 온라인인 경우
-                result2 = true
+        } else if (result1 == 1 || result1 == 3) { // 오프라인, 온오프혼합
+            if (result2 && result3) { // 장소, 최대인원 입력 받음
+                viewModel.userDidAnswer(tabName)
+            } else {
+                viewModel.userDidNotAnswer(tabName)
             }
-        }
-        if (result1 && result2){
-            viewModel.userDidAnswer(tabName)
         } else {
-            viewModel.userDidAnswer(tabName)
+            viewModel.userDidNotAnswer(tabName)
         }
-
-        return result1 && result2
     }
 
     private fun showBottomSheet() {

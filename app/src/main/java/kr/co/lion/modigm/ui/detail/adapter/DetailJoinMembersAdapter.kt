@@ -21,7 +21,6 @@ import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.ui.detail.Member
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
 class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private val currentUserId: String, private val studyIdx: Int) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
@@ -72,7 +71,6 @@ class DetailJoinMembersAdapter(private val viewModel: DetailViewModel,private va
 
         // custom dialog
         fun showKickDialog(member: UserData, studyIdx: Int) {
-//            val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.custom_dialog, null)
             val dialogBinding = CustomDialogBinding.inflate(LayoutInflater.from(itemView.context))
             val dialog =MaterialAlertDialogBuilder(itemView.context,R.style.dialogColor)
                 .setTitle("내보내기 확인")

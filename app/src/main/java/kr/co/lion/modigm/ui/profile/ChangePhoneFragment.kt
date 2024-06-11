@@ -7,12 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChangePhoneBinding
 import kr.co.lion.modigm.ui.profile.vm.ChangePhoneViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 class ChangePhoneFragment : Fragment() {
 
@@ -28,6 +30,7 @@ class ChangePhoneFragment : Fragment() {
         binding.changePhoneViewModel = changePhoneViewModel
         binding.lifecycleOwner = this
 
+        settingToolbar()
         settingTextInputUserPhone()
         settingErrorMessageObservers()
         settingPhoneAuthObservers()
@@ -35,6 +38,16 @@ class ChangePhoneFragment : Fragment() {
         settingChangePWButtonDone()
 
         return binding.root
+    }
+
+    private fun settingToolbar(){
+        with(binding.toolbarChangePhone){
+            title = "전화번호 변경"
+            setNavigationIcon(R.drawable.icon_arrow_back_24px)
+            setNavigationOnClickListener {
+                parentFragmentManager.popBackStack(FragmentName.CHANGE_PHONE.str, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            }
+        }
     }
 
     private fun settingTextInputUserPhone(){
@@ -79,7 +92,8 @@ class ChangePhoneFragment : Fragment() {
         // 전화번호 연결이 완료되면 나온다.
         changePhoneViewModel.isVerified.observe(viewLifecycleOwner){
             if(it){
-                parentFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack(FragmentName.CHANGE_PHONE.str, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                binding.changePWButtonDone.isClickable = true
             }
         }
     }
@@ -97,6 +111,12 @@ class ChangePhoneFragment : Fragment() {
 
     private fun settingChangePWButtonDone(){
         binding.changePWButtonDone.setOnClickListener {
+            binding.changePWButtonDone.isClickable = false
+            // 인증번호 입력칸이 비어있으면 안됨
+            if(changePhoneViewModel.validateAuth()){
+                binding.changePWButtonDone.isClickable = true
+                return@setOnClickListener
+            }
             lifecycleScope.launch {
                 changePhoneViewModel.changePhone()
             }

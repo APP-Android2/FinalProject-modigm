@@ -2,6 +2,7 @@ package kr.co.lion.modigm.repository
 
 import android.content.Context
 import android.net.Uri
+import android.view.View
 import android.widget.ImageView
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.StudyData
@@ -98,4 +99,33 @@ class StudyRepository {
 
     // 스터디 정보 업로드
     suspend fun uploadStudyData(studyData: StudyData) = remoteStudyDataSource.uploadStudyData(studyData)
+
+
+    suspend fun applyToStudy(studyIdx: Int, uid: String) {
+        remoteStudyDataSource.addToApplyList(studyIdx, uid)
+    }
+
+    suspend fun joinStudy(studyIdx: Int, uid: String) {
+        remoteStudyDataSource.addToStudyUidList(studyIdx, uid)
+    }
+
+    fun fetchStudyApplyMembers(studyIdx: Int, callback: (List<UserData>) -> Unit) {
+        remoteStudyDataSource.getStudyApplyList(studyIdx) { userIds ->
+            if (userIds.isNotEmpty()) {
+                remoteStudyDataSource.getUsersByIds(userIds) { users ->
+                    callback(users)
+                }
+            } else {
+                callback(emptyList())
+            }
+        }
+    }
+
+    fun removeUserFromStudyApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        remoteStudyDataSource.removeUserFromStudyApplyList(studyIdx, userUid, callback)
+    }
+
+    fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        remoteStudyDataSource.addUserToStudyUidList(studyIdx, userUid, callback)
+    }
 }

@@ -1,8 +1,10 @@
 package kr.co.lion.modigm.ui.detail
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,6 +24,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
@@ -39,6 +42,7 @@ import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Skill
 
@@ -112,6 +116,7 @@ class DetailFragment : Fragment() {
             }
         }
 
+        userprofile()
         observeViewModel()
     }
 
@@ -170,6 +175,22 @@ class DetailFragment : Fragment() {
                 .into(binding.imageViewDetailUserPic)
         }
 
+    }
+
+    fun userprofile(){
+        binding.imageViewDetailUserPic.setOnClickListener {
+            val profileFragment = ProfileFragment().apply {
+                arguments = Bundle().apply {
+                    putString("uid", currentStudyData?.studyWriteUid)
+                }
+            }
+
+            // 화면이동 로직 추가
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.containerMain, profileFragment)
+                .addToBackStack(FragmentName.DETAIL_MEMBER.str)
+                .commit()
+        }
     }
 
     fun updateUIIfReady() {
@@ -282,6 +303,13 @@ class DetailFragment : Fragment() {
                 // 모집 마감 상태
                 textViewDetailState.text = "모집 마감"
                 setupStatePopup()
+            }
+
+            if (data.studyWriteUid == uid) {
+                fab.visibility = View.GONE
+            }
+            else{
+                fab.visibility = View.VISIBLE
             }
         }
     }
@@ -507,6 +535,7 @@ class DetailFragment : Fragment() {
             // 버튼 클릭 이벤트(채팅 방 이동)
             binding.buttonDetailApply.setOnClickListener {
                 Log.d("DetailFragment", "채팅방 이동1")
+
                 moveChatRoom()
             }
 
@@ -526,14 +555,69 @@ class DetailFragment : Fragment() {
                 if (currentStudyData?.studyApplyMethod==1) {
                     binding.buttonDetailApply.setOnClickListener {
                         Log.d("DetailFragment", "신청")
+                        val method = currentStudyData?.studyApplyMethod // 예: 신청방식을 가져오는 방법에 따라 달라질 수 있음
+                        Log.d("DetailFragment", "Button clicked, method: $method")
+
+                        if (method == 1) {  // 신청하기
+                            viewModel.applyToStudy(studyIdx, uid)
+                            view?.let { v ->
+//                                Snackbar.make(v, "신청이 완료되었습니다", Snackbar.LENGTH_LONG).show()
+
+                                val message = "신청이 완료되었습니다"
+                                val snackbar = Snackbar.make(v,message, Snackbar.LENGTH_LONG)
+
+                                // 스낵바의 텍스트 뷰 찾기
+                                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
+                                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
+                                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
+                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+                                snackbar.show()
+
+                                Log.d("DetailFragment", "Snackbar shown for apply")
+                            }
+                        } else {  // 참여하기
+
+                            Log.d("DetailFragment", "Changed button text for join study")
+                        }
                     }
                 }else{
+
+
                     // 선착순일 경우
-                    binding.buttonDetailApply.setOnClickListener {
+                    binding.buttonDetailApply.setOnClickListener {view ->
                         Log.d("DetailFragment", "채팅방 이동2")
-                        // 추후에 주석 풀고 써야함
-                        // addUserToChatMemberList()
-                        moveChatRoom()
+                        // 스터디 참여 인원 확인
+                        val currentSize = currentStudyData?.studyUidList?.size ?: 0
+                        val maxSize = currentStudyData?.studyMaxMember ?: 0
+
+                        if(currentSize >= maxSize){
+                            // 스낵바를 통해 메시지 표시
+                            view?.let { v ->
+                                val message = "스터디 인원이 이미 가득 찼습니다."
+                                val snackbar = Snackbar.make(v,message, Snackbar.LENGTH_LONG)
+
+                                // 스낵바의 텍스트 뷰 찾기
+                                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
+                                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
+                                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
+                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+                                snackbar.show()
+
+                            }
+                            Log.d("DetailFragment", "스터디 인원이 가득 찼으므로 참여할 수 없습니다.")
+                            return@setOnClickListener  // 추가 동작을 중지
+
+                        }else{
+                            viewModel.joinStudy(studyIdx, uid)
+                            // 추후에 주석 풀고 써야함
+//                        addUserToChatMemberList()
+                            moveChatRoom()
+                        }
+
                     }
                 }
 
@@ -547,6 +631,11 @@ class DetailFragment : Fragment() {
             }
         }
     }
+
+    fun dpToPx(context: Context, dp: Float): Float {
+        return dp * context.resources.displayMetrics.density
+    }
+
 
     fun showStatePopup(anchorView: View) {
         val layoutInflater = LayoutInflater.from(requireContext())

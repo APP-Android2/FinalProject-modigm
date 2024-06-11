@@ -6,17 +6,14 @@ import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kotlin.coroutines.resume
@@ -414,6 +411,140 @@ class RemoteStudyDataSource {
         }
     }
 
+    suspend fun addToApplyList(studyIdx: Int, uid: String) {
+        try {
+            Log.d("StudyDataSource", "Fetching document with studyIdx: $studyIdx")
+            val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
+            if (studyDocument != null) {
+                Log.d("StudyDataSource", "Document found, updating apply list")
+                studyDocument.reference.update("studyApplyList", FieldValue.arrayUnion(uid))
+                Log.d("StudyDataSource", "Apply list updated with UID: $uid")
+            } else {
+                Log.e("StudyDataSource", "No document found for studyIdx: $studyIdx")
+            }
+        } catch (e: Exception) {
+            Log.e("StudyDataSource", "Error in addToApplyList: ${e.message}")
+        }
+    }
 
+    suspend fun addToStudyUidList(studyIdx: Int, uid: String) {
+        try {
+            Log.d("StudyDataSource", "Fetching document with studyIdx: $studyIdx")
+            val studyDocument = studyCollection.whereEqualTo("studyIdx", studyIdx).get().await().documents.firstOrNull()
+            if (studyDocument != null) {
+                Log.d("StudyDataSource", "Document found, updating study UID list")
+                studyDocument.reference.update("studyUidList", FieldValue.arrayUnion(uid))
+                Log.d("StudyDataSource", "Study UID list updated with UID: $uid")
+            } else {
+                Log.e("StudyDataSource", "No document found for studyIdx: $studyIdx")
+            }
+        } catch (e: Exception) {
+            Log.e("StudyDataSource", "Error in addToStudyUidList: ${e.message}")
+        }
+    }
+
+    fun getStudyApplyList(studyIdx: Int, callback: (List<String>) -> Unit) {
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val study = documents.documents[0]
+                    val applyList = study.get("studyApplyList") as List<String>
+                    Log.d("FirestoreDataSource", "Apply List: $applyList")
+                    callback(applyList)
+                } else {
+                    Log.d("FirestoreDataSource", "No documents found")
+                    callback(emptyList())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(emptyList())
+            }
+    }
+
+    fun getUsersByIds(userIds: List<String>, callback: (List<UserData>) -> Unit) {
+        userCollection
+            .whereIn("userUid", userIds)
+            .get()
+            .addOnSuccessListener { documents ->
+                val users = documents.map { it.toObject(UserData::class.java) }
+                Log.d("FirestoreDataSource", "Users: $users")
+                callback(users)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(emptyList())
+            }
+    }
+
+    fun removeUserFromStudyApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val studyDoc = documents.documents[0]
+                    val studyRef = studyDoc.reference
+                    val applyList = studyDoc.get("studyApplyList") as MutableList<String>
+
+                    if (applyList.contains(userUid)) {
+                        applyList.remove(userUid)
+                        studyRef.update("studyApplyList", applyList)
+                            .addOnSuccessListener {
+                                Log.d("FirestoreDataSource", "User removed from apply list")
+                                callback(true)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("FirestoreDataSource", "Error removing user from apply list", e)
+                                callback(false)
+                            }
+                    } else {
+                        callback(false)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(false)
+            }
+    }
+
+    fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
+        studyCollection
+            .whereEqualTo("studyIdx", studyIdx)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val studyDoc = documents.documents[0]
+                    val studyRef = studyDoc.reference
+                    val uidList = studyDoc.get("studyUidList") as MutableList<String>
+
+                    if (!uidList.contains(userUid)) {
+                        uidList.add(userUid)
+                        studyRef.update("studyUidList", uidList)
+                            .addOnSuccessListener {
+                                Log.d("FirestoreDataSource", "User added to studyUidList")
+                                callback(true)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("FirestoreDataSource", "Error adding user to studyUidList", e)
+                                callback(false)
+                            }
+                    } else {
+                        callback(true)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FirestoreDataSource", "Error getting documents: ", exception)
+                callback(false)
+            }
+    }
 
 }

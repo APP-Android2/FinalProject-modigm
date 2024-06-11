@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,8 +14,10 @@ import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLikeBinding
 import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.like.adapter.LikeAdapter
 import kr.co.lion.modigm.ui.like.vm.LikeViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 class LikeFragment : Fragment() {
 
@@ -55,6 +58,23 @@ class LikeFragment : Fragment() {
 
         // 좋아요한 스터디 데이터를 로드
         viewModel.loadLikedStudies(uid)
+
+        // 옵저버에서 클릭된 항목 처리
+        likeAdapter.setOnItemClickListener { study ->
+            // 클릭된 항목의 studyIdx를 bundle에 담아서 다음 화면으로 전달
+            val detailFragment = DetailFragment().apply {
+                arguments = Bundle().apply {
+                    putInt("studyIdx", study.studyIdx)
+                    Log.d("likefragment","${study.studyIdx}")
+                }
+            }
+
+            requireActivity().supportFragmentManager.commit {
+                replace(R.id.containerMain, detailFragment)
+                addToBackStack(FragmentName.DETAIL.str)
+            }
+        }
+
     }
 
     fun settingToolbar() {
