@@ -91,8 +91,6 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
             recyclerViewStudySearch.layoutManager = LinearLayoutManager(requireContext())
             recyclerViewStudySearch.adapter = studySearchAdapter
 
-            val searchIcon = searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_mag_icon)
-            searchIcon?.visibility = View.GONE
             toolbarStudySearch.setNavigationOnClickListener{
                 parentFragmentManager.popBackStack()
             }
