@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.model.StudyData
@@ -39,8 +41,8 @@ class WriteViewModel : ViewModel() {
     private val _studyDetailPlace = MutableLiveData<String>() // 오프라인 진행장소 상세 주소
     val studyDetailPlace: LiveData<String> = _studyDetailPlace
 
-    private val _studyUIdList = MutableLiveData<MutableList<String>>() // 현재 참여자 목록
-    val studyUIdList: LiveData<MutableList<String>> = _studyUIdList
+    private val _studyUidList = MutableLiveData<MutableList<String>>() // 현재 참여자 목록
+    val studyUidList: LiveData<MutableList<String>> = _studyUidList
 
     private val _chatIdx = MutableLiveData<Int>() // 연결된 채팅방 고유 번호
     val chatIdx: LiveData<Int> = _chatIdx
@@ -272,14 +274,14 @@ class WriteViewModel : ViewModel() {
         }
     }
 
-    private fun gettingCurrentUid(): String {
-        val auth = FirebaseAuth.getInstance()
-        return auth.currentUser?.uid.toString()
+    fun gettingCurrentUid(uid : String) {
+        val studyUid = uid
+        _studyUidList.value = mutableListOf(studyUid)
+        _studyWriteUid.value = studyUid
     }
 
     private suspend fun createStudyData(): StudyData? {
         studyIndex = gettingStudyIdx()
-        uidList = listOf(gettingCurrentUid())
 
         return if (studyIndex != -1) {
             StudyData(
@@ -296,7 +298,7 @@ class WriteViewModel : ViewModel() {
                 studyCanApply = _studyCanApply.value ?: true,
                 studyPic = _studyPic.value ?: "",
                 studyMaxMember = _studyMaxMember.value ?: 0,
-                studyUidList = uidList,
+                studyUidList = _studyUidList.value ?: emptyList(),
                 chatIdx = studyIndex,
                 studyState = _studyState.value ?: true,
                 studyWriteUid = _studyWriteUid.value ?: "",
@@ -314,7 +316,7 @@ class WriteViewModel : ViewModel() {
                 chatIdx = studyIndex,
                 chatTitle = _studyTitle.value ?: "",
                 chatRoomImage = _studyPic.value ?: "",
-                chatMemberList = uidList,
+                chatMemberList = _studyUidList.value ?: emptyList(),
                 participantCount = 1,
                 groupChat = true,
                 lastChatMessage = "",
@@ -326,24 +328,6 @@ class WriteViewModel : ViewModel() {
         }
 
     }
-    // ----------------- ViewModel에 필요한 항목들 불러오기 -------------------
-
-
-
-    // 현재 참여자 목록(studyUidList) -> List<String> / List[0] = 진행자
-    suspend fun gettingStudyUidList(): List<String> {
-        return try {
-            // 현재 사용자 uid 받아오기
-            val uid = gettingCurrentUid()
-            // 리스트 만들기
-            listOf(uid)
-        } catch (e: Exception) {
-            Log.e("TedMoon", "${e}")
-            emptyList()
-        }
-    }
-
-    // --------------------------------------------
 
 
     // studyIdx 반환
