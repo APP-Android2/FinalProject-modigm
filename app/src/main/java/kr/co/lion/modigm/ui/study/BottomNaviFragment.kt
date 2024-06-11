@@ -83,9 +83,16 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                     }
                 }
                 R.id.bottomNaviChat -> {
+                    // 데이터
+                    val chatFragment = ChatFragment().apply {
+                        arguments = Bundle().apply {
+                            putString("uid", currentUserUid)
+                        }
+                    }
+
                     childFragmentManager.commit {
                         setReorderingAllowed(true)
-                        replace<ChatFragment>(R.id.containerBottomNavi)
+                        replace(R.id.containerBottomNavi,chatFragment)
                         addToBackStack(FragmentName.CHAT.str)
                     }
                 }

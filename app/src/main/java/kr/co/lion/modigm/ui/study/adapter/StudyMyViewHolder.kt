@@ -12,6 +12,7 @@ import kr.co.lion.modigm.model.StudyData
 class StudyMyViewHolder(
     private val binding: RowStudyMyBinding,
     private val rowClickListener: (Int) -> Unit,
+    private val likeClickListener: (Int) -> Unit,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     // 전체 스터디 항목별 세팅
@@ -42,7 +43,7 @@ class StudyMyViewHolder(
             setStudyApplyMethod(studyData)
 
             // 찜 버튼 설정
-            setupFavoriteButton()
+            setupFavoriteButton(studyData)
         }
     }
 
@@ -148,10 +149,29 @@ class StudyMyViewHolder(
     }
 
     // 찜 버튼 설정
-    private fun setupFavoriteButton() {
+    private fun setupFavoriteButton(studyData: Pair<StudyData, Int>) {
         with(binding.imageViewStudyMyFavorite) {
-            setOnClickListener {
+            // 초기 좋아요 상태 설정
+            if (studyData.first.studyLikeState) {
+                setImageResource(R.drawable.icon_favorite_full_24px)
+                setColorFilter(Color.parseColor("#D73333"))
+            } else {
+                setImageResource(R.drawable.icon_favorite_24px)
+                clearColorFilter()
+            }
 
+            // 클릭 리스너 설정
+            setOnClickListener {
+                likeClickListener.invoke(studyData.first.studyIdx)
+                // 좋아요 상태 변경 후 UI 업데이트
+                studyData.first.studyLikeState = !studyData.first.studyLikeState
+                if (studyData.first.studyLikeState) {
+                    setImageResource(R.drawable.icon_favorite_full_24px)
+                    setColorFilter(Color.parseColor("#D73333"))
+                } else {
+                    setImageResource(R.drawable.icon_favorite_24px)
+                    clearColorFilter()
+                }
             }
         }
     }

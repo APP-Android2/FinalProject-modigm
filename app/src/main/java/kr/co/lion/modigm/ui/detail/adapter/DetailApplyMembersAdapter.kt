@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
@@ -23,7 +22,13 @@ import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
-class DetailApplyMembersAdapter (private val viewModel: DetailViewModel, private val chatRoomViewModel: ChatRoomViewModel, val currentUserId: String, private val studyIdx: Int) : ListAdapter<UserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+class DetailApplyMembersAdapter(
+    private val viewModel: DetailViewModel,
+    private val chatRoomViewModel: ChatRoomViewModel,
+    private val currentUserId: String,
+    private val studyIdx: Int,
+    private val onItemClicked: (UserData) -> Unit
+) : ListAdapter<UserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = RowDetailApplyMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -38,6 +43,11 @@ class DetailApplyMembersAdapter (private val viewModel: DetailViewModel, private
     inner class MemberViewHolder(private val binding: RowDetailApplyMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: UserData) {
+
+            itemView.setOnClickListener {
+                onItemClicked(user)
+            }
+
             binding.textViewDetailApplyMemberName.text = user.userName
             binding.textViewDetailApplyMemberIntro.text = user.userIntro
 

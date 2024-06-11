@@ -27,7 +27,14 @@ import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
-class DetailJoinMembersAdapter(private val viewModel: DetailViewModel, private val chatRoomViewModel: ChatRoomViewModel, private val currentUserId: String, private val studyIdx: Int) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+class DetailJoinMembersAdapter(
+    private val viewModel: DetailViewModel,
+    private val chatRoomViewModel: ChatRoomViewModel,
+    private val currentUserId: String,
+    private val studyIdx: Int,
+    private val onItemClicked: (UserData) -> Unit
+) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = RowDetailJoinMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -42,6 +49,11 @@ class DetailJoinMembersAdapter(private val viewModel: DetailViewModel, private v
     inner class MemberViewHolder(private val binding: RowDetailJoinMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: UserData) {
+
+            itemView.setOnClickListener {
+                onItemClicked(user)
+            }
+
             binding.textViewDetailJoinMemberName.text = user.userName
             binding.textViewDetailJoinMemberIntro.text = user.userIntro
 

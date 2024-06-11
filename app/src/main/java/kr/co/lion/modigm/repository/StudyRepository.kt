@@ -24,7 +24,7 @@ class StudyRepository {
     suspend fun getStudyStateTrueData() = remoteStudyDataSource.getStudyStateTrueData()
 
     // 내 스터디 목록을 가져온다. (홈화면 내 스터디 접근 시)
-    suspend fun getStudyMyData() = remoteStudyDataSource.getStudyMyData()
+    suspend fun getStudyMyData(currentUserUid:String) = remoteStudyDataSource.getStudyMyData(currentUserUid)
 
     suspend fun loadStudyThumbnail(context: Context, imageFileName: String, imageView: ImageView) =
         remoteStudyDataSource.loadStudyThumbnail(context, imageFileName, imageView)
