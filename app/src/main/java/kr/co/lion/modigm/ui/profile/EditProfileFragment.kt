@@ -71,6 +71,7 @@ class EditProfileFragment : Fragment() {
         setupButtonChangePic()
         setupRecyclerViewLink()
         setupButtonLinkAdd()
+        setupButtonDone()
 
         observeData()
     }
@@ -111,6 +112,13 @@ class EditProfileFragment : Fragment() {
             editProfileViewModel.addLinkToList()
             // 링크 텍스트필드 비우기
             editProfileViewModel.editProfileNewLink.value = ""
+        }
+    }
+
+    private fun setupButtonDone() {
+        fragmentEditProfileBinding.buttonEditProfileDone.setOnClickListener {
+            editProfileViewModel.updateUserData()
+            parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
         }
     }
 

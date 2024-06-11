@@ -25,6 +25,9 @@ class UserInfoRepository {
     // 해당 유저의 전화번호 업데이트
     suspend fun updatePhone(uid: String, phone: String): Boolean = _remoteUserDataSource.updatePhone(uid, phone)
 
+    // 해당 유저의 전화번호 업데이트
+    suspend fun updateUserData(user: UserData) = _remoteUserDataSource.updateUserData(user)
+
 
     // ----------------- 로그인 데이터 처리 -----------------
 

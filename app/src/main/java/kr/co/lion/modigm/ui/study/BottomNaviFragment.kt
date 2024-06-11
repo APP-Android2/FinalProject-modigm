@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
@@ -20,6 +22,8 @@ import kr.co.lion.modigm.util.ModigmApplication
 class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
     private lateinit var binding: FragmentBottomNaviBinding
+
+    private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?: Firebase.auth.currentUser?.uid
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -86,9 +90,17 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                     }
                 }
                 R.id.bottomNaviMy -> {
+                    // 데이터
+                    val profileFragment = ProfileFragment().apply {
+                        arguments = Bundle().apply {
+                            putString("uid", currentUserUid)
+                        }
+                    }
+
+
                     childFragmentManager.commit {
                         setReorderingAllowed(true)
-                        replace<ProfileFragment>(R.id.containerBottomNavi)
+                        replace(R.id.containerBottomNavi,profileFragment)
                         addToBackStack(FragmentName.PROFILE.str)
                     }
                 }

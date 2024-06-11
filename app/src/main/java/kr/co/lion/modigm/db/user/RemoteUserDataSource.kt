@@ -165,34 +165,33 @@ class RemoteUserDataSource {
         }
     }
 
-    companion object{
+    // 사용자 정보를 수정하는 메서드
+    suspend fun updateUserData(user: UserData) {
+        try {
+            // 컬렉션이 가지고 있는 문서들 중에 수정할 사용자 정보를 가져온다.
+            val query = userCollection.whereEqualTo("userUid", user.userUid).get().await()
 
-        // 사용자 정보를 수정하는 메서드
-        suspend fun updateUserData(user: UserData){
-            val job1 = CoroutineScope(Dispatchers.IO).launch {
-                // 컬렉션에 접근할 수 있는 객체를 가져온다.
-                val collectionReference = Firebase.firestore.collection("User")
+            // 저장할 데이터를 담을 HashMap을 만들어준다.
+            val map = mutableMapOf<String, Any?>()
+            map["userUid"] = user.userUid
+            map["userName"] = user.userName
+            map["userEmail"] = user.userEmail
+            map["userPhone"] = user.userPhone
+            map["userProfilePic"] = user.userProfilePic
+            map["userIntro"] = user.userIntro
+            map["userInterestList"] = user.userInterestList
+            map["userLinkList"] = user.userLinkList
+            map["userProvider"] = user.userProvider
 
-                // 컬렉션이 가지고 있는 문서들 중에 수정할 사용자 정보를 가져온다.
-                val query = collectionReference.whereEqualTo("userNumber", user.userUid).get().await()
-
-                // 저장할 데이터를 담을 HashMap을 만들어준다.
-                val map = mutableMapOf<String, Any?>()
-                map["userName"] = user.userName
-                map["userPhone"] = user.userPhone
-                map["userProfilePic"] = user.userProfilePic
-                map["userIntro"] = user.userIntro
-                map["userInterestList"] = user.userInterestList
-                map["userLinkList"] = user.userLinkList
-                map["userNumber"] = user.userUid
-
-                // 저장한다.
-                // 가져온 문서 중 첫 번째 문서에 접근하여 데이터를 수정한다.
-                query.documents[0].reference.update(map)
-            }
-
-            job1.join()
+            // 저장한다.
+            // 가져온 문서 중 첫 번째 문서에 접근하여 데이터를 수정한다.
+            query.documents[0].reference.update(map)
+        } catch (error: Exception) {
+            Log.e("RemoteUserDataSource","updateUserData(): $error")
         }
+    }
+
+    companion object{
 
         // 사용자의 상태를 변경하는 메서드
         suspend fun invalidateMember(uid: String){
