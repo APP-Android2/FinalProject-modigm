@@ -12,6 +12,8 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -25,6 +27,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
+import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.login.OtherLoginFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -127,7 +130,17 @@ class JoinFragment : Fragment() {
 
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            parentFragmentManager.popBackStack()
+
+            parentFragmentManager.commit {
+                replace(R.id.containerMain, LoginFragment())
+
+            }
+            if(!viewModel.joinCompleted.value!!){
+                viewModel.deleteCurrentUser()
+            }
+            viewModelStep1.reset()
+            viewModelStep2.reset()
+            viewModelStep3.reset()
             dialog.dismiss()
         }
 
@@ -210,10 +223,8 @@ class JoinFragment : Fragment() {
                         }
                     }
                 }
-
             }
         }
-
     }
 
     private fun step1Process(){
