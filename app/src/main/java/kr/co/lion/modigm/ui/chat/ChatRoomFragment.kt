@@ -38,9 +38,11 @@ import kr.co.lion.modigm.model.ChatMessagesData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.MainActivity
 import kr.co.lion.modigm.ui.chat.adapter.ChatRoomMemberAdapter
+import kr.co.lion.modigm.ui.chat.adapter.ChatSearchResultsAdapter
 import kr.co.lion.modigm.ui.chat.adapter.MessageAdapter
 import kr.co.lion.modigm.ui.chat.vm.ChatMessagesViewModel
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
+import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.CameraUtil
 import kr.co.lion.modigm.util.FragmentName
@@ -281,12 +283,53 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
+    // 리사이클러 뷰 세팅
+//    private fun setupRecyclerView() {
+//        with(fragmentChatBinding.recyclerViewChatSearchResults) {
+//            layoutManager = LinearLayoutManager(requireContext())
+//            // onItemClick 시
+//            chatSearchResultsAdapter = ChatSearchResultsAdapter(chatSearchRoomDataList, { roomItem ->
+//                android.util.Log.d("chatLog1", "${loginUserId}가 ${roomItem.chatIdx}번 ${roomItem.chatTitle}에 입장")
+//
+//                // ChatRoomFragment로 이동
+//                val chatRoomFragment = ChatRoomFragment().apply {
+//                    arguments = Bundle().apply {
+//                        putInt("chatIdx", roomItem.chatIdx)
+//                        putString("chatTitle", roomItem.chatTitle)
+//                        putStringArrayList("chatMemberList", ArrayList(roomItem.chatMemberList))
+//                        putInt("participantCount", roomItem.participantCount)
+//                        putBoolean("groupChat", roomItem.groupChat)
+//                    }
+//                }
+//                requireActivity().supportFragmentManager.commit {
+//                    replace(kr.co.lion.modigm.R.id.containerMain, chatRoomFragment)
+//                    addToBackStack(kr.co.lion.modigm.util.FragmentName.CHAT_ROOM.str)
+//                }
+//            }, loginUserId)
+//
+//            adapter = chatSearchResultsAdapter
+//        }
+//    }
+
     // RecyclerView 초기화
     private fun setupRecyclerView() {
         // 대화방 목록 RecyclerView 설정
         with(fragmentChatRoomBinding.recyclerView){
             layoutManager = LinearLayoutManager(requireContext())
-            messageAdapter = MessageAdapter(loginUserId, messages, usersDataHashMap)
+
+            messageAdapter = MessageAdapter(loginUserId, messages, { messageItem ->
+                Log.v("chatLog1", "${messageItem.chatSenderId}")
+                val profileFragment = ProfileFragment().apply {
+                    arguments = Bundle().apply {
+                        putString("uid", messageItem.chatSenderId)
+                    }
+                }
+
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, profileFragment)
+                    addToBackStack(FragmentName.PROFILE.str)
+                }
+            }, usersDataHashMap)
             adapter = messageAdapter
         }
     }
@@ -416,6 +459,7 @@ class ChatRoomFragment : Fragment() {
         chatMessagesViewModel.chatMessages.observe(viewLifecycleOwner) { updatedMessages ->
             messages.clear()
             messages.addAll(updatedMessages)
+
             if (::messageAdapter.isInitialized) {
                 messageAdapter.notifyDataSetChanged()
             }
