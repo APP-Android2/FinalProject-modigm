@@ -17,6 +17,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,7 +39,8 @@ class WriteFragment : Fragment() {
 
     lateinit var fragmentWriteBinding: FragmentWriteBinding
     private val writeViewModel: WriteViewModel by activityViewModels()
-
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var user: FirebaseUser
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,6 +50,8 @@ class WriteFragment : Fragment() {
             DataBindingUtil.inflate(inflater, R.layout.fragment_write, container, false)
         fragmentWriteBinding.lifecycleOwner = this
         fragmentWriteBinding.writeViewModel = writeViewModel
+        // 사용자 Uid 받아옴
+        gettingCurrentUid()
 
         return fragmentWriteBinding.root
     }
@@ -96,6 +103,11 @@ class WriteFragment : Fragment() {
             }
 
         }
+    }
+    private fun gettingCurrentUid(){
+        firebaseAuth = Firebase.auth
+        user = firebaseAuth.currentUser!!
+        writeViewModel.gettingCurrentUid(user.toString())
     }
 
     private fun navigateToDetailFragment() {
@@ -331,7 +343,7 @@ class WriteFragment : Fragment() {
                     "모집상태 : ${writeViewModel?.studyCanApply?.value}\n" +
                     "썸네일 사진 : ${writeViewModel?.studyPic?.value}\n" +
                     "스터디 인원 : ${writeViewModel?.studyMaxMember?.value}\n" +
-                    "현재 참여자 목록 : ${writeViewModel?.studyUIdList?.value}\n" +
+                    "현재 참여자 목록 : ${writeViewModel?.studyUidList?.value}\n" +
                     "연결된 현재 채팅방 고유 번호 : ${writeViewModel?.chatIdx?.value}\n" +
                     "글 삭제여부 : ${writeViewModel?.studyState?.value}\n"
         )

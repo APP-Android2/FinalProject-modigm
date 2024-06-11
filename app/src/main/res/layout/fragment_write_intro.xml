@@ -159,8 +159,7 @@
                         android:gravity="top"
                         android:hint="소개글 입력(자세히 입력해주세요)"
                         android:imeOptions="actionDone"
-                        android:inputType="text"
-                        android:maxLines="1"
+                        android:inputType="textMultiLine"
                         android:textColorHint="@color/black"
                         android:textSize="16dp" />
 
