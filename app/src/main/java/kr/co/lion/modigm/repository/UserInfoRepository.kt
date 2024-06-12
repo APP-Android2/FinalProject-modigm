@@ -2,10 +2,12 @@ package kr.co.lion.modigm.repository
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.widget.ImageView
 import com.google.firebase.auth.AuthResult
 import kr.co.lion.modigm.db.user.RemoteUserDataSource
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.profile.ProfileFragment
 
 class UserInfoRepository {
     private val _remoteUserDataSource = RemoteUserDataSource()
@@ -18,6 +20,9 @@ class UserInfoRepository {
 
     // 유저 프로필 사진 불러오기
     suspend fun loadUserProfilePic(context: Context, imageFileName: String, imageView: ImageView) = _remoteUserDataSource.loadUserProfilePic(context, imageFileName, imageView)
+
+    // 유저 프로필 사진을 Storage에 업로드
+    suspend fun addProfilePic(newImageUri: Uri, fileName: String, profileFragment: ProfileFragment) = _remoteUserDataSource.addProfilePic(newImageUri, fileName, profileFragment)
 
     // 해당 전화 번호의 계정이 있는지 확인 (중복 확인)
     suspend fun checkUserByPhone(phoneNumber: String): Map<String, String>? = _remoteUserDataSource.checkUserByPhone(phoneNumber)

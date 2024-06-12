@@ -2,6 +2,7 @@ package kr.co.lion.modigm.db.user
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -13,6 +14,7 @@ import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.functions.functions
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -191,24 +194,17 @@ class RemoteUserDataSource {
         }
     }
 
-    companion object{
-
-        // 사용자의 상태를 변경하는 메서드
-        suspend fun invalidateMember(uid: String){
-            val job1 = CoroutineScope(Dispatchers.IO).launch {
-                // 컬렉션에 접근할 수 있는 객체를 가져온다.
-                val collectionReference = Firebase.firestore.collection("Members")
-                // 컬렉션이 가지고 있는 문서들 중에 userIdx 필드가 지정된 사용자 번호값하고 같은 Document들을 가져온다.
-                val query = collectionReference.whereEqualTo("uid", uid).get().await()
-
-                // 저장할 데이터를 담을 HashMap을 만들어준다.
-                val map = mutableMapOf<String, Any>()
-                map["state"] = false
-                // 저장한다.
-                // 가져온 문서 중 첫 번째 문서에 접근하여 데이터를 수정한다.
-                query.documents[0].reference.update(map)
+    // 사용자 프로필 사진을 업로드하고 Firestore에 저장하는 메서드
+    suspend fun addProfilePic(newImageUri: Uri, fileName: String, profileFragment: ProfileFragment) {
+        try {
+            val storageReference = FirebaseStorage.getInstance().reference.child("userProfile/$fileName")
+            storageReference.putFile(newImageUri).addOnSuccessListener {
+                profileFragment.updateViews()
+            }.addOnFailureListener {
+                Log.e("RemoteUserDataSource", "addProfilePic(): ${it.message}")
             }
-            job1.join()
+        } catch (e: Exception) {
+            Log.e("RemoteUserDataSource", "addProfilePic(): ${e.message}")
         }
     }
 
@@ -240,17 +236,37 @@ class RemoteUserDataSource {
         }
     }
 
-
     // 해당 전화 번호의 계정이 있는지 확인 후 모델 반환 (이메일, 비밀번호 찾기)
-    suspend fun checkUserByPhoneFindNameAndEmail(phone: String): Map<String, String>?{
+    suspend fun checkUserByPhoneFindNameAndEmail(phone: String): Map<String, String>? {
         val result = userCollection.whereEqualTo("userPhone", phone).get().await()
-        if(!result.isEmpty){
+        if (!result.isEmpty) {
             val user = result.documents.first().toObject(UserData::class.java)
-            val name = user?.userName?:""
-            val email = user?.userEmail?:""
+            val name = user?.userName ?: ""
+            val email = user?.userEmail ?: ""
             return mapOf("name" to name, "email" to email)
-        }else{
+        } else {
             return null
+        }
+    }
+
+    companion object{
+
+        // 사용자의 상태를 변경하는 메서드
+        suspend fun invalidateMember(uid: String){
+            val job1 = CoroutineScope(Dispatchers.IO).launch {
+                // 컬렉션에 접근할 수 있는 객체를 가져온다.
+                val collectionReference = Firebase.firestore.collection("Members")
+                // 컬렉션이 가지고 있는 문서들 중에 userIdx 필드가 지정된 사용자 번호값하고 같은 Document들을 가져온다.
+                val query = collectionReference.whereEqualTo("uid", uid).get().await()
+
+                // 저장할 데이터를 담을 HashMap을 만들어준다.
+                val map = mutableMapOf<String, Any>()
+                map["state"] = false
+                // 저장한다.
+                // 가져온 문서 중 첫 번째 문서에 접근하여 데이터를 수정한다.
+                query.documents[0].reference.update(map)
+            }
+            job1.join()
         }
     }
 }

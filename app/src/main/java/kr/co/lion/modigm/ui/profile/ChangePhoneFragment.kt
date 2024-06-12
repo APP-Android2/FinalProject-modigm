@@ -8,18 +8,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentChangePhoneBinding
 import kr.co.lion.modigm.ui.profile.vm.ChangePhoneViewModel
+import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 
 class ChangePhoneFragment : Fragment() {
 
     lateinit var binding: FragmentChangePhoneBinding
     private val changePhoneViewModel: ChangePhoneViewModel by viewModels()
+    private val editProfileViewModel: EditProfileViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -119,6 +122,7 @@ class ChangePhoneFragment : Fragment() {
             }
             lifecycleScope.launch {
                 changePhoneViewModel.changePhone()
+                editProfileViewModel.editProfilePhone.value = changePhoneViewModel.userPhone.value
             }
         }
     }
@@ -127,5 +131,4 @@ class ChangePhoneFragment : Fragment() {
         super.onDestroy()
         changePhoneViewModel.cancelTimer()
     }
-
 }
