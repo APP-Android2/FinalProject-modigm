@@ -55,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     app:endIconMode="clear_text"
+                    app:errorTextAppearance="@style/dialogText"
                     app:hintAnimationEnabled="false"
                     app:hintEnabled="false">
 
@@ -99,6 +100,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:endIconMode="clear_text"
+                    app:errorTextAppearance="@style/dialogText"
                     app:hintAnimationEnabled="false"
                     app:hintEnabled="false">
 
