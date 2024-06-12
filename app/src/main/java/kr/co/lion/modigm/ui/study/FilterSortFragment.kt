@@ -20,13 +20,13 @@ import kr.co.lion.modigm.util.FragmentName
 class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
 
     private val viewModel: StudyViewModel by activityViewModels()
+    private lateinit var binding: FragmentFilterSortBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // 바인딩
-        val binding = FragmentFilterSortBinding.bind(view)
-
+        binding = FragmentFilterSortBinding.bind(view)
         // 초기 뷰 세팅
         initView(binding)
     }
@@ -84,7 +84,7 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
             setChipClickListener(binding.chipGroupSinchung, binding.layoutFilterGisul)
 
             // 기술 스택 칩 클릭 이벤트
-            setChipClickListener(binding.chipGroupGisul, binding.layoutFilterPrograming)
+            setTechStackChipClickListener(binding.chipGroupGisul, binding.layoutFilterPrograming)
 
             // 프로그래밍 언어 칩그룹 초기화 및 비가시성 설정
             binding.layoutFilterPrograming.visibility = View.GONE
@@ -193,7 +193,83 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
         Log.d("FilterSortFragment", "ChipGroup 초기화: ${chipNames.joinToString()}")
     }
 
-    // Chip 클릭 리스너 설정 함수
+    // 기술 스택 칩 클릭 리스너 설정 함수
+    private fun setTechStackChipClickListener(chipGroup: ChipGroup, targetLayout: View) {
+        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val checkedId = checkedIds[0]
+                val chip = group.findViewById<Chip>(checkedId)
+                updateVisibility(targetLayout, chip.isChecked)
+                updateChipStyles(chipGroup, checkedId)
+                Log.d("FilterSortFragment", "Chip 선택됨: ${chip.text}")
+
+                binding.textViewFilterPrograming.text = "${chip.text}" // 여기서 TextView 업데이트
+
+                when (chip.text) {
+                    "프로그래밍 언어" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.PROGRAMMING))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "프론트엔드" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.FRONT_END))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "백엔드" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.BACK_END))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "모바일개발" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.MOBILE))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "데이터과학" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.DATA_SCIENCE))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "데브옵스 및 시스템관리" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.DEVOPS))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "클라우드 및 인프라" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.CLOUD))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "게임개발" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.GAME_DEVELOPMENT))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "보안" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.SECURITY))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "인공지능" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.AI))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "UI/UX 디자인" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.UI_UX))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+                    "빅데이터" -> {
+                        setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.BIG_DATA))
+                        scrollToView(binding.layoutFilterPrograming)
+                    }
+
+                    // 다른 카테고리 추가...
+                    else -> updateVisibility(binding.layoutFilterPrograming, false)
+                }
+
+                updateVisibility(binding.layoutFilterPrograming, chip.text != "전체" && chip.isChecked)
+            } else {
+                updateVisibility(targetLayout, false)
+                updateVisibility(binding.layoutFilterPrograming, false)
+                updateChipStyles(chipGroup, -1) // Reset all chip styles
+                Log.d("FilterSortFragment", "Chip 선택 해제됨")
+            }
+            updateApplyButtonState()
+        }
+    }
+
     private fun setChipClickListener(chipGroup: ChipGroup, targetLayout: View) {
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
@@ -207,6 +283,7 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
                 updateChipStyles(chipGroup, -1) // Reset all chip styles
                 Log.d("FilterSortFragment", "Chip 선택 해제됨")
             }
+            updateApplyButtonState()
         }
     }
 
@@ -240,5 +317,35 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
             ?.let { chipGroup.findViewById<Chip>(it).text.toString() }
         Log.d("FilterSortFragment", "getSelectedChipText: $selectedChipText")
         return selectedChipText
+    }
+
+    // 스크롤 이동 함수
+    private fun scrollToView(targetView: View) {
+        binding.root.post {
+            binding.scrollViewFilterSort.smoothScrollTo(0, targetView.top)
+        }
+    }
+
+    // 추가된 부분: 적용 버튼 상태 업데이트 함수
+    private fun updateApplyButtonState() {
+        val hasActiveChip = listOf(
+            binding.chipGroupBunryu,
+            binding.chipGroupGigan,
+            binding.chipGroupJangso,
+            binding.chipGroupInwon,
+            binding.chipGroupSinchung,
+            binding.chipGroupGisul,
+            binding.chipGroupPrograming
+        ).any { it.checkedChipId != View.NO_ID }
+
+        binding.buttonApplyFilter.apply {
+            isEnabled = hasActiveChip
+            backgroundTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    context,
+                    if (hasActiveChip) R.color.pointColor else R.color.buttonGray
+                )
+            )
+        }
     }
 }

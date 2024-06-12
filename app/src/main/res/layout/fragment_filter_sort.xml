@@ -19,6 +19,7 @@
         app:titleTextAppearance="@style/toolbarText" />
 
     <ScrollView
+        android:id="@+id/scrollViewFilterSort"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -175,27 +176,15 @@
                 android:layout_marginTop="8dp"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewFilterPrograming"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_marginBottom="8dp"
+                    android:text="프로그래밍 언어"
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewFilterPrograming"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:text="프로그래밍 언어"
-                        android:textSize="18dp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" (선택한 기술스택 이름)"
-                        android:textColor="@color/textGray" />
-
-                </LinearLayout>
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroupPrograming"
@@ -208,20 +197,21 @@
 
         </LinearLayout>
     </ScrollView>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonApplyFilter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/buttonGray"
         android:text="적용"
         android:textColor="@color/white"
-        android:backgroundTint="@color/buttonGray"
         android:textSize="16dp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </LinearLayout>

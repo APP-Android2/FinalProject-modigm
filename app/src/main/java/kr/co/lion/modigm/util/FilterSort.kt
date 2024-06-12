@@ -72,7 +72,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     TYPESCRIPT(13, "TypeScript", Category.PROGRAMMING),
     OTHER_PROGRAMMING(63, "기타", Category.PROGRAMMING),
 
-    // 프론트 엔드
+    // 프론트엔드
     ALL_FRONT_END(0,"전체",Category.FRONT_END),
     HTML(14, "HTML", Category.FRONT_END),
     CSS(15, "CSS", Category.FRONT_END),
