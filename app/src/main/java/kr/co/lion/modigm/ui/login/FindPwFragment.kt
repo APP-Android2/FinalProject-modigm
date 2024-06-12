@@ -58,19 +58,15 @@ class FindPwFragment : Fragment(R.layout.fragment_find_pw) {
                 setOnClickListener {
                     isClickable = false
                     // 유효성 검사
-                    val validate = viewModel.validateInput()
+                    val validate = viewModel!!.validateInput()
                     if(!validate){
                         isClickable = true
                         return@setOnClickListener
                     }
 
                     // 이메일과 전화번호 확인 후 인증번호 발송
-                    viewModel.checkEmailAndPhone(requireActivity())
+                    viewModel!!.checkEmailAndPhone(requireActivity())
                     isClickable = true
-                    parentFragmentManager.commit {
-                        replace(R.id.containerMain, FindPwAuthFragment())
-                        addToBackStack(FragmentName.FIND_PW_AUTH.str)
-                    }
                 }
             }
         }
