@@ -37,7 +37,8 @@ class JoinStep3Fragment : Fragment() {
                     Chip(requireContext()).apply {
                         text = chipName.str
                         isCheckable = true
-                        textSize = 18f
+//                        textSize = 18f
+                        setTextAppearance(R.style.ChipTextStyle)
                         // setEnsureMinTouchTargetSize(false)
 
                         setTextColor(resources.getColor(R.color.textGray, null))
