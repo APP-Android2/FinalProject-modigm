@@ -32,7 +32,10 @@ class FindPwViewModel: ViewModel() {
 
     // 이름, 연락처, 문자 발송까지 모두 확인 되면
     private var _isComplete = MutableLiveData<Boolean>()
-    val isComplete: MutableLiveData<Boolean> = _isComplete
+    val isComplete: LiveData<Boolean> = _isComplete
+    fun resetComplete(){
+        _isComplete.value = false
+    }
 
 
     // 유효성 검사

@@ -93,7 +93,7 @@ class FindPwFragment : Fragment(R.layout.fragment_find_pw) {
 
     private fun moveToNext(){
         // 완료 여부는 초기화해서 popStackBack으로 돌아와도 문제 없게
-        viewModel.isComplete.value = false
+        viewModel.resetComplete()
         // 다음 화면에 verficationId를 전달하여 번호 인증에 사용
         val fragment = FindPwAuthFragment().apply {
             arguments = Bundle().apply {

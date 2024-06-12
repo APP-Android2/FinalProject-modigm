@@ -81,6 +81,9 @@ class FindPwAuthFragment : Fragment(R.layout.fragment_find_pw_auth) {
         // 인증번호 확인이 완료되면 다음으로 이동
         viewModel.isComplete.observe(viewLifecycleOwner){
             if(it){
+                // 완료 여부는 초기화해서 popStackBack으로 돌아와도 문제 없게
+                viewModel.resetComplete()
+
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.containerMain, ResetPwFragment())
                     .addToBackStack(FragmentName.RESET_PW.str)

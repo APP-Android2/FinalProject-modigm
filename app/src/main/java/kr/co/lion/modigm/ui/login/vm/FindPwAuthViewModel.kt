@@ -28,6 +28,9 @@ class FindPwAuthViewModel: ViewModel() {
     // 인증 완료 여부
     private val _isComplete = MutableLiveData<Boolean>()
     val isComplete: LiveData<Boolean> = _isComplete
+    fun resetComplete(){
+        _isComplete.value = false
+    }
 
     // 유효성 검사
     fun validateInput(): Boolean{
