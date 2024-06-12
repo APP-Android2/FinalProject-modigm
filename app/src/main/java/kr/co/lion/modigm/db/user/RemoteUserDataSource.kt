@@ -239,4 +239,18 @@ class RemoteUserDataSource {
             false
         }
     }
+
+
+    // 해당 전화 번호의 계정이 있는지 확인 후 모델 반환 (이메일, 비밀번호 찾기)
+    suspend fun checkUserByPhoneFindNameAndEmail(phone: String): Map<String, String>?{
+        val result = userCollection.whereEqualTo("userPhone", phone).get().await()
+        if(!result.isEmpty){
+            val user = result.documents.first().toObject(UserData::class.java)
+            val name = user?.userName?:""
+            val email = user?.userEmail?:""
+            return mapOf("name" to name, "email" to email)
+        }else{
+            return null
+        }
+    }
 }
