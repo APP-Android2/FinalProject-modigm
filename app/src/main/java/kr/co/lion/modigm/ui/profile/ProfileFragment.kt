@@ -313,11 +313,29 @@ class ProfileFragment: Fragment() {
         // 참여한 스터디 리스트
         profileViewModel.profilePartStudyList.observe(viewLifecycleOwner) { profilePartStudyList ->
             partStudyAdapter.updateData(profilePartStudyList)
+
+            // 데이터 유무에 따른 뷰 가시성 설정
+            if (profilePartStudyList.isEmpty()) {
+                fragmentProfileBinding.recyclerViewProfilePartStudy.visibility = View.GONE
+                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.VISIBLE
+            } else {
+                fragmentProfileBinding.recyclerViewProfilePartStudy.visibility = View.VISIBLE
+                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.GONE
+            }
         }
 
         // 진행한 스터디 리스트
         profileViewModel.profileHostStudyList.observe(viewLifecycleOwner) { profileHostStudyList ->
             hostStudyAdapter.updateData(profileHostStudyList)
+
+            // 데이터 유무에 따른 뷰 가시성 설정
+            if (profileHostStudyList.isEmpty()) {
+                fragmentProfileBinding.recyclerViewProfileHostStudy.visibility = View.GONE
+                fragmentProfileBinding.layoutBlankProfileHostStudy.visibility = View.VISIBLE
+            } else {
+                fragmentProfileBinding.recyclerViewProfileHostStudy.visibility = View.VISIBLE
+                fragmentProfileBinding.layoutBlankProfileHostStudy.visibility = View.GONE
+            }
         }
     }
 
