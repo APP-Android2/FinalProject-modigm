@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ChatRoomRepository
 import kr.co.lion.modigm.repository.StudyRepository
@@ -137,7 +138,6 @@ class WriteViewModel : ViewModel() {
         return try {
             val sequence = studyRepository.getStudySequence() + 1
             val writeUidValue = writeUid.value ?: ""
-            val chatSequence = chatRoomRepository.getChatRoomSequence()
 
             val studyData = StudyData(
                 studyIdx = sequence,
@@ -154,7 +154,7 @@ class WriteViewModel : ViewModel() {
                 studyPic = studyPicUri.value ?: "",
                 studyMaxMember = studyMaxMember.value ?: 0,
                 studyUidList = listOf(writeUidValue),
-                chatIdx = chatSequence,
+                chatIdx = sequence,
                 studyState = true,
                 studyWriteUid = writeUidValue
             )
@@ -163,7 +163,6 @@ class WriteViewModel : ViewModel() {
             db.collection("Study").add(studyData).await()
             // 시퀀스 업데이트
             studyRepository.updateStudySequence(sequence)
-            chatRoomRepository.updateChatRoomSequence(chatSequence)
             sequence
         } catch (e: Exception) {
             Log.e("WriteViewModel", "Error saving data: ${e.message}")
@@ -171,6 +170,31 @@ class WriteViewModel : ViewModel() {
         }
     }
 
+    // 파이어스토어에 데이터 저장
+    suspend fun saveChatRoomDataToFirestore(): Int? {
+        return try {
+            val sequence = studyRepository.getStudySequence()
+            val writeUidValue = writeUid.value ?: ""
 
+            val chatRoomData = ChatRoomData(
+                chatIdx = sequence,
+                chatTitle = studyTitle.value ?: "",
+                chatRoomImage = studyPicUri.value ?: "",
+                chatMemberList = listOf(writeUidValue),
+                participantCount = 1,
+                groupChat = true,
+                lastChatMessage = "",
+                lastChatFullTime = 0L,
+                lastChatTime = ""
+            )
+
+            val db = FirebaseFirestore.getInstance()
+            db.collection("ChatRoomData").add(chatRoomData).await()
+            sequence
+        } catch (e: Exception) {
+            Log.e("WriteViewModel", "Error saving data: ${e.message}")
+            null
+        }
+    }
 
 }

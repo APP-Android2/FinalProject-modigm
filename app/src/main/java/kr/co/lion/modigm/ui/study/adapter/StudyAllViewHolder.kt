@@ -109,8 +109,8 @@ class StudyAllViewHolder(
     private fun setStudyApplyMethod(studyData: Pair<StudyData, Int>) {
         with(binding) {
             textViewStudyAllApplyMethod.text = when (studyData.first.studyApplyMethod) {
-                1 -> "선착순"
-                2 -> "신청제"
+                1 -> "신청제"
+                2 -> "선착순"
                 else -> ""
             }
         }

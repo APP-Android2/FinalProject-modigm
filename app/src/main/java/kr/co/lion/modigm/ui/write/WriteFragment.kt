@@ -118,6 +118,7 @@ class WriteFragment : Fragment() {
                     introFragment?.uploadImageAndSaveData {
                         lifecycleScope.launch {
                             val studyIdx = viewModel.saveDataToFirestore()
+                            val chatRoomIdx = viewModel.saveChatRoomDataToFirestore()
                             if (studyIdx != null) {
                                 navigateToDetailFragment(studyIdx)
                             }
