@@ -139,7 +139,7 @@
                     android:layout_marginBottom="8dp"
                     android:text="확인"
                     android:textColor="@color/white"
-                    android:textSize="14dp"
+                    android:textSize="16dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"/>
