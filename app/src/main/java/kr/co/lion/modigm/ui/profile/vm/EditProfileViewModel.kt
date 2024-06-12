@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.profile.vm
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
@@ -105,7 +106,8 @@ class EditProfileViewModel: ViewModel() {
         _editProfileLinkList.value = _editProfileLinkList.value?.filter { it != link }
     }
 
-    fun updateUserData(profileFragment: ProfileFragment) = viewModelScope.launch {
+    fun updateUserData(profileFragment: ProfileFragment, newImageUri: Uri?) = viewModelScope.launch {
+        // 데이터를 객체에 담는다
         val user = UserData()
         user.userUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!
         user.userName = ModigmApplication.prefs.getUserData("currentUserData")?.userName!!
@@ -117,11 +119,22 @@ class EditProfileViewModel: ViewModel() {
         user.userLinkList = _editProfileLinkList.value!!.toMutableList()
         user.userProvider = ModigmApplication.prefs.getUserData("currentUserData")?.userProvider!!
 
+        // 데이터베이스 업데이트: Firestore, Storage
         userRepository.updateUserData(user)
-        ModigmApplication.prefs.clearUserData("currentUserData")
-        ModigmApplication.prefs.setUserData("currentUserData", user)
 
-        // 프로필 화면 업데이트
-        profileFragment.updateViews()
+        // 사진 변경사항이 있으면 사진 업로드 후 해당 함수에서 프로필 화면 재로드
+        if (newImageUri != null) {
+            userRepository.addProfilePic(newImageUri, _editProfilePicSrc.value!!, profileFragment)
+            // SharedPreference 업데이트
+            ModigmApplication.prefs.clearUserData("currentUserData")
+            ModigmApplication.prefs.setUserData("currentUserData", user)
+        } else {
+            // SharedPreference 업데이트
+            ModigmApplication.prefs.clearUserData("currentUserData")
+            ModigmApplication.prefs.setUserData("currentUserData", user)
+
+            // 사진 변경사항이 없으면 그냥 재로드
+            profileFragment.updateViews()
+        }
     }
 }

@@ -59,10 +59,10 @@ class ProfileFragment: Fragment() {
                 profileWebFragment.arguments = bundle
 
                 // Fragment 교체
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, ProfileWebFragment())
-                    .addToBackStack(FragmentName.FILTER_SORT.str)
-                    .commit()
+                requireActivity().supportFragmentManager.commit {
+                    add(R.id.containerMain, profileWebFragment)
+                    addToBackStack(FragmentName.PROFILE_WEB.str)
+                }
             }
         }
     )

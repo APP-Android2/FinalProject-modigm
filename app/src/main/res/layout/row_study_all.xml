@@ -12,7 +12,7 @@
         app:cardElevation="2dp"
         app:strokeWidth="0dp"
         android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="16dp">
+        android:layout_marginHorizontal="4dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
