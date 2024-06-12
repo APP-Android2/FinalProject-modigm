@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
@@ -25,6 +26,12 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
     private lateinit var binding: FragmentWriteSkillBinding
     private val viewModel: WriteViewModel by activityViewModels()
     private val tabName = "skill"
+
+    private var selectedCardView: MaterialCardView? = null // 선택된 카드뷰를 기억하기 위한 변수
+
+    // 선택된 스킬 목록
+    private var selectedSkills: List<Int> = listOf()
+
     private var selectedSkillList: MutableList<Int> = mutableListOf()
 
     override fun onCreateView(
@@ -33,9 +40,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
     ): View? {
         // Inflate the layout for this fragment
 
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_write_skill, container, false)
-        binding.writeViewModel = viewModel
-        binding.lifecycleOwner = this
+        binding = FragmentWriteSkillBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -44,17 +49,14 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
         super.onViewCreated(view, savedInstanceState)
 
         settingView()
-        settingEvent()
-        // 입력 확인 처리
-        getAnswer()
-    }
-
-
-    fun settingEvent(){
-        // 바텀시트 출력
         settingBottomSheeet()
 
+        restoreSelectedSkills() // 저장된 스킬 목록 복원
+
+        validateCardSelection() // 유효성 검사 추가
+
     }
+
     fun settingBottomSheeet(){
         // textLaout 클릭 시 리스너
         binding.textInputLayoutWriteSkill.editText?.setOnClickListener {
@@ -68,66 +70,71 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
 
     fun settingView(){
         // cardView 클릭 시 Stroke 색상 변경
-        binding.apply {
-            val context = requireContext()
-            val clickedStrokeColor = ContextCompat.getColor(context, R.color.pointColor)
-            val unclickedStrokeColor = ContextCompat.getColor(context, R.color.textGray)
-
-            // 신청제 Card
+        with(binding){
+            cardviewWriteSkillApplicationSystem.setTag(1)
+            cardviewWriteSkillFirstCome.setTag(2)
+            // 신청제
             cardviewWriteSkillApplicationSystem.setOnClickListener {
-                cardviewWriteSkillApplicationSystem.apply {
-                    if (cardElevation == 20F && strokeColor == clickedStrokeColor){
-                        cardElevation = 0F
-                        strokeColor = unclickedStrokeColor
-
-                        viewModel.gettingApplyMethod(0)
-                    } else {
-
-                        // Stroke 색상 변경
-                        strokeColor = clickedStrokeColor
-                        cardviewWriteSkillFirstCome.strokeColor = unclickedStrokeColor
-
-                        // Elevation 추가
-                        cardElevation = 20F
-                        cardviewWriteSkillFirstCome.cardElevation = 0F
-
-                        viewModel.gettingApplyMethod(1)
-                    }
-                }
-
+                onCardClicked(it as MaterialCardView)
             }
 
-            // 선착순 Card
+            // 선착순
             cardviewWriteSkillFirstCome.setOnClickListener {
-                cardviewWriteSkillFirstCome.apply {
-                    if (cardElevation == 20F && strokeColor == clickedStrokeColor){
-                        cardElevation = 0F
-                        strokeColor = unclickedStrokeColor
+                onCardClicked(it as MaterialCardView)
+            }
+        }
 
-                        viewModel.gettingApplyMethod(0)
-
-                    } else {
-
-                        // Stroke 색상 변경
-                        strokeColor = clickedStrokeColor
-                        cardviewWriteSkillApplicationSystem.strokeColor = unclickedStrokeColor
-
-                        // Elevation 추가
-                        cardElevation = 20F
-                        cardviewWriteSkillApplicationSystem.cardElevation = 0F
-
-                        viewModel.gettingApplyMethod(2)
-                    }
-                }
+        // ViewModel에 저장된 선택 상태를 확인하고 복원
+        viewModel.selectedApplyTag.value?.let { selectedTag ->
+            when (selectedTag) {
+                1 -> binding.cardviewWriteSkillApplicationSystem.performClick()
+                2 -> binding.cardviewWriteSkillFirstCome.performClick()
+                else -> { /* 저장된 데이터 없음 */ }
             }
         }
     }
+    // 클릭된 카드뷰의 스트로크 색상 변경 함수
+    private fun changeStrokeColor(cardView: MaterialCardView, isSelected: Boolean) {
+        val colorResId = if (isSelected) R.color.pointColor else R.color.textGray
+        cardView.strokeColor = ContextCompat.getColor(requireContext(), colorResId)
+    }
+
+    // 카드뷰 클릭 이벤트 처리 함수
+    private fun onCardClicked(clickedCardView: MaterialCardView) {
+        // 이미 선택된 카드뷰인 경우, 선택을 취소하지 않음
+        if (clickedCardView == selectedCardView) {
+            return
+        }
+        val wasSelected = clickedCardView == selectedCardView
+        // 선택된 카드뷰가 이미 있다면 선택 해제
+        selectedCardView?.apply {
+            changeStrokeColor(this, false) // 선택 해제 시 스트로크 색상을 변경
+        }
+        // 새로 클릭된 카드뷰를 선택하고 스트로크 색상 변경
+        selectedCardView = if (!wasSelected) clickedCardView else null
+        changeStrokeColor(clickedCardView, !wasSelected)
+
+        validateCardSelection() // 유효성 검사 추가
+        // 선택된 카드뷰의 태그를 뷰모델에 저장
+        viewModel.selectedApplyTag.value = clickedCardView.tag as Int
+    }
 
     override fun onSkillSelected(selectedSkills: List<Skill>) {
-        // ChipGroup에 칩 추가
-        addChipsToGroup(binding.chipGroupWriteSkill, selectedSkills)
-        getAnswer()
+
+        val selectedSkillNums = selectedSkills.map { it.num }  // Skill 객체에서 num 값 추출
+        val selectedSkillObjects = selectedSkills  // 원본 Skill 리스트를 저장
+
+        this.selectedSkills = selectedSkillNums  // selectedSkills를 num 리스트로 설정
+
+        viewModel.studySkillList.value = selectedSkillNums // 뷰모델에 저장
+
+        selectedSkillNums.forEach { num ->
+            Log.d("WriteSkillFragment", "Selected skill number: $selectedSkillNums")
+        }
+
+        addChipsToGroup(binding.chipGroupWriteSkill, selectedSkillObjects)
     }
+
 
     fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
         // 기존의 칩들을 삭제
@@ -157,37 +164,21 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
             }
             chipGroup.addView(chip)
         }
-        viewModel.gettingSkillList(selectedSkillList)
     }
 
-    // 사용자가 입력을 했는지 확인
-    fun getAnswer(){
-        var result1 = false
-        var result2 = false
-        viewModel.studyApplyMethod.observe(viewLifecycleOwner){
-            // 신청방식 - 입력 OK
-            if (!it.equals(0)){
-                result1 = true
-            } else {
-                result1 = false
+    private fun restoreSelectedSkills() {
+        // ViewModel에 저장된 스킬 목록을 가져와서 칩을 추가
+        viewModel.studySkillList.value?.let { skillNums ->
+            val skills = skillNums.mapNotNull { num ->
+                Skill.values().find { it.num == num }
             }
-        }
-        viewModel.studySkillList.observe(viewLifecycleOwner){
-            // 필요한 기술 스택 - 입력 OK
-            if (it != null) {
-                if (it.size != 0){
-                    // 입력 OK
-                    result2 = true
-                } else{
-                    result2 = false
-                }
-            }
-        }
-
-        if (result1 && result2){
-            viewModel.userDidAnswer(tabName)
-        } else{
-            viewModel.userDidNotAnswer(tabName)
+            addChipsToGroup(binding.chipGroupWriteSkill, skills)
         }
     }
+
+    private fun validateCardSelection() {
+        val isCardSelected = selectedCardView != null
+        viewModel.validateSkill(isCardSelected)
+    }
+
 }
