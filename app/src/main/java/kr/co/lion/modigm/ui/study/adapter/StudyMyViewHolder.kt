@@ -123,7 +123,7 @@ class StudyMyViewHolder(
                 2 -> {
                     text = "프로젝트"
                 }
-                else -> {
+                3 -> {
                     text = "공모전"
                 }
             }

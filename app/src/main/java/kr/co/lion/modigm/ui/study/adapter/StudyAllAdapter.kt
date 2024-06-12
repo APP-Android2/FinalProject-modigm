@@ -31,6 +31,7 @@ class StudyAllAdapter(
 
     override fun onBindViewHolder(holder: StudyAllViewHolder, position: Int) {
         holder.bind(studyList[position])
+        Log.d("StudyAllAdapter", "onBindViewHolder: position = $position, studyIdx = ${studyList[position].first.studyIdx}")
     }
 
     // 목록 새로고침
@@ -38,7 +39,7 @@ class StudyAllAdapter(
     fun updateData(list: List<Pair<StudyData, Int>>) {
         studyList = list
         notifyDataSetChanged()
-        Log.d("update adapter", list.toString())
+        Log.d("StudyAllAdapter", "updateData: ${list.size} 개의 데이터로 업데이트")
     }
 }
 

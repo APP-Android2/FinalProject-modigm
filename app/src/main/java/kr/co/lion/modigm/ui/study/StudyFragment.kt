@@ -57,16 +57,6 @@ class StudyFragment : Fragment(R.layout.fragment_study) {
                     // 필요시 구현
                 }
             })
-
-            // FAB 설정
-            with(fabStudyWrite) {
-                setOnClickListener {
-                    requireActivity().supportFragmentManager.commit {
-                        replace(R.id.containerMain, WriteFragment())
-                        addToBackStack(FragmentName.WRITE.str)
-                    }
-                }
-            }
         }
     }
 }
