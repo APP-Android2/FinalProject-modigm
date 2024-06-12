@@ -1,9 +1,16 @@
 package kr.co.lion.modigm.ui.study
 
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import androidx.core.view.ViewCompat
+import androidx.core.view.ViewPropertyAnimatorListenerAdapter
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
@@ -26,6 +33,10 @@ import kr.co.lion.modigm.util.ModigmApplication
 class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
 
     private lateinit var rowbinding: RowStudyAllBinding
+
+//    // FAB 초기 위치 저장 변수
+//    private var fabInitialY: Float = 0f
+//    private var offset: Float = 0f
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
@@ -75,6 +86,12 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
         val binding = FragmentStudyAllBinding.bind(view)
         rowbinding = RowStudyAllBinding.inflate(layoutInflater)
 
+//        // FAB 초기 위치 저장
+//        binding.fabStudyWrite.post {
+//            fabInitialY = binding.fabStudyWrite.y
+//            offset = 10.dpToPx() // 10dp를 픽셀로 변환
+//        }
+
         // 초기 뷰 세팅
         initView(binding)
         observeData()
@@ -108,19 +125,15 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
                 // 스크롤 리스너 추가
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (dy > 0 || dy < 0 && binding.fabStudyWrite.isShown) {
+                        if (dy > 0 && binding.fabStudyWrite.isShown) {
                             binding.fabStudyWrite.hide()
-                        }
-                    }
-
-                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        } else if (dy < 0 && !binding.fabStudyWrite.isShown) {
                             binding.fabStudyWrite.show()
                         }
-                        super.onScrollStateChanged(recyclerView, newState)
                     }
                 })
             }
+
 
             with(searchBarStudyAll) {
                 setOnClickListener {
