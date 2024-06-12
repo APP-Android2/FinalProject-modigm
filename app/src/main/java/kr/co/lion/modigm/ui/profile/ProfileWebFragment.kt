@@ -32,7 +32,7 @@ class ProfileWebFragment : Fragment() {
         fragmentProfileWebBinding.apply {
             toolbarProfileWeb.apply {
                 // 툴바 메뉴
-                inflateMenu(R.menu.menu_profile)
+                inflateMenu(R.menu.menu_profile_web)
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.menu_item_profile_web_finish -> {

@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".ui.profile.ProfileWebFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -15,6 +16,10 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:titleTextAppearance="@style/toolbarText" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
 
     <WebView
         android:id="@+id/profileWebView"
