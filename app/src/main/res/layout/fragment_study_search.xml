@@ -23,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:focusable="true"
+        android:textAppearance="@style/dialogText"
         app:iconifiedByDefault="false"
         app:hideNavigationIcon="true"
         app:queryHint="검색할 스터디 제목을 입력하세요" />

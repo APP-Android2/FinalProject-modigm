@@ -3,7 +3,9 @@ package kr.co.lion.modigm.ui.study
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -96,6 +98,10 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
 
             // init SearchView
             searchView.isSubmitButtonEnabled = true
+
+            val searchTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text) as TextView
+            TextViewCompat.setTextAppearance(searchTextView, R.style.ChipTextStyle)
+
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     query?.let {
