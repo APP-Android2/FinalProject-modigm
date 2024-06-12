@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,8 +18,8 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
-            app:titleTextAppearance="@style/toolbarText"
-            app:menu="@menu/menu_chat_toolbar" />
+            app:menu="@menu/menu_chat_toolbar"
+            app:titleTextAppearance="@style/toolbarText" />
 
         <LinearLayout
             android:id="@+id/viewPagerContainer"
@@ -28,16 +28,17 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabsChat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#ffffff"
-                android:elevation="1dp"
+                android:backgroundTint="@color/white"
                 app:tabIndicatorColor="?attr/colorPrimary"
                 app:tabIndicatorFullWidth="true"
-                app:tabSelectedTextColor="?attr/colorPrimary"
                 app:tabRippleColor="#CCCCCC"
+                app:tabSelectedTextColor="?attr/colorPrimary"
+                app:tabTextAppearance="@style/tab_text"
                 app:tabTextColor="@color/textGray">
 
                 <com.google.android.material.tabs.TabItem
