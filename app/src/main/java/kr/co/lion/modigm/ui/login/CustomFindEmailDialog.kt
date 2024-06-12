@@ -23,8 +23,8 @@ class CustomFindEmailDialog(context: Context) : Dialog(context){
         binding.textViewDialogTitle.text = title
     }
 
-    fun setMessage(message: String) {
-        binding.textViewDialogMessage.text = message
+    fun setEmail(email: String) {
+        binding.textViewDialogMessageEmail.text = email
     }
 
     fun setPositiveButton(buttonText: String, onClickListener: (View) -> Unit) {
