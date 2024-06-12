@@ -231,6 +231,9 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                 fragmentEditProfileBinding.chipGroupProfile.addView(Chip(context).apply {
                     // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
                     text = Interest.fromNum(interestNum)!!.str
+
+                    setTextAppearance(R.style.ChipTextStyle)
+
                     // 자동 padding 없애기
                     setEnsureMinTouchTargetSize(false)
                     // 배경 흰색으로 지정
@@ -254,6 +257,9 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
             fragmentEditProfileBinding.chipGroupProfile.addView(Chip(context).apply {
                 // chip 텍스트 설정
                 text = "+"
+
+                setTextAppearance(R.style.ChipTextStyle)
+
                 // 자동 padding 없애기
                 setEnsureMinTouchTargetSize(false)
                 // 배경 흰색으로 지정

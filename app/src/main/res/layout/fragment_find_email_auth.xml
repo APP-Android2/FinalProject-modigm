@@ -70,7 +70,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="인증번호 입력"
-                            android:inputType="text"
+                            android:inputType="number"
                             android:textSize="16dp"
                             android:text="@={viewModel.inputCode}"/>
                     </com.google.android.material.textfield.TextInputLayout>

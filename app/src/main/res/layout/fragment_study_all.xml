@@ -55,8 +55,8 @@
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
             android:id="@+id/fabStudyWrite"
+            app:layout_behavior=".ui.study.FABBehavior"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"

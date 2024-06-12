@@ -42,6 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:endIconMode="clear_text"
+                app:errorTextAppearance="@style/dialogText"
                 app:hintAnimationEnabled="false"
                 app:hintEnabled="false">
 
@@ -68,6 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:endIconMode="password_toggle"
+                app:errorTextAppearance="@style/dialogText"
                 app:hintAnimationEnabled="false"
                 app:hintEnabled="false">
 
@@ -93,6 +95,7 @@
                 android:id="@+id/textInputLayout_join_userPasswordCheck"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:errorTextAppearance="@style/dialogText"
                 app:endIconMode="password_toggle"
                 app:hintAnimationEnabled="false"
                 app:hintEnabled="false">

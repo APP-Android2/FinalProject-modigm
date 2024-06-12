@@ -92,6 +92,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
                     app:helperTextTextColor="#1A51C5"
+                    app:helperTextTextAppearance="@style/dialogText"
                     app:hintAnimationEnabled="false"
                     app:hintEnabled="false">
 

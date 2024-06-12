@@ -8,6 +8,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -138,6 +140,10 @@ class ChatFragment : Fragment() {
         val searchView = searchItem.actionView as androidx.appcompat.widget.SearchView
 
         searchView.queryHint = "검색어를 입력하세요"
+
+        // SearchView의 텍스트 뷰 스타일 변경
+        val searchTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text) as TextView
+        TextViewCompat.setTextAppearance(searchTextView, R.style.ChipTextStyle)
 
         searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {

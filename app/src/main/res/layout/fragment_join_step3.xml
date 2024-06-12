@@ -35,6 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="관심있는 분야를 선택해주세요"
+                android:textSize="16dp"
                 android:textColor="#FF0000"
                 android:visibility="gone"
                 tools:visibility="visible" />

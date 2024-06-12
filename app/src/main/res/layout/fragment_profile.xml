@@ -143,6 +143,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:layout_marginBottom="10dp"
+                            android:textStyle="bold"
                             android:text="홍길동님이 참여한 스터디"
                             android:textSize="16dp" />
 
@@ -153,12 +154,34 @@
                             android:layout_marginBottom="20dp"
                             android:overScrollMode="never"/>
 
+                        <LinearLayout
+                            android:id="@+id/layoutBlankProfilePartStudy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="20dp"
+                            android:layout_marginVertical="30dp"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                app:tint="#777"
+                                android:src="@drawable/icon_book_24px"/>
+                            <TextView
+                                android:layout_marginTop="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="16dp"
+                                android:text="참여한 스터디 데이터가 없습니다"/>
+                        </LinearLayout>
+
                         <TextView
                             android:id="@+id/textViewProfileHostStudy"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:layout_marginBottom="10dp"
+                            android:textStyle="bold"
                             android:text="홍길동님이 진행한 스터디"
                             android:textSize="16dp" />
 
@@ -168,6 +191,27 @@
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="16dp"
                             android:overScrollMode="never"/>
+
+                        <LinearLayout
+                            android:id="@+id/layoutBlankProfileHostStudy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="20dp"
+                            android:layout_marginVertical="30dp"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <ImageView
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                app:tint="#777"
+                                android:src="@drawable/icon_closed_book_24px"/>
+                            <TextView
+                                android:layout_marginTop="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="16dp"
+                                android:text="진행한 스터디 데이터가 없습니다"/>
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>

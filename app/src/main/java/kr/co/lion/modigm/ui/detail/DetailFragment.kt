@@ -531,137 +531,86 @@ class DetailFragment : Fragment() {
     fun setupStatePopup() {
         val textViewState = binding.textViewDetailState
 
-        // 사용자 ID와 studyWriteUid를 비교하여 이미지를 설정합니다.
         if (currentStudyData?.studyWriteUid == uid) {
-            textViewState.setCompoundDrawablesWithIntrinsicBounds(
-                0,
-                0,
-                R.drawable.icon_expand_more_24px,
-                0
-            )
-
-            // 팝업 메뉴
-            textViewState.setOnClickListener { view ->
-                // 사용자 ID와 studyWriteUid 비교하여 팝업 메뉴 표시 여부 결정
-                if (!isPopupShown) {
-                    showStatePopup(view as TextView)  // TextView를 명시적으로 전달
-                    textViewState.setCompoundDrawablesWithIntrinsicBounds(
-                        0,
-                        0,
-                        R.drawable.icon_expand_less_24px,
-                        0
-                    )
-                    isPopupShown = true
-                } else {
-                    isPopupShown = false
-                    textViewState.setCompoundDrawablesWithIntrinsicBounds(
-                        0,
-                        0,
-                        R.drawable.icon_expand_more_24px,
-                        0
-                    )
-                }
-            }
-
-            // 버튼 클릭 이벤트(채팅 방 이동)
-            binding.buttonDetailApply.setOnClickListener {
-                Log.d("DetailFragment", "채팅방 이동1")
-
-                moveChatRoom()
-            }
-
+            setupOwnerView(textViewState)
         } else {
-            textViewState.isEnabled = false
-            textViewState.setCompoundDrawablesWithIntrinsicBounds(
-                0,
-                0,
-                0,
-                0
-            )
+            setupNonOwnerView(textViewState)
+        }
+    }
 
-            // textViewState의 text가 "모집중"인 경우 버튼 파란색으로 설정
-            if (textViewState.text == "모집중") {
-                binding.buttonDetailApply.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pointColor))
-                // 버튼 클릭 이벤트(채팅 방 이동 혹은 신청)
-                if (currentStudyData?.studyApplyMethod==1) {
-                    binding.buttonDetailApply.setOnClickListener {
-                        Log.d("DetailFragment", "신청")
-                        val method = currentStudyData?.studyApplyMethod // 예: 신청방식을 가져오는 방법에 따라 달라질 수 있음
-                        Log.d("DetailFragment", "Button clicked, method: $method")
+    private fun setupOwnerView(textViewState: TextView) {
+        textViewState.setCompoundDrawablesWithIntrinsicBounds(
+            0,
+            0,
+            R.drawable.icon_expand_more_24px,
+            0
+        )
 
-                        if (method == 1) {  // 신청하기
-                            viewModel.applyToStudy(studyIdx, uid)
-                            view?.let { v ->
-//                                Snackbar.make(v, "신청이 완료되었습니다", Snackbar.LENGTH_LONG).show()
+        textViewState.isEnabled = true
 
-                                val message = "신청이 완료되었습니다"
-                                val snackbar = Snackbar.make(v,message, Snackbar.LENGTH_LONG)
-
-                                // 스낵바의 텍스트 뷰 찾기
-                                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-
-                                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
-                                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
-                                snackbar.show()
-
-                                Log.d("DetailFragment", "Snackbar shown for apply")
-                            }
-                        } else {  // 참여하기
-
-                            Log.d("DetailFragment", "Changed button text for join study")
-                        }
-                    }
-                }else{
-
-
-                    // 선착순일 경우
-                    binding.buttonDetailApply.setOnClickListener {view ->
-                        Log.d("DetailFragment", "채팅방 이동2")
-                        // 스터디 참여 인원 확인
-                        val currentSize = currentStudyData?.studyUidList?.size ?: 0
-                        val maxSize = currentStudyData?.studyMaxMember ?: 0
-
-                        if(currentSize >= maxSize){
-                            // 스낵바를 통해 메시지 표시
-                            view?.let { v ->
-                                val message = "스터디 인원이 이미 가득 찼습니다."
-                                val snackbar = Snackbar.make(v,message, Snackbar.LENGTH_LONG)
-
-                                // 스낵바의 텍스트 뷰 찾기
-                                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-
-                                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
-                                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
-                                snackbar.show()
-
-                            }
-                            Log.d("DetailFragment", "스터디 인원이 가득 찼으므로 참여할 수 없습니다.")
-                            return@setOnClickListener  // 추가 동작을 중지
-
-                        }else{
-                            viewModel.joinStudy(studyIdx, uid)
-                            // 멤버 추가
-                            addUserToChatMemberList()
-                            // 채팅방 이동
-                            moveChatRoom()
-                        }
-
-                    }
-                }
-
+        textViewState.setOnClickListener { view ->
+            Log.d("DetailFragment", "TextViewState clicked for owner")
+            if (!isPopupShown) {
+                showStatePopup(view as TextView)
+                textViewState.setCompoundDrawablesWithIntrinsicBounds(
+                    0,
+                    0,
+                    R.drawable.icon_expand_less_24px,
+                    0
+                )
+                isPopupShown = true
             } else {
-                // textViewState의 text가 "모집 마감"인 경우 버튼 회색으로 설정
-                val button = binding.buttonDetailApply
-                button.setBackgroundColor(Color.parseColor("#777777"))  // 배경색을 회색으로 설정
-                button.setTextColor(Color.BLACK)  // 텍스트 색상을 검정색으로 설정
-
-                button.isEnabled = false
+                isPopupShown = false
+                textViewState.setCompoundDrawablesWithIntrinsicBounds(
+                    0,
+                    0,
+                    R.drawable.icon_expand_more_24px,
+                    0
+                )
             }
         }
+
+        binding.buttonDetailApply.setOnClickListener {
+            Log.d("DetailFragment", "채팅방 이동1")
+            moveChatRoom()
+        }
+    }
+
+    private fun setupNonOwnerView(textViewState: TextView) {
+        textViewState.isEnabled = false
+        textViewState.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+
+        if (textViewState.text == "모집중") {
+            binding.buttonDetailApply.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pointColor))
+            binding.buttonDetailApply.setOnClickListener {
+                handleNonOwnerButtonClick(it)
+            }
+        } else {
+            binding.buttonDetailApply.setBackgroundColor(Color.parseColor("#777777"))
+            binding.buttonDetailApply.setTextColor(Color.BLACK)
+            binding.buttonDetailApply.isEnabled = false
+        }
+    }
+
+    private fun handleNonOwnerButtonClick(view: View) {
+        val method = currentStudyData?.studyApplyMethod
+        Log.d("DetailFragment", "Button clicked, method: $method")
+
+        if (method == 1) {
+            viewModel.applyToStudy(studyIdx, uid)
+            showSnackbar(view, "신청이 완료되었습니다")
+        } else {
+            Log.d("DetailFragment", "Changed button text for join study")
+        }
+    }
+
+    private fun showSnackbar(view: View, message: String) {
+        val snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)
+        val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        val textSizeInPx = dpToPx(requireContext(), 14f)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+        snackbar.show()
+        Log.d("DetailFragment", "Snackbar shown for apply")
     }
 
     fun dpToPx(context: Context, dp: Float): Float {

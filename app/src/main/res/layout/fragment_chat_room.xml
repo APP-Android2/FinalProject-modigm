@@ -24,6 +24,7 @@
                 app:navigationIcon="@drawable/icon_back_24px"
                 app:subtitleCentered="true"
                 app:subtitleTextColor="@color/textGray"
+                app:subtitleTextAppearance="@style/toolbarText"
                 app:title="스터디 제목"
                 app:titleCentered="true"
                 app:titleTextAppearance="@style/toolbarText" />
@@ -77,6 +78,7 @@
                         android:importantForAutofill="no"
                         android:inputType="textMultiLine"
                         android:maxLines="6"
+                        android:textSize="16dp"
                         android:paddingLeft="12dp" />
 
                     <ImageButton

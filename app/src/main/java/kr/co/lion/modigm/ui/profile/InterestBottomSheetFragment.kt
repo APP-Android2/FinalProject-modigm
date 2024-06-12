@@ -55,6 +55,9 @@ class InterestBottomSheetFragment: BottomSheetDialogFragment() {
             val chip = Chip(requireContext()).apply {
                 // chip 텍스트 설정: 관심분야
                 text = interest.str
+
+                setTextAppearance(R.style.ChipTextStyle)
+
                 // 자동 padding 없애기
                 setEnsureMinTouchTargetSize(false)
                 // 선택 가능

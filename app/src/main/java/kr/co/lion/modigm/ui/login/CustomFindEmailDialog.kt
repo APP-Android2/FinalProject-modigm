@@ -7,17 +7,17 @@ import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.databinding.CustomDialogFindEmailBinding
 
-class CustomFindEmailDialog(context: Context) : Dialog(context){
+class CustomFindEmailDialog(context: Context){
     private val binding: CustomDialogFindEmailBinding =
         CustomDialogFindEmailBinding.inflate(LayoutInflater.from(context))
 
-    init {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(binding.root)
-        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
+    private val dialog = MaterialAlertDialogBuilder(context)
+        .setView(binding.root)
+        .setCancelable(false)
+        .create()
 
     fun setTitle(title: String) {
         binding.textViewDialogTitle.text = title
@@ -32,8 +32,16 @@ class CustomFindEmailDialog(context: Context) : Dialog(context){
             text = buttonText
             setOnClickListener {
                 onClickListener(it)
-                dismiss()
+                dialog.dismiss()
             }
         }
+    }
+
+    fun show() {
+        dialog.show()
+    }
+
+    fun dismiss() {
+        dialog.dismiss()
     }
 }
