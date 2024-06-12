@@ -23,15 +23,20 @@ import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
-import kr.co.lion.modigm.ui.write.more.CustomDialogWriteIntroExample
+import kr.co.lion.modigm.ui.detail.CustomIntroDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import java.io.File
 
 class WriteIntroFragment : Fragment() {
 
-    lateinit var fragmentWriteIntroBinding: FragmentWriteIntroBinding
+    lateinit var binding: FragmentWriteIntroBinding
     val viewModel: WriteViewModel by activityViewModels()
     val tabName = "intro"
 
@@ -44,6 +49,9 @@ class WriteIntroFragment : Fragment() {
     // 촬영된 사진이 저장된 경로 정보를 가지고 있는 Uri 객체
     lateinit var contentUri: Uri
 
+    private lateinit var auth: FirebaseAuth
+    private lateinit var uid: String
+
     // 확인할 권한 목록
     val permissionList = arrayOf(
         android.Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -53,65 +61,102 @@ class WriteIntroFragment : Fragment() {
     // 이미지를 첨부한 적이 있는지..
     var isAddPicture = false
 
+    // 이미지가 업로드되었는지 여부를 나타내는 플래그
+    private var isImageUploaded = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        fragmentWriteIntroBinding = FragmentWriteIntroBinding.inflate(inflater)
+        binding = FragmentWriteIntroBinding.inflate(inflater, container, false)
+
+        auth = FirebaseAuth.getInstance()
+        uid = auth.currentUser?.uid.toString()
+
+        viewModel.writeUid.value = uid
+
+
         // 카메라 및 앨범 런처 설정
-        initLauncher()
-        return fragmentWriteIntroBinding.root
+        initData()
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initData()
-        settingEvent()
-        validateInput()
+        setupButton() // 이미지 추가 버튼
+
+        // ViewModel에 저장된 이미지 URI가 있으면 복원
+        viewModel.studyPic.value?.let { uriString ->
+            val uri = Uri.parse(uriString)
+            if (uri != null) {
+                contentUri = uri
+                loadImageIntoImageView(uri)
+                isAddPicture = true
+                validateIntro()
+            }
+        }
+
+        // 텍스트 입력 변경 사항을 관찰
+        binding.textInputWriteIntroTitle.addTextChangedListener {
+            viewModel.studyTitle.value = binding.textInputWriteIntroTitle.text.toString()
+            validateIntro()
+
+        }
+
+        // 텍스트 입력 변경 사항을 관찰
+        binding.textInputWriteIntroContent.addTextChangedListener {
+            viewModel.studyContent.value = binding.textInputWriteIntroContent.text.toString().replace(System.getProperty("line.separator"), "\\n")
+            validateIntro()
+
+        }
+
+        // 이미지 추가 관찰
+        binding.imageViewCoverImageSelect.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            validateIntro()
+        }
+
+        // 이미지 업로드 후 URI 변경 관찰
+        viewModel.studyPicUri.observe(viewLifecycleOwner) {
+            validateIntro()
+        }
+    }
+    // ImageView에 이미지를 로드하는 메서드
+    private fun loadImageIntoImageView(uri: Uri) {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(inputStream) // 사진 객체 생성
+            val degree = getDegree(uri)
+            val bitmap2 = rotateBitmap(bitmap, degree.toFloat())
+            val bitmap3 = resizeBitmap(bitmap2, 1024)
+
+            binding.cardViewCoverImageSelect.visibility = View.VISIBLE
+            binding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
+        } catch (e: Exception) {
+            Log.e("WriteIntroFragment", "Error loading image: ${e.message}")
+        }
     }
 
-    fun settingEvent() {
-        fragmentWriteIntroBinding.apply {
+
+    fun setupButton() {
+        with(binding){
             // image 버튼 클릭 리스너
-            imageViewWriteIntroCoverImage.setOnClickListener {
+            cardviewWriteIntroCardCover.setOnClickListener {
                 showPopupWindow(it)
             }
 
             // 작성예시 클릭 리스너
             textViewWriteIntroWriteExample.setOnClickListener {
                 // 다이얼로그를 띄워준다
-                val context = requireContext()
-                val dialog = CustomDialogWriteIntroExample(context)
+                val dialog = CustomIntroDialog(requireContext())
                 dialog.show()
-            }
-
-            // 제목 완료 처리 이벤트
-            textInputWriteIntroTitle.apply {
-                addTextChangedListener {
-                    viewModel.gettingStudyTitle(it.toString())
-                }
-            }
-
-            // 내용 완료 처리 이벤트
-            textInputWriteIntroContent.apply {
-                addTextChangedListener {
-                    // EditText로부터 텍스트를 가져와 줄바꿈 문자를 \n으로 변환
-                    val studyContent = text.toString().replace(System.getProperty("line.separator"), "\\n")
-                    viewModel.gettingStudyContent(studyContent)
-                }
             }
         }
     }
 
-    fun initData() {
-        isAddPicture = false
-        // 입력상태 초기화
-        viewModel.userDidNotAnswer(tabName)
-    }
 
-    fun initLauncher() {
+    fun initData() {
         val context = requireContext()
 
         // 권한 확인
@@ -122,24 +167,26 @@ class WriteIntroFragment : Fragment() {
         cameraLauncher = registerForActivityResult(contract1) {
             // 사진을 사용하겠다고 한 다음에 돌아왔을 경우
             if (it.resultCode == AppCompatActivity.RESULT_OK) {
-                // 사진 객체를 생성한다.
-                val bitmap = BitmapFactory.decodeFile(contentUri.path)
+                contentUri?.let { uri ->
+                    // 사진 객체를 생성한다.
+                    val bitmap = BitmapFactory.decodeFile(uri.path) // 사진 객체 생성
 
-                // 회전 각도값을 구한다.
-                val degree = getDegree(contentUri)
-                // 회전된 이미지를 구한다.
-                val bitmap2 = rotateBitmap(bitmap, degree.toFloat())
-                // 크기를 조정한 이미지를 구한다.
-                val bitmap3 = resizeBitmap(bitmap2, 1024)
+                    // 회전 각도값을 구한다.
+                    val degree = getDegree(uri)
+                    // 회전된 이미지를 구한다.
+                    val bitmap2 = rotateBitmap(bitmap, degree.toFloat())
+                    // 크기를 조정한 이미지를 구한다.
+                    val bitmap3 = resizeBitmap(bitmap2, 1024)
 
-                fragmentWriteIntroBinding.cardViewWriteIntroCreatedCardCover.visibility = View.VISIBLE
-                fragmentWriteIntroBinding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
-                isAddPicture = true
+                    viewModel.studyPic.value = uri.toString() // URI를 ViewModel에 저장
 
-                // 사진 파일을 삭제한다.
-                val file = File(contentUri.path)
-                file.delete()
+                    binding.cardViewCoverImageSelect.visibility = View.VISIBLE
+                    binding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
+                    isAddPicture = true // 이미지가 추가되었음을 나타냄
+                    validateIntro() // 유효성 검사 호출
+                }
             }
+
         }
 
         // 앨범 실행을 위한 런처
@@ -149,83 +196,50 @@ class WriteIntroFragment : Fragment() {
             if (it.resultCode == AppCompatActivity.RESULT_OK) {
                 // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출한다.
                 val uri = it.data?.data
-                if (uri != null) {
-                    // 안드로이드 Q(10) 이상이라면
+                uri?.let { selectedUri ->
+                    contentUri = selectedUri
                     val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        // 이미지를 생성할 수 있는 객체를 생성한다.
-                        val source = ImageDecoder.createSource(context.contentResolver, uri)
-                        // Bitmap을 생성한다.
+                        val source = ImageDecoder.createSource(context.contentResolver, selectedUri)
                         ImageDecoder.decodeBitmap(source)
                     } else {
-                        // 컨텐츠 프로바이더를 통해 이미지 데이터에 접근한다.
-                        val cursor = context.contentResolver.query(uri, null, null, null, null)
-                        if (cursor != null) {
-                            cursor.moveToNext()
-
-                            // 이미지의 경로를 가져온다.
-                            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
-                            val source = cursor.getString(idx)
+                        val cursor =
+                            context.contentResolver.query(selectedUri, null, null, null, null)
+                        cursor?.let {
+                            it.moveToNext()
+                            val idx = it.getColumnIndex(MediaStore.Images.Media.DATA)
+                            val source = it.getString(idx)
 
                             // 이미지를 생성한다
                             BitmapFactory.decodeFile(source)
-                        } else {
-                            null
                         }
                     }
+                    bitmap?.let {
+                        val degree = getDegree(selectedUri)
+                        val bitmap2 = rotateBitmap(it, degree.toFloat())
+                        val bitmap3 = resizeBitmap(bitmap2, 1024)
 
-                    // 회전 각도값을 가져온다.
-                    val degree = getDegree(uri)
-                    // 회전 이미지를 가져온다
-                    val bitmap2 = rotateBitmap(bitmap!!, degree.toFloat())
-                    // 크기를 줄인 이미지를 가져온다.
-                    val bitmap3 = resizeBitmap(bitmap2, 1024)
+                        viewModel.studyPic.value = uri.toString() // URI를 ViewModel에 저장
 
-                    fragmentWriteIntroBinding.cardViewWriteIntroCreatedCardCover.visibility = View.VISIBLE
-                    fragmentWriteIntroBinding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
-                    isAddPicture = true
+                        binding.cardViewCoverImageSelect.visibility = View.VISIBLE
+                        binding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
+                        isAddPicture = true // 이미지가 추가되었음을 나타냄
+                        validateIntro() // 유효성 검사 호출
+                    }
                 }
             }
         }
     }
 
-    // 입력 유효성 검사
-    fun validateInput() {
-        var result1 = false
-        var result2 = false
+    // 유효성 검사 메서드
+    fun validateIntro() {
+        val isTitleValid = binding.textInputWriteIntroTitle.text.toString().length >= 8
+        val isContentValid = binding.textInputWriteIntroContent.text.toString().length >= 10
+        val isImageAdded = isAddPicture
 
-        viewModel.studyTitle.observe(viewLifecycleOwner) { title ->
-            result1 = if (title.isEmpty() || title.length < 8) {
-                fragmentWriteIntroBinding.textInputWriteIntroTitle.error = "제목은 최소 8자 이상이어야 합니다."
-                false
-            } else {
-                fragmentWriteIntroBinding.textInputWriteIntroTitle.error = null
-                true
-            }
-            checkValidation(result1, result2)
-        }
-
-        viewModel.studyContent.observe(viewLifecycleOwner) { content ->
-            result2 = if (content.isEmpty() || content.length < 10) {
-                fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = "소개글은 최소 10자 이상이어야 합니다."
-                false
-            } else {
-                fragmentWriteIntroBinding.textInputLayoutWriteIntroContent.error = null
-                true
-            }
-            checkValidation(result1, result2)
-        }
+        val isValid = isTitleValid && isContentValid && isImageAdded
+        viewModel.validateIntro(isValid)
     }
 
-    fun checkValidation(result1: Boolean, result2: Boolean) {
-        if (result1 && result2) {
-            // ViewModel에 사진 정보 저장
-            uploadPic()
-            // 입력 완료 처리
-            viewModel.userDidAnswer(tabName)
-        } else {
-            viewModel.userDidNotAnswer(tabName)
-        }
-    }
 
     // 사진의 회전 각도값을 반환하는 메서드
     // ExifInterface : 사진, 영상, 소리 등의 파일에 기록한 정보
@@ -301,7 +315,7 @@ class WriteIntroFragment : Fragment() {
 
     fun showPopupWindow(anchorView: View) {
         val layoutInflater = LayoutInflater.from(requireContext())
-        val popupView = layoutInflater.inflate(R.layout.custom_popup_menu_write_intro, null)
+        val popupView = layoutInflater.inflate(R.layout.custom_popup_cover_image, null)
 
         val popupWindow = PopupWindow(
             popupView,
@@ -374,17 +388,25 @@ class WriteIntroFragment : Fragment() {
         popupWindow.showAsDropDown(anchorView)
     }
 
-    // 사진 저장 메서드
-    fun uploadPic() {
-        var serverFileName: String? = null
-
-        // 첨부된 이미지가 존재
-        if (isAddPicture == true) {
-
-            // 서버에서의 파일 이름
-            serverFileName = "image_${System.currentTimeMillis()}.jpg"
-            // ViewModel에 사진 저장
-            viewModel.gettingStudyPic(serverFileName)
+    fun uploadImageAndSaveData(onComplete: () -> Unit) {
+        if (!isImageUploaded && this::contentUri.isInitialized) {
+            try {
+                val fileName = "${System.currentTimeMillis()}.jpg"
+                val storageReference = FirebaseStorage.getInstance().reference.child("studyPic/$fileName")
+                storageReference.putFile(contentUri)
+                    .addOnSuccessListener { taskSnapshot ->
+                        Log.d("WriteIntroFragment", "Image upload successful")
+                        Log.d("WriteIntroFragment","$fileName")
+                        isImageUploaded = true
+                        viewModel.studyPicUri.value = fileName
+                        onComplete() // 이미지 업로드 완료 후 콜백 호출
+                    }
+                    .addOnFailureListener {
+                        Log.e("WriteIntroFragment", "Image upload failed: ${it.message}")
+                    }
+            } catch (e: Exception) {
+                Log.e("WriteIntroFragment", "Error uploading image: ${e.message}")
+            }
         }
     }
 }
