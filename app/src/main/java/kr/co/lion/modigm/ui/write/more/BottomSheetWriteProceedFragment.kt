@@ -52,7 +52,7 @@ class BottomSheetWriteProceedFragment : BottomSheetDialogFragment() {
                 setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                         val location = text.toString()
-                        viewModel.gettingLocation(location)
+//                        viewModel.gettingLocation(location)
                         // 종료
                         dismiss()
                         true
