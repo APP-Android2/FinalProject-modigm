@@ -12,6 +12,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/white"
         android:orientation="vertical"
         android:transitionGroup="true">
 
@@ -26,8 +27,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="16dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -63,8 +64,8 @@
                         android:layout_height="wrap_content"
                         android:hint="전화번호 입력"
                         android:inputType="phone"
-                        android:textSize="16dp"
-                        android:text="@={changePhoneViewModel.userPhone}" />
+                        android:text="@={changePhoneViewModel.userPhone}"
+                        android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
