@@ -14,12 +14,6 @@ class CustomFindEmailDialog(context: Context){
     private val binding: CustomDialogFindEmailBinding =
         CustomDialogFindEmailBinding.inflate(LayoutInflater.from(context))
 
-//    init {
-//        requestWindowFeature(Window.FEATURE_NO_TITLE)
-//        setContentView(binding.root)
-//        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//    }
-
     private val dialog = MaterialAlertDialogBuilder(context)
         .setView(binding.root)
         .setCancelable(false)

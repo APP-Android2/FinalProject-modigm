@@ -95,23 +95,6 @@ class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
 
     // 이메일 다이얼로그 표시
     private fun showFindEmailDialog(email:String) {
-//        val dialog = CustomFindEmailDialog(requireContext())
-//        dialog.apply {
-//            setTitle("이메일 찾기")
-//            setEmail(email)
-//            setPositiveButton("확인", onClickListener = {
-//                parentFragmentManager.commit {
-//                    replace(R.id.containerMain,OtherLoginFragment())
-//                    addToBackStack(FragmentName.OTHER_LOGIN.str)
-//                }
-//            })
-//            setOnDismissListener {
-//                parentFragmentManager.commit {
-//                    replace(R.id.containerMain,OtherLoginFragment())
-//                    addToBackStack(FragmentName.OTHER_LOGIN.str)
-//                }
-//            }
-//        }.show()
         val dialog = CustomFindEmailDialog(requireContext())
         dialog.setTitle("이메일 찾기")
         dialog.setEmail("$email 입니다.")
@@ -119,7 +102,6 @@ class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
             // Handle button click
             parentFragmentManager.commit {
                 replace(R.id.containerMain, OtherLoginFragment())
-                addToBackStack(FragmentName.OTHER_LOGIN.str)
             }
         }
         dialog.show()
