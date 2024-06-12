@@ -4,16 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
-import kr.co.lion.modigm.model.ChatRoomData
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ChatRoomRepository
 import kr.co.lion.modigm.repository.StudyRepository
-import kr.co.lion.modigm.util.Skill
+
 
 class WriteViewModel : ViewModel() {
     // 스터디 Repository
@@ -22,350 +18,159 @@ class WriteViewModel : ViewModel() {
     // 채팅 Repository
     val chatRoomRepository = ChatRoomRepository()
 
-    var studyIndex = -1
-    lateinit var uidList: List<String>
-
-    // ----------------- Remote Data Source에 전송할 내용 -----------------
-    // StudyData 객체 생성
-    private val _studyData = MutableLiveData<StudyData>()
-    val studyData: LiveData<StudyData> = _studyData
-
-    // ChatData 객체 생성
-    private val _chatRoomData = MutableLiveData<ChatRoomData>()
-    val chatRoomData: LiveData<ChatRoomData> = _chatRoomData
-
-    // 데이터에서 가져올 부분
-    private val _studyIdx = MutableLiveData<Int>() // 글 고유번호
-    val studyIdx: LiveData<Int> = _studyIdx
-
-    private val _studyDetailPlace = MutableLiveData<String>() // 오프라인 진행장소 상세 주소
-    val studyDetailPlace: LiveData<String> = _studyDetailPlace
-
-    private val _studyUidList = MutableLiveData<MutableList<String>>() // 현재 참여자 목록
-    val studyUidList: LiveData<MutableList<String>> = _studyUidList
-
-    private val _chatIdx = MutableLiveData<Int>() // 연결된 채팅방 고유 번호
-    val chatIdx: LiveData<Int> = _chatIdx
-
-    private val _studyState = MutableLiveData<Boolean>() // 삭제 여부 (존재함, 삭제됨)
-    val studyState: LiveData<Boolean> = _studyState
-
-    private val _studyCanApply = MutableLiveData<Boolean>() // 모집상태(모집중, 모집완료)
-    val studyCanApply: LiveData<Boolean> = _studyCanApply
-
-    // 이 프래그먼트에 존재하는 부분
-    // WriteField -> 활동타입 (스터디 : 1, 프로젝트 : 2, 공모전 : 3)
-    private val _studyType = MutableLiveData<Int>()
-    val studyType: LiveData<Int> = _studyType
-
-    // WritePeriod -> 진행기간 (1개월 이하 : 1, 1개월 이상: 2, 3개월 이상 : 3, 6개월 이상 : 4)
-    private val _studyPeriod = MutableLiveData<Int>()
-    val studyPeriod: LiveData<Int> = _studyPeriod
-
-    // WriteProceed -> 진행방식(1: 온라인, 2: 오프라인, 3: 온/오프 혼합)
-    private val _studyOnOffline = MutableLiveData<Int>()
-    val studyOnOffline: LiveData<Int> = _studyOnOffline
-
-    // WriteProceed -> 진행장소
-    private val _studyPlace = MutableLiveData<String>()
-    val studyPlace: LiveData<String> = _studyPlace
-
-    // WriteProceed -> 최대 인원수
-    private val _studyMaxMember = MutableLiveData<Int>()
-    val studyMaxMember: LiveData<Int> = _studyMaxMember
-
-    // WriteSkill -> 신청방식 (1: 선착순, 2: 신청제)
-    private val _studyApplyMethod = MutableLiveData<Int>()
-    val studyApplyMethod: LiveData<Int> = _studyApplyMethod
-
-    // WriteSkill -> 필요 기술스택 목록
-    private val _studySkillList = MutableLiveData<List<Int>?>()
-    val studySkillList: LiveData<List<Int>?> = _studySkillList
-
-    // WriteIntro -> 썸네일 사진
-    private val _studyPic = MutableLiveData<String>()
-    val studyPic: LiveData<String> = _studyPic
-
-    // WriteIntro -> 글 제목
-    private val _studyTitle = MutableLiveData<String>()
-    val studyTitle: LiveData<String> = _studyTitle
-
-    // WriteIntro -> 글 내용
-    private val _studyContent = MutableLiveData<String>()
-    val studyContent: LiveData<String> = _studyContent
-
-    // 글 작성자 Uid
-    private val _studyWriteUid = MutableLiveData<String>()
-    val studyWriteUid: LiveData<String> = _studyWriteUid
-
-    private val _studyApplyList = MutableLiveData<List<String>>()
-    val studyApplyList: LiveData<List<String>> = _studyApplyList
-
-    private val _studyLikeState = MutableLiveData<Boolean>()
-    val studyLikeState: LiveData<Boolean> = _studyLikeState
-    // 스터디 좋아요 상태(좋아요, 좋아요 취소)
-    // ----------------- 입력 상태 반환 -----------------
-
-    // 탭 - 분야
-    private val _fieldClicked = MutableLiveData<Boolean>()
-    val fieldClicked: LiveData<Boolean> = _fieldClicked
-
-    // 탭 - 기간
-    private val _periodClicked = MutableLiveData<Boolean>()
-    val periodClicked: LiveData<Boolean> = _periodClicked
-
-    // 탭 - 진행방식
-    private val _proceedClicked = MutableLiveData<Boolean>()
-    val proceedClicked: LiveData<Boolean> = _proceedClicked
-
-    // 탭 - 기술
-    private val _skillClicked = MutableLiveData<Boolean>()
-    val skillClicked: LiveData<Boolean> = _skillClicked
-
-    // 탭 - 소개
-    private val _introClicked = MutableLiveData<Boolean>()
-    val introClicked: LiveData<Boolean> = _introClicked
+    private val _isItemSelected = MutableLiveData<Boolean>()
+    val isItemSelected: LiveData<Boolean> get() = _isItemSelected
 
 
-    // ----------------- 버튼 상태 반환 -----------------
+    // 각 탭의 유효성 검사 상태를 저장하는 LiveData
 
-    // 버튼 활성화 / 비활성화 상태
-    private val _buttonState = MutableLiveData<Boolean>()
-    val buttonState: LiveData<Boolean> = _buttonState
+    // 분야
+    val isFieldValid = MutableLiveData<Boolean>(false)
+    // 기간
+    val isPeriodValid = MutableLiveData<Boolean>(false)
+    // 진행 방식
+    val isProceedValid = MutableLiveData<Boolean>(false)
+    // 기술
+    val isSkillValid = MutableLiveData<Boolean>(false)
+    // 소개
+    val isIntroValid = MutableLiveData<Boolean>(false)
 
-    // 값 초기화
-    init {
-        viewModelScope.launch {
-            // 버튼 상태 비활성화
-            _buttonState.value = false
-            // 클릭 상태 설정
-            _fieldClicked.value = false
-            _periodClicked.value = false
-            _proceedClicked.value = false
-            _skillClicked.value = false
-            _introClicked.value = false
+    var currentTab = 0 // 현재 탭의 위치를 저장
+
+    // 진행방식, 장소, 최대 정원
+    val studyOnOffline = MutableLiveData<Int>(0)
+    val studyPlace = MutableLiveData<String>("")
+    val studyDetailPlace = MutableLiveData<String>("")
+    val studyMaxMember = MutableLiveData<Int>(0)
+
+    // 분야 데이터 저장
+    val selectedFieldTag = MutableLiveData<Int>()
+
+    // 기간 데이터 저장
+    val selectedPeriodTag = MutableLiveData<Int>()
+
+    // 신청 방식 데이터 저장
+    val selectedApplyTag = MutableLiveData<Int>()
+
+    // 작성자 uid
+    val writeUid = MutableLiveData<String>("")
+
+    // 이미지 URI 저장
+    val studyPicUri = MutableLiveData<String>("")
+
+    // 데이터 복원용
+    val studyPic = MutableLiveData<String>("")
+
+    // 기타 데이터
+    val studyTitle = MutableLiveData<String>("")
+    val studyContent = MutableLiveData<String>("")
+
+    val studySkillList = MutableLiveData<List<Int>>(emptyList())
+
+
+    // 각 탭의 유효성 검사 메서드
+    // 분야
+    fun validateField(isValid: Boolean) {
+        isFieldValid.value = isValid
+        updateIsItemSelected()
+    }
+
+    //기간
+    fun validatePeriod(isValid: Boolean) {
+        isPeriodValid.value = isValid
+        updateIsItemSelected()
+    }
+
+    // 진행방식
+    fun validateProceed(isValid: Boolean) {
+        isProceedValid.value = isValid
+        updateIsItemSelected()
+    }
+
+    // 기술
+    fun validateSkill(isValid: Boolean) {
+        isSkillValid.value = isValid
+        updateIsItemSelected()
+    }
+
+    // 소개
+    fun validateIntro(isValid: Boolean) {
+        isIntroValid.value = isValid
+        updateIsItemSelected()
+    }
+
+    // 각 탭의 유효성 검사 상태를 바탕으로 isItemSelected 업데이트
+    private fun updateIsItemSelected() {
+        _isItemSelected.value = when (currentTab) {
+            0 -> isFieldValid.value ?: false
+            1 -> isPeriodValid.value ?: false
+            2 -> isProceedValid.value ?: false
+            3 -> isSkillValid.value ?: false
+            4 -> isIntroValid.value ?: false
+            else -> false
         }
     }
 
-    fun userDidAnswer(tabName: String) {
-        when (tabName) {
-            "field" -> {
-                _fieldClicked.value = true
-            }
-
-            "period" -> {
-                _periodClicked.value = true
-            }
-
-            "proceed" -> {
-                _proceedClicked.value = true
-            }
-
-            "skill" -> {
-                _skillClicked.value = true
-            }
-
-            "intro" -> {
-                _introClicked.value = true
-            }
+    // 각 탭의 유효성 검사
+    fun validateCurrentTab(): Boolean {
+        return when (currentTab) {
+            0 -> isFieldValid.value ?: false
+            1 -> isPeriodValid.value ?: false
+            2 -> isProceedValid.value ?: false
+            3 -> isSkillValid.value ?: false
+            4 -> isIntroValid.value ?: false
+            else -> false
         }
-        _buttonState.value = true
     }
 
-    fun userDidNotAnswer(tabName: String) {
-        when (tabName) {
-            "field" -> {
-                _fieldClicked.value = false
-            }
-
-            "period" -> {
-                _periodClicked.value = false
-            }
-
-            "proceed" -> {
-                _proceedClicked.value = false
-            }
-
-            "skill" -> {
-                _skillClicked.value = false
-            }
-
-            "intro" -> {
-                _introClicked.value = false
-            }
-        }
-        _buttonState.value = false
+    // 진행방식, 장소, 최대 정원의 유효성 검사
+    fun validateProceedInput() {
+        val onOfflineValue = studyOnOffline.value ?: 0
+        val isValid = (onOfflineValue != 0) &&
+                ((studyMaxMember.value ?: 0) in 1..30) &&
+                (onOfflineValue == 1 || studyPlace.value?.isNotEmpty() == true) // 온라인이 아닌 경우 장소 유효성 검사
+        validateProceed(isValid)
     }
 
-    fun activateButton() {
-        _buttonState.value = true
-    }
-
-    fun deactivateButton() {
-        _buttonState.value = false
-    }
-
-    // --------------------------------------------
-    fun gettingStudyOnOffline(onOffline: Int) {
-        _studyOnOffline.value = onOffline
-    }
-
-    // ----------------- 입력 처리 함수 -----------------
-
-    // studyField에서 입력받은 데이터 저장
-    fun gettingStudyField(type: Int) {
-        _studyType.value = type
-    }
-
-    // studyPeriod에서 입력받은 데이터 저장
-    fun gettingStudyPeriod(period: Int) {
-        _studyPeriod.value = period
-    }
-
-    // studyProceed에서 입력받은 데이터 저장
-    // location입력
-    fun gettingLocation(location: String) {
-        _studyPlace.value = location
-    }
-
-    fun gettingMaxMember(max: Int) {
-        _studyMaxMember.value = max
-    }
-
-    // studySkill에서 입력받은 데이터 저장
-    fun gettingApplyMethod(method: Int) {
-        _studyApplyMethod.value = method
-    }
-
-    fun gettingSkillList(skillList: List<Int>) {
-        _studySkillList.value = skillList
-    }
-
-    fun gettingStudyPic(picture: String) {
-        _studyPic.value = picture
-    }
-
-    fun gettingStudyTitle(title: String) {
-        _studyTitle.value = title
-    }
-
-    fun gettingStudyContent(content: String) {
-        _studyContent.value = content
-    }
-
-    // 완료 버튼 활성화 함수
-    fun buttonFinalStateActivation(): Boolean {
-        return (fieldClicked.value == true
-                && periodClicked.value == true
-                && proceedClicked.value == true
-                && skillClicked.value == true
-                && introClicked.value == true)
-    }
-
-    // --------------------------------------------
-    private suspend fun gettingStudyIdx(): Int {
+    // 파이어스토어에 데이터 저장
+    suspend fun saveDataToFirestore(): Int? {
         return try {
-            val studySequence = studyRepository.getStudySequence()
-            studyRepository.updateStudySequence(studySequence + 1)
-            studySequence + 1
+            val sequence = studyRepository.getStudySequence() + 1
+            val writeUidValue = writeUid.value ?: ""
+            val chatSequence = chatRoomRepository.getChatRoomSequence()
+
+            val studyData = StudyData(
+                studyIdx = sequence,
+                studyTitle = studyTitle.value ?: "",
+                studyContent = studyContent.value ?: "",
+                studyType = selectedFieldTag.value ?: 0,
+                studyPeriod = selectedPeriodTag.value ?: 0,
+                studyOnOffline = studyOnOffline.value ?: 0,
+                studyPlace = studyPlace.value ?: "",
+                studyDetailPlace = studyDetailPlace.value ?: "",
+                studyApplyMethod = selectedApplyTag.value ?:0,
+                studySkillList = studySkillList.value ?: emptyList(),
+                studyCanApply = true,
+                studyPic = studyPicUri.value ?: "",
+                studyMaxMember = studyMaxMember.value ?: 0,
+                studyUidList = listOf(writeUidValue),
+                chatIdx = chatSequence,
+                studyState = true,
+                studyWriteUid = writeUidValue
+            )
+
+            val db = FirebaseFirestore.getInstance()
+            db.collection("Study").add(studyData).await()
+            // 시퀀스 업데이트
+            studyRepository.updateStudySequence(sequence)
+            chatRoomRepository.updateChatRoomSequence(chatSequence)
+            sequence
         } catch (e: Exception) {
-            Log.e("Firebase Error", "Error dbUpdateStudySequence : ${e.message}")
-            -1
-        }
-    }
-
-    fun gettingCurrentUid(uid : String) {
-        val studyUid = uid
-        _studyUidList.value = mutableListOf(studyUid)
-        _studyWriteUid.value = studyUid
-    }
-
-    private suspend fun createStudyData(): StudyData? {
-        studyIndex = gettingStudyIdx()
-
-        return if (studyIndex != -1) {
-            StudyData(
-                studyIdx = studyIndex,
-                studyTitle = _studyTitle.value ?: "",
-                studyContent = _studyContent.value ?: "",
-                studyType = _studyType.value ?: 0,
-                studyPeriod = _studyPeriod.value ?: 0,
-                studyOnOffline = _studyOnOffline.value ?: 0,
-                studyPlace = _studyPlace.value ?: "",
-                studyDetailPlace = _studyDetailPlace.value ?: "",
-                studyApplyMethod = _studyApplyMethod.value ?: 0,
-                studySkillList = _studySkillList.value ?: emptyList(),
-                studyCanApply = _studyCanApply.value ?: true,
-                studyPic = _studyPic.value ?: "",
-                studyMaxMember = _studyMaxMember.value ?: 0,
-                studyUidList = _studyUidList.value ?: emptyList(),
-                chatIdx = studyIndex,
-                studyState = _studyState.value ?: true,
-                studyWriteUid = _studyWriteUid.value ?: "",
-                studyApplyList = emptyList()
-            )
-        } else {
+            Log.e("WriteViewModel", "Error saving data: ${e.message}")
             null
         }
     }
 
-    // ChatData 객체를 생성
-    private fun setChatRoomData(): ChatRoomData? {
-        return if (studyIndex != -1) {
-            ChatRoomData(
-                chatIdx = studyIndex,
-                chatTitle = _studyTitle.value ?: "",
-                chatRoomImage = _studyPic.value ?: "",
-                chatMemberList = _studyUidList.value ?: emptyList(),
-                participantCount = 1,
-                groupChat = true,
-                lastChatMessage = "",
-                lastChatFullTime = 0L,
-                lastChatTime = ""
-            )
-        } else {
-            null
-        }
-
-    }
 
 
-    // studyIdx 반환
-    fun returnStudyIdx(): Int {
-        return studyIdx.value ?: -1
-    }
-
-
-    // ----------------- Repository에 데이터 전송 -----------------
-
-
-
-    // StudyData를 Repository에 전송
-    suspend fun uploadStudyData(){
-        // StudyData 값 가져오기
-        // StudyData 받아오기
-        val studyData = createStudyData()
-
-        if ( studyData != null){
-            // repository에 전송
-            val uploadData = studyRepository.uploadStudyData(studyData)
-            Log.d("uploadData", "${uploadData}")
-        }
-    }
-
-    // StudyData를 Repository에 전송
-    suspend fun uploadChatRoomData() {
-        // ChatRoomData 값 가져오기
-        setChatRoomData()
-        // ChatRoomData 받아오기
-        val chatRoomData = setChatRoomData()
-
-        // repository에 전송
-        if (chatRoomData != null) {
-            val uploadData = chatRoomRepository.insertChatRoomData(chatRoomData)
-            Log.d("uploadData", "ChatRoomData 추가: ${uploadData}")
-        }
-    }
-
-    // ---------------------------------------------------------
 }
