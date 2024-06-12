@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
@@ -18,6 +19,7 @@ import kr.co.lion.modigm.databinding.RowStudyAllBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAllAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
+import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
 
@@ -112,8 +114,19 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
                     }
                 }
             }
+            // FAB 설정
+            with(fabStudyWrite) {
+                setOnClickListener {
+                    requireActivity().supportFragmentManager.commit {
+                        replace(R.id.containerMain, WriteFragment())
+                        addToBackStack(FragmentName.WRITE.str)
+                    }
+                }
+            }
         }
     }
+
+
 
     private fun observeData() {
         // 필터링된 데이터 관찰

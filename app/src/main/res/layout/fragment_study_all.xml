@@ -1,42 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:transitionGroup="true">
-    <LinearLayout
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp">
-        <com.google.android.material.search.SearchBar
-            android:id="@+id/searchBarStudyAll"
-            style="@style/Widget.Material3.SearchBar.Outlined"
+        android:layout_height="match_parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_weight="0.1"
-            android:layout_height="36dp"
-            app:strokeColor="@color/textGray"
-            android:backgroundTint="@color/white"
-            app:defaultMarginsEnabled="false"
-            android:layout_marginEnd="5dp" />
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/imageViewStudyAllFilter"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.9"
-            android:focusable="true"
-            app:tint="@color/black"
-            android:src="@drawable/icon_filter_24px"
-            android:layout_marginStart="5dp"
-            android:clickable="true"/>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <com.google.android.material.search.SearchBar
+                    android:id="@+id/searchBarStudyAll"
+                    style="@style/Widget.Material3.SearchBar.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="0.1"
+                    android:backgroundTint="@color/white"
+                    app:defaultMarginsEnabled="false"
+                    app:strokeColor="@color/textGray" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imageViewStudyAllFilter"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5dp"
+                    android:layout_weight="0.9"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/icon_filter_24px"
+                    app:tint="@color/black" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewStudyAll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp" />
+
+        </LinearLayout>
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewStudyAll"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="8dp"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+            android:id="@+id/fabStudyWrite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="90dp"
+            android:backgroundTint="@color/pointColor"
+            android:src="@drawable/icon_edit_24px"
+            app:fabSize="normal"
+            app:tint="@color/white"
+            />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

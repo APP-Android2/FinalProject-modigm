@@ -18,6 +18,7 @@ import kr.co.lion.modigm.databinding.RowStudyMyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyMyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
+import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
 
@@ -98,6 +99,16 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
                 requireActivity().supportFragmentManager.commit {
                     add(R.id.containerMain, StudySearchFragment())
                     addToBackStack(FragmentName.STUDY_SEARCH.str)
+                }
+            }
+
+            // FAB 설정
+            with(fabStudyWrite) {
+                setOnClickListener {
+                    requireActivity().supportFragmentManager.commit {
+                        replace(R.id.containerMain, WriteFragment())
+                        addToBackStack(FragmentName.WRITE.str)
+                    }
                 }
             }
         }
