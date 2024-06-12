@@ -52,13 +52,13 @@ class ResetPwFragment : Fragment(R.layout.fragment_reset_pw) {
                 setOnClickListener {
                     isClickable = false
                     // 유효성 검사
-                    val validate = viewModel.validateInput()
+                    val validate = viewModel!!.validateInput()
                     if(!validate){
                         isClickable = true
                         return@setOnClickListener
                     }
                     // 비밀번호 변경
-                    viewModel.changePassword()
+                    viewModel!!.changePassword()
                 }
             }
         }
