@@ -147,14 +147,6 @@ class DetailFragment : Fragment() {
                 if (!it.studyPic.isNullOrEmpty()) {
                     viewModel.loadStudyPic(it.studyPic) // 파일 이름을 사용하여 스터디 이미지 로드
                 }
-//
-//                // Check if the current user is the writer of the study and set the textViewDetailState as clickable
-//                if (data.studyWriteUid == uid) {
-//                    binding.textViewDetailState.isClickable = true
-//                    binding.textViewDetailState.setOnClickListener { view ->
-//                        showStatePopup(view)
-//                    }
-//                }
 
             }
         }

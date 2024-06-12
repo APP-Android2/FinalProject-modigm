@@ -104,6 +104,22 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
 
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(requireActivity())
+
+                // 스크롤 리스너 추가
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (dy > 0 || dy < 0 && binding.fabStudyWrite.isShown) {
+                            binding.fabStudyWrite.hide()
+                        }
+                    }
+
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            binding.fabStudyWrite.show()
+                        }
+                        super.onScrollStateChanged(recyclerView, newState)
+                    }
+                })
             }
 
             with(searchBarStudyAll) {
