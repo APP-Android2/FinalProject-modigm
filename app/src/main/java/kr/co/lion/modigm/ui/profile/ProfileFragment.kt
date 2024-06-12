@@ -308,6 +308,12 @@ class ProfileFragment: Fragment() {
         // 링크 리스트
         profileViewModel.profileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
             linkAdapter.updateData(profileLinkList)
+
+            if (profileLinkList.isEmpty()) {
+                fragmentProfileBinding.textView4.visibility = View.GONE
+            } else {
+                fragmentProfileBinding.textView4.visibility = View.VISIBLE
+            }
         }
 
         // 참여한 스터디 리스트
