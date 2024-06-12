@@ -17,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -75,6 +76,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
         setupToolbar()
         setupUserInfo()
         setupButtonChangePic()
+        setupButtonChangePhone()
         setupRecyclerViewLink()
         setupButtonLinkAdd()
         setupButtonDone()
@@ -103,7 +105,11 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
     private fun setupButtonChangePhone() {
         fragmentEditProfileBinding.buttonEditProfilePhone.setOnClickListener {
-
+            // Fragment 교체
+            requireActivity().supportFragmentManager.commit {
+                add(R.id.containerMain, ChangePhoneFragment())
+                addToBackStack(FragmentName.CHANGE_PHONE.str)
+            }
         }
     }
 
