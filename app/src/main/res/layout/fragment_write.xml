@@ -3,12 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="writeViewModel"
-            type="kr.co.lion.modigm.ui.write.vm.WriteViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -42,43 +36,62 @@
             android:backgroundTint="@color/white"
             app:layout_constraintTop_toBottomOf="@id/progressBar_writeFragment"
 
-            app:tabBackground="@color/white"
-            app:tabIndicatorColor="@color/white"
+            app:tabIndicatorColor="@android:color/transparent"
+            app:tabIndicator="@android:color/transparent"
 
+            app:tabIndicatorFullWidth="true"
             app:tabSelectedTextColor="@color/pointColor"
+            app:tabTextAppearance="@style/tab_text"
             app:tabTextColor="@color/textGray">
 
         </com.google.android.material.tabs.TabLayout>
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager_writeFragment"
+        <!--        <androidx.viewpager2.widget.ViewPager2-->
+        <!--            android:id="@+id/viewPager_writeFragment"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="0dp"-->
+
+        <!--            app:layout_constraintBottom_toTopOf="@id/button_write_next"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/tabLayout_writeFragment" />-->
+
+        <FrameLayout
+            android:id="@+id/frameLayout_writeFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
-
-            app:layout_constraintBottom_toTopOf="@id/button_write_next"
+            app:layout_constraintBottom_toTopOf="@id/buttonLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tabLayout_writeFragment" />
+            app:layout_constraintTop_toBottomOf="@id/tabLayout_writeFragment"/>
 
-        <Button
-            android:id="@+id/button_write_next"
+        <LinearLayout
+            android:id="@+id/buttonLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="20dp"
-            android:backgroundTint="@color/buttonGray"
-
-            android:text="다음"
-            android:textColor="@color/textGray"
-            android:textSize="14dp"
-
-            app:layout_constraintTop_toBottomOf="@id/viewPager_writeFragment"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent">
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"/>
+            <Button
+                android:id="@+id/button_write_next"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="@color/buttonGray"
+
+                android:text="다음"
+                android:textColor="@color/textGray"
+                android:textSize="14dp"
+
+                />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

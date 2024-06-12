@@ -2,15 +2,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    <data>
-        <variable
-            name="writeViewModel"
-            type="kr.co.lion.modigm.ui.write.vm.WriteViewModel" />
-    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#f7f7f7"
         tools:context=".ui.write.WritePeriodFragment">
 
 
@@ -48,34 +44,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_question" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayout_writePeriod"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        <Spinner
+            android:id="@+id/SpinnerWritePeriod"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            android:layout_marginStart="16dp"
             android:layout_marginTop="26dp"
-            android:layout_marginEnd="16dp"
-
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            app:hintAnimationEnabled="false"
-            app:hintEnabled="false"
-
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/style_spinner"
+            android:spinnerMode="dialog"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice">
-
-            <AutoCompleteTextView
-                android:id="@+id/textinput_writePeriod"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:hint="기간선택" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice"
+            tools:layout_editor_absoluteX="-16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

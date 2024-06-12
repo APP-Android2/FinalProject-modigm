@@ -4,15 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="writeViewModel"
-            type="kr.co.lion.modigm.ui.write.vm.WriteViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#f7f7f7"
         tools:context=".ui.write.WriteFieldFragment">
 
         <TextView
@@ -41,6 +36,8 @@
             android:layout_marginEnd="16dp"
             android:backgroundTint="@color/white"
             app:layout_constraintTop_toBottomOf="@id/textView"
+
+            android:onClick="onCardClicked"
 
             app:strokeColor="@color/textGray">
 
@@ -84,6 +81,8 @@
             android:backgroundTint="@color/white"
             app:layout_constraintTop_toBottomOf="@id/cardview_writeField_study"
 
+            android:onClick="onCardClicked"
+
             app:strokeColor="@color/textGray">
 
             <TextView
@@ -119,6 +118,8 @@
 
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
+
+            android:onClick="onCardClicked"
 
             android:layout_marginEnd="16dp"
             android:backgroundTint="@color/white"
