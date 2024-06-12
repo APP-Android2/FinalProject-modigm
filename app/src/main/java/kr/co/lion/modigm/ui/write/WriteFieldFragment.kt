@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.write
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,151 +11,80 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.card.MaterialCardView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteFieldBinding
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
 class WriteFieldFragment : Fragment() {
 
-    lateinit var fragmentWriteFieldBinding: FragmentWriteFieldBinding
+    lateinit var binding: FragmentWriteFieldBinding
     private val viewModel: WriteViewModel by activityViewModels()
+    private var selectedCardView: MaterialCardView? = null // 선택된 카드뷰를 기억하기 위한 변수
 
-    val tabName = "field"
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        fragmentWriteFieldBinding = DataBindingUtil.inflate(inflater,R.layout.fragment_write_field, container, false)
-        fragmentWriteFieldBinding.writeViewModel = viewModel
-        fragmentWriteFieldBinding.lifecycleOwner = this
+        binding = FragmentWriteFieldBinding.inflate(layoutInflater)
 
-        return fragmentWriteFieldBinding.root
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        with(binding){
+            cardviewWriteFieldStudy.setTag(1)
+            cardviewWriteFieldContest.setTag(3)
+            cardviewWriteFieldProject.setTag(2)
 
-        settingEvent()
-        // viewModel에서 값의 변화를 감지
-        getAnswer()
-    }
-    fun settingEvent(){
-
-        // 카드 뷰 클릭시 이벤트
-        cardViewEffect()
-
-    }
-
-    // 카드뷰 클릭시 효과 설정
-    fun cardViewEffect(){
-        val context = requireContext()
-        val clickedStrokeColor = ContextCompat.getColor(context, R.color.pointColor)
-        val unclickedStrokeColor = ContextCompat.getColor(context, R.color.textGray)
-
-        // 스터디 선택 시 클릭 리스너
-        fragmentWriteFieldBinding.apply {
             cardviewWriteFieldStudy.setOnClickListener {
-                cardviewWriteFieldStudy.apply {
-                    if (cardElevation == 20F && strokeColor == clickedStrokeColor){
-                        // 애니메이션 효과 제거
-                        cardElevation = 0F
-                        strokeColor = unclickedStrokeColor
-
-                        viewModel.gettingStudyField(0)
-                    } else {
-
-                        // Stroke 색상 변경
-                        strokeColor = clickedStrokeColor
-                        cardviewWriteFieldContest.strokeColor = unclickedStrokeColor
-                        cardviewWriteFieldProject.strokeColor = unclickedStrokeColor
-
-                        // Elevation 추가
-                        cardElevation = 20F
-                        cardviewWriteFieldContest.cardElevation = 0F
-                        cardviewWriteFieldProject.cardElevation = 0F
-
-                        viewModel.gettingStudyField(1)
-                    }
-                }
+                onCardClicked(it as MaterialCardView)
             }
-
-            // 공모전 선택 시 클릭 리스너
             cardviewWriteFieldContest.setOnClickListener {
-                cardviewWriteFieldContest.apply {
-                    if (cardElevation == 20F && strokeColor == clickedStrokeColor){
-                        // 애니메이션 효과 제거
-                        cardElevation = 0F
-                        strokeColor = unclickedStrokeColor
-
-                        viewModel.gettingStudyField(0)
-                    } else {
-                        // Stroke 색상 변경
-                        strokeColor = clickedStrokeColor
-                        cardviewWriteFieldStudy.strokeColor = unclickedStrokeColor
-                        cardviewWriteFieldProject.strokeColor = unclickedStrokeColor
-
-                        // Elevation 추가
-                        cardElevation = 20F
-                        cardviewWriteFieldStudy.cardElevation = 0F
-                        cardviewWriteFieldProject.cardElevation = 0F
-
-                        viewModel.gettingStudyField(2)
-                    }
-                }
+                onCardClicked(it as MaterialCardView)
             }
-
-            // 프로젝트 선택 시 클릭 리스너
             cardviewWriteFieldProject.setOnClickListener {
-                cardviewWriteFieldProject.apply {
-                    if (cardElevation == 20F && strokeColor == clickedStrokeColor){
-                        // 애니메이션 효과 제거
-                        cardElevation = 0F
-                        strokeColor = unclickedStrokeColor
-
-                        viewModel.gettingStudyField(0)
-                    } else {
-
-                        // Stroke 색상 변경
-                        strokeColor = clickedStrokeColor
-                        cardviewWriteFieldContest.strokeColor = unclickedStrokeColor
-                        cardviewWriteFieldStudy.strokeColor = unclickedStrokeColor
-
-                        // Elevation 추가
-                        cardElevation = 20F
-                        cardviewWriteFieldContest.cardElevation = 0F
-                        cardviewWriteFieldStudy.cardElevation = 0F
-
-                        viewModel.gettingStudyField(3)
-                    }
-                }
+                onCardClicked(it as MaterialCardView)
             }
-
         }
-    }
 
-    // 입력처리 함수
-    fun getAnswer(){
-
-        // studyType Observing!!
-        viewModel.studyType.observe(viewLifecycleOwner){ type ->
-            when (type){
-                // 입력 해제
-                0 -> {
-                    // fieldClicked.value = false
-                    viewModel.userDidNotAnswer(tabName)
-
-                    val context = requireContext()
-                    val toast = Toast.makeText(context, "스터디, 공모전, 프로젝트 중에 어떤 분야를 모집할 지 선택해주세요", Toast.LENGTH_SHORT)
-                    toast.show()
-                }
-                // 스터디 클릭
-                1, 2, 3 -> {
-                    // fieldClicked.value = true
-                    viewModel.userDidAnswer(tabName)
-                }
-                else -> {
-                    Log.d("WriteFieldFragment", "studyType 입력 오류")
-                }
+        // ViewModel에 저장된 선택 상태를 확인하고 복원
+        viewModel.selectedFieldTag.value?.let { selectedTag ->
+            when (selectedTag) {
+                1 -> binding.cardviewWriteFieldStudy.performClick()
+                2 -> binding.cardviewWriteFieldProject.performClick()
+                3 -> binding.cardviewWriteFieldContest.performClick()
+                else -> { /* 저장된 데이터 없음 */ }
             }
         }
     }
+
+    // 클릭된 카드뷰의 스트로크 색상 변경 함수
+    private fun changeStrokeColor(cardView: MaterialCardView, isSelected: Boolean) {
+        val colorResId = if (isSelected) R.color.pointColor else R.color.textGray
+        cardView.strokeColor = ContextCompat.getColor(requireContext(), colorResId)
+    }
+
+    // 카드뷰 클릭 이벤트 처리 함수
+    private fun onCardClicked(clickedCardView: MaterialCardView) {
+        // 이미 선택된 카드뷰인 경우, 선택을 취소하지 않음
+        if (clickedCardView == selectedCardView) {
+            return
+        }
+        viewModel.validateField(true)
+
+        val wasSelected = clickedCardView == selectedCardView
+        // 선택된 카드뷰가 이미 있다면 선택 해제
+        selectedCardView?.apply {
+            changeStrokeColor(this, false) // 선택 해제 시 스트로크 색상을 변경
+        }
+        // 새로 클릭된 카드뷰를 선택하고 스트로크 색상 변경
+        selectedCardView = if (!wasSelected) clickedCardView else null
+        changeStrokeColor(clickedCardView, !wasSelected)
+
+        // 선택된 카드뷰의 태그를 뷰모델에 저장
+        viewModel.selectedFieldTag.value = clickedCardView.tag as Int
+    }
+
 }
