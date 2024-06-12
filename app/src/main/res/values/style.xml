@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--탭 레이아웃 텍스트 설정-->
+    <style name="tab_text" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">16dp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!--툴바 텍스트 사이즈 고정-->
+    <style name="toolbarText" parent="">
+        <item name="android:textSize">24dp</item>
+    </style>
+
+    <!--툴바 색상-->
+    <style name="CustomToolbar" parent="">
+        <item name="backgroundColor">#fff</item>
+    </style>
+
+    <!--searchBar textsize-->
+    <style name="searchbarText" parent="">
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <!--dialog textsize-->
+    <style name="dialogText" parent="">
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <style name="dialogColor" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <!-- Chip의 텍스트 스타일 -->
+    <style name="ChipTextStyle" parent="">
+        <item name="android:textSize">16dp</item>
+    </style>
+
+
+    <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/pointColor</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:padding">10dp</item>
+        <item name="cornerRadius">50dp</item>
+    </style>
+
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Error text appearance -->
+        <item name="errorTextAppearance">@style/ErrorTextAppearance</item>
+    </style>
+
+    <style name="ErrorTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">14dp</item> <!-- 원하는 크기로 설정 -->
+        <item name="android:textColor">@color/design_default_color_error</item> <!-- 원하는 색상으로 설정 -->
+    </style>
+
+</resources>

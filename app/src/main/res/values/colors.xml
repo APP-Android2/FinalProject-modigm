@@ -2,4 +2,23 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- custom -->
+    <!-- 회색 글씨 -->
+    <color name="textGray">#777</color>
+
+    <!-- 회색 버튼 -->
+    <color name="buttonGray">#bbb</color>
+
+    <!-- 구분선 -->
+    <color name="dividerView">#ccc</color>
+
+    <!-- EditUserFragment 관심사 선택 색상 -->
+    <color name="editUserSelected">#ff0000</color>
+
+    <!-- 포인트 color -->
+    <color name="pointColor">#1A51C5</color>
+
+    <!-- TextView 클릭 시 -->
+    <color name="textViewClickGray">#ddd</color>
 </resources>

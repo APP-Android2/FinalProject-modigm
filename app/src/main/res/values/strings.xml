@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Modigm</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="toolbarTitle_WriteFragment">모집 글 작성</string>
+
+    <string name="textView_WriteFieldFragment_question">어떤 활동을 하고싶으신가요?</string>
+    <string name="textView_WriteFieldFragment_study">스터디</string>
+    <string name="textView_WriterFieldFragment_study_content">목표를 정해 함께 성장해 갈 사람을 원해요</string>
+    <string name="textView_WriterFieldFragment_contest">공모전</string>
+    <string name="textView_WriterFieldFragment_contest_content">같이 공모전에 도전할 사람을 원해요</string>
+    <string name="textView_WriterFieldFragment_project">프로젝트</string>
+    <string name="textView_WriterFieldFragment_project_content">같이 프로젝트 진행할 사람이 필요해요</string>
 </resources>

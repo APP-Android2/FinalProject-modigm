@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragmentContainerStudyFull"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.study.StudyFragment"
+    android:transitionGroup="true">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/white">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbarStudy"
+                style="@style/CustomToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:navigationIcon="@drawable/logo_toolbar_modigm"
+                app:title="모우다임"
+                app:titleCentered="true"
+                app:titleTextAppearance="@style/toolbarText" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutStudy"
+                style="@style/Widget.Material3.TabLayout.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                app:layout_collapseMode="pin"
+                app:tabIndicatorColor="@color/pointColor"
+                app:tabIndicatorHeight="2dp"
+                app:tabSelectedTextColor="@color/pointColor"
+                app:tabTextAppearance="@style/tab_text"
+                app:tabTextColor="@color/textGray">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="전체 스터디" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="내 스터디" />
+
+            </com.google.android.material.tabs.TabLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragmentContainerStudy"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        </androidx.fragment.app.FragmentContainerView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

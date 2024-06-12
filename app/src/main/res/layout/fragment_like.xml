@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".ui.like.LikeFragment">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolBarLike"
+        style="@style/CustomToolbar"
+        android:elevation="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:titleTextAppearance="@style/toolbarText" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerviewLike"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/blankLayoutLike"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="200dp"
+            app:tint="#ccc"
+            android:src="@drawable/icon_book_24px" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/textGray"
+            android:text="찜한 스터디 내역이 없어요"
+            android:textSize="18dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

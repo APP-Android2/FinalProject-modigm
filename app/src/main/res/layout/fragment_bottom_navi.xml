@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomNaviContainerFull"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:transitionGroup="true"
+    tools:context=".ui.study.BottomNaviFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/containerBottomNavi"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="9"
+            android:background="@color/white">
+
+        </androidx.fragment.app.FragmentContainerView>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:dividerColor="@color/dividerView" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:paddingVertical="2dp"
+            app:itemActiveIndicatorStyle="@null"
+            app:itemBackground="@android:color/transparent"
+            app:itemIconSize="24dp"
+            app:itemIconTint="@color/bottom_navigation_selector_color"
+            app:itemTextColor="@color/bottom_navigation_selector_color"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/menu_study_bottom_navi" />
+    </LinearLayout>
+</FrameLayout>

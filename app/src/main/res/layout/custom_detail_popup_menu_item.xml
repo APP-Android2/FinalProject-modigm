@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="30dp"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:id="@+id/layoutDetailMember"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="visible">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_group_24px"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/menuItem1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="멤버 목록"
+            android:textSize="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="@color/black" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layoutDetailEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="visible">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_edit_24px"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/menuItem2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="편집"
+            android:textSize="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="@color/black" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layoutDetailDel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="visible">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_error_24px"
+            app:tint="#EC6B6B"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/menuItem3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="삭제"
+            android:textSize="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="#EC6B6B" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutDetailReport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_error_24px"
+            app:tint="#EC6B6B"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/menuItem4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="신고하기"
+            android:textSize="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textColor="#EC6B6B" />
+    </LinearLayout>
+
+
+</LinearLayout>

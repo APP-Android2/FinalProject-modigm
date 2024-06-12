@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp"
+    android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageViewDetailApplyMember"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_account_circle"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewDetailApplyMemberName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:text=""/>
+        <TextView
+            android:id="@+id/textViewDetailApplyMemberIntro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textGray"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="14dp"
+            android:text=""/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonDetailAccept"
+        style="?attr/materialIconButtonFilledStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="16dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        app:icon="@drawable/icon_check_24"/>
+
+    <Button
+        android:id="@+id/buttonDetailRefuse"
+        style="?attr/materialIconButtonFilledStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        app:icon="@drawable/icon_close_24"
+        android:backgroundTint="#EC6B6B"
+        />
+
+</LinearLayout>

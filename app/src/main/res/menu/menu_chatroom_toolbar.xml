@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/chatroom_toolbar_menu"
+        android:icon="@drawable/icon_menu_24px"
+        android:title="메뉴"
+        app:showAsAction="ifRoom" />
+</menu>
