@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -124,6 +125,11 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
         fragmentEditProfileBinding.buttonEditProfileDone.setOnClickListener {
             // 데이터베이스 업데이트
             editProfileViewModel.updateUserData(profileFragment, newImageUri)
+
+            // 스낵바 띄우기
+            val snackbar = Snackbar.make(fragmentEditProfileBinding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
+            snackbar.show()
+
             // 이전 프래그먼트로 돌아간다
             requireActivity().supportFragmentManager.popBackStack()
             // TODO: 정보가 수정되었다는 메시지를 띄우는 스낵바 구현
