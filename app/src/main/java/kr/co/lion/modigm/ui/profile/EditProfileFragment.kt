@@ -101,6 +101,12 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
         }
     }
 
+    private fun setupButtonChangePhone() {
+        fragmentEditProfileBinding.buttonEditProfilePhone.setOnClickListener {
+
+        }
+    }
+
     private fun setupRecyclerViewLink() {
         // 리사이클러뷰 어댑터와 뷰모델을 함께 초기화
         linkAddAdapter = LinkAddAdapter(emptyList(), requireContext(), editProfileViewModel)
@@ -132,7 +138,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
             // 이전 프래그먼트로 돌아간다
             requireActivity().supportFragmentManager.popBackStack()
-            // TODO: 정보가 수정되었다는 메시지를 띄우는 스낵바 구현
         }
     }
 
