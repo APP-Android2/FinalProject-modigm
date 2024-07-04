@@ -1,26 +1,21 @@
 package kr.co.lion.modigm.db
 
 import android.util.Log
+import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.StudyData
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Statement
-import java.util.Properties
 
 class MySqlConn {
-
     private var connection: Connection? = null
-    private val localProperties = Properties()
-    private val databaseUrl = localProperties.getProperty("database_url") ?: ""
-    private val databaseUser = localProperties.getProperty("database_user") ?: ""
-    private val databasePassword = localProperties.getProperty("database_password") ?: ""
-    private val TAG = localProperties.getProperty("database_tag") ?: ""
+    private val TAG = "MySQLDataSource"
 
     private fun getConnection() {
         Class.forName("com.mysql.jdbc.Driver")
-        connection = DriverManager.getConnection(databaseUrl, databaseUser, databasePassword)
+        connection = DriverManager.getConnection(BuildConfig.DB_URL, BuildConfig.DB_USER, BuildConfig.DB_PASSWORD)
     }
 
     private fun closeConnection(){
@@ -28,7 +23,6 @@ class MySqlConn {
         connection = null
     }
 
-    /** sql 쿼리문과 쿼리 매개변수를 array로 전달 */
     fun insertStudyData(model: StudyData){
         var preparedStatement: PreparedStatement? = null
         val columns = model.getColumns()
@@ -38,10 +32,8 @@ class MySqlConn {
             val columnsString = StringBuilder()
             val valuesString = StringBuilder()
             columns.forEachIndexed { index, column ->
-                if(column != "studyIdx") {
-                    columnsString.append("$column,")
-                    valuesString.append("?,")
-                }
+                columnsString.append("$column,")
+                valuesString.append("?,")
             }
 
             columnsString.deleteCharAt(columnsString.length-1)
@@ -53,13 +45,13 @@ class MySqlConn {
             values.forEachIndexed { index, value ->
                 // 쿼리 매개변수 설정
                 if(value is String){
-                    preparedStatement?.setString(index + 1, value)
+                    preparedStatement?.setString(index+1, value)
                 }
                 if(value is Int){
-                    preparedStatement?.setInt(index + 1, value)
+                    preparedStatement?.setInt(index+1, value)
                 }
                 if(value is Boolean){
-                    preparedStatement?.setBoolean(index + 1, value)
+                    preparedStatement?.setBoolean(index+1, value)
                 }
             }
             preparedStatement?.executeUpdate() // 쿼리 실행
@@ -103,8 +95,12 @@ class MySqlConn {
         return result // 결과 반환
     }
 
-    fun selectStudyAll(whereStatement:String): MutableList<StudyData>{
-        val selectSQL = "SELECT * FROM Study WHERE $whereStatement"  // 선택 SQL 쿼리
+    fun selectStudyAll(whereStatement:String?, orderStatement:String?): MutableList<StudyData>{
+        val selectSQL = StringBuilder("SELECT * FROM Study") // 선택 SQL 쿼리
+        // WHERE절이 있을 경우
+        if(whereStatement != null) selectSQL.append(" WHERE $whereStatement")
+        // ORDER절이 있을 경우
+        if(whereStatement != null) selectSQL.append(" ORDER BY $orderStatement")
         var statement: Statement? = null
         var resultSet: ResultSet? = null
         val result = mutableListOf<StudyData>()
@@ -112,7 +108,7 @@ class MySqlConn {
         try {
             getConnection()
             statement = connection?.createStatement()  // Statement 생성
-            resultSet = statement?.executeQuery(selectSQL)  // 쿼리 실행 및 결과 얻기
+            resultSet = statement?.executeQuery(selectSQL.toString())  // 쿼리 실행 및 결과 얻기
             if(resultSet != null){
                 while(resultSet.next()){
                     result.add(StudyData.getStudyData(resultSet))
