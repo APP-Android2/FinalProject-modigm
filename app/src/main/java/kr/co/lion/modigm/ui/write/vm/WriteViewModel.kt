@@ -129,6 +129,7 @@ class WriteViewModel : ViewModel() {
 
     // DB에 데이터 저장
     suspend fun saveDataToDB(): Int? {
+        val userIdx = prefs.getString("userIdx", "0")
         return try {
             val studyData = StudyData(
                 studyTitle = studyTitle.value ?: "",
@@ -144,8 +145,8 @@ class WriteViewModel : ViewModel() {
                 studyMaxMember = studyMaxMember.value ?: 0,
                 studyState = true,
                 studyApplyList = "",
-                userIdx = prefs.getString("userIdx", "0").toInt(),
-                userIdxList = "",
+                userIdx = userIdx.toInt(),
+                userIdxList = userIdx,
             )
             writeStudyRepository.uploadStudyData(studyData)
         } catch (e: Exception) {
