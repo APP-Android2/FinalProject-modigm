@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.WriteStudyRepository
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 
 class WriteViewModel : ViewModel() {
@@ -142,6 +143,9 @@ class WriteViewModel : ViewModel() {
                 studyPic = studyPicUri.value ?: "",
                 studyMaxMember = studyMaxMember.value ?: 0,
                 studyState = true,
+                studyApplyList = "",
+                userIdx = prefs.getString("userIdx", "0").toInt(),
+                userIdxList = "",
             )
             writeStudyRepository.uploadStudyData(studyData)
         } catch (e: Exception) {
