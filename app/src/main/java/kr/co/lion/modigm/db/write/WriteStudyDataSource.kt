@@ -8,7 +8,7 @@ class WriteStudyDataSource {
     // 사용자 정보를 저장한다.
     suspend fun uploadStudyData(study: StudyData):Int?{
         return try {
-            val db = MySqlConn()
+            val db = WriteStudyDao()
             db.insertStudyData(study)
         } catch (e: Exception) {
             Log.e("Firebase Error", "Error dbAddStudyData: ${e.message}")
