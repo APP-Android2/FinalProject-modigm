@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kr.co.lion.modigm.BuildConfig
-import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.SqlStudyData
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -25,7 +25,7 @@ class WriteStudyDao {
         connection = null
     }
 
-    suspend fun insertStudyData(model: StudyData):Int?{
+    suspend fun insertStudyData(model: SqlStudyData):Int?{
         var preparedStatement: PreparedStatement? = null
         val columns = model.getColumns()
         val values = model.getValues()

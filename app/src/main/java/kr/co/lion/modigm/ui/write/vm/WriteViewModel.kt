@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.repository.WriteStudyRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
@@ -131,7 +131,7 @@ class WriteViewModel : ViewModel() {
     suspend fun saveDataToDB(): Int? {
         val userIdx = prefs.getString("userIdx", "0")
         return try {
-            val studyData = StudyData(
+            val studyData = SqlStudyData(
                 studyTitle = studyTitle.value ?: "",
                 studyContent = studyContent.value ?: "",
                 studyType = selectedFieldTag.value ?: 0,
