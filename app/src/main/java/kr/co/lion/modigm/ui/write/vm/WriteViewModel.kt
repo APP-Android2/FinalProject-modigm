@@ -33,19 +33,19 @@ class WriteViewModel : ViewModel() {
     var currentTab = 0 // 현재 탭의 위치를 저장
 
     // 진행방식, 장소, 최대 정원
-    val studyOnOffline = MutableLiveData<Int>(0)
+    val studyOnOffline = MutableLiveData<String>("")
     val studyPlace = MutableLiveData<String>("")
     val studyDetailPlace = MutableLiveData<String>("")
     val studyMaxMember = MutableLiveData<Int>(0)
 
     // 분야 데이터 저장
-    val selectedFieldTag = MutableLiveData<Int>()
+    val selectedFieldTag = MutableLiveData<String>()
 
     // 기간 데이터 저장
-    val selectedPeriodTag = MutableLiveData<Int>()
+    val selectedPeriodTag = MutableLiveData<String>()
 
     // 신청 방식 데이터 저장
-    val selectedApplyTag = MutableLiveData<Int>()
+    val selectedApplyTag = MutableLiveData<String>()
 
     // 작성자 uid
     val writeUid = MutableLiveData<String>("")
@@ -131,24 +131,32 @@ class WriteViewModel : ViewModel() {
     suspend fun saveDataToDB(): Int? {
         val userIdx = prefs.getString("userIdx", "0")
         return try {
+            // 스터디 테이블에 저장
             val studyData = SqlStudyData(
                 studyTitle = studyTitle.value ?: "",
                 studyContent = studyContent.value ?: "",
-                studyType = selectedFieldTag.value ?: 0,
-                studyPeriod = selectedPeriodTag.value ?: 0,
-                studyOnOffline = studyOnOffline.value ?: 0,
+                studyType = selectedFieldTag.value ?: "",
+                studyPeriod = selectedPeriodTag.value ?: "",
+                studyOnOffline = studyOnOffline.value ?: "",
                 studyPlace = studyPlace.value ?: "",
                 studyDetailPlace = studyDetailPlace.value ?: "",
-                studyApplyMethod = selectedApplyTag.value ?:0,
-                studyCanApply = true,
+                studyApplyMethod = selectedApplyTag.value ?: "",
+                studyCanApply = "모집 중",
                 studyPic = studyPicUri.value ?: "",
                 studyMaxMember = studyMaxMember.value ?: 0,
                 studyState = true,
-                studyApplyList = "",
                 userIdx = userIdx.toInt(),
-                userIdxList = userIdx,
             )
-            writeStudyRepository.uploadStudyData(studyData)
+            val studyIdx = writeStudyRepository.uploadStudyData(studyData)
+            if (studyIdx != null) {
+                // 스터디 기술스택에 저장
+                studySkillList.value?.let {
+                    writeStudyRepository.uploadStudyTechStack(studyIdx, it)
+                }
+                // 스터디 참여 멤버 저장
+                writeStudyRepository.uploadStudyMember(studyIdx, userIdx.toInt())
+            }
+            studyIdx
         } catch (e: Exception) {
             Log.e("WriteViewModel", "Error saving data: ${e.message}")
             null

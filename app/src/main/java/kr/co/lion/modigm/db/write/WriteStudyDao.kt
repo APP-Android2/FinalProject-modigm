@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import java.sql.Connection
@@ -78,6 +79,54 @@ class WriteStudyDao {
             }
         }
         return idx
+    }
+
+    fun uploadStudyTechStack(studyIdx:Int, studyTechStack: List<Int>) {
+        var preparedStatement: PreparedStatement? = null
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                getConnection()
+                studyTechStack.forEach {
+                    val sql = "INSERT INTO StudyTechStack (studyIdx,techIdx) VALUES (?, ?)"
+                    preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
+                    preparedStatement?.setInt(1, studyIdx)
+                    preparedStatement?.setInt(2, it)
+                    preparedStatement?.executeUpdate() // 쿼리 실행
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in insertStudyTechStack", e) // 오류 로그 출력
+        } finally {
+            try {
+                preparedStatement?.close() // PreparedStatement 닫기
+                closeConnection()  // 데이터베이스 연결 닫기
+            } catch (e: Exception) {
+                Log.e(TAG, "Error closing resources", e) // 리소스 닫기 오류 로그 출력
+            }
+        }
+    }
+
+    fun uploadStudyMember(studyIdx: Int, userIdx: Int) {
+        var preparedStatement: PreparedStatement? = null
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                getConnection()
+                val sql = "INSERT INTO StudyMember (studyIdx,userIdx) VALUES (?, ?)"
+                preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
+                preparedStatement?.setInt(1, studyIdx)
+                preparedStatement?.setInt(2, userIdx)
+                preparedStatement?.executeUpdate() // 쿼리 실행
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in insertStudyMember", e) // 오류 로그 출력
+        } finally {
+            try {
+                preparedStatement?.close() // PreparedStatement 닫기
+                closeConnection()  // 데이터베이스 연결 닫기
+            } catch (e: Exception) {
+                Log.e(TAG, "Error closing resources", e) // 리소스 닫기 오류 로그 출력
+            }
+        }
     }
 
 }

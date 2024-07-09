@@ -11,8 +11,30 @@ class WriteStudyDataSource {
             val db = WriteStudyDao()
             db.insertStudyData(study)
         } catch (e: Exception) {
-            Log.e("Firebase Error", "Error dbAddStudyData: ${e.message}")
+            Log.e("WriteStudyDataSource Error", "Error uploadStudyData: ${e.message}")
             null
+        }
+    }
+
+    fun uploadStudyTechStack(studyIdx:Int, studyTechStack: List<Int>):Boolean {
+        return try {
+            val db = WriteStudyDao()
+            db.uploadStudyTechStack(studyIdx, studyTechStack)
+            true
+        } catch (e: Exception) {
+            Log.e("WriteStudyDataSource Error", "Error uploadStudyData: ${e.message}")
+            false
+        }
+    }
+
+    fun uploadStudyMember(studyIdx: Int, userIdx: Int): Any {
+        return try {
+            val db = WriteStudyDao()
+            db.uploadStudyMember(studyIdx, userIdx)
+            true
+        } catch (e: Exception) {
+            Log.e("WriteStudyDataSource Error", "Error uploadStudyMember: ${e.message}")
+            false
         }
     }
 
