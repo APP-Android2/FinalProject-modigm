@@ -14,9 +14,9 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
-import kr.co.lion.modigm.databinding.RowStudyMyBinding
+import kr.co.lion.modigm.databinding.RowStudyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.study.adapter.StudyMyAdapter
+import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -24,15 +24,15 @@ import kr.co.lion.modigm.util.ModigmApplication
 
 class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
-    private lateinit var rowbinding: RowStudyMyBinding
+    private lateinit var rowbinding: RowStudyBinding
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
 
-    private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?: Firebase.auth.currentUser?.uid ?: ""
+    private val currentUserUid = 1
 
     // 어답터
-    private val studyMyAdapter: StudyMyAdapter = StudyMyAdapter(
+    private val studyAdapter: StudyAdapter = StudyAdapter(
         // 최초 리스트
         emptyList(),
 
@@ -49,19 +49,9 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
                 addToBackStack(FragmentName.DETAIL.str)
             }
         },
-        likeClickListener = { studyIdx ->
-            viewModel.viewModelScope.launch {
-                viewModel.toggleLike(currentUserUid, studyIdx)
-                viewModel.isLiked.observe(viewLifecycleOwner) { isLiked ->
-                    if (isLiked) {
-                        rowbinding.imageViewStudyMyFavorite.setImageResource(R.drawable.icon_favorite_full_24px)
-                        rowbinding.imageViewStudyMyFavorite.setColorFilter(Color.parseColor("#D73333"))
-                    } else {
-                        rowbinding.imageViewStudyMyFavorite.setImageResource(R.drawable.icon_favorite_24px)
-                        rowbinding.imageViewStudyMyFavorite.clearColorFilter()
-                    }
-                }
-            }
+        favoriteClickListener = { studyIdx ->
+            // 현재 접속중인 유저의 userIdx를 전달해야하므로 수정 요망./////////////////////////////////////////////////////////////////////////////////////
+            viewModel.toggleFavorite(1, studyIdx)
         }
     )
 
@@ -69,10 +59,11 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentStudyMyBinding.bind(view)
-        rowbinding = RowStudyMyBinding.inflate(layoutInflater)
+        rowbinding = RowStudyBinding.inflate(layoutInflater)
 
         // 초기 뷰 세팅
         initView(binding)
+        viewModel.getMyStudyDataList(1)
         observeData()
         Log.d("StudyMyFragment", "onViewCreated 호출됨")
     }
@@ -91,12 +82,13 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
             // 리사이클러뷰
             recyclerViewStudyMy.apply {
-                adapter = studyMyAdapter
+                adapter = studyAdapter
                 layoutManager = LinearLayoutManager(requireActivity())
             }
 
             searchBarStudyMy.setOnClickListener {
                 requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, StudySearchFragment())
                     addToBackStack(FragmentName.STUDY_SEARCH.str)
                 }
@@ -115,16 +107,21 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
     }
 
     private fun observeData() {
-        // 필터링된 데이터 관찰
-        viewModel.filteredMyStudyList.observe(viewLifecycleOwner) { studyList ->
-            studyMyAdapter.updateData(studyList)
-            Log.d("StudyMyFragment", "필터링된 내 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
-        }
+//        // 필터링된 데이터 관찰
+//        viewModel.filteredMyStudyList.observe(viewLifecycleOwner) { studyList ->
+//            studyMyAdapter.updateData(studyList)
+//            Log.d("StudyMyFragment", "필터링된 내 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
+//        }
 
         // 내 스터디 데이터 관찰 (필터링이 없을 때)
-        viewModel.studyMyDataList.observe(viewLifecycleOwner) { studyList ->
-            studyMyAdapter.updateData(studyList)
+        viewModel.myStudyDataList.observe(viewLifecycleOwner) { studyList ->
+            studyAdapter.updateData(studyList)
             Log.d("StudyMyFragment", "내 스터디 목록 업데이트: ${studyList.size} 개")
+        }
+
+        viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
+            // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
+            studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
     }
 }

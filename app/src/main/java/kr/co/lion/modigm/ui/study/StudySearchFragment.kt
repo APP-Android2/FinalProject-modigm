@@ -17,7 +17,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudySearchBinding
-import kr.co.lion.modigm.databinding.RowStudyMyBinding
+import kr.co.lion.modigm.databinding.RowStudyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudySearchAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
@@ -29,7 +29,7 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
     private var _binding: FragmentStudySearchBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var rowbinding: RowStudyMyBinding
+    private lateinit var rowbinding: RowStudyBinding
 
     // 뷰모델
     private val viewModel: StudyViewModel by viewModels()
@@ -56,19 +56,9 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
             }
 
         },
-        likeClickListener = { studyIdx ->
-            viewModel.viewModelScope.launch {
-                viewModel.toggleLike(currentUserUid, studyIdx)
-                viewModel.isLiked.observe(viewLifecycleOwner) { isLiked ->
-                    if (isLiked) {
-                        rowbinding.imageViewStudyMyFavorite.setImageResource(R.drawable.icon_favorite_full_24px)
-                        rowbinding.imageViewStudyMyFavorite.setColorFilter(Color.parseColor("#D73333"))
-                    } else {
-                        rowbinding.imageViewStudyMyFavorite.setImageResource(R.drawable.icon_favorite_24px)
-                        rowbinding.imageViewStudyMyFavorite.clearColorFilter()
-                    }
-                }
-            }
+        favoriteClickListener = { studyIdx ->
+            // 현재 접속중인 유저의 userIdx를 전달해야하므로 수정 요망./////////////////////////////////////////////////////////////////////////////////////
+            viewModel.toggleFavorite(1, studyIdx)
         }
     )
 
@@ -76,11 +66,11 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
         super.onViewCreated(view, savedInstanceState)
 
         _binding = FragmentStudySearchBinding.bind(view)
-        rowbinding = RowStudyMyBinding.inflate(layoutInflater)
+        rowbinding = RowStudyBinding.inflate(layoutInflater)
 
         initView(binding)
 
-        viewModel.studyStateTrueDataList.observe(viewLifecycleOwner, Observer { studyList ->
+        viewModel.allStudyStateTrueDataList.observe(viewLifecycleOwner, Observer { studyList ->
             studySearchAdapter.updateData(studyList)
         })
     }
@@ -99,7 +89,7 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
             // init SearchView
             searchView.isSubmitButtonEnabled = true
 
-            val searchTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text) as TextView
+            val searchTextView: TextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
             TextViewCompat.setTextAppearance(searchTextView, R.style.ChipTextStyle)
 
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {

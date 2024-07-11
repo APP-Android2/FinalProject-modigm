@@ -25,7 +25,7 @@
                 app:strokeWidth="0dp"
                 android:elevation="0dp">
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/imageViewStudyAllPic"
+                    android:id="@+id/imageViewStudyPic"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:scaleType="centerCrop"
@@ -45,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyAllCanApply"
+                        android:id="@+id/textViewStudyCanApply"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
@@ -63,7 +63,7 @@
                         android:textStyle="bold"
                         android:textSize="20dp"/>
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyAllOnOffline"
+                        android:id="@+id/textViewStudyOnOffline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -73,7 +73,7 @@
                         android:textSize="14dp"/>
                 </LinearLayout>
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewStudyAllTitle"
+                    android:id="@+id/textViewStudyTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -89,7 +89,7 @@
                     android:layout_weight="1"
                     android:orientation="horizontal">
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/imageViewStudyAllStudyTypeIcon"
+                        android:id="@+id/imageViewStudyStudyTypeIcon"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
@@ -97,7 +97,7 @@
                         android:src="@drawable/icon_clock_24px"
                         />
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyAllType"
+                        android:id="@+id/textViewStudyType"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -114,7 +114,7 @@
                         android:src="@drawable/icon_group_24px"
                         />
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyAllCurrentMember"
+                        android:id="@+id/textViewStudyCurrentMember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
@@ -133,7 +133,7 @@
                         android:textSize="16dp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyAllMaxMember"
+                        android:id="@+id/textViewStudyMaxMember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="2dp"
@@ -160,7 +160,7 @@
                         android:textSize="14dp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewStudyAllApplyMethod"
+                        android:id="@+id/textViewStudyApplyMethod"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="2dp"
@@ -178,7 +178,7 @@
                         android:text=")"
                         android:textSize="14dp" />
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/imageViewStudyAllFavorite"
+                        android:id="@+id/imageViewStudyFavorite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
