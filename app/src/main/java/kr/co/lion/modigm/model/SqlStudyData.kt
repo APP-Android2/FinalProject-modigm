@@ -1,7 +1,5 @@
 package kr.co.lion.modigm.model
 
-import java.sql.ResultSet
-
 data class SqlStudyData(
     var studyIdx: Int = -1,                     // 스터디 아이디
     var studyTitle: String = "",                // 제목
@@ -18,62 +16,41 @@ data class SqlStudyData(
     var studyState: Boolean = true,             // 삭제 여부 (존재함, 삭제됨)
     var userIdx: Int = -1,                      // 사용자 번호
 ){
-    fun getColumns(): Array<String>{
-        val columns = arrayOf(
-            "studyTitle",
-            "studyContent",
-            "studyType",
-            "studyPeriod",
-            "studyOnOffline",
-            "studyDetailPlace",
-            "studyPlace",
-            "studyApplyMethod",
-            "studyCanApply",
-            "studyPic",
-            "studyMaxMember",
-            "studyState",
-            "userIdx",
-        )
-        return columns
-    }
-
-    fun getValues(): Array<Any>{
-        val values = arrayOf<Any>(
-            this.studyTitle,
-            this.studyContent,
-            this.studyType,
-            this.studyPeriod,
-            this.studyOnOffline,
-            this.studyDetailPlace,
-            this.studyPlace,
-            this.studyApplyMethod,
-            this.studyCanApply,
-            this.studyPic,
-            this.studyMaxMember,
-            this.studyState,
-            this.userIdx,
-        )
-        return values
+    fun toMap(): Map<String, Any>{
+        val map = mutableMapOf<String, Any>()
+        map["studyTitle"] = this.studyTitle
+        map["studyContent"] = this.studyContent
+        map["studyType"] = this.studyType
+        map["studyPeriod"] = this.studyPeriod
+        map["studyOnOffline"] = this.studyOnOffline
+        map["studyDetailPlace"] = this.studyDetailPlace
+        map["studyPlace"] = this.studyPlace
+        map["studyApplyMethod"] = this.studyApplyMethod
+        map["studyCanApply"] = this.studyCanApply
+        map["studyPic"] = this.studyPic
+        map["studyMaxMember"] = this.studyMaxMember
+        map["studyState"] = this.studyState
+        map["userIdx"] = this.userIdx
+        return map
     }
 
     companion object{
-        fun getStudyData(resultSet: ResultSet): SqlStudyData{
-            return SqlStudyData(
-                resultSet.getInt("studyIdx"),
-                resultSet.getString("studyTitle"),
-                resultSet.getString("studyContent"),
-                resultSet.getString("studyType"),
-                resultSet.getString("studyPeriod"),
-                resultSet.getString("studyOnOffline"),
-                resultSet.getString("studyDetailPlace"),
-                resultSet.getString("studyPlace"),
-                resultSet.getString("studyApplyMethod"),
-                resultSet.getString("studyCanApply"),
-                resultSet.getString("studyPic"),
-                resultSet.getInt("studyMaxMember"),
-                resultSet.getBoolean("studyState"),
-                resultSet.getInt("userIdx"),
-            )
+        fun fromMap(map: Map<String, Any>): SqlStudyData{
+            val studyData = SqlStudyData()
+            studyData.studyTitle = map["studyTitle"] as String
+            studyData.studyContent = map["studyContent"] as String
+            studyData.studyType = map["studyType"] as String
+            studyData.studyPeriod = map["studyPeriod"] as String
+            studyData.studyOnOffline = map["studyOnOffline"] as String
+            studyData.studyDetailPlace = map["studyDetailPlace"] as String
+            studyData.studyPlace = map["studyPlace"] as String
+            studyData.studyApplyMethod = map["studyApplyMethod"] as String
+            studyData.studyCanApply = map["studyCanApply"] as String
+            studyData.studyPic = map["studyPic"] as String
+            studyData.studyMaxMember = map["studyMaxMember"] as Int
+            studyData.studyState = map["studyState"] as Boolean
+            studyData.userIdx = map["userIdx"] as Int
+            return studyData
         }
     }
 

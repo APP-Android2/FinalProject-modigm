@@ -147,14 +147,12 @@ class WriteViewModel : ViewModel() {
                 studyState = true,
                 userIdx = userIdx.toInt(),
             )
-            val studyIdx = writeStudyRepository.uploadStudyData(studyData)
-            if (studyIdx != null) {
-                // 스터디 기술스택에 저장
-                studySkillList.value?.let {
-                    writeStudyRepository.uploadStudyTechStack(studyIdx, it)
-                }
-                // 스터디 참여 멤버 저장
-                writeStudyRepository.uploadStudyMember(studyIdx, userIdx.toInt())
+            val studyIdx = studySkillList.value?.let {
+                writeStudyRepository.uploadStudyData(
+                    userIdx.toInt(),
+                    studyData,
+                    studySkillList.value?:listOf()
+                )
             }
             studyIdx
         } catch (e: Exception) {

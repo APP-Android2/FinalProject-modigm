@@ -5,9 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 import kr.co.lion.modigm.BuildConfig
-import kr.co.lion.modigm.model.SqlStudyData
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -16,25 +14,19 @@ class WriteStudyDao {
     private var connection: Connection? = null
     private val TAG = "MySQLDataSource"
 
-    private fun getConnection() {
-        Class.forName("com.mysql.jdbc.Driver")
-        connection = DriverManager.getConnection(BuildConfig.DB_URL, BuildConfig.DB_USER, BuildConfig.DB_PASSWORD)
-    }
-
-    private fun closeConnection(){
-        connection?.close()
-        connection = null
-    }
-
-    suspend fun insertStudyData(model: SqlStudyData):Int?{
+    suspend fun insertStudyData(
+        userIdx: Int,
+        model: Map<String, Any>,
+        studyTechStack: List<Int>
+    ):Int? {
         var preparedStatement: PreparedStatement? = null
-        val columns = model.getColumns()
-        val values = model.getValues()
+        val columns = model.keys
+        val values = model.values
         var idx:Int? = null
         try {
             val columnsString = StringBuilder()
             val valuesString = StringBuilder()
-            columns.forEachIndexed { index, column ->
+            columns.forEach { column ->
                 columnsString.append("$column,")
                 valuesString.append("?,")
             }
@@ -44,7 +36,8 @@ class WriteStudyDao {
             val sql = "INSERT INTO Study ($columnsString) VALUES ($valuesString)"
 
             val deferred = CoroutineScope(Dispatchers.IO).async {
-                getConnection()
+                Class.forName("com.mysql.jdbc.Driver")
+                connection = DriverManager.getConnection(BuildConfig.DB_URL, BuildConfig.DB_USER, BuildConfig.DB_PASSWORD)
                 preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
                 values.forEachIndexed { index, value ->
                     // 쿼리 매개변수 설정
@@ -66,6 +59,24 @@ class WriteStudyDao {
                 val resultSet = afterExecute?.executeQuery()
                 resultSet?.next()
                 if(resultSet != null) idx = resultSet.getInt("LAST_INSERT_ID()")
+
+                if(idx != null){
+                    // 기술 스택 등록
+                    studyTechStack.forEach {
+                        preparedStatement = connection?.prepareStatement(
+                            "INSERT INTO StudyTechStack (studyIdx,techIdx) VALUES (?, ?)"
+                        ) // PreparedStatement 생성
+                        preparedStatement?.setInt(1, idx!!)
+                        preparedStatement?.setInt(2, it)
+                        preparedStatement?.executeUpdate() // 쿼리 실행
+                    }
+                    // 스터디 멤버 등록
+                    val sql = "INSERT INTO StudyMember (studyIdx,userIdx) VALUES (?, ?)"
+                    preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
+                    preparedStatement?.setInt(1, idx!!)
+                    preparedStatement?.setInt(2, userIdx)
+                    preparedStatement?.executeUpdate() // 쿼리 실행
+                }
             }
             awaitAll(deferred)
         } catch (e: Exception) {
@@ -73,60 +84,13 @@ class WriteStudyDao {
         } finally {
             try {
                 preparedStatement?.close() // PreparedStatement 닫기
-                closeConnection()  // 데이터베이스 연결 닫기
+                connection?.close() // 데이터베이스 연결 닫기
+                connection = null
             } catch (e: Exception) {
                 Log.e(TAG, "Error closing resources", e) // 리소스 닫기 오류 로그 출력
             }
         }
         return idx
-    }
-
-    fun uploadStudyTechStack(studyIdx:Int, studyTechStack: List<Int>) {
-        var preparedStatement: PreparedStatement? = null
-        try {
-            CoroutineScope(Dispatchers.IO).launch {
-                getConnection()
-                studyTechStack.forEach {
-                    val sql = "INSERT INTO StudyTechStack (studyIdx,techIdx) VALUES (?, ?)"
-                    preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
-                    preparedStatement?.setInt(1, studyIdx)
-                    preparedStatement?.setInt(2, it)
-                    preparedStatement?.executeUpdate() // 쿼리 실행
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in insertStudyTechStack", e) // 오류 로그 출력
-        } finally {
-            try {
-                preparedStatement?.close() // PreparedStatement 닫기
-                closeConnection()  // 데이터베이스 연결 닫기
-            } catch (e: Exception) {
-                Log.e(TAG, "Error closing resources", e) // 리소스 닫기 오류 로그 출력
-            }
-        }
-    }
-
-    fun uploadStudyMember(studyIdx: Int, userIdx: Int) {
-        var preparedStatement: PreparedStatement? = null
-        try {
-            CoroutineScope(Dispatchers.IO).launch {
-                getConnection()
-                val sql = "INSERT INTO StudyMember (studyIdx,userIdx) VALUES (?, ?)"
-                preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
-                preparedStatement?.setInt(1, studyIdx)
-                preparedStatement?.setInt(2, userIdx)
-                preparedStatement?.executeUpdate() // 쿼리 실행
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in insertStudyMember", e) // 오류 로그 출력
-        } finally {
-            try {
-                preparedStatement?.close() // PreparedStatement 닫기
-                closeConnection()  // 데이터베이스 연결 닫기
-            } catch (e: Exception) {
-                Log.e(TAG, "Error closing resources", e) // 리소스 닫기 오류 로그 출력
-            }
-        }
     }
 
 }

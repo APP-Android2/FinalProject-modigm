@@ -7,14 +7,7 @@ class WriteStudyRepository {
     private val writeStudyDataSource = WriteStudyDataSource()
 
     // 스터디 정보 업로드
-    suspend fun uploadStudyData(studyData: SqlStudyData):Int? =
-        writeStudyDataSource.uploadStudyData(studyData)
+    suspend fun uploadStudyData(userIdx: Int, studyData: SqlStudyData, studyTechStack: List<Int>):Int? =
+        writeStudyDataSource.uploadStudyData(userIdx, studyData, studyTechStack)
 
-    // 스터디 기술 스택 업로드
-    fun uploadStudyTechStack(studyIdx:Int, studyTechStack: List<Int>) =
-        writeStudyDataSource.uploadStudyTechStack(studyIdx, studyTechStack)
-
-    // 스터디 멤버 업로드
-    fun uploadStudyMember(studyIdx: Int, userIdx: Int) =
-        writeStudyDataSource.uploadStudyMember(studyIdx, userIdx)
 }
