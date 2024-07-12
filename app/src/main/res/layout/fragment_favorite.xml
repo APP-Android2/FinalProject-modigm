@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".ui.like.LikeFragment">
+    tools:context=".ui.favorite.FavoriteFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolBarLike"
+        android:id="@+id/toolBarFavorite"
         style="@style/CustomToolbar"
         android:elevation="4dp"
         android:layout_width="match_parent"
@@ -18,13 +18,13 @@
         app:titleTextAppearance="@style/toolbarText" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerviewLike"
+        android:id="@+id/recyclerviewFavorite"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"/>
 
     <LinearLayout
-        android:id="@+id/blankLayoutLike"
+        android:id="@+id/blankLayoutFavorite"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
