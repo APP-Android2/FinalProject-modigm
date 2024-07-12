@@ -2,9 +2,6 @@ package kr.co.lion.modigm.db.study
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.newCoroutineContext
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData

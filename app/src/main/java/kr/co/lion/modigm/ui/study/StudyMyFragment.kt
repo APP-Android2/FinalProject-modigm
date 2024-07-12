@@ -1,17 +1,12 @@
 package kr.co.lion.modigm.ui.study
 
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
 import kr.co.lion.modigm.databinding.RowStudyBinding
@@ -20,7 +15,6 @@ import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.ModigmApplication
 
 class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
@@ -88,7 +82,12 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
             searchBarStudyMy.setOnClickListener {
                 requireActivity().supportFragmentManager.commit {
-                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.fade_out,
+                        R.anim.fade_in,
+                        R.anim.slide_out
+                    )
                     add(R.id.containerMain, StudySearchFragment())
                     addToBackStack(FragmentName.STUDY_SEARCH.str)
                 }

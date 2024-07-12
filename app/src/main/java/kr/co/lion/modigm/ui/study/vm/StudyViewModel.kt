@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyListRepository
-import kr.co.lion.modigm.repository.StudyRepository
 
 class StudyViewModel : ViewModel() {
 
@@ -17,8 +16,10 @@ class StudyViewModel : ViewModel() {
     private val studyListRepository = StudyListRepository()
 
     // 전체 스터디 목록 중 모집중인 스터디 리스트
-    private val _allStudyStateTrueDataList = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val allStudyStateTrueDataList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyStateTrueDataList
+    private val _allStudyStateTrueDataList =
+        MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
+    val allStudyStateTrueDataList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> =
+        _allStudyStateTrueDataList
 
     // 전체 스터디 목록 중 모집중인 스터디 리스트 로딩
     private val _setNullStudyAllLoading = MutableLiveData<Boolean?>(null)
@@ -106,13 +107,6 @@ class StudyViewModel : ViewModel() {
             }
         }
     }
-
-
-
-
-
-
-
 
 
     // ------------------MySQL 적용 끝-----------------------

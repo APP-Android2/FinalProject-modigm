@@ -14,7 +14,7 @@ class StudyAdapter(
     // 항목 1개 클릭 리스너
     private val rowClickListener: (Int) -> Unit,
     private val favoriteClickListener: (Int) -> Unit,
-) : RecyclerView.Adapter<StudyViewHolder>()  {
+) : RecyclerView.Adapter<StudyViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): StudyViewHolder {
         val binding: RowStudyBinding =
@@ -32,7 +32,10 @@ class StudyAdapter(
 
     override fun onBindViewHolder(holder: StudyViewHolder, position: Int) {
         holder.bind(studyList[position])
-        Log.d("StudyAdapter", "onBindViewHolder: position = $position, studyIdx = ${studyList[position].first.studyIdx}")
+        Log.d(
+            "StudyAdapter",
+            "onBindViewHolder: position = $position, studyIdx = ${studyList[position].first.studyIdx}"
+        )
     }
 
     // 목록 새로고침
