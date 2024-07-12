@@ -36,6 +36,7 @@ android {
         val databaseUser = localProperties.getProperty("database_user") ?: ""
         val databasePassword = localProperties.getProperty("database_password") ?: ""
 
+
         buildConfigField("String", "DB_URL", databaseUrl)
         buildConfigField("String", "DB_USER", databaseUser)
         buildConfigField("String", "DB_PASSWORD", databasePassword)

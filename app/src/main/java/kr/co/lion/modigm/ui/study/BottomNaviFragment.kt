@@ -1,11 +1,9 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.google.firebase.auth.ktx.auth
@@ -13,7 +11,7 @@ import com.google.firebase.ktx.Firebase
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
-import kr.co.lion.modigm.ui.like.LikeFragment
+import kr.co.lion.modigm.ui.favorite.FavoriteFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.showCustomSnackbar
@@ -78,7 +76,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 R.id.bottomNaviHeart -> {
                     childFragmentManager.commit {
                         setReorderingAllowed(true)
-                        replace<LikeFragment>(R.id.containerBottomNavi)
+                        replace<FavoriteFragment>(R.id.containerBottomNavi)
                         addToBackStack(FragmentName.LIKE.str)
                     }
                 }

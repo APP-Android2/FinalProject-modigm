@@ -17,6 +17,7 @@ data class SqlStudyData(
     val studyMaxMember: Int = 0,                // 최대 인원수
     val studyState: Boolean = true,             // 삭제 여부 (존재함, 삭제됨)
     val userIdx: Int = -1,                      // 사용자 번호
+
 ){
     fun toMap(): Map<String, Any>{
         val map = mutableMapOf<String, Any>()
@@ -35,6 +36,7 @@ data class SqlStudyData(
         map["userIdx"] = this.userIdx
         return map
     }
+
 
     companion object{
         fun fromMap(map: Map<String, Any>): SqlStudyData {
@@ -55,6 +57,7 @@ data class SqlStudyData(
                 userIdx = map["userIdx"] as Int
             )
         }
+
         fun getStudyData(resultSet: ResultSet): SqlStudyData{
             return SqlStudyData(
                 resultSet.getInt("studyIdx"),
