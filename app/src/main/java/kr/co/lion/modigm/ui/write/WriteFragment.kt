@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.replace
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
@@ -20,7 +19,6 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
-import kr.co.lion.modigm.util.FragmentName
 
 
 class WriteFragment : Fragment() {
@@ -117,8 +115,7 @@ class WriteFragment : Fragment() {
                     val introFragment = childFragmentManager.fragments.find { it is WriteIntroFragment } as? WriteIntroFragment
                     introFragment?.uploadImageAndSaveData {
                         lifecycleScope.launch {
-                            val studyIdx = viewModel.saveDataToFirestore()
-                            val chatRoomIdx = viewModel.saveChatRoomDataToFirestore()
+                            val studyIdx = viewModel.saveDataToDB()
                             if (studyIdx != null) {
                                 navigateToDetailFragment(studyIdx)
                             }

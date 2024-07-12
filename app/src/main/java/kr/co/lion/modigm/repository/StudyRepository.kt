@@ -11,12 +11,6 @@ import kr.co.lion.modigm.model.UserData
 class StudyRepository {
     private val remoteStudyDataSource = RemoteStudyDataSource()
 
-    // 스터디 시퀀스 값을 가져온다.
-    suspend fun getStudySequence() = remoteStudyDataSource.getStudySequence()
-
-    // 스터디 시퀀스 값을 업데이트한다.
-    suspend fun updateStudySequence(studySequence: Int) = remoteStudyDataSource.updateStudySequence(studySequence)
-
     // 전체 스터디 목록을 가져온다.
     suspend fun getStudyAllData() = remoteStudyDataSource.getStudyAllData()
 
@@ -71,7 +65,8 @@ class StudyRepository {
     }
 
     suspend fun getStudyUidListByStudyIdx(studyIdx: Int): List<String>? {
-        return remoteStudyDataSource.selectContentData(studyIdx)?.studyUidList
+//        return remoteStudyDataSource.selectContentData(studyIdx)?.studyUidList
+        return null
     }
 
     suspend fun getUserDetailsByUid(uid: String): UserData? {
