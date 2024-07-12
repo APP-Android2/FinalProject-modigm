@@ -89,17 +89,17 @@ class RemoteProfileDao {
     }
 
     // 사용자 정보를 수정하는 메서드
-    suspend fun updateUserData(user: SqlUserData, linkList: List<String>) {
+    suspend fun updateUserData(user: SqlUserData) {
         try {
             getConnection().use { connection ->
                 val query = """
-                UPDATE User
-                SET userProfilePic = ?,
-                    userIntro = ?,
-                    userEmail = ?,
-                    userInterestList = ?
-                WHERE userIdx = ?
-            """
+                    UPDATE User
+                    SET userProfilePic = ?,
+                        userIntro = ?,
+                        userEmail = ?,
+                        userInterestList = ?
+                    WHERE userIdx = ?
+                """
                 connection.prepareStatement(query).use { statement ->
                     statement.setString(1, user.userProfilePic)
                     statement.setString(2, user.userIntro)
@@ -108,6 +108,39 @@ class RemoteProfileDao {
                     statement.setInt(5, user.userIdx)
 
                     statement.executeUpdate()
+                }
+            }
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDao", "updateUserData(): $error")
+        }
+    }
+
+    // 사용자 정보를 수정하는 메서드
+    suspend fun updateUserListData(userIdx: Int, linkList: List<String>) {
+        try {
+            getConnection().use { connection ->
+                // 먼저 링크를 모두 삭제
+                val userQuery = """
+                    DELETE FROM UserList
+                    WHERE userIdx = ?
+                """
+                connection.prepareStatement(userQuery).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.executeUpdate()
+                }
+
+                // 입력된 링크 저장
+                linkList.forEachIndexed { index, link ->
+                    val insertQuery = """
+                    INSERT INTO UserList (userIdx, linkUrl, linkOrder)
+                    VALUES (?, ?, ?)
+                """
+                    connection.prepareStatement(insertQuery).use { statement ->
+                        statement.setInt(1, userIdx)
+                        statement.setString(2, link)
+                        statement.setInt(3, index + 1) // Assuming linkOrder is 1-based
+                        statement.executeUpdate()
+                    }
                 }
             }
         } catch (error: Exception) {

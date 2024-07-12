@@ -20,9 +20,18 @@ class RemoteProfileDataSource {
     }
 
     // 사용자 정보를 수정
-    suspend fun updateUserData(user: SqlUserData, linkList: List<String>) {
+    suspend fun updateUserData(user: SqlUserData) {
         try {
-            dao.updateUserData(user, linkList)
+            dao.updateUserData(user)
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDataSource", "updateUserData(): $error")
+        }
+    }
+
+    // 사용자 정보를 수정
+    suspend fun updateUserListData(userIdx: Int, linkList: List<String>) {
+        try {
+            dao.updateUserListData(userIdx, linkList)
         } catch (error: Exception) {
             Log.e("RemoteProfileDataSource", "updateUserData(): $error")
         }
