@@ -8,5 +8,5 @@ data class SqlUserData(
     var userIntro: String = "",         // 자기소개
     var userEmail: String = "",         // 사용자 이메일
     var userProvider: String = "",      // Firebase Auth에 등록된 계정 Provider
-    var userInterests: String,          // 관심 분야 목록
+    var userInterests: String = "",     // 관심 분야 목록
 )
