@@ -40,6 +40,10 @@ android {
         buildConfigField("String", "DB_USER", databaseUser)
         buildConfigField("String", "DB_PASSWORD", databasePassword)
 
+        buildConfigField("String", "DB_URL", databaseUrl)
+        buildConfigField("String", "DB_USER", databaseUser)
+        buildConfigField("String", "DB_PASSWORD", databasePassword)
+
         // manifestPlaceholders 설정
         manifestPlaceholders["PLACE_API_KEY"] = placeApiKey
         manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
