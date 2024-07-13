@@ -38,8 +38,8 @@ class ProfileFragment: Fragment() {
     private val chatRoomViewModel: ChatRoomViewModel by viewModels()
 
     // onCreateView에서 초기화
-    var uid: String? = null
-    var myProfile: Boolean = false
+    var userIdx: Int? = null
+    var myProfile: Boolean = true
 
     // 어댑터 선언
     val linkAdapter: LinkAdapter = LinkAdapter(
@@ -126,8 +126,8 @@ class ProfileFragment: Fragment() {
         fragmentProfileBinding.profileViewModel = profileViewModel
         fragmentProfileBinding.lifecycleOwner = this
 
-        uid = arguments?.getString("uid")
-        myProfile = uid == ModigmApplication.prefs.getUserData("currentUserData")?.userUid
+        userIdx = arguments?.getInt("userIdx")
+        //myProfile = userIdx == ModigmApplication.prefs.getUserData("currentUserData")?.userUid
 
         return fragmentProfileBinding.root
     }
@@ -143,7 +143,7 @@ class ProfileFragment: Fragment() {
 
     private fun initView() {
         setupToolbar()
-        setupFab()
+        //setupFab()
         setupUserInfo()
         setupRecyclerViewLink()
         setupRecyclerViewPartStudy()
@@ -201,44 +201,44 @@ class ProfileFragment: Fragment() {
         }
     }
 
-    private fun setupFab() {
-        fragmentProfileBinding.apply {
-            fabProfile.apply {
-                if (myProfile) {
-                    // 본인의 프로필일 때
-                    visibility = View.INVISIBLE
-                }
-                else {
-                    // 1:1 채팅 방 찾기
-                    lifecycleScope.launch {
-                        chatRoomViewModel.findChatRoomIdx(ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!, uid!!)
-                    }
-                    setOnClickListener {
-                        chatRoomViewModel.chatRoomIdx.observe(viewLifecycleOwner, Observer { chatRoomIdx ->
-                            // 채팅방 없음(생성 O)
-                            if (chatRoomIdx == 0) {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    val thisChatRoomIdx = addChatRoomData()
-                                    enterChatRoom(thisChatRoomIdx)
-                                }
-                            }
-                            // 채팅방 있음(생성 X)
-                            else {
-                                enterChatRoom(chatRoomIdx)
-                            }
-                        })
-                    }
-                }
-            }
-        }
-    }
+//    private fun setupFab() {
+//        fragmentProfileBinding.apply {
+//            fabProfile.apply {
+//                if (myProfile) {
+//                    // 본인의 프로필일 때
+//                    visibility = View.INVISIBLE
+//                }
+//                else {
+//                    // 1:1 채팅 방 찾기
+//                    lifecycleScope.launch {
+//                        chatRoomViewModel.findChatRoomIdx(ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!, uid!!)
+//                    }
+//                    setOnClickListener {
+//                        chatRoomViewModel.chatRoomIdx.observe(viewLifecycleOwner, Observer { chatRoomIdx ->
+//                            // 채팅방 없음(생성 O)
+//                            if (chatRoomIdx == 0) {
+//                                CoroutineScope(Dispatchers.Main).launch {
+//                                    val thisChatRoomIdx = addChatRoomData()
+//                                    enterChatRoom(thisChatRoomIdx)
+//                                }
+//                            }
+//                            // 채팅방 있음(생성 X)
+//                            else {
+//                                enterChatRoom(chatRoomIdx)
+//                            }
+//                        })
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private fun setupUserInfo() {
         Log.d("zunione", "setupUserInfo")
-        profileViewModel.profileUid.value = uid
-        profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
-        profileViewModel.loadPartStudyList(uid!!)
-        profileViewModel.loadHostStudyList(uid!!)
+        profileViewModel.profileUserIdx.value = userIdx
+        //profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
+        //profileViewModel.loadPartStudyList(uid!!)
+        //profileViewModel.loadHostStudyList(uid!!)
     }
 
     private fun setupRecyclerViewLink() {
@@ -283,26 +283,26 @@ class ProfileFragment: Fragment() {
     fun observeData() {
         // 데이터 변경 관찰
         // 관심 분야 chipGroup
-        profileViewModel.profileInterestList.observe(viewLifecycleOwner, Observer { list ->
+        profileViewModel.profileInterests.observe(viewLifecycleOwner, Observer { list ->
             // 기존 칩들 제거
             fragmentProfileBinding.chipGroupProfile.removeAllViews()
 
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
-            for (interestNum in list) {
-                // 아이템 처리 코드
-                fragmentProfileBinding.chipGroupProfile.addView(Chip(context).apply {
-                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
-                    text = Interest.fromNum(interestNum)!!.str
-
-                    setTextAppearance(R.style.ChipTextStyle)
-                    // 자동 padding 없애기
-                    setEnsureMinTouchTargetSize(false)
-                    // 배경 흰색으로 지정
-                    setChipBackgroundColorResource(android.R.color.white)
-                    // 클릭 불가
-                    isClickable = false
-                })
-            }
+//            for (interestNum in list) {
+//                // 아이템 처리 코드
+//                fragmentProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+//                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
+//                    text = Interest.fromNum(interestNum)!!.str
+//
+//                    setTextAppearance(R.style.ChipTextStyle)
+//                    // 자동 padding 없애기
+//                    setEnsureMinTouchTargetSize(false)
+//                    // 배경 흰색으로 지정
+//                    setChipBackgroundColorResource(android.R.color.white)
+//                    // 클릭 불가
+//                    isClickable = false
+//                })
+//            }
         })
 
         // 링크 리스트
@@ -345,51 +345,51 @@ class ProfileFragment: Fragment() {
         }
     }
 
-    // 1:1 채팅 방 데이터 생성
-    suspend fun addChatRoomData(): Int {
-        var chatIdx = 0
-        val job1 = CoroutineScope(Dispatchers.Main).launch {
-
-            val chatRoomSequence = ChatRoomDataSource.getChatRoomSequence()
-            ChatRoomDataSource.updateChatRoomSequence(chatRoomSequence - 1)
-
-            chatIdx = chatRoomSequence - 1
-            val chatTitle = "1:1 채팅방"
-            val chatRoomImage = ""
-            val chatMemberList = listOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, uid)
-            val participantCount = 2
-            val groupChat = false
-            val lastChatMessage = ""
-            val lastChatFullTime = 0L
-            val lastChatTime = ""
-
-            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
-
-            // 채팅 방 생성
-            ChatRoomDataSource.insertChatRoomData(chatRoomData)
-            Log.d("chatLog5", "ProfileFragment - 1:1 채팅방 생성")
-        }
-        job1.join()
-
-        return chatIdx
-    }
-
-    // 해당 채팅 방으로 입장
-    fun enterChatRoom(chatRoomIdx: Int){
-        val chatRoomFragment = ChatRoomFragment().apply {
-            arguments = Bundle().apply {
-                putInt("chatIdx", chatRoomIdx)
-                putString("chatTitle", "1:1")
-                putStringArrayList("chatMemberList", arrayListOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, uid))
-                putInt("participantCount", 2)
-                putBoolean("groupChat", false)
-            }
-        }
-        requireActivity().supportFragmentManager.commit {
-            setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-            replace(R.id.containerMain, chatRoomFragment)
-            addToBackStack(FragmentName.CHAT_ROOM.str)
-        }
-        Log.d("chatLog5", "ProfileFragment - ${chatRoomIdx}번 채팅방 입장")
-    }
+//    // 1:1 채팅 방 데이터 생성
+//    suspend fun addChatRoomData(): Int {
+//        var chatIdx = 0
+//        val job1 = CoroutineScope(Dispatchers.Main).launch {
+//
+//            val chatRoomSequence = ChatRoomDataSource.getChatRoomSequence()
+//            ChatRoomDataSource.updateChatRoomSequence(chatRoomSequence - 1)
+//
+//            chatIdx = chatRoomSequence - 1
+//            val chatTitle = "1:1 채팅방"
+//            val chatRoomImage = ""
+//            val chatMemberList = listOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, uid)
+//            val participantCount = 2
+//            val groupChat = false
+//            val lastChatMessage = ""
+//            val lastChatFullTime = 0L
+//            val lastChatTime = ""
+//
+//            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
+//
+//            // 채팅 방 생성
+//            ChatRoomDataSource.insertChatRoomData(chatRoomData)
+//            Log.d("chatLog5", "ProfileFragment - 1:1 채팅방 생성")
+//        }
+//        job1.join()
+//
+//        return chatIdx
+//    }
+//
+//    // 해당 채팅 방으로 입장
+//    fun enterChatRoom(chatRoomIdx: Int){
+//        val chatRoomFragment = ChatRoomFragment().apply {
+//            arguments = Bundle().apply {
+//                putInt("chatIdx", chatRoomIdx)
+//                putString("chatTitle", "1:1")
+//                putStringArrayList("chatMemberList", arrayListOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, uid))
+//                putInt("participantCount", 2)
+//                putBoolean("groupChat", false)
+//            }
+//        }
+//        requireActivity().supportFragmentManager.commit {
+//            setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+//            replace(R.id.containerMain, chatRoomFragment)
+//            addToBackStack(FragmentName.CHAT_ROOM.str)
+//        }
+//        Log.d("chatLog5", "ProfileFragment - ${chatRoomIdx}번 채팅방 입장")
+//    }
 }

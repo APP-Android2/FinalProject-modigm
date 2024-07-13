@@ -21,6 +21,10 @@ class ProfileViewModel : ViewModel() {
     private val _profileUid = MutableLiveData<Int>()
     val profileUid: MutableLiveData<Int> = _profileUid
 
+    // 사용자 uid
+    private val _profileUserIdx = MutableLiveData<Int>()
+    val profileUserIdx: MutableLiveData<Int> = _profileUserIdx
+
     // 사용자 이름
     private val _profileName = MutableLiveData<String>()
     val profileName: MutableLiveData<String> = _profileName
