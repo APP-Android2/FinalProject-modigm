@@ -57,6 +57,8 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
         })
     }
 
+    private var currentNavItemIndex = 0
+
     private fun initView(binding: FragmentBottomNaviBinding) {
         if (childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null) {
             childFragmentManager.commit {
@@ -65,9 +67,23 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
             }
         }
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
+
+            val newNavItemIndex = when (item.itemId) {
+                R.id.bottomNaviStudy -> 0
+                R.id.bottomNaviHeart -> 1
+                R.id.bottomNaviChat -> 2
+                R.id.bottomNaviMy -> 3
+                else -> currentNavItemIndex
+            }
+
+            // 애니메이션 방향 설정
+            val enterAnim = if (newNavItemIndex > currentNavItemIndex) R.anim.slide_in_right else R.anim.slide_in_left
+            val exitAnim = if (newNavItemIndex > currentNavItemIndex) R.anim.slide_out_left else R.anim.slide_out_right
+
             when(item.itemId) {
                 R.id.bottomNaviStudy -> {
                     childFragmentManager.commit {
+                        setCustomAnimations(enterAnim, exitAnim, enterAnim, exitAnim)
                         setReorderingAllowed(true)
                         replace<StudyFragment>(R.id.containerBottomNavi)
                         addToBackStack(FragmentName.STUDY.str)
@@ -75,41 +91,40 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 }
                 R.id.bottomNaviHeart -> {
                     childFragmentManager.commit {
+                        setCustomAnimations(enterAnim, exitAnim, enterAnim, exitAnim)
                         setReorderingAllowed(true)
                         replace<FavoriteFragment>(R.id.containerBottomNavi)
                         addToBackStack(FragmentName.LIKE.str)
                     }
                 }
                 R.id.bottomNaviChat -> {
-                    // 데이터
                     val chatFragment = ChatFragment().apply {
                         arguments = Bundle().apply {
                             putString("uid", currentUserUid)
                         }
                     }
-
                     childFragmentManager.commit {
+                        setCustomAnimations(enterAnim, exitAnim, enterAnim, exitAnim)
                         setReorderingAllowed(true)
-                        replace(R.id.containerBottomNavi,chatFragment)
+                        replace(R.id.containerBottomNavi, chatFragment)
                         addToBackStack(FragmentName.CHAT.str)
                     }
                 }
                 R.id.bottomNaviMy -> {
-                    // 데이터
                     val profileFragment = ProfileFragment().apply {
                         arguments = Bundle().apply {
                             putString("uid", currentUserUid)
                         }
                     }
-
-
                     childFragmentManager.commit {
+                        setCustomAnimations(enterAnim, exitAnim, enterAnim, exitAnim)
                         setReorderingAllowed(true)
-                        replace(R.id.containerBottomNavi,profileFragment)
+                        replace(R.id.containerBottomNavi, profileFragment)
                         addToBackStack(FragmentName.PROFILE.str)
                     }
                 }
             }
+            currentNavItemIndex = newNavItemIndex
             true
         }
     }
