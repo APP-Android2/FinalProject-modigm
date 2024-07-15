@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.google.gson.Gson
+import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.model.UserData
 
 class PreferenceUtil(context: Context) {
@@ -36,7 +37,7 @@ class PreferenceUtil(context: Context) {
     }
 
     // 유저 정보를 SharedPreferences에 저장
-    fun setUserData(key: String, user: UserData) {
+    fun setUserData(key: String, user: SqlUserData) {
         Log.d("currentUserData",user.toString())
         val userJson = gson.toJson(user)
         prefs.edit().putString(key, userJson).apply()
