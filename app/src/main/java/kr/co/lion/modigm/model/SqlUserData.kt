@@ -29,15 +29,15 @@ data class SqlUserData(
     companion object {
         fun getUserData(resultSet: ResultSet): SqlUserData {
             return SqlUserData(
-                userIdx = resultSet.getInt("userIdx"),
-                userUid = resultSet.getString("userUid") ?: "",
-                userName = resultSet.getString("userName") ?: "",
-                userPhone = resultSet.getString("userPhone") ?: "",
-                userProfilePic = resultSet.getString("userProfilePic") ?: "",
-                userIntro = resultSet.getString("userIntro") ?: "",
-                userEmail = resultSet.getString("userEmail") ?: "",
-                userProvider = resultSet.getString("userProvider") ?: "",
-                userInterests = resultSet.getString("userInterests") ?: ""
+                resultSet.getInt("userIdx"),
+                resultSet.getString("userUid") ?: "",
+                resultSet.getString("userName") ?: "",
+                resultSet.getString("userPhone") ?: "",
+                resultSet.getString("userProfilePic") ?: "",
+                resultSet.getString("userIntro") ?: "",
+                resultSet.getString("userEmail") ?: "",
+                resultSet.getString("userProvider") ?: "",
+                resultSet.getString("userInterests") ?: ""
             )
         }
     }
