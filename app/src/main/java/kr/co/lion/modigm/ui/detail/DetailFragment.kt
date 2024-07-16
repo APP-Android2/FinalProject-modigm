@@ -16,34 +16,20 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
-import kr.co.lion.modigm.db.chat.ChatRoomDataSource
-import kr.co.lion.modigm.model.ChatRoomData
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.ui.chat.ChatRoomFragment
-import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Skill
 
 class DetailFragment : Fragment() {
@@ -56,7 +42,7 @@ class DetailFragment : Fragment() {
     private var isPopupShown = false
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
-    var studyIdx = 9999
+    var studyIdx = 0
     var userIdx = 1
 
     private var currentStudyData: SqlStudyData? = null
@@ -71,7 +57,7 @@ class DetailFragment : Fragment() {
         binding = FragmentDetailBinding.inflate(inflater, container, false)
 
         // 상품 idx
-//        studyIdx = arguments?.getInt("studyIdx")!!
+        studyIdx = arguments?.getInt("studyIdx")!!
 
 //        uid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid.toString()
 
@@ -82,6 +68,8 @@ class DetailFragment : Fragment() {
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.clearData() // ViewModel 데이터 초기화
 
         // 앱바 스크롤
         setupAppBarScrollListener()
@@ -102,7 +90,16 @@ class DetailFragment : Fragment() {
     fun fetchDataAndUpdateUI() {
         viewModel.getStudy(studyIdx)
         viewModel.countMembersByStudyIdx(studyIdx)
-        viewModel.getUserById(userIdx)
+        // getStudy 호출 후 userIdx를 가져와서 getUserById 호출
+        lifecycleScope.launch {
+            viewModel.studyData.collect { data ->
+                data?.let {
+                    userIdx = it.userIdx
+                    viewModel.getUserById(userIdx)
+                }
+            }
+        }
+//        viewModel.getUserById(userIdx)
         viewModel.getTechIdxByStudyIdx(studyIdx)
 
         // 좋아요 토글 및 상태
