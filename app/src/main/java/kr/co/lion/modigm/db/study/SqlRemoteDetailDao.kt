@@ -10,10 +10,8 @@ import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.model.UserData
 import java.sql.Connection
 import java.sql.DriverManager
-import java.sql.DriverManager.getConnection
 import java.sql.ResultSet
 
 class SqlRemoteDetailDao {
