@@ -77,8 +77,18 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
             }
 
             // 애니메이션 방향 설정
-            val enterAnim = if (newNavItemIndex > currentNavItemIndex) R.anim.slide_in_right else R.anim.slide_in_left
-            val exitAnim = if (newNavItemIndex > currentNavItemIndex) R.anim.slide_out_left else R.anim.slide_out_right
+            val enterAnim =
+                if (newNavItemIndex > currentNavItemIndex) {
+                    R.anim.slide_in_right
+                } else {
+                    R.anim.slide_in_left
+                }
+            val exitAnim =
+                if (newNavItemIndex > currentNavItemIndex) {
+                    R.anim.slide_out_left
+                } else {
+                    R.anim.slide_out_right
+                }
 
             when(item.itemId) {
                 R.id.bottomNaviStudy -> {
