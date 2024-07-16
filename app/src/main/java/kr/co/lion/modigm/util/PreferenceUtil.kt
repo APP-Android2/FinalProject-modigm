@@ -70,7 +70,7 @@ class PreferenceUtil(context: Context) {
     fun logAllPreferences() {
         val allEntries = prefs.all
         for ((key, value) in allEntries) {
-            Log.d("SharedPreferences", "$key: $value")
+            Log.d("SharedPreferencesLog", "$key: $value")
         }
     }
 }
