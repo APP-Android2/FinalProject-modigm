@@ -94,8 +94,8 @@ class DetailFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.studyData.collect { data ->
                 data?.let {
-                    userIdx = it.userIdx
-                    viewModel.getUserById(userIdx)
+                    val writeUserIdx = it.userIdx
+                    viewModel.getUserById(writeUserIdx)
                 }
             }
         }
