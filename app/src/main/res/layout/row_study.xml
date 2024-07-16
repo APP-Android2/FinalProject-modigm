@@ -12,7 +12,7 @@
         app:cardElevation="2dp"
         app:strokeWidth="0dp"
         android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="16dp">
+        android:layout_marginHorizontal="4dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,11 +25,11 @@
                 app:strokeWidth="0dp"
                 android:elevation="0dp">
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/imageViewLikeCover"
+                    android:id="@+id/imageViewStudyPic"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/image_loading_gray"/>
+                    android:src="@drawable/image_detail_2"/>
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -39,19 +39,19 @@
                 android:orientation="vertical"
                 android:layout_marginVertical="10dp"
                 android:layout_weight="1"
-                android:layout_marginLeft="10dp">
+                android:layout_marginStart="10dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewLikeState"
+                        android:id="@+id/textViewStudyCanApply"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:layout_gravity="center"
                         android:textStyle="bold"
-                        android:text=""
+                        android:text="모집중"
                         android:textColor="@color/pointColor"
                         android:textSize="14dp"/>
                     <com.google.android.material.textview.MaterialTextView
@@ -63,22 +63,22 @@
                         android:textStyle="bold"
                         android:textSize="20dp"/>
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewLikeStateMeet"
+                        android:id="@+id/textViewStudyOnOffline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:textStyle="bold"
-                        android:text=""
+                        android:text="온라인"
                         android:textColor="#0FA981"
                         android:textSize="14dp"/>
                 </LinearLayout>
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewLikeTitle"
+                    android:id="@+id/textViewStudyTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="20dp"
-                    android:text=""
+                    android:text="Kotlin 스터디 모집합니다!dddddddddd"
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:textStyle="bold"
@@ -88,8 +88,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="horizontal">
-                    <ImageView
-                        android:id="@+id/imageViewLikeStatePeriod"
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/imageViewStudyStudyTypeIcon"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
@@ -97,15 +97,15 @@
                         android:src="@drawable/icon_clock_24px"
                         />
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewLikeStatePeriod"
+                        android:id="@+id/textViewStudyType"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:paddingHorizontal="2dp"
-                        android:text=""
+                        android:text="스터디"
                         android:textColor="@color/textGray"
                         android:textSize="14dp"/>
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
@@ -114,13 +114,13 @@
                         android:src="@drawable/icon_group_24px"
                         />
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewLikeJoinMember"
+                        android:id="@+id/textViewStudyCurrentMember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_gravity="center"
                         android:textColor="@color/textGray"
-                        android:text=""
+                        android:text="1"
                         android:textSize="14dp" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -133,13 +133,13 @@
                         android:textSize="16dp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewLikeTotalMember"
+                        android:id="@+id/textViewStudyMaxMember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="2dp"
                         android:textColor="@color/textGray"
                         android:layout_gravity="center"
-                        android:text=""
+                        android:text="20"
                         android:textSize="14dp" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -160,13 +160,13 @@
                         android:textSize="14dp" />
 
                     <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewLikeApplyType"
+                        android:id="@+id/textViewStudyApplyMethod"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="2dp"
                         android:textColor="@color/textGray"
                         android:layout_gravity="center"
-                        android:text=""
+                        android:text="신청제"
                         android:textSize="14dp" />
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
@@ -178,7 +178,7 @@
                         android:text=")"
                         android:textSize="14dp" />
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/imageViewLikeHeart"
+                        android:id="@+id/imageViewStudyFavorite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"

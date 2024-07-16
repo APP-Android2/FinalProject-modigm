@@ -4,20 +4,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.model.ChatRoomData
-import kr.co.lion.modigm.model.StudyData
-import kr.co.lion.modigm.repository.ChatRoomRepository
-import kr.co.lion.modigm.repository.StudyRepository
+import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.repository.WriteStudyRepository
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 
 class WriteViewModel : ViewModel() {
     // 스터디 Repository
-    val studyRepository = StudyRepository()
-
-    // 채팅 Repository
-    val chatRoomRepository = ChatRoomRepository()
+    val writeStudyRepository = WriteStudyRepository()
 
     private val _isItemSelected = MutableLiveData<Boolean>()
     val isItemSelected: LiveData<Boolean> get() = _isItemSelected
@@ -39,19 +33,19 @@ class WriteViewModel : ViewModel() {
     var currentTab = 0 // 현재 탭의 위치를 저장
 
     // 진행방식, 장소, 최대 정원
-    val studyOnOffline = MutableLiveData<Int>(0)
+    val studyOnOffline = MutableLiveData<String>("")
     val studyPlace = MutableLiveData<String>("")
     val studyDetailPlace = MutableLiveData<String>("")
     val studyMaxMember = MutableLiveData<Int>(0)
 
     // 분야 데이터 저장
-    val selectedFieldTag = MutableLiveData<Int>()
+    val selectedFieldTag = MutableLiveData<String>()
 
     // 기간 데이터 저장
-    val selectedPeriodTag = MutableLiveData<Int>()
+    val selectedPeriodTag = MutableLiveData<String>()
 
     // 신청 방식 데이터 저장
-    val selectedApplyTag = MutableLiveData<Int>()
+    val selectedApplyTag = MutableLiveData<String>()
 
     // 작성자 uid
     val writeUid = MutableLiveData<String>("")
@@ -133,64 +127,34 @@ class WriteViewModel : ViewModel() {
         validateProceed(isValid)
     }
 
-    // 파이어스토어에 데이터 저장
-    suspend fun saveDataToFirestore(): Int? {
+    // DB에 데이터 저장
+    suspend fun saveDataToDB(): Int? {
+        val userIdx = prefs.getString("userIdx", "0")
         return try {
-            val sequence = studyRepository.getStudySequence() + 1
-            val writeUidValue = writeUid.value ?: ""
-
-            val studyData = StudyData(
-                studyIdx = sequence,
+            // 스터디 테이블에 저장
+            val studyData = SqlStudyData(
                 studyTitle = studyTitle.value ?: "",
                 studyContent = studyContent.value ?: "",
-                studyType = selectedFieldTag.value ?: 0,
-                studyPeriod = selectedPeriodTag.value ?: 0,
-                studyOnOffline = studyOnOffline.value ?: 0,
+                studyType = selectedFieldTag.value ?: "",
+                studyPeriod = selectedPeriodTag.value ?: "",
+                studyOnOffline = studyOnOffline.value ?: "",
                 studyPlace = studyPlace.value ?: "",
                 studyDetailPlace = studyDetailPlace.value ?: "",
-                studyApplyMethod = selectedApplyTag.value ?:0,
-                studySkillList = studySkillList.value ?: emptyList(),
-                studyCanApply = true,
+                studyApplyMethod = selectedApplyTag.value ?: "",
+                studyCanApply = "모집 중",
                 studyPic = studyPicUri.value ?: "",
                 studyMaxMember = studyMaxMember.value ?: 0,
-                studyUidList = listOf(writeUidValue),
-                chatIdx = sequence,
                 studyState = true,
-                studyWriteUid = writeUidValue
+                userIdx = userIdx.toInt(),
             )
-
-            val db = FirebaseFirestore.getInstance()
-            db.collection("Study").add(studyData).await()
-            // 시퀀스 업데이트
-            studyRepository.updateStudySequence(sequence)
-            sequence
-        } catch (e: Exception) {
-            Log.e("WriteViewModel", "Error saving data: ${e.message}")
-            null
-        }
-    }
-
-    // 파이어스토어에 데이터 저장
-    suspend fun saveChatRoomDataToFirestore(): Int? {
-        return try {
-            val sequence = studyRepository.getStudySequence()
-            val writeUidValue = writeUid.value ?: ""
-
-            val chatRoomData = ChatRoomData(
-                chatIdx = sequence,
-                chatTitle = studyTitle.value ?: "",
-                chatRoomImage = studyPicUri.value ?: "",
-                chatMemberList = listOf(writeUidValue),
-                participantCount = 1,
-                groupChat = true,
-                lastChatMessage = "",
-                lastChatFullTime = 0L,
-                lastChatTime = ""
-            )
-
-            val db = FirebaseFirestore.getInstance()
-            db.collection("ChatRoomData").add(chatRoomData).await()
-            sequence
+            val studyIdx = studySkillList.value?.let {
+                writeStudyRepository.uploadStudyData(
+                    userIdx.toInt(),
+                    studyData,
+                    studySkillList.value?:listOf()
+                )
+            }
+            studyIdx
         } catch (e: Exception) {
             Log.e("WriteViewModel", "Error saving data: ${e.message}")
             null

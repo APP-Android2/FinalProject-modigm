@@ -31,7 +31,15 @@ android {
         // 카카오 로그인 API
         buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "$kakaoNativeAppKey")
 
+        // MySQL 연결 정보
+        val databaseUrl = localProperties.getProperty("database_url") ?: ""
+        val databaseUser = localProperties.getProperty("database_user") ?: ""
+        val databasePassword = localProperties.getProperty("database_password") ?: ""
 
+
+        buildConfigField("String", "DB_URL", databaseUrl)
+        buildConfigField("String", "DB_USER", databaseUser)
+        buildConfigField("String", "DB_PASSWORD", databasePassword)
 
         // manifestPlaceholders 설정
         manifestPlaceholders["PLACE_API_KEY"] = placeApiKey
@@ -107,4 +115,7 @@ dependencies {
     // 카카오 로그인 api
     implementation("com.kakao.sdk:v2-user:2.20.1")
     implementation("androidx.security:security-crypto:1.0.0")
+
+    // MySQL
+    implementation("mysql:mysql-connector-java:5.1.48")
 }

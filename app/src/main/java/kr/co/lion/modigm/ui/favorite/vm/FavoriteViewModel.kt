@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.ui.like.vm
+package kr.co.lion.modigm.ui.favorite.vm
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,31 +9,31 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.StudyData
-import kr.co.lion.modigm.repository.LikeRepository
+import kr.co.lion.modigm.repository.FavoriteRepository
 import kr.co.lion.modigm.repository.StudyRepository
 
-class LikeViewModel : ViewModel() {
-    private val likeRepository = LikeRepository()
+class FavoriteViewModel : ViewModel() {
+    private val favoriteRepository = FavoriteRepository()
     private val studyRepository = StudyRepository()
 
-    private val _likedStudies = MutableLiveData<List<StudyData>>()
-    val likedStudies: LiveData<List<StudyData>> = _likedStudies
+    private val _favoritedStudies = MutableLiveData<List<StudyData>>()
+    val favoritedStudies: LiveData<List<StudyData>> = _favoritedStudies
 
-    fun loadLikedStudies(uid: String) {
+    fun loadFavoriteStudies(uid: String) {
         viewModelScope.launch {
             try {
-                Log.d("LikeViewModel", "Loading liked studies for user: $uid")
-                val likedStudies = likeRepository.getLikedStudies(uid)
-                Log.d("LikeViewModel", "Fetched liked studies: $likedStudies")
-                _likedStudies.postValue(likedStudies)
+                Log.d("FavoriteViewModel", "Loading favorited studies for user: $uid")
+                val favoriteStudies = favoriteRepository.getFavoriteStudies(uid)
+                Log.d("FavoriteViewModel", "Fetched favorited studies: $favoritedStudies")
+                _favoritedStudies.postValue(favoriteStudies)
             } catch (e: Exception) {
-                Log.e("LikeViewModel", "Error loading liked studies", e)
-                _likedStudies.postValue(emptyList())
+                Log.e("FavoriteViewModel", "Error loading favorited studies", e)
+                _favoritedStudies.postValue(emptyList())
             }
         }
     }
 
-    fun toggleLike(uid: String, studyIdx: Int) {
+    fun toggleFavorite(uid: String, studyIdx: Int) {
         viewModelScope.launch {
             try {
                 val studyCollection = FirebaseFirestore.getInstance().collection("Study")
@@ -54,12 +54,12 @@ class LikeViewModel : ViewModel() {
                     }
 
                     // 좋아요 상태 업데이트 후 목록 새로고침
-                    loadLikedStudies(uid)
+                    loadFavoriteStudies(uid)
                 } else {
-                    Log.e("LikeViewModel", "No matching document found for studyIdx: $studyIdx")
+                    Log.e("FavoriteViewModel", "No matching document found for studyIdx: $studyIdx")
                 }
             } catch (e: Exception) {
-                Log.e("LikeViewModel", "Error toggling like", e)
+                Log.e("FavoriteViewModel", "Error toggling favorite", e)
             }
         }
     }
