@@ -1,24 +1,50 @@
 package kr.co.lion.modigm.db.study
 
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.*
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import java.sql.Connection
-import java.sql.DriverManager
 
 class StudyListDao {
 
     private val tag = "StudyListDao"
-    private val dbUrl = BuildConfig.DB_URL
-    private val dbUser = BuildConfig.DB_USER
-    private val dbPassword = BuildConfig.DB_PASSWORD
+
+
+    // HikariCP 설정을 초기화하는 suspend 함수
+    private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
+        val hikariConfig = HikariConfig().apply {
+            jdbcUrl = BuildConfig.DB_URL
+            username = BuildConfig.DB_USER
+            password = BuildConfig.DB_PASSWORD
+            driverClassName = "com.mysql.jdbc.Driver"
+            maximumPoolSize = 10
+            minimumIdle = 10
+            connectionTimeout = 30000 // 30초
+            idleTimeout = 600000 // 10분
+            maxLifetime = 1800000 // 30분
+            validationTimeout = 5000 // 5초
+            leakDetectionThreshold = 0 // 비활성화
+        }
+        HikariDataSource(hikariConfig)
+    }
+
+    private val dataSourceDeferred = CompletableDeferred<HikariDataSource>()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            dataSourceDeferred.complete(initDataSource())
+        }
+    }
 
     // 데이터베이스 연결을 생성하는 메소드
-    private suspend fun getConnection(): Connection = withContext(Dispatchers.IO) {
-        Class.forName("com.mysql.jdbc.Driver") // 최신 드라이버 클래스명 사용
-        DriverManager.getConnection(dbUrl, dbUser, dbPassword)
+    private suspend fun getConnection(): Connection {
+        val dataSource = dataSourceDeferred.await()
+        return withContext(Dispatchers.IO) {
+            dataSource.connection
+        }
     }
 
     // 스터디와 스터디 멤버 데이터 조회 (좋아요 여부 포함)
@@ -30,9 +56,9 @@ class StudyListDao {
                     val combinedQuery = """
                     SELECT s.*, COUNT(sm.userIdx) as memberCount, 
                            IF(f.favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite
-                    FROM Study s
-                    LEFT JOIN StudyMember sm ON s.studyIdx = sm.studyIdx
-                    LEFT JOIN Favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
+                    FROM tb_study s
+                    LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
+                    LEFT JOIN tb_favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
                     WHERE s.studyState = true
                     GROUP BY s.studyIdx
                 """
@@ -63,9 +89,9 @@ class StudyListDao {
                     val combinedQuery = """
                     SELECT s.*, COUNT(sm.userIdx) as memberCount,
                            IF(f.favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite
-                    FROM Study s
-                    LEFT JOIN StudyMember sm ON s.studyIdx = sm.studyIdx
-                    LEFT JOIN Favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
+                    FROM tb_study s
+                    LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
+                    LEFT JOIN tb_favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
                     WHERE sm.userIdx = ?
                     GROUP BY s.studyIdx
                 """
@@ -95,7 +121,7 @@ class StudyListDao {
             getConnection().use { connection ->
                 // 좋아요 상태 확인
                 val checkFavoriteQuery = """
-                    SELECT * FROM Favorite WHERE userIdx = ? AND studyIdx = ?
+                    SELECT * FROM tb_favorite WHERE userIdx = ? AND studyIdx = ?
                 """
                 connection.prepareStatement(checkFavoriteQuery).use { statement ->
                     statement.setInt(1, userIdx)
@@ -104,7 +130,7 @@ class StudyListDao {
                     if (resultSet.next()) {
                         // 좋아요 되어 있으면 삭제
                         val deleteFavoriteQuery =
-                            "DELETE FROM Favorite WHERE userIdx = ? AND studyIdx = ?"
+                            "DELETE FROM tb_favorite WHERE userIdx = ? AND studyIdx = ?"
                         connection.prepareStatement(deleteFavoriteQuery).use { deleteStatement ->
                             deleteStatement.setInt(1, userIdx)
                             deleteStatement.setInt(2, studyIdx)
@@ -113,7 +139,7 @@ class StudyListDao {
                     } else {
                         // 좋아요 되어 있지 않으면 추가
                         val insertFavoriteQuery =
-                            "INSERT INTO Favorite (userIdx, studyIdx) VALUES (?, ?)"
+                            "INSERT INTO tb_favorite (userIdx, studyIdx) VALUES (?, ?)"
                         connection.prepareStatement(insertFavoriteQuery).use { insertStatement ->
                             insertStatement.setInt(1, userIdx)
                             insertStatement.setInt(2, studyIdx)
