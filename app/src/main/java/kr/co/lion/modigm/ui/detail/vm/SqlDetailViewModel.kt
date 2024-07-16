@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
@@ -35,6 +34,12 @@ class SqlDetailViewModel: ViewModel() {
     private val _updateResult = MutableSharedFlow<Boolean>()
     val updateResult: SharedFlow<Boolean> = _updateResult
 
+    fun clearData() {
+        _studyData.value = null
+        _memberCount.value = 0
+        _userData.value = null
+        _studyTechList.value = emptyList()
+    }
 
     // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
     fun getStudy(studyIdx: Int) {
