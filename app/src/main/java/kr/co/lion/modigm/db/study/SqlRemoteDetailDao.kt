@@ -3,52 +3,52 @@ package kr.co.lion.modigm.db.study
 import android.util.Log
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.ResultSet
 
 class SqlRemoteDetailDao {
     private val TAG = "SqlRemoteDetailDao"
-    private var dataSource: HikariDataSource? = null
-
-    init {
-        // HikariCP 초기화를 비동기로 수행
-        initializeDataSource()
+//    private var dataSource: HikariDataSource? = null
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e(TAG, "Coroutine exception", throwable)
     }
 
-    fun initializeDataSource() {
-        // 코루틴을 사용하여 HikariCP 초기화를 IO 디스패처에서 수행
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                // HikariConfig를 사용하여 HikariCP 설정
-                val config = HikariConfig().apply {
-                    jdbcUrl = BuildConfig.DB_URL
-                    username = BuildConfig.DB_USER
-                    password = BuildConfig.DB_PASSWORD
-                    maximumPoolSize = 10 // 최대 연결 풀 크기
-                    connectionTimeout = 30000 // 연결 타임아웃 (밀리초)
-                    idleTimeout = 600000 // 유휴 연결 타임아웃 (밀리초)
-                    maxLifetime = 1800000 // 연결 최대 수명 (밀리초)
-                }
-                dataSource = HikariDataSource(config) // 설정을 적용하여 HikariDataSource 생성
-                Log.d(TAG, "HikariCP initialized successfully") // 초기화 성공 로그
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize HikariCP", e) // 초기화 실패 로그
-            }
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job() + coroutineExceptionHandler)
+    private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
+        val hikariConfig: HikariConfig = HikariConfig().apply {
+            jdbcUrl = BuildConfig.DB_URL
+            username = BuildConfig.DB_USER
+            password = BuildConfig.DB_PASSWORD
+            driverClassName = "com.mysql.jdbc.Driver"
+            maximumPoolSize = 10
+            minimumIdle = 10
+            connectionTimeout = 30000 // 30초
+            idleTimeout = 600000 // 10분
+            maxLifetime = 1800000 // 30분
+            validationTimeout = 5000 // 5초
+            leakDetectionThreshold = 0 // 비활성화
+        }
+        HikariDataSource(hikariConfig)
+    }
+
+    private val dataSourceDeferred: CompletableDeferred<HikariDataSource> = CompletableDeferred()
+
+    init {
+        coroutineScope.launch {
+            dataSourceDeferred.complete(initDataSource())
         }
     }
 
-    // 데이터베이스 연결을 가져오는 메소드
-    suspend fun getConnection(): Connection = withContext(Dispatchers.IO) {
-        // HikariCP 데이터소스에서 연결을 가져오거나 DriverManager에서 직접 연결을 가져옴(오류 발생시 직접 연결)
-        dataSource?.connection ?: DriverManager.getConnection(BuildConfig.DB_URL, BuildConfig.DB_USER, BuildConfig.DB_PASSWORD)
+    // 데이터베이스 연결을 생성하는 메소드
+    private suspend fun getConnection(): Connection {
+        val dataSource: HikariDataSource = dataSourceDeferred.await()
+        return withContext(Dispatchers.IO) {
+            dataSource.connection
+        }
     }
 
     // 쿼리를 실행하고 결과를 처리하는 공통 메소드
@@ -131,6 +131,14 @@ class SqlRemoteDetailDao {
         } catch (e: Exception) {
             Log.e(TAG, "Error updating studyState", e)
             return@withContext 0
+        }
+    }
+
+    // Dao가 더 이상 필요 없을 때 자원을 해제하는 메소드 (destroy에 호출)
+    fun close() {
+        coroutineScope.cancel()
+        if (dataSourceDeferred.isCompleted) {
+            dataSourceDeferred.getCompleted().close()
         }
     }
 }
