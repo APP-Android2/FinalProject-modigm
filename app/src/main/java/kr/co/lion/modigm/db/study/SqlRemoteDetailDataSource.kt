@@ -82,4 +82,9 @@ class SqlRemoteDetailDataSource {
             false
         }
     }
+
+    // 리소스를 해제하는 메서드 추가
+    fun close() {
+        studyDao.close()
+    }
 }

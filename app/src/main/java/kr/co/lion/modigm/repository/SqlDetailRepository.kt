@@ -34,4 +34,9 @@ class SqlDetailRepository {
     suspend fun updateStudyState(studyIdx: Int, newState: Int): Boolean {
         return sqlRemoteDetailDataSource.updateStudyState(studyIdx, newState)
     }
+
+    // 리소스를 해제하는 메서드 추가
+    fun close() {
+        sqlRemoteDetailDataSource.close()
+    }
 }
