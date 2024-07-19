@@ -33,7 +33,7 @@ class WriteStudyDao {
 
             columnsString.deleteCharAt(columnsString.length-1)
             valuesString.deleteCharAt(valuesString.length-1)
-            val sql = "INSERT INTO Study ($columnsString) VALUES ($valuesString)"
+            val sql = "INSERT INTO tb_study ($columnsString) VALUES ($valuesString)"
 
             val deferred = CoroutineScope(Dispatchers.IO).async {
                 Class.forName("com.mysql.jdbc.Driver")
@@ -64,14 +64,14 @@ class WriteStudyDao {
                     // 기술 스택 등록
                     studyTechStack.forEach {
                         preparedStatement = connection?.prepareStatement(
-                            "INSERT INTO StudyTechStack (studyIdx,techIdx) VALUES (?, ?)"
+                            "INSERT INTO tb_study_tech_stack (studyIdx,techIdx) VALUES (?, ?)"
                         ) // PreparedStatement 생성
                         preparedStatement?.setInt(1, idx!!)
                         preparedStatement?.setInt(2, it)
                         preparedStatement?.executeUpdate() // 쿼리 실행
                     }
                     // 스터디 멤버 등록
-                    val sql = "INSERT INTO StudyMember (studyIdx,userIdx) VALUES (?, ?)"
+                    val sql = "INSERT INTO tb_study_member (studyIdx,userIdx) VALUES (?, ?)"
                     preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
                     preparedStatement?.setInt(1, idx!!)
                     preparedStatement?.setInt(2, userIdx)
