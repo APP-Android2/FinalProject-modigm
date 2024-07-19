@@ -85,7 +85,7 @@ class JoinUserDao {
 
             columnsString.deleteCharAt(columnsString.length-1)
             valuesString.deleteCharAt(valuesString.length-1)
-            val sql = "INSERT INTO tb_user_test ($columnsString) VALUES ($valuesString)"
+            val sql = "INSERT INTO tb_user ($columnsString) VALUES ($valuesString)"
 
             withContext(Dispatchers.IO){
                 getConnection().use { connection ->
