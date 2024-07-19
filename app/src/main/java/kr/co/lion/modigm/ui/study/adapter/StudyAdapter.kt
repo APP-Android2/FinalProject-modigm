@@ -47,32 +47,15 @@ class StudyAdapter(
     }
 
     fun updateItem(studyIdx: Int, isLiked: Boolean) {
-        Log.d("updateItem", "함수 호출됨 - studyIdx: $studyIdx, isLiked: $isLiked")
-
         val index = studyList.indexOfFirst { it.first.studyIdx == studyIdx }
-        Log.d("updateItem", "찾은 index: $index")
-
         if (index != -1) {
             val item = studyList[index]
-            Log.d("updateItem", "기존 아이템: studyIdx: ${item.first.studyIdx}, isLiked: ${item.third}")
-
-            // studyList를 변경하기 전 상태 출력
-            Log.d("updateItem", "변경 전 studyList: $studyList")
-
             // studyList를 변경하고 상태 출력
             studyList = studyList.toMutableList().apply {
                 set(index, Triple(item.first, item.second, isLiked))
             }
-
-            // 변경된 studyList 상태 출력
-            Log.d("updateItem", "변경 후 studyList: $studyList")
-
             // 아이템 변경 알림
             notifyItemChanged(index)
-            Log.d("updateItem", "notifyItemChanged 호출됨 - index: $index")
-        } else {
-            Log.d("updateItem", "studyIdx에 해당하는 아이템을 찾을 수 없음 - studyIdx: $studyIdx")
         }
     }
-
 }
