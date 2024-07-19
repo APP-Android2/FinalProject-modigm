@@ -8,16 +8,18 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.repository.UserInfoRepository
+import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.repository.JoinUserRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class JoinViewModel : ViewModel() {
 
     // 리포지터리
-    private val _userInfoRepository = UserInfoRepository()
+    private val _joinUserRepository = JoinUserRepository()
     // 파이어베이스 인증
     private val _auth = FirebaseAuth.getInstance()
 
@@ -106,8 +108,8 @@ class JoinViewModel : ViewModel() {
         _phoneNumber.value = phone
     }
 
-    private val _interests = MutableLiveData<MutableList<Int>>()
-    fun setInterests(interests:MutableList<Int>){
+    private val _interests = MutableLiveData<MutableList<String>>()
+    fun setInterests(interests:MutableList<String>){
         _interests.value = interests
     }
 
@@ -139,17 +141,19 @@ class JoinViewModel : ViewModel() {
     }
 
     // UserInfoData 객체 생성
-    private fun createUserInfoData(): UserData {
-        val user = UserData()
-        user.userName = _userName.value?:""
-        user.userPhone = _phoneNumber.value?:""
-        user.userInterestList = _interests.value?: mutableListOf()
-        user.userUid = _uid.value?:""
-
-        user.userProvider = _userProvider.value?:""
-        user.userEmail = _userEmail.value?:_email.value?:""
+    private fun createUserInfoData(): SqlUserData {
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
-        return user
+        return SqlUserData(
+            -1,
+            _uid.value?:"",
+            _userName.value?:"",
+            _phoneNumber.value?:"",
+            "",
+            "",
+            _userEmail.value?:_email.value?:"",
+            _userProvider.value?:"",
+            _interests.value?.joinToString(",")?:""
+        )
     }
 
     // 이메일 계정 회원 가입 완료
@@ -159,8 +163,8 @@ class JoinViewModel : ViewModel() {
 
             // UserInfoData 객체 생성
             val user = createUserInfoData()
-            // 파이어스토어에 데이터 저장
-            _userInfoRepository.insetUserData(user)
+            // DB에 데이터 저장
+            _joinUserRepository.insetUserData(user)
 
             // SharedPreferences에 유저 정보 저장
             prefs.setUserData("currentUserData", user)
@@ -178,8 +182,8 @@ class JoinViewModel : ViewModel() {
 
             // UserInfoData 객체 생성
             val user = createUserInfoData()
-            // 파이어스토어에 데이터 저장
-            _userInfoRepository.insetUserData(user)
+            // DB에 데이터 저장
+            _joinUserRepository.insetUserData(user)
 
             // SharedPreferences에 유저 정보 저장
             prefs.setUserData("currentUserData", user)
@@ -187,6 +191,14 @@ class JoinViewModel : ViewModel() {
             prefs.setString("uid", user.userUid)
 
             _joinCompleted.value = true
+        }
+    }
+
+    // ViewModel이 파괴될 때 db 리소스를 해제를 위해 호출되는 메서드
+    override fun onCleared() {
+        super.onCleared()
+        viewModelScope.launch {
+            _joinUserRepository.closeConn()
         }
     }
 }
