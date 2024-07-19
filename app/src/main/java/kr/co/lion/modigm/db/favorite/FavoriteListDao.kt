@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.db.study
+package kr.co.lion.modigm.db.favorite
 
 import android.util.Log
 import com.zaxxer.hikari.HikariConfig
@@ -12,10 +12,9 @@ import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import java.sql.Connection
 
-class StudyListDao {
+class FavoriteListDao {
 
-    private val tag = "StudyListDao"
-
+    private val tag = "FavoriteListDao"
 
     // HikariCP 설정을 초기화하는 suspend 함수
     private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
@@ -51,74 +50,40 @@ class StudyListDao {
         }
     }
 
-    // 스터디와 스터디 멤버 데이터 조회 (좋아요 여부 포함)
-    suspend fun selectAllStudyAndMemberCount(userIdx: Int): HashMap<Int, Triple<SqlStudyData, Int, Boolean>> =
+    // 좋아요한 스터디 목록 조회
+    suspend fun selectFavoriteStudies(userIdx: Int): HashMap<Int, Triple<SqlStudyData, Int, Boolean>> =
         withContext(Dispatchers.IO) {
-            val studyMemberCountMap = hashMapOf<Int, Triple<SqlStudyData, Int, Boolean>>()
+            val favoriteStudiesMap = hashMapOf<Int, Triple<SqlStudyData, Int, Boolean>>()
             try {
                 getConnection().use { connection ->
-                    val combinedQuery = """
+                    val query = """
                     SELECT s.*, COUNT(sm.userIdx) as memberCount, 
                            IF(f.favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite
-                    FROM tb_study s
+                    FROM tb_favorite f
+                    INNER JOIN tb_study s ON f.studyIdx = s.studyIdx
                     LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
-                    LEFT JOIN tb_favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
-                    WHERE s.studyState = true
+                    WHERE f.userIdx = ?
                     GROUP BY s.studyIdx
                 """
-                    connection.prepareStatement(combinedQuery).use { statement ->
+                    connection.prepareStatement(query).use { statement ->
                         statement.setInt(1, userIdx)
                         val resultSet = statement.executeQuery()
                         while (resultSet.next()) {
                             val studyData = SqlStudyData.getStudyData(resultSet)
                             val memberCount = resultSet.getInt("memberCount")
                             val isFavorite = resultSet.getBoolean("isFavorite")
-                            studyMemberCountMap[studyData.studyIdx] =
+                            favoriteStudiesMap[studyData.studyIdx] =
                                 Triple(studyData, memberCount, isFavorite)
                         }
                     }
                 }
             } catch (e: Exception) {
-                Log.e(tag, "스터디 및 멤버 수 데이터 조회 중 오류 발생", e)
+                Log.e(tag, "좋아요한 스터디 목록 조회 중 오류 발생", e)
             }
-            studyMemberCountMap
+            favoriteStudiesMap
         }
 
-    // 특정 userIdx에 해당하는 스터디와 스터디 멤버 데이터 조회 (좋아요 여부 포함)
-    suspend fun selectMyStudyAndMemberCount(userIdx: Int): HashMap<Int, Triple<SqlStudyData, Int, Boolean>> =
-        withContext(Dispatchers.IO) {
-            val studyMemberCountMap = hashMapOf<Int, Triple<SqlStudyData, Int, Boolean>>()
-            try {
-                getConnection().use { connection ->
-                    val combinedQuery = """
-                    SELECT s.*, COUNT(sm.userIdx) as memberCount,
-                           IF(f.favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite
-                    FROM tb_study s
-                    LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
-                    LEFT JOIN tb_favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
-                    WHERE sm.userIdx = ?
-                    GROUP BY s.studyIdx
-                """
-                    connection.prepareStatement(combinedQuery).use { statement ->
-                        statement.setInt(1, userIdx)
-                        statement.setInt(2, userIdx)
-                        val resultSet = statement.executeQuery()
-                        while (resultSet.next()) {
-                            val studyData = SqlStudyData.getStudyData(resultSet)
-                            val memberCount = resultSet.getInt("memberCount")
-                            val isFavorite = resultSet.getBoolean("isFavorite")
-                            studyMemberCountMap[studyData.studyIdx] =
-                                Triple(studyData, memberCount, isFavorite)
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(tag, "사용자별 스터디 및 멤버 수 데이터 조회 중 오류 발생", e)
-            }
-            studyMemberCountMap
-        }
-
-    // 좋아요 토글 메소드
+    // 좋아요 토글
     suspend fun toggleFavorite(userIdx: Int, studyIdx: Int): Boolean = withContext(Dispatchers.IO) {
         var isFavorite = false
         try {
