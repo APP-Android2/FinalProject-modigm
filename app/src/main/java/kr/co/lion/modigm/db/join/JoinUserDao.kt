@@ -4,10 +4,14 @@ import android.util.Log
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
@@ -37,9 +41,13 @@ class JoinUserDao {
     }
 
     private val dataSourceDeferred = CompletableDeferred<HikariDataSource>()
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e(TAG, "Coroutine exception", throwable)
+    }
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job() + coroutineExceptionHandler)
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScope.launch {
             dataSourceDeferred.complete(initDataSource())
         }
     }
@@ -49,6 +57,14 @@ class JoinUserDao {
         val dataSource = dataSourceDeferred.await()
         return withContext(Dispatchers.IO) {
             dataSource.connection
+        }
+    }
+
+    // Dao가 더 이상 필요 없을 때 자원을 해제하는 메소드 (destroy에 호출)
+    fun closeConn() {
+        coroutineScope.cancel()
+        if (dataSourceDeferred.isCompleted) {
+            dataSourceDeferred.getCompleted().close()
         }
     }
 
