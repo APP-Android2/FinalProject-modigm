@@ -135,10 +135,22 @@ class SqlRemoteDetailDao {
     }
 
     // Dao가 더 이상 필요 없을 때 자원을 해제하는 메소드 (destroy에 호출)
-    fun close() {
-        coroutineScope.cancel()
-        if (dataSourceDeferred.isCompleted) {
-            dataSourceDeferred.getCompleted().close()
+//    suspend fun close() {
+//        coroutineScope.cancel()
+//        if (dataSourceDeferred.isCompleted) {
+//            dataSourceDeferred.await().close()
+//        }
+//    }
+
+    suspend fun close() {
+        try {
+            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
+            if (dataSourceDeferred.isCompleted) {
+                dataSourceDeferred.await().close()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error closing data source", e)
         }
     }
+
 }

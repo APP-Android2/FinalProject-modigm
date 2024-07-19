@@ -100,6 +100,8 @@ class SqlDetailViewModel: ViewModel() {
     // ViewModel이 파괴될 때 호출되는 메서드
     override fun onCleared() {
         super.onCleared()
-        sqlDetailRepository.close()
+        viewModelScope.launch {
+            sqlDetailRepository.close()
+        }
     }
 }
