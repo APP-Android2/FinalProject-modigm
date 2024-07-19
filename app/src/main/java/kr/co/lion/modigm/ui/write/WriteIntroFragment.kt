@@ -107,7 +107,8 @@ class WriteIntroFragment : Fragment() {
 
         // 텍스트 입력 변경 사항을 관찰
         binding.textInputWriteIntroContent.addTextChangedListener {
-            viewModel.studyContent.value = binding.textInputWriteIntroContent.text.toString().replace(System.getProperty("line.separator"), "\\n")
+            viewModel.studyContent.value = binding.textInputWriteIntroContent.text.toString()
+                .replace(System.getProperty("line.separator"), "\\n")
             validateIntro()
 
         }
@@ -122,6 +123,7 @@ class WriteIntroFragment : Fragment() {
             validateIntro()
         }
     }
+
     // ImageView에 이미지를 로드하는 메서드
     private fun loadImageIntoImageView(uri: Uri) {
         try {
@@ -140,7 +142,7 @@ class WriteIntroFragment : Fragment() {
 
 
     fun setupButton() {
-        with(binding){
+        with(binding) {
             // image 버튼 클릭 리스너
             cardviewWriteIntroCardCover.setOnClickListener {
                 showPopupWindow(it)
@@ -388,24 +390,41 @@ class WriteIntroFragment : Fragment() {
         popupWindow.showAsDropDown(anchorView)
     }
 
-    fun uploadImageAndSaveData(onComplete: () -> Unit) {
+    fun uploadImageAndSaveData(callback: (Int) -> Unit) {
         if (!isImageUploaded && this::contentUri.isInitialized) {
             try {
                 val fileName = "${System.currentTimeMillis()}.jpg"
-                val storageReference = FirebaseStorage.getInstance().reference.child("studyPic/$fileName")
+                val storageReference =
+                    FirebaseStorage.getInstance().reference.child("studyPic/$fileName")
                 storageReference.putFile(contentUri)
                     .addOnSuccessListener { taskSnapshot ->
                         Log.d("WriteIntroFragment", "Image upload successful")
-                        Log.d("WriteIntroFragment","$fileName")
+                        Log.d("WriteIntroFragment", "$fileName")
                         isImageUploaded = true
                         viewModel.studyPicUri.value = fileName
-                        onComplete() // 이미지 업로드 완료 후 콜백 호출
+                        lifecycleScope.launch {
+                            val studyIdx = viewModel.saveDataToDB()
+                            if (studyIdx != null) {
+                                callback(studyIdx)
+                            } else {
+                                Log.e("WriteIntroFragment", "Failed to get studyIdx")
+                            }
+                        }
                     }
                     .addOnFailureListener {
                         Log.e("WriteIntroFragment", "Image upload failed: ${it.message}")
                     }
             } catch (e: Exception) {
                 Log.e("WriteIntroFragment", "Error uploading image: ${e.message}")
+            }
+        } else {
+            lifecycleScope.launch {
+                val studyIdx = viewModel.saveDataToDB()
+                if (studyIdx != null) {
+                    callback(studyIdx)
+                } else {
+                    Log.e("WriteIntroFragment", "Failed to get studyIdx")
+                }
             }
         }
     }
