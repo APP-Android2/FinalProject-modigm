@@ -11,9 +11,10 @@ data class SqlUserData(
     val userIntro: String = "",                                 // 자기소개
     val userEmail: String = "",                                 // 사용자 이메일
     val userProvider: String = "",                              // Firebase Auth에 등록된 계정 Provider
-    val userInterests: String = "",                          // 관심 분야 목록
+    val userInterests: String = "",                             // 관심 분야 목록
 ) {
     fun toMap(): Map<String, Any>{
+
         val map = mutableMapOf<String, Any>()
         map["userUid"] = this.userUid
         map["userName"] = this.userName
@@ -25,19 +26,18 @@ data class SqlUserData(
         map["userInterests"] = this.userInterests
         return map
     }
-
     companion object {
         fun getUserData(resultSet: ResultSet): SqlUserData {
             return SqlUserData(
-                userIdx = resultSet.getInt("userIdx"),
-                userUid = resultSet.getString("userUid") ?: "",
-                userName = resultSet.getString("userName") ?: "",
-                userPhone = resultSet.getString("userPhone") ?: "",
-                userProfilePic = resultSet.getString("userProfilePic") ?: "",
-                userIntro = resultSet.getString("userIntro") ?: "",
-                userEmail = resultSet.getString("userEmail") ?: "",
-                userProvider = resultSet.getString("userProvider") ?: "",
-                userInterests = resultSet.getString("userInterests") ?: ""
+                resultSet.getInt("userIdx"),
+                resultSet.getString("userUid") ?: "",
+                resultSet.getString("userName") ?: "",
+                resultSet.getString("userPhone") ?: "",
+                resultSet.getString("userProfilePic") ?: "",
+                resultSet.getString("userIntro") ?: "",
+                resultSet.getString("userEmail") ?: "",
+                resultSet.getString("userProvider") ?: "",
+                resultSet.getString("userInterests") ?: ""
             )
         }
     }

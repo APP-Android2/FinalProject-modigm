@@ -118,4 +118,7 @@ dependencies {
 
     // MySQL
     implementation("mysql:mysql-connector-java:5.1.48")
+
+    // hikari
+    implementation("com.zaxxer:HikariCP:2.7.9")
 }

@@ -331,7 +331,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginVertical="8dp"
                     android:layout_marginLeft="10dp"
-                    android:text=""
+                    android:text="신청하기"
                     android:textColor="@color/white"
                     android:textSize="16dp"
                     android:textStyle="bold" />
