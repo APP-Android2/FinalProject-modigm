@@ -13,7 +13,8 @@ data class SqlUserData(
     val userProvider: String = "",                              // Firebase Auth에 등록된 계정 Provider
     val userInterests: String = "",                             // 관심 분야 목록
 ) {
-    fun toMap(): Map<String, Any> {
+    fun toMap(): Map<String, Any>{
+
         val map = mutableMapOf<String, Any>()
         map["userUid"] = this.userUid
         map["userName"] = this.userName
@@ -25,7 +26,6 @@ data class SqlUserData(
         map["userInterests"] = this.userInterests
         return map
     }
-
     companion object {
         fun getUserData(resultSet: ResultSet): SqlUserData {
             return SqlUserData(
