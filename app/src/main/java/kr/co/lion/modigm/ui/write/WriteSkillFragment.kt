@@ -71,8 +71,8 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
     fun settingView(){
         // cardView 클릭 시 Stroke 색상 변경
         with(binding){
-            cardviewWriteSkillApplicationSystem.setTag(1)
-            cardviewWriteSkillFirstCome.setTag(2)
+            cardviewWriteSkillApplicationSystem.setTag("신청제")
+            cardviewWriteSkillFirstCome.setTag("선착순")
             // 신청제
             cardviewWriteSkillApplicationSystem.setOnClickListener {
                 onCardClicked(it as MaterialCardView)
@@ -87,8 +87,8 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
         // ViewModel에 저장된 선택 상태를 확인하고 복원
         viewModel.selectedApplyTag.value?.let { selectedTag ->
             when (selectedTag) {
-                1 -> binding.cardviewWriteSkillApplicationSystem.performClick()
-                2 -> binding.cardviewWriteSkillFirstCome.performClick()
+                "신청제" -> binding.cardviewWriteSkillApplicationSystem.performClick()
+                "선착순" -> binding.cardviewWriteSkillFirstCome.performClick()
                 else -> { /* 저장된 데이터 없음 */ }
             }
         }
@@ -116,7 +116,7 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
 
         validateCardSelection() // 유효성 검사 추가
         // 선택된 카드뷰의 태그를 뷰모델에 저장
-        viewModel.selectedApplyTag.value = clickedCardView.tag as Int
+        viewModel.selectedApplyTag.value = clickedCardView.tag as String
     }
 
     override fun onSkillSelected(selectedSkills: List<Skill>) {
