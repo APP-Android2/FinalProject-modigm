@@ -3,18 +3,21 @@ package kr.co.lion.modigm.db.favorite
 import android.util.Log
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import java.sql.Connection
 
-class FavoriteListDao {
+class FavoriteStudyDao {
 
-    private val tag = "FavoriteListDao"
+    private val tag = "FavoriteStudyDao"
 
     // HikariCP 설정을 초기화하는 suspend 함수
     private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
@@ -29,20 +32,22 @@ class FavoriteListDao {
             idleTimeout = 600000 // 10분
             maxLifetime = 1800000 // 30분
             validationTimeout = 5000 // 5초
-            leakDetectionThreshold = 0 // 비활성화
+            leakDetectionThreshold = 30000 // 30초
         }
         HikariDataSource(hikariConfig)
     }
 
-    private val dataSourceDeferred = CompletableDeferred<HikariDataSource>()
-
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            dataSourceDeferred.complete(initDataSource())
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e(tag, "HikariCP coroutineExceptionHandler 에러 ", throwable)
+    }
+    private val job = Job()
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + job + coroutineExceptionHandler)
+    private val dataSourceDeferred: Deferred<HikariDataSource> by lazy {
+        coroutineScope.async {
+            initDataSource()
         }
     }
 
-    // 데이터베이스 연결을 생성하는 메소드
     private suspend fun getConnection(): Connection {
         val dataSource = dataSourceDeferred.await()
         return withContext(Dispatchers.IO) {
@@ -51,7 +56,7 @@ class FavoriteListDao {
     }
 
     // 좋아요한 스터디 목록 조회
-    suspend fun selectFavoriteStudies(userIdx: Int): HashMap<Int, Triple<SqlStudyData, Int, Boolean>> =
+    suspend fun selectMyFavoriteStudyDataList(userIdx: Int): HashMap<Int, Triple<SqlStudyData, Int, Boolean>> =
         withContext(Dispatchers.IO) {
             val favoriteStudiesMap = hashMapOf<Int, Triple<SqlStudyData, Int, Boolean>>()
             try {
@@ -83,44 +88,18 @@ class FavoriteListDao {
             favoriteStudiesMap
         }
 
-    // 좋아요 토글
-    suspend fun toggleFavorite(userIdx: Int, studyIdx: Int): Boolean = withContext(Dispatchers.IO) {
-        var isFavorite = false
+    suspend fun close() {
         try {
-            getConnection().use { connection ->
-                // 좋아요 상태 확인
-                val checkFavoriteQuery = """
-                    SELECT * FROM tb_favorite WHERE userIdx = ? AND studyIdx = ?
-                """
-                connection.prepareStatement(checkFavoriteQuery).use { statement ->
-                    statement.setInt(1, userIdx)
-                    statement.setInt(2, studyIdx)
-                    val resultSet = statement.executeQuery()
-                    if (resultSet.next()) {
-                        // 좋아요 되어 있으면 삭제
-                        val deleteFavoriteQuery =
-                            "DELETE FROM tb_favorite WHERE userIdx = ? AND studyIdx = ?"
-                        connection.prepareStatement(deleteFavoriteQuery).use { deleteStatement ->
-                            deleteStatement.setInt(1, userIdx)
-                            deleteStatement.setInt(2, studyIdx)
-                            deleteStatement.executeUpdate()
-                        }
-                    } else {
-                        // 좋아요 되어 있지 않으면 추가
-                        val insertFavoriteQuery =
-                            "INSERT INTO tb_favorite (userIdx, studyIdx) VALUES (?, ?)"
-                        connection.prepareStatement(insertFavoriteQuery).use { insertStatement ->
-                            insertStatement.setInt(1, userIdx)
-                            insertStatement.setInt(2, studyIdx)
-                            insertStatement.executeUpdate()
-                        }
-                        isFavorite = true
-                    }
+            // Job을 취소하고 모든 하위 코루틴이 종료될 때까지 대기
+            job.cancelAndJoin()
+            // 데이터 소스가 완료된 경우, 데이터 소스를 안전하게 종료
+            withContext(Dispatchers.IO) {
+                if (dataSourceDeferred.isCompleted) {
+                    dataSourceDeferred.await().close()
                 }
             }
         } catch (e: Exception) {
-            Log.e(tag, "좋아요 토글 중 오류 발생", e)
+            Log.e(tag, "HikariCP 코루틴 취소 실패", e)
         }
-        isFavorite
     }
 }
