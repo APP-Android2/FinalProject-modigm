@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
-import kr.co.lion.modigm.databinding.RowStudyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
@@ -18,8 +17,6 @@ import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
-
-    private lateinit var rowBinding: RowStudyBinding
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
@@ -57,13 +54,18 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentStudyAllBinding.bind(view)
-        rowBinding = RowStudyBinding.inflate(layoutInflater)
 
         // 초기 뷰 세팅
         initView(binding)
-        viewModel.getAllStudyStateTrueDataList(1)
+        viewModel.getAllStudyStateTrueDataList(currentUserUid)
         observeData()
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // ViewModel 데이터 초기화
+        viewModel.clearData()
     }
 
     // 초기 뷰 세팅

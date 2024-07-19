@@ -59,7 +59,12 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
         initView(binding)
         viewModel.getMyStudyDataList(1)
         observeData()
-        Log.d("StudyMyFragment", "onViewCreated 호출됨")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // ViewModel 데이터 초기화
+        viewModel.clearData()
     }
 
     // 초기 뷰 세팅

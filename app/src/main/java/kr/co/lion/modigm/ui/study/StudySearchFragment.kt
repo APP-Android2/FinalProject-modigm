@@ -75,6 +75,13 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
         })
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // ViewModel 데이터 초기화
+        viewModel.clearData()
+        _binding = null
+    }
+
     private fun initView(binding: FragmentStudySearchBinding) {
 
         with(binding) {
@@ -110,8 +117,5 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+
 }

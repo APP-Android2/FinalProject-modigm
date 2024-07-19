@@ -16,10 +16,8 @@ class StudyViewModel : ViewModel() {
     private val studyListRepository = StudyListRepository()
 
     // 전체 스터디 목록 중 모집중인 스터디 리스트
-    private val _allStudyStateTrueDataList =
-        MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val allStudyStateTrueDataList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> =
-        _allStudyStateTrueDataList
+    private val _allStudyStateTrueDataList = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
+    val allStudyStateTrueDataList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyStateTrueDataList
 
     // 전체 스터디 목록 중 모집중인 스터디 리스트 로딩
     private val _setNullStudyAllLoading = MutableLiveData<Boolean?>(null)
@@ -233,4 +231,27 @@ class StudyViewModel : ViewModel() {
 //
 //        Log.d("StudyViewModel", "필터링된 결과: ${_filteredMyStudyList.value?.size} 개, 필터링된 데이터: ${_filteredMyStudyList.value}")
 //    }
+
+    // 데이터 초기화 메서드
+    fun clearData() {
+        _allStudyStateTrueDataList.value = emptyList()
+        _setNullStudyAllLoading.value = null
+        _myStudyDataList.value = emptyList()
+        _studyMyDataLoading.value = null
+        _filteredStudyList.value = emptyList()
+        _filteredMyStudyList.value = emptyList()
+        filterData.clear()
+    }
+
+    // Dao 코루틴 및 히카리CP 자원 해제하기
+    private fun close() {
+        viewModelScope.launch {
+            studyListRepository.close()
+        }
+    }
+    // 뷰모델에서 Dao 코루틴 및 히카리CP 자원 해제
+    override fun onCleared() {
+        super.onCleared()
+        close()
+    }
 }
