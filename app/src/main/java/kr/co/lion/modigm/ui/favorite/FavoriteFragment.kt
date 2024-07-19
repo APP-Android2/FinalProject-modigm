@@ -2,28 +2,17 @@ package kr.co.lion.modigm.ui.favorite
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFavoriteBinding
-import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
 import kr.co.lion.modigm.databinding.RowFavoriteBinding
-import kr.co.lion.modigm.databinding.RowStudyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.favorite.adapter.FavoriteAdapter
 import kr.co.lion.modigm.ui.favorite.vm.FavoriteViewModel
-import kr.co.lion.modigm.ui.study.FilterSortFragment
-import kr.co.lion.modigm.ui.study.StudySearchFragment
-import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
-import kr.co.lion.modigm.ui.study.vm.StudyViewModel
-import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
@@ -71,11 +60,17 @@ class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
 
         // 초기 뷰 세팅
         initView(binding)
-        viewModel.loadFavoriteStudies(1)
+        viewModel.getMyFavoriteStudyDataList(1)
         observeData(binding)
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
 
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // ViewModel 데이터 초기화
+        viewModel.clearData()
     }
 
     // 초기 뷰 세팅
@@ -105,7 +100,7 @@ class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
 
 
         // 전체 데이터 관찰 (필터링이 없을 때)
-        viewModel.favoritedStudies.observe(viewLifecycleOwner) { studyList ->
+        viewModel.favoritedStudyList.observe(viewLifecycleOwner) { studyList ->
             if (studyList.isNotEmpty()) {
                 binding.recyclerviewFavorite.visibility = View.VISIBLE
                 binding.blankLayoutFavorite.visibility = View.GONE
