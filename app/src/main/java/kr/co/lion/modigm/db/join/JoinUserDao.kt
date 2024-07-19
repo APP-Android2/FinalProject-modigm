@@ -9,14 +9,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.PreparedStatement
 
 class JoinUserDao {
@@ -61,10 +59,14 @@ class JoinUserDao {
     }
 
     // Dao가 더 이상 필요 없을 때 자원을 해제하는 메소드 (destroy에 호출)
-    fun closeConn() {
-        coroutineScope.cancel()
-        if (dataSourceDeferred.isCompleted) {
-            dataSourceDeferred.getCompleted().close()
+    suspend fun closeConn() {
+        try{
+            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
+            if (dataSourceDeferred.isCompleted) {
+                dataSourceDeferred.await().close()
+            }
+        }catch (e: Exception){
+            Log.d("JoinUserDao", "Error closing db")
         }
     }
 

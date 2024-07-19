@@ -8,6 +8,8 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.SqlUserData
@@ -195,6 +197,8 @@ class JoinViewModel : ViewModel() {
     // ViewModel이 파괴될 때 db 리소스를 해제를 위해 호출되는 메서드
     override fun onCleared() {
         super.onCleared()
-        _joinUserRepository.closeConn()
+        viewModelScope.launch {
+            _joinUserRepository.closeConn()
+        }
     }
 }

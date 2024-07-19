@@ -10,7 +10,7 @@ class JoinUserRepository {
     suspend fun insetUserData(userInfoData: SqlUserData): Boolean = _joinUserDataSource.insetUserData(userInfoData)
 
     // 리소스를 해제하는 메서드 추가
-    fun closeConn() {
+    suspend fun closeConn() {
         _joinUserDataSource.closeConn()
     }
 }

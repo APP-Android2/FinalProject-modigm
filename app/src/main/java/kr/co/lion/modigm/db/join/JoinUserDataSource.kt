@@ -17,7 +17,7 @@ class JoinUserDataSource {
         }
     }
 
-    fun closeConn(){
+    suspend fun closeConn(){
         dao.closeConn()
     }
 
