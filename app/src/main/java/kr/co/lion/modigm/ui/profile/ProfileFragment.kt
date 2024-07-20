@@ -126,8 +126,8 @@ class ProfileFragment: Fragment() {
         fragmentProfileBinding.profileViewModel = profileViewModel
         fragmentProfileBinding.lifecycleOwner = this
 
-        userIdx = arguments?.getInt("userIdx")
-        //myProfile = userIdx == ModigmApplication.prefs.getUserData("currentUserData")?.userUid
+        userIdx = 9689//arguments?.getInt("userIdx")
+        //myProfile = userIdx == ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
 
         return fragmentProfileBinding.root
     }
@@ -236,7 +236,7 @@ class ProfileFragment: Fragment() {
     private fun setupUserInfo() {
         Log.d("zunione", "setupUserInfo")
         profileViewModel.profileUserIdx.value = userIdx
-        //profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
+        profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
         //profileViewModel.loadPartStudyList(uid!!)
         //profileViewModel.loadHostStudyList(uid!!)
     }

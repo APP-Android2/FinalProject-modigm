@@ -54,7 +54,7 @@ class ProfileViewModel : ViewModel() {
 
     // 유저 기본 정보를 불러온다.
     fun loadUserData(context: Context, imageView: ImageView) = viewModelScope.launch {
-        val uid = _profileUid.value
+        val userIdx = _profileUserIdx.value
         val currentUser = ModigmApplication.prefs.getUserData("currentUserData")
 
         // Uid가 현재 로그인된 사용자 uid와 같을 경우 SharedPreference에서 정보를 가지고 온다.
@@ -73,7 +73,7 @@ class ProfileViewModel : ViewModel() {
         } else {
             // Uid가 현재 로그인된 사용자 uid와 다를 경우 데이터베이스에서 정보를 가지고 온다.
             try {
-                val response = profileRepository.loadUserData(uid)
+                val response = profileRepository.loadUserData(userIdx)
 
                 // 사용자 이름
                 _profileName.value = response?.userName

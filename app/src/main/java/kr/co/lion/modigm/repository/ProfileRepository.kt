@@ -7,7 +7,7 @@ class ProfileRepository {
     private val _remoteUserDataSource = RemoteProfileDataSource()
 
     // 유저 정보 불러오기
-    suspend fun loadUserData(uid: Int?): SqlUserData? = _remoteUserDataSource.loadUserDataByUserIdx(uid!!)
+    suspend fun loadUserData(userIdx: Int?): SqlUserData? = _remoteUserDataSource.loadUserDataByUserIdx(userIdx!!)
 
     // 해당 유저의 전화번호 업데이트
     suspend fun updateUserData(user: SqlUserData?) = _remoteUserDataSource.updateUserData(user!!)

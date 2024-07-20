@@ -18,6 +18,7 @@ import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import java.sql.Connection
 import java.sql.DriverManager
+import java.sql.SQLException
 
 class RemoteProfileDao {
     private val dbUrl = BuildConfig.DB_URL
@@ -31,15 +32,15 @@ class RemoteProfileDao {
     }
 
     // userIdx를 통해 사용자 정보를 가져오는 메서드
-    suspend fun loadUserDataByUserIdx(userIdx: Int): SqlUserData? {
+    suspend fun loadUserDataByUserIdx(userIdx: Int): SqlUserData? = withContext(Dispatchers.IO)  {
         // 사용자 정보 객체를 담을 변수
         var user: SqlUserData? = null
 
         try {
             getConnection().use { connection ->
                 val query = """
-                    SELECT * FROM User
-                    WHERE userUid = ?
+                    SELECT * FROM tb_user
+                    WHERE userIdx = ?
                 """
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, userIdx)
@@ -48,22 +49,25 @@ class RemoteProfileDao {
                         // 결과를 NewUserData 객체에 매핑
                         user = SqlUserData(
                             userIdx = resultSet.getInt("userIdx"),
+                            userUid = resultSet.getString("userUid"),
                             userName = resultSet.getString("userName"),
                             userPhone = resultSet.getString("userPhone"),
                             userProfilePic = resultSet.getString("userProfilePic"),
                             userIntro = resultSet.getString("userIntro"),
                             userEmail = resultSet.getString("userEmail"),
                             userProvider = resultSet.getString("userProvider"),
-                            userInterests = resultSet.getString("userInterestList"),
+                            userInterests = resultSet.getString("userInterests"),
                         )
                     }
                 }
             }
-        } catch (error: Exception){
-            Log.e("RemoteProfileDao","loadUserDataByUserIdx(): $error")
+        } catch (sqlError: SQLException) {
+            Log.e("RemoteProfileDao", "loadUserDataByUserIdx(): SQL error - $sqlError")
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDao", "loadUserDataByUserIdx(): General error - $error")
         }
 
-        return user
+        return@withContext user
     }
 
     // 사용자 프로필 사진을 받아오는 메서드
@@ -93,7 +97,7 @@ class RemoteProfileDao {
         try {
             getConnection().use { connection ->
                 val query = """
-                    UPDATE User
+                    UPDATE tb_user
                     SET userProfilePic = ?,
                         userIntro = ?,
                         userEmail = ?,
@@ -121,7 +125,7 @@ class RemoteProfileDao {
             getConnection().use { connection ->
                 // 먼저 링크를 모두 삭제
                 val userQuery = """
-                    DELETE FROM UserList
+                    DELETE FROM tb_user_list
                     WHERE userIdx = ?
                 """
                 connection.prepareStatement(userQuery).use { statement ->
@@ -132,7 +136,7 @@ class RemoteProfileDao {
                 // 입력된 링크 저장
                 linkList.forEachIndexed { index, link ->
                     val insertQuery = """
-                    INSERT INTO UserList (userIdx, linkUrl, linkOrder)
+                    INSERT INTO tb_user_list (userIdx, linkUrl, linkOrder)
                     VALUES (?, ?, ?)
                 """
                     connection.prepareStatement(insertQuery).use { statement ->
