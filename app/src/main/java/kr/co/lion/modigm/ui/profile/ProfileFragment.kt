@@ -1,6 +1,8 @@
 package kr.co.lion.modigm.ui.profile
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,15 +15,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.chip.Chip
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
-import kr.co.lion.modigm.db.chat.ChatRoomDataSource
-import kr.co.lion.modigm.model.ChatRoomData
-import kr.co.lion.modigm.ui.chat.ChatRoomFragment
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
@@ -29,8 +27,6 @@ import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.Interest
-import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
@@ -236,7 +232,7 @@ class ProfileFragment: Fragment() {
     private fun setupUserInfo() {
         Log.d("zunione", "setupUserInfo")
         profileViewModel.profileUserIdx.value = userIdx
-        profileViewModel.loadUserData(requireContext(), fragmentProfileBinding.imageProfilePic)
+        profileViewModel.loadUserData()
         //profileViewModel.loadPartStudyList(uid!!)
         //profileViewModel.loadHostStudyList(uid!!)
     }
@@ -280,8 +276,19 @@ class ProfileFragment: Fragment() {
         }
     }
 
+    // 데이터 변경 관찰
     fun observeData() {
-        // 데이터 변경 관찰
+        // 프로필 사진
+        profileViewModel.profileUserImage.observe(viewLifecycleOwner) { image ->
+            if (image != null) {
+                val imageBytes = Base64.decode(image, Base64.DEFAULT) // Base64 문자열을 바이트 배열로 디코딩
+                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size) // 바이트 배열을 비트맵으로 디코딩
+                Glide.with(requireContext()) // Glide를 사용하여 이미지를 로드
+                    .load(bitmap)
+                    .into(fragmentProfileBinding.imageProfilePic)
+            }
+        }
+
         // 관심 분야 chipGroup
         profileViewModel.profileInterests.observe(viewLifecycleOwner, Observer { list ->
             // 기존 칩들 제거

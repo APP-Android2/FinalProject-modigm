@@ -25,6 +25,10 @@ class ProfileViewModel : ViewModel() {
     private val _profileUserIdx = MutableLiveData<Int>()
     val profileUserIdx: MutableLiveData<Int> = _profileUserIdx
 
+    // 사용자 uid
+    private val _profileUserImage = MutableLiveData<String>()
+    val profileUserImage: MutableLiveData<String> = _profileUserImage
+
     // 사용자 이름
     private val _profileName = MutableLiveData<String>()
     val profileName: MutableLiveData<String> = _profileName
@@ -53,7 +57,7 @@ class ProfileViewModel : ViewModel() {
     /** functions **/
 
     // 유저 기본 정보를 불러온다.
-    fun loadUserData(context: Context, imageView: ImageView) = viewModelScope.launch {
+    fun loadUserData() = viewModelScope.launch {
         val userIdx = _profileUserIdx.value
         val currentUser = ModigmApplication.prefs.getUserData("currentUserData")
 
@@ -68,8 +72,6 @@ class ProfileViewModel : ViewModel() {
             //_profileInterests.value = currentUser?.userInterests
             // 링크 리스트
             _profileLinkList.value = currentUser?.userLinkList
-            // 프로필 사진
-            // userRepository.loadUserProfilePic(context, currentUser?.userProfilePic!!, imageView)
         } else {
             // Uid가 현재 로그인된 사용자 uid와 다를 경우 데이터베이스에서 정보를 가지고 온다.
             try {
@@ -82,7 +84,7 @@ class ProfileViewModel : ViewModel() {
                 // 관심분야 리스트
                 _profileInterests.value = response?.userInterests
                 // 프로필 사진
-                //profileRepository.loadUserProfilePic(context, response?.userProfilePic!!, imageView)
+                _profileUserImage.value = response?.userProfilePic
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "loadUserData(): ${e.message}")
             }
