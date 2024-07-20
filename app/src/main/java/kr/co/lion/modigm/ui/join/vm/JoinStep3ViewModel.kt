@@ -16,14 +16,14 @@ class JoinStep3ViewModel: ViewModel() {
     private var _isValidate = MutableLiveData<Boolean>()
     val isValidate: LiveData<Boolean> = _isValidate
 
-    private val _selectedInterestList = MutableLiveData<MutableList<Int>>(mutableListOf())
-    val selectedInterestList: LiveData<MutableList<Int>> = _selectedInterestList
+    private val _selectedInterestList = MutableLiveData<MutableList<String>>(mutableListOf())
+    val selectedInterestList: LiveData<MutableList<String>> = _selectedInterestList
 
-    fun addInterest(interest: Int) {
+    fun addInterest(interest: String) {
         _selectedInterestList.value?.add(interest)
     }
 
-    fun removeInterest(interest: Int) {
+    fun removeInterest(interest: String) {
         _selectedInterestList.value?.remove(interest)
     }
 

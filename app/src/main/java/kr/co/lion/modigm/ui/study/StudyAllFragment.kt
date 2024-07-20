@@ -19,7 +19,7 @@ import kr.co.lion.modigm.util.FragmentName
 
 class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
 
-    private lateinit var rowbinding: RowStudyBinding
+    private lateinit var rowBinding: RowStudyBinding
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
@@ -57,7 +57,7 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentStudyAllBinding.bind(view)
-        rowbinding = RowStudyBinding.inflate(layoutInflater)
+        rowBinding = RowStudyBinding.inflate(layoutInflater)
 
         // 초기 뷰 세팅
         initView(binding)

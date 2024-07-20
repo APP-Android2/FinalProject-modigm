@@ -6,64 +6,47 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
+import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFavoriteBinding
+import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
+import kr.co.lion.modigm.databinding.RowFavoriteBinding
+import kr.co.lion.modigm.databinding.RowStudyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.favorite.adapter.FavoriteAdapter
 import kr.co.lion.modigm.ui.favorite.vm.FavoriteViewModel
+import kr.co.lion.modigm.ui.study.FilterSortFragment
+import kr.co.lion.modigm.ui.study.StudySearchFragment
+import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
+import kr.co.lion.modigm.ui.study.vm.StudyViewModel
+import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class FavoriteFragment : Fragment() {
+class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
 
-    private lateinit var binding: FragmentFavoriteBinding
-    private val viewModel: FavoriteViewModel by viewModels()
-    private lateinit var auth: FirebaseAuth
-    private lateinit var uid: String
-    private lateinit var favoriteAdapter: FavoriteAdapter
+    private lateinit var rowBinding: RowFavoriteBinding
 
-    // 프래그먼트의 뷰가 생성될 때 호출
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        binding = FragmentFavoriteBinding.inflate(inflater, container, false)
+    // 뷰모델
+    private val viewModel: FavoriteViewModel by activityViewModels()
 
-        auth = FirebaseAuth.getInstance()
-        uid = auth.currentUser?.uid.toString()
+    private val currentUserUid = 1
 
-        return binding.root
+    // 어답터
+    private val favoriteAdapter: FavoriteAdapter = FavoriteAdapter(
+        // 최초 리스트
+        emptyList(),
 
-    }
+        // 항목 클릭 시
+        rowClickListener = { studyIdx ->
 
-    // 뷰가 생성된 직후 호출
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // 툴바 설정
-        settingToolbar()
-
-        setupRecyclerView()
-
-        observeViewModel()
-
-        // 좋아요한 스터디 데이터를 로드
-        Log.d("FavoriteFragment", "Loading Favorited studies for user: $uid")
-
-        // 좋아요한 스터디 데이터를 로드
-        viewModel.loadFavoriteStudies(uid)
-
-        // 옵저버에서 클릭된 항목 처리
-        favoriteAdapter.setOnItemClickListener { study ->
-            // 클릭된 항목의 studyIdx를 bundle에 담아서 다음 화면으로 전달
+            // DetailFragment로 이동
             val detailFragment = DetailFragment().apply {
                 arguments = Bundle().apply {
-                    putInt("studyIdx", study.studyIdx)
-                    Log.d("Favoritefragment","${study.studyIdx}")
+                    putInt("studyIdx", studyIdx)
                 }
             }
 
@@ -71,34 +54,74 @@ class FavoriteFragment : Fragment() {
                 replace(R.id.containerMain, detailFragment)
                 addToBackStack(FragmentName.DETAIL.str)
             }
+
+        },
+        favoriteClickListener = { studyIdx ->
+            // 현재 접속중인 유저의 userIdx를 전달해야하므로 수정 요망./////////////////////////////////////////////////////////////////////////////////////
+            viewModel.toggleFavorite(1, studyIdx)
         }
+    )
+
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val binding = FragmentFavoriteBinding.bind(view)
+        rowBinding = RowFavoriteBinding.inflate(layoutInflater)
+
+        // 초기 뷰 세팅
+        initView(binding)
+        viewModel.loadFavoriteStudies(1)
+        observeData(binding)
+        Log.d("StudyAllFragment", "onViewCreated 호출됨")
+
 
     }
 
-    fun settingToolbar() {
-        binding.toolBarFavorite.title = "찜한 스터디"
-    }
+    // 초기 뷰 세팅
+    private fun initView(binding: FragmentFavoriteBinding) {
 
-    fun setupRecyclerView() {
-        binding.recyclerviewFavorite.layoutManager = LinearLayoutManager(context)
-        favoriteAdapter = FavoriteAdapter(emptyList()) { study ->
-            viewModel.toggleFavorite(uid, study.studyIdx)
-        }
-        binding.recyclerviewFavorite.adapter = favoriteAdapter
-    }
+        with(binding) {
 
-    fun observeViewModel() {
-        viewModel.favoritedStudies.observe(viewLifecycleOwner) { studies ->
-            Log.d("FavoriteFragment", "Observed Favorited studies: $studies")
-            if (studies.isNotEmpty()) {
-                binding.recyclerviewFavorite.visibility = View.VISIBLE
-                binding.blankLayoutFavorite.visibility = View.GONE
-                favoriteAdapter.updateData(studies)
-            } else {
-                binding.recyclerviewFavorite.visibility = View.GONE
-                binding.blankLayoutFavorite.visibility = View.VISIBLE
+            // 리사이클러뷰
+            with(recyclerviewFavorite) {
+                // 리사이클러뷰 어답터
+                adapter = favoriteAdapter
+
+                // 리사이클러뷰 레이아웃
+                layoutManager = LinearLayoutManager(requireActivity())
+
             }
         }
     }
 
+
+    private fun observeData(binding: FragmentFavoriteBinding) {
+//        // 필터링된 데이터 관찰
+//        viewModel.filteredStudyList.observe(viewLifecycleOwner) { studyList ->
+//            studyAllAdapter.updateData(studyList)
+//            Log.d("StudyAllFragment", "필터링된 전체 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
+//        }
+
+
+        // 전체 데이터 관찰 (필터링이 없을 때)
+        viewModel.favoritedStudies.observe(viewLifecycleOwner) { studyList ->
+            if (studyList.isNotEmpty()) {
+                binding.recyclerviewFavorite.visibility = View.VISIBLE
+                binding.blankLayoutFavorite.visibility = View.GONE
+                favoriteAdapter.updateData(studyList)
+            } else {
+                binding.recyclerviewFavorite.visibility = View.GONE
+                binding.blankLayoutFavorite.visibility = View.VISIBLE
+            }
+
+            favoriteAdapter.updateData(studyList)
+            Log.d("StudyAllFragment", "전체 스터디 목록 업데이트: ${studyList.size} 개")
+        }
+
+        viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
+            // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
+            favoriteAdapter.updateItem(isFavorite.first, isFavorite.second)
+        }
+    }
 }

@@ -1,13 +1,17 @@
 package kr.co.lion.modigm.repository
 
-import kr.co.lion.modigm.db.favorite.RemoteFavoriteDataSource
-import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.db.favorite.FavoriteListDataSource
+import kr.co.lion.modigm.model.SqlStudyData
 
 class FavoriteRepository {
-    private val remoteFavoriteDataSource = RemoteFavoriteDataSource()
 
-    suspend fun getFavoriteStudies(uid: String): List<StudyData> {
-        val studyIdxs = remoteFavoriteDataSource.fetchFavoriteStudies(uid)
-        return remoteFavoriteDataSource.fetchStudyDetails(studyIdxs)
+    private val dataSource = FavoriteListDataSource()
+
+    suspend fun getFavoriteStudies(userIdx: Int): HashMap<Int, Triple<SqlStudyData, Int, Boolean>> {
+        return dataSource.fetchFavoriteStudies(userIdx)
+    }
+
+    suspend fun toggleFavorite(userIdx: Int, studyIdx: Int): Boolean {
+        return dataSource.toggleFavorite(userIdx, studyIdx)
     }
 }
