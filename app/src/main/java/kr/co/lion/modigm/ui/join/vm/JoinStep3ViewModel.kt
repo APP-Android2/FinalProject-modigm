@@ -34,7 +34,7 @@ class JoinStep3ViewModel: ViewModel() {
     }
 
     fun reset(){
-        _isValidate.value = false
+        _isValidate.value = null
         _selectedInterestList.value = mutableListOf()
     }
 }

@@ -91,15 +91,12 @@ class JoinFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDetach() {
+        super.onDetach()
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-        if(!viewModel.joinCompleted.value!!){
+        if(!viewModel.joinCompleted.value){
             viewModel.deleteCurrentUser()
         }
-        viewModelStep1.reset()
-        viewModelStep2.reset()
-        viewModelStep3.reset()
     }
 
     private fun settingToolBar(){
@@ -129,8 +126,12 @@ class JoinFragment : Fragment() {
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
             // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-            if(!viewModel.joinCompleted.value!!){
+            if(!viewModel.joinCompleted.value){
                 viewModel.deleteCurrentUser()
+                // 각 step 뷰모델에 저장된 값들도 초기화
+                viewModelStep1.reset()
+                viewModelStep2.reset()
+                viewModelStep3.reset()
             }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.containerMain, LoginFragment())
