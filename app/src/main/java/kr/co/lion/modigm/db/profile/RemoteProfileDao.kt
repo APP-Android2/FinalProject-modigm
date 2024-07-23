@@ -49,14 +49,14 @@ class RemoteProfileDao {
                         // 결과를 NewUserData 객체에 매핑
                         user = SqlUserData(
                             userIdx = resultSet.getInt("userIdx"),
-                            userUid = resultSet.getString("userUid"),
-                            userName = resultSet.getString("userName"),
-                            userPhone = resultSet.getString("userPhone"),
-                            userProfilePic = resultSet.getString("userProfilePic"),
-                            userIntro = resultSet.getString("userIntro"),
-                            userEmail = resultSet.getString("userEmail"),
-                            userProvider = resultSet.getString("userProvider"),
-                            userInterests = resultSet.getString("userInterests"),
+                            userUid = resultSet.getString("userUid") ?: "",
+                            userName = resultSet.getString("userName") ?: "",
+                            userPhone = resultSet.getString("userPhone") ?: "",
+                            userProfilePic = resultSet.getString("userProfilePic") ?: "",
+                            userIntro = resultSet.getString("userIntro") ?: "",
+                            userEmail = resultSet.getString("userEmail") ?: "",
+                            userProvider = resultSet.getString("userProvider") ?: "",
+                            userInterests = resultSet.getString("userInterests") ?: ""
                         )
                     }
                 }

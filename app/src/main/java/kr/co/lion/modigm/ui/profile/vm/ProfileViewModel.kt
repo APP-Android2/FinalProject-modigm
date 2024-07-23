@@ -85,6 +85,8 @@ class ProfileViewModel : ViewModel() {
                 _profileInterests.value = response?.userInterests
                 // 프로필 사진
                 _profileUserImage.value = response?.userProfilePic
+
+                Log.e("ProfileViewModel", "loadUserData(): ${_profileName.value}")
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "loadUserData(): ${e.message}")
             }

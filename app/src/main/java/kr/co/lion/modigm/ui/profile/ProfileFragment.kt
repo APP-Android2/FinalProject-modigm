@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
@@ -280,36 +281,41 @@ class ProfileFragment: Fragment() {
     fun observeData() {
         // 프로필 사진
         profileViewModel.profileUserImage.observe(viewLifecycleOwner) { image ->
-            if (image != null) {
+            if (image.isNotEmpty()) {
                 val imageBytes = Base64.decode(image, Base64.DEFAULT) // Base64 문자열을 바이트 배열로 디코딩
                 val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size) // 바이트 배열을 비트맵으로 디코딩
                 Glide.with(requireContext()) // Glide를 사용하여 이미지를 로드
                     .load(bitmap)
                     .into(fragmentProfileBinding.imageProfilePic)
+            } else {
+                // Handle the case where the image string is null (e.g., show a default image)
+                fragmentProfileBinding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
             }
         }
 
         // 관심 분야 chipGroup
-        profileViewModel.profileInterests.observe(viewLifecycleOwner, Observer { list ->
+        profileViewModel.profileInterests.observe(viewLifecycleOwner, Observer { interests ->
             // 기존 칩들 제거
             fragmentProfileBinding.chipGroupProfile.removeAllViews()
 
+            val interestList = interests.split(",").map { it.trim() }
+
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
-//            for (interestNum in list) {
-//                // 아이템 처리 코드
-//                fragmentProfileBinding.chipGroupProfile.addView(Chip(context).apply {
-//                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
-//                    text = Interest.fromNum(interestNum)!!.str
-//
-//                    setTextAppearance(R.style.ChipTextStyle)
-//                    // 자동 padding 없애기
-//                    setEnsureMinTouchTargetSize(false)
-//                    // 배경 흰색으로 지정
-//                    setChipBackgroundColorResource(android.R.color.white)
-//                    // 클릭 불가
-//                    isClickable = false
-//                })
-//            }
+            for (interest in interestList) {
+                // 아이템 처리 코드
+                fragmentProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
+                    text = interest
+
+                    setTextAppearance(R.style.ChipTextStyle)
+                    // 자동 padding 없애기
+                    setEnsureMinTouchTargetSize(false)
+                    // 배경 흰색으로 지정
+                    setChipBackgroundColorResource(android.R.color.white)
+                    // 클릭 불가
+                    isClickable = false
+                })
+            }
         })
 
         // 링크 리스트
