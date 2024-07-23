@@ -2,12 +2,16 @@ package kr.co.lion.modigm.repository
 
 import kr.co.lion.modigm.db.profile.RemoteProfileDataSource
 import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.SqlUserLinkData
 
 class ProfileRepository {
     private val _remoteUserDataSource = RemoteProfileDataSource()
 
     // 유저 정보 불러오기
     suspend fun loadUserData(userIdx: Int?): SqlUserData? = _remoteUserDataSource.loadUserDataByUserIdx(userIdx!!)
+
+    // 자기소개 링크 목록 불러오기
+    suspend fun loadUserLinkData(userIdx: Int?): List<SqlUserLinkData> = _remoteUserDataSource.loadUserLinkDataByUserIdx(userIdx!!)
 
     // 해당 유저의 전화번호 업데이트
     suspend fun updateUserData(user: SqlUserData?) = _remoteUserDataSource.updateUserData(user!!)

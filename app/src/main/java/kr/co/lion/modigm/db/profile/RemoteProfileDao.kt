@@ -15,6 +15,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.SqlUserLinkData
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import java.sql.Connection
 import java.sql.DriverManager
@@ -68,6 +69,40 @@ class RemoteProfileDao {
         }
 
         return@withContext user
+    }
+
+    // userIdx를 통해 등록된 링크 목록을 가져오는 메서드
+    suspend fun loadUserLinkDataByUserIdx(userIdx: Int): List<SqlUserLinkData> = withContext(Dispatchers.IO) {
+        val linkList = mutableListOf<SqlUserLinkData>()
+
+        try {
+            getConnection().use { connection ->
+                val query = """
+                SELECT * FROM tb_user_link
+                WHERE userIdx = ?
+            """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    val resultSet = statement.executeQuery()
+                    while (resultSet.next()) {
+                        val link = SqlUserLinkData(
+                            linkIdx = resultSet.getInt("linkIdx"),
+                            userIdx = resultSet.getInt("userIdx"),
+                            linkUrl = resultSet.getString("linkUrl") ?: "",
+                            linkOrder = resultSet.getInt("linkOrder")
+                        )
+
+                        linkList.add(link)
+                    }
+                }
+            }
+        } catch (sqlError: SQLException) {
+            Log.e("RemoteProfileDao", "loadUserLinkDataByUserIdx(): SQL error - $sqlError")
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDao", "loadUserLinkDataByUserIdx(): General error - $error")
+        }
+
+        return@withContext linkList.sortedBy { it.linkOrder }
     }
 
     // 사용자 정보를 수정하는 메서드

@@ -234,6 +234,7 @@ class ProfileFragment: Fragment() {
         Log.d("zunione", "setupUserInfo")
         profileViewModel.profileUserIdx.value = userIdx
         profileViewModel.loadUserData()
+        profileViewModel.loadUserLinkListData()
         //profileViewModel.loadPartStudyList(uid!!)
         //profileViewModel.loadHostStudyList(uid!!)
     }
@@ -294,7 +295,7 @@ class ProfileFragment: Fragment() {
         }
 
         // 관심 분야 chipGroup
-        profileViewModel.profileInterests.observe(viewLifecycleOwner, Observer { interests ->
+        profileViewModel.profileInterests.observe(viewLifecycleOwner) { interests ->
             // 기존 칩들 제거
             fragmentProfileBinding.chipGroupProfile.removeAllViews()
 
@@ -316,7 +317,7 @@ class ProfileFragment: Fragment() {
                     isClickable = false
                 })
             }
-        })
+        }
 
         // 링크 리스트
         profileViewModel.profileLinkList.observe(viewLifecycleOwner) { profileLinkList ->

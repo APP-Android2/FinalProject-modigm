@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLinkBinding
+import kr.co.lion.modigm.model.SqlUserLinkData
 import kr.co.lion.modigm.model.UserData
 import java.net.URL
 
@@ -28,10 +29,10 @@ class LinkViewHolder(
     )
 
     // 구성요소 세팅
-    fun bind(data: String, rowClickListener: (String) -> Unit) {
+    fun bind(data: SqlUserLinkData, rowClickListener: (String) -> Unit) {
         rowLinkBinding.apply {
             // 도메인 추출
-            val domain = extractDomain(data)
+            val domain = extractDomain(data.linkUrl)
             Log.d("test1234", domain)
 
             // 아이콘
@@ -47,7 +48,7 @@ class LinkViewHolder(
 
                 // 클릭 리스너 설정: Url 전달..?
                 setOnClickListener {
-                    rowClickListener.invoke(data)
+                    rowClickListener.invoke(data.linkUrl)
                 }
             }
         }

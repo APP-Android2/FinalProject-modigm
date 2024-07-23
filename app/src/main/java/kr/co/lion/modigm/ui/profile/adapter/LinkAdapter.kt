@@ -9,10 +9,11 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowLinkBinding
+import kr.co.lion.modigm.model.SqlUserLinkData
 import java.util.Locale
 
 class LinkAdapter(
-    private var linkList: List<String>,
+    private var linkList: List<SqlUserLinkData>,
     private val rowClickListener: (String) -> Unit,
 ) : RecyclerView.Adapter<LinkViewHolder>() {
 
@@ -31,7 +32,7 @@ class LinkAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<String>) {
+    fun updateData(list: List<SqlUserLinkData>) {
         linkList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())

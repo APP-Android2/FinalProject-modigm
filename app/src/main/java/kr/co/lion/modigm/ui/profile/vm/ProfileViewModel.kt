@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.model.SqlUserLinkData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.repository.StudyRepository
@@ -42,8 +43,8 @@ class ProfileViewModel : ViewModel() {
     val profileInterests: MutableLiveData<String> = _profileInterests
 
     // 링크 리스트
-    private val _profileLinkList = MutableLiveData<List<String>>()
-    val profileLinkList: MutableLiveData<List<String>> = _profileLinkList
+    private val _profileLinkList = MutableLiveData<List<SqlUserLinkData>>()
+    val profileLinkList: MutableLiveData<List<SqlUserLinkData>> = _profileLinkList
 
     // 사용자가 참여한 스터디 리스트
     private val _profilePartStudyList = MutableLiveData<List<StudyData>>()
@@ -59,54 +60,32 @@ class ProfileViewModel : ViewModel() {
     // 유저 기본 정보를 불러온다.
     fun loadUserData() = viewModelScope.launch {
         val userIdx = _profileUserIdx.value
-        val currentUser = ModigmApplication.prefs.getUserData("currentUserData")
 
-        // Uid가 현재 로그인된 사용자 uid와 같을 경우 SharedPreference에서 정보를 가지고 온다.
-        // 일단 돌아가지 않게 설정
-        if (false /*uid == currentUser?.userUid*/) {
+        try {
+            val response = profileRepository.loadUserData(userIdx)
+
             // 사용자 이름
-            _profileName.value = currentUser?.userName
+            _profileName.value = response?.userName
             // 자기소개
-            _profileIntro.value = currentUser?.userIntro
+            _profileIntro.value = response?.userIntro
             // 관심분야 리스트
-            //_profileInterests.value = currentUser?.userInterests
-            // 링크 리스트
-            _profileLinkList.value = currentUser?.userLinkList
-        } else {
-            // Uid가 현재 로그인된 사용자 uid와 다를 경우 데이터베이스에서 정보를 가지고 온다.
-            try {
-                val response = profileRepository.loadUserData(userIdx)
-
-                // 사용자 이름
-                _profileName.value = response?.userName
-                // 자기소개
-                _profileIntro.value = response?.userIntro
-                // 관심분야 리스트
-                _profileInterests.value = response?.userInterests
-                // 프로필 사진
-                _profileUserImage.value = response?.userProfilePic
-
-                Log.e("ProfileViewModel", "loadUserData(): ${_profileName.value}")
-            } catch (e: Exception) {
-                Log.e("ProfileViewModel", "loadUserData(): ${e.message}")
-            }
+            _profileInterests.value = response?.userInterests
+            // 프로필 사진
+            _profileUserImage.value = response?.userProfilePic
+        } catch (e: Exception) {
+            Log.e("ProfileViewModel", "loadUserData(): ${e.message}")
         }
     }
 
     // 유저의 자기소개 링크를 불러온다.
     fun loadUserLinkListData() = viewModelScope.launch {
-        val uid = _profileUid.value
+        val userIdx = _profileUserIdx.value
 
         try {
-            val response = profileRepository.loadUserData(uid)
-
-            // 링크 리스트
-            //_profileLinkList.value = response?.userLinkList
+            _profileLinkList.value = profileRepository.loadUserLinkData(userIdx)
         } catch (e: Exception) {
-            Log.e("ProfileViewModel", "loadUserData(): ${e.message}")
+            Log.e("ProfileViewModel", "loadUserLinkListData(): ${e.message}")
         }
-
-
     }
 
     // 참여한 스터디 리스트를 불러온다.

@@ -2,11 +2,12 @@ package kr.co.lion.modigm.db.profile
 
 import android.util.Log
 import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.SqlUserLinkData
 
 class RemoteProfileDataSource {
     private val dao = RemoteProfileDao()
 
-    // 모집 중인 전체 스터디 목록 조회 (좋아요 여부 포함)
+    // // userIdx를 통해 사용자 정보를 가져오는 메서드
     suspend fun loadUserDataByUserIdx(userIdx: Int): SqlUserData? {
         var user: SqlUserData? = null
 
@@ -17,6 +18,17 @@ class RemoteProfileDataSource {
         }
 
         return user
+    }
+
+    // userIdx를 통해 등록된 링크 목록을 가져오는 메서드
+    suspend fun loadUserLinkDataByUserIdx(userIdx: Int): List<SqlUserLinkData> {
+        try {
+            val linkList = dao.loadUserLinkDataByUserIdx(userIdx)
+            return linkList
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDataSource", "loadUserDataByUserIdx(): $error")
+            return emptyList()
+        }
     }
 
     // 사용자 정보를 수정
