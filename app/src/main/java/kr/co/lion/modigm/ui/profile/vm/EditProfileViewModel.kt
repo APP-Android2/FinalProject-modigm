@@ -127,11 +127,11 @@ class EditProfileViewModel: ViewModel() {
             userRepository.addProfilePic(newImageUri, _editProfilePicSrc.value!!, profileFragment)
             // SharedPreference 업데이트
             ModigmApplication.prefs.clearUserData("currentUserData")
-            ModigmApplication.prefs.setUserData("currentUserData", user)
+            //ModigmApplication.prefs.setUserData("currentUserData", user)
         } else {
             // SharedPreference 업데이트
             ModigmApplication.prefs.clearUserData("currentUserData")
-            ModigmApplication.prefs.setUserData("currentUserData", user)
+            //ModigmApplication.prefs.setUserData("currentUserData", user)
 
             // 사진 변경사항이 없으면 그냥 재로드
             profileFragment.updateViews()

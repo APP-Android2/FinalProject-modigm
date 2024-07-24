@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.model.SqlUserLinkData
 import kr.co.lion.modigm.ui.profile.ProfileFragment
@@ -78,9 +79,9 @@ class RemoteProfileDao {
         try {
             getConnection().use { connection ->
                 val query = """
-                SELECT * FROM tb_user_link
-                WHERE userIdx = ?
-            """
+                    SELECT * FROM tb_user_link
+                    WHERE userIdx = ?
+                """
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, userIdx)
                     val resultSet = statement.executeQuery()
@@ -136,7 +137,6 @@ class RemoteProfileDao {
     suspend fun updateUserListData(userIdx: Int, linkList: List<String>) {
         try {
             getConnection().use { connection ->
-                // 먼저 링크를 모두 삭제
                 val userQuery = """
                     DELETE FROM tb_user_list
                     WHERE userIdx = ?
@@ -163,5 +163,48 @@ class RemoteProfileDao {
         } catch (error: Exception) {
             Log.e("RemoteProfileDao", "updateUserData(): $error")
         }
+    }
+
+    // 사용자가 진행한 스터디 목록
+    suspend fun loadHostStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<SqlStudyData>()
+
+        try {
+            getConnection().use { connection ->
+                // 먼저 링크를 모두 삭제
+                val query = """
+                    SELECT * FROM tb_study
+                    WHERE userIdx = ?
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    val resultSet = statement.executeQuery()
+                    while (resultSet.next()) {
+                        val study = SqlStudyData(
+                            studyIdx = resultSet.getInt("studyIdx"),
+                            studyTitle = resultSet.getString("studyTitle"),
+                            studyContent = resultSet.getString("studyContent") ?: "",
+                            studyType = resultSet.getString("studyType"),
+                            studyPeriod = resultSet.getString("studyPeriod"),
+                            studyOnOffline = resultSet.getString("studyOnOffline"),
+                            studyDetailPlace = resultSet.getString("studyDetailPlace"),
+                            studyPlace = resultSet.getString("studyPlace"),
+                            studyApplyMethod = resultSet.getString("studyApplyMethod"),
+                            studyCanApply = resultSet.getString("studyCanApply"),
+                            studyPic = resultSet.getString("studyPic"),
+                            studyMaxMember = resultSet.getInt("studyMaxMember"),
+                            studyState = resultSet.getBoolean("studyState"),
+                            userIdx = resultSet.getInt("userIdx"),
+                        )
+
+                        studyList.add(study)
+                    }
+                }
+            }
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDao", "loadHostStudyList(): $error")
+        }
+
+        return@withContext studyList
     }
 }

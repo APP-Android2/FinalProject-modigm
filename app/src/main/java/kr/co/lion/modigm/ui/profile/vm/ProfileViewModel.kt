@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserLinkData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ProfileRepository
@@ -47,12 +48,12 @@ class ProfileViewModel : ViewModel() {
     val profileLinkList: MutableLiveData<List<SqlUserLinkData>> = _profileLinkList
 
     // 사용자가 참여한 스터디 리스트
-    private val _profilePartStudyList = MutableLiveData<List<StudyData>>()
-    val profilePartStudyList: MutableLiveData<List<StudyData>> = _profilePartStudyList
+    private val _profilePartStudyList = MutableLiveData<List<SqlStudyData>>()
+    val profilePartStudyList: MutableLiveData<List<SqlStudyData>> = _profilePartStudyList
 
     // 사용자가 진행한 스터디 리스트
-    private val _profileHostStudyList = MutableLiveData<List<StudyData>>()
-    val profileHostStudyList: MutableLiveData<List<StudyData>> = _profileHostStudyList
+    private val _profileHostStudyList = MutableLiveData<List<SqlStudyData>>()
+    val profileHostStudyList: MutableLiveData<List<SqlStudyData>> = _profileHostStudyList
 
 
     /** functions **/
@@ -89,12 +90,12 @@ class ProfileViewModel : ViewModel() {
     }
 
     // 참여한 스터디 리스트를 불러온다.
-    fun loadPartStudyList(uid: String) = viewModelScope.launch {
+    fun loadHostStudyList(userIdx: Int) = viewModelScope.launch {
         try {
-            val response = studyRepository.loadStudyPartDataByUid(uid)
+            val response = profileRepository.loadPartStudyList(userIdx)
 
             // 사용자 이름
-            _profilePartStudyList.value = response
+            _profileHostStudyList.value = response
 
         } catch (e: Exception) {
             Log.e("profilevm", "loadPartStudyList(): ${e.message}")
@@ -102,12 +103,12 @@ class ProfileViewModel : ViewModel() {
     }
 
     // 참여한 스터디 리스트를 불러온다.
-    fun loadHostStudyList(uid: String) = viewModelScope.launch {
+    fun loadPartStudyList(uid: String) = viewModelScope.launch {
         try {
             val response = studyRepository.loadStudyHostDataByUid(uid)
 
             // 사용자 이름
-            _profileHostStudyList.value = response
+            //_profilePartStudyList.value = response
 
         } catch (e: Exception) {
             Log.e("profilevm", "loadHostStudyList(): ${e.message}")

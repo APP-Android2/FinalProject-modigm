@@ -235,8 +235,9 @@ class ProfileFragment: Fragment() {
         profileViewModel.profileUserIdx.value = userIdx
         profileViewModel.loadUserData()
         profileViewModel.loadUserLinkListData()
+        profileViewModel.loadHostStudyList(userIdx!!)
         //profileViewModel.loadPartStudyList(uid!!)
-        //profileViewModel.loadHostStudyList(uid!!)
+
     }
 
     private fun setupRecyclerViewLink() {
