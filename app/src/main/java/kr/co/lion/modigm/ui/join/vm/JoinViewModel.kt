@@ -157,14 +157,16 @@ class JoinViewModel : ViewModel() {
             // UserInfoData 객체 생성
             val user = createUserInfoData()
             // DB에 데이터 저장
-            _joinUserRepository.insetUserData(user)
+            val userIdx = _joinUserRepository.insetUserData(user)
+            if(userIdx != 0){
+                // SharedPreferences에 유저 idx 저장
+                prefs.setInt("currentUserData", userIdx)
 
-            // SharedPreferences에 유저 정보 저장
-            prefs.setUserData("currentUserData", user)
-            // SharedPreferences에 uid값 저장
-            prefs.setString("uid", user.userUid)
-
-            _joinCompleted.value = true
+                _joinCompleted.value = true
+            }else{
+                _joinCompleted.value = false
+                throw Exception("회원가입 실패")
+            }
         }
     }
 
@@ -176,14 +178,17 @@ class JoinViewModel : ViewModel() {
             // UserInfoData 객체 생성
             val user = createUserInfoData()
             // DB에 데이터 저장
-            _joinUserRepository.insetUserData(user)
+            val userIdx = _joinUserRepository.insetUserData(user)
 
-            // SharedPreferences에 유저 정보 저장
-            prefs.setUserData("currentUserData", user)
-            // SharedPreferences에 uid값 저장
-            prefs.setString("uid", user.userUid)
+            if(userIdx != 0){
+                // SharedPreferences에 유저 idx 저장
+                prefs.setInt("currentUserData", userIdx)
 
-            _joinCompleted.value = true
+                _joinCompleted.value = true
+            }else{
+                _joinCompleted.value = false
+                throw Exception("회원가입 실패")
+            }
         }
     }
 
