@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep1Binding
 import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
@@ -33,14 +35,34 @@ class JoinStep1Fragment : Fragment() {
 
     // 에러 메시지 설정
     private fun settingTextInputLayoutError(){
-        joinStep1ViewModel.emailValidation.observe(viewLifecycleOwner){
-            binding.textInputLayoutJoinUserEmail.error = it
+        lifecycleScope.launch {
+            joinStep1ViewModel.emailValidation.collect{
+                if(it.isNotEmpty()){
+                    binding.textInputLayoutJoinUserEmail.error = it
+                }
+            }
         }
-        joinStep1ViewModel.pwValidation.observe(viewLifecycleOwner){
-            binding.textInputLayoutJoinUserPassword.error = it
+
+        lifecycleScope.launch {
+            joinStep1ViewModel.pwValidation.collect{
+                if(it.isNotEmpty()){
+                    binding.textInputLayoutJoinUserPassword.error = it
+                }
+            }
         }
-        joinStep1ViewModel.pwCheckValidation.observe(viewLifecycleOwner){
-            binding.textInputLayoutJoinUserPasswordCheck.error = it
+
+        lifecycleScope.launch {
+            joinStep1ViewModel.pwValidation.collect{
+                if(it.isNotEmpty()){
+                    binding.textInputLayoutJoinUserPassword.error = it
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            joinStep1ViewModel.pwCheckValidation.collect{
+                binding.textInputLayoutJoinUserPasswordCheck.error = it
+            }
         }
     }
 

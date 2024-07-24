@@ -11,10 +11,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -58,7 +55,7 @@ class JoinFragment : Fragment() {
 
         settingValuesFromBundle()
         settingToolBar()
-        settingObservers()
+        settingCollector()
 
         return binding.root
     }
@@ -94,15 +91,12 @@ class JoinFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDetach() {
+        super.onDetach()
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-        if(!viewModel.joinCompleted.value!!){
+        if(!viewModel.joinCompleted.value){
             viewModel.deleteCurrentUser()
         }
-        viewModelStep1.reset()
-        viewModelStep2.reset()
-        viewModelStep3.reset()
     }
 
     private fun settingToolBar(){
@@ -132,8 +126,12 @@ class JoinFragment : Fragment() {
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
             // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-            if(!viewModel.joinCompleted.value!!){
+            if(!viewModel.joinCompleted.value){
                 viewModel.deleteCurrentUser()
+                // 각 step 뷰모델에 저장된 값들도 초기화
+                viewModelStep1.reset()
+                viewModelStep2.reset()
+                viewModelStep3.reset()
             }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.containerMain, LoginFragment())
@@ -238,11 +236,11 @@ class JoinFragment : Fragment() {
         lifecycleScope.launch {
             showLoading()
             // 처음 화면인 경우
-            if(viewModel.verifiedEmail.value.isNullOrEmpty()
+            if(viewModel.verifiedEmail.value.isEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
-                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && !viewModel.verifiedEmail.value.isNullOrEmpty())
+                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty())
                 ){
-                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && !viewModel.verifiedEmail.value.isNullOrEmpty()){
+                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty()){
                     // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
                     viewModel.deleteCurrentUser()
                 }
@@ -266,8 +264,8 @@ class JoinFragment : Fragment() {
         if(!validation) return
         // 응답 받은 이름, 전화번호
         viewModel.setUserNameAndPhoneNumber(
-            viewModelStep2.userName.value.toString(),
-            viewModelStep2.userPhone.value.toString()
+            viewModelStep2.userName.value,
+            viewModelStep2.userPhone.value
         )
 
         lifecycleScope.launch {
@@ -284,9 +282,8 @@ class JoinFragment : Fragment() {
             val result = viewModelStep2.createPhoneUser()
             if(result.isEmpty()){
                 // 인증 번호 확인 성공
-                viewModelStep2.credential.value?.let { viewModel.setPhoneCredential(it) }
                 viewModel.setPhoneVerified(true)
-                viewModelStep2.userPhone.value?.let { viewModel.setVerifiedPhoneNumber(it) }
+                viewModelStep2.userPhone.value.let { viewModel.setVerifiedPhoneNumber(it) }
                 viewModelStep2.cancelTimer()
             }else{
                 // 인증 번호 확인 실패
@@ -294,13 +291,14 @@ class JoinFragment : Fragment() {
             }
             if(!viewModel.phoneVerification.value!! && result=="이미 해당 번호로 가입한 계정이 있습니다."){
                 viewModel.setAlreadyRegisteredUser(
-                    viewModelStep2.alreadyRegisteredUserEmail.value?:"",
-                    viewModelStep2.alreadyRegisteredUserProvider.value?:""
+                    viewModelStep2.alreadyRegisteredUserEmail.value,
+                    viewModelStep2.alreadyRegisteredUserProvider.value
                 )
-                viewModel.isPhoneAlreadyRegistered.value = true
+                viewModel.setIsPhoneAlreadyRegistered(true)
                 viewModelStep2.cancelTimer()
                 hideLoading()
             }
+            hideLoading()
         }
     }
 
@@ -309,7 +307,7 @@ class JoinFragment : Fragment() {
         val validation = viewModelStep3.validate()
         if(!validation) return
         // 응답값
-        viewModelStep3.selectedInterestList.value?.let { it1 ->
+        viewModelStep3.selectedInterestList.value.let { it1 ->
             viewModel.setInterests(it1)
         }
 
@@ -353,65 +351,74 @@ class JoinFragment : Fragment() {
         return dp * context.resources.displayMetrics.density
     }
 
-    // 회원가입 절차 옵저버 세팅
-    private fun settingObservers(){
+    // 회원가입 절차 StateFlow값 collect 세팅
+    private fun settingCollector() {
         // 인증이 확인 되었을 때
-        viewModel.phoneVerification.observe(viewLifecycleOwner){
-            hideLoading()
-            if(it){
-                // 인증이 되었으면 다음으로 이동
-                viewModelStep2.cancelTimer()
-                binding.viewPagerJoin.currentItem += 1
+        lifecycleScope.launch {
+            viewModel.phoneVerification.collect { isVerified ->
+                hideLoading()
+                if(isVerified){
+                    // 인증이 되었으면 다음으로 이동
+                    viewModelStep2.cancelTimer()
+                    binding.viewPagerJoin.currentItem += 1
+                }
             }
         }
 
         // 인증하기를 다시 했을 때 기존의 인증 완료 취소
-        viewModelStep2.isVerifiedPhone.observe(viewLifecycleOwner){
-            if(!it){
-                viewModel.setPhoneVerified(false)
+        lifecycleScope.launch {
+            viewModelStep2.isVerifiedPhone.collect{
+                if(!it){
+                    viewModel.setPhoneVerified(false)
+                }
             }
         }
 
         // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때
-        viewModel.isPhoneAlreadyRegistered.observe(viewLifecycleOwner){
-            hideLoading()
-            if(it){
-                // 중복인 경우 중복 알림 프래그먼트로 이동
-                val bundle = Bundle()
-                bundle.putString("email", viewModel.alreadyRegisteredUserEmail.value)
-                bundle.putString("provider", viewModel.alreadyRegisteredUserProvider.value)
-                val joinFragment = JoinDuplicateFragment()
-                joinFragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, joinFragment)
-                    .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
-                    .commit()
-                viewModel.isPhoneAlreadyRegistered.value = false
+        lifecycleScope.launch {
+            viewModel.isPhoneAlreadyRegistered.collect { isRegistered ->
+                hideLoading()
+                if(isRegistered){
+                    // 중복인 경우 중복 알림 프래그먼트로 이동
+                    val bundle = Bundle()
+                    bundle.putString("email", viewModel.alreadyRegisteredUserEmail.value)
+                    bundle.putString("provider", viewModel.alreadyRegisteredUserProvider.value)
+                    val joinFragment = JoinDuplicateFragment()
+                    joinFragment.arguments = bundle
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.containerMain, joinFragment)
+                        .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
+                        .commit()
+                    viewModel.setIsPhoneAlreadyRegistered(false)
+                }
             }
         }
 
-        // 회원가입 완료 시 다음 화면으로 이동
-        viewModel.joinCompleted.observe(viewLifecycleOwner){
-            hideLoading()
 
-            if(it){
-                when(viewModel.userProvider.value){
-                    // 이메일 계정 회원가입인 경우에는 로그인 화면으로 돌아오기
-                    JoinType.EMAIL.provider ->{
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, OtherLoginFragment())
-                            .commit()
+        // 회원가입 완료 시 다음 화면으로 이동
+        lifecycleScope.launch {
+            viewModel.joinCompleted.collect{ isCompleted ->
+                hideLoading()
+
+                if(isCompleted){
+                    when(viewModel.userProvider.value){
+                        // 이메일 계정 회원가입인 경우에는 로그인 화면으로 돌아오기
+                        JoinType.EMAIL.provider ->{
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.containerMain, OtherLoginFragment())
+                                .commit()
+                        }
+                        // SNS 계정인 경우에는 메인으로 넘어가기
+                        else -> {
+                            parentFragmentManager.beginTransaction()
+                                .replace(R.id.containerMain, BottomNaviFragment())
+                                .commit()
+                        }
                     }
-                    // SNS 계정인 경우에는 메인으로 넘어가기
-                    else -> {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, BottomNaviFragment())
-                            .commit()
-                    }
+                    viewModelStep1.reset()
+                    viewModelStep2.reset()
+                    viewModelStep3.reset()
                 }
-                viewModelStep1.reset()
-                viewModelStep2.reset()
-                viewModelStep3.reset()
             }
         }
     }

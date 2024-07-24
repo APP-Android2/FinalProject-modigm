@@ -7,9 +7,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,7 +15,7 @@ import kr.co.lion.modigm.BuildConfig
 import java.sql.Connection
 import java.sql.PreparedStatement
 
-class JoinUserDao {
+class RemoteJoinUserDao {
     private val TAG = "JoinUserDao"
 
     // HikariCP 설정을 초기화하는 suspend 함수
