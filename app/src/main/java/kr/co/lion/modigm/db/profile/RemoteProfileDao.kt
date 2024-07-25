@@ -175,9 +175,11 @@ class RemoteProfileDao {
                 val query = """
                     SELECT * FROM tb_study
                     WHERE userIdx = ?
+                    AND studyState = ?
                 """
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, userIdx)
+                    statement.setBoolean(2, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
                         val study = SqlStudyData(
@@ -219,9 +221,13 @@ class RemoteProfileDao {
                     FROM tb_study s
                     JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
                     WHERE sm.userIdx = ?
+                    AND s.userIdx != ?
+                    AND s.studyState = ?
                 """
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, userIdx)
+                    statement.setInt(2, userIdx)
+                    statement.setBoolean(3, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
                         val study = SqlStudyData(
