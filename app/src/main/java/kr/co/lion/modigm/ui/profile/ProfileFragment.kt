@@ -236,7 +236,7 @@ class ProfileFragment: Fragment() {
         profileViewModel.loadUserData()
         profileViewModel.loadUserLinkListData()
         profileViewModel.loadHostStudyList(userIdx!!)
-        //profileViewModel.loadPartStudyList(uid!!)
+        profileViewModel.loadPartStudyList(userIdx!!)
 
     }
 

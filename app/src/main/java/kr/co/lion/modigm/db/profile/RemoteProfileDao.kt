@@ -207,4 +207,48 @@ class RemoteProfileDao {
 
         return@withContext studyList
     }
+
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록
+    suspend fun loadPartStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<SqlStudyData>()
+
+        try {
+            getConnection().use { connection ->
+                val query = """
+                    SELECT s.*
+                    FROM tb_study s
+                    JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
+                    WHERE sm.userIdx = ?
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    val resultSet = statement.executeQuery()
+                    while (resultSet.next()) {
+                        val study = SqlStudyData(
+                            studyIdx = resultSet.getInt("studyIdx"),
+                            studyTitle = resultSet.getString("studyTitle"),
+                            studyContent = resultSet.getString("studyContent") ?: "",
+                            studyType = resultSet.getString("studyType"),
+                            studyPeriod = resultSet.getString("studyPeriod"),
+                            studyOnOffline = resultSet.getString("studyOnOffline"),
+                            studyDetailPlace = resultSet.getString("studyDetailPlace"),
+                            studyPlace = resultSet.getString("studyPlace"),
+                            studyApplyMethod = resultSet.getString("studyApplyMethod"),
+                            studyCanApply = resultSet.getString("studyCanApply"),
+                            studyPic = resultSet.getString("studyPic"),
+                            studyMaxMember = resultSet.getInt("studyMaxMember"),
+                            studyState = resultSet.getBoolean("studyState"),
+                            userIdx = resultSet.getInt("userIdx"),
+                        )
+
+                        studyList.add(study)
+                    }
+                }
+            }
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDao", "loadHostStudyList(): $error")
+        }
+
+        return@withContext studyList
+    }
 }

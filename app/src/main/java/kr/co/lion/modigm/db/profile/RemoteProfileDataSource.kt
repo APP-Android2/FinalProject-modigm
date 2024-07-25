@@ -50,10 +50,21 @@ class RemoteProfileDataSource {
         }
     }
 
-    // userIdx를 통해 등록된 링크 목록을 가져오는 메서드
+    // 사용자가 진행한 스터디 목록
     suspend fun loadHostStudyList(userIdx: Int): List<SqlStudyData> {
         try {
             val studyList = dao.loadHostStudyList(userIdx)
+            return studyList
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDataSource", "loadHostStudyList(): $error")
+            return emptyList()
+        }
+    }
+
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록
+    suspend fun loadPartStudyList(userIdx: Int): List<SqlStudyData> {
+        try {
+            val studyList = dao.loadPartStudyList(userIdx)
             return studyList
         } catch (error: Exception) {
             Log.e("RemoteProfileDataSource", "loadPartStudyList(): $error")

@@ -14,8 +14,11 @@ class ProfileRepository {
     // 자기소개 링크 목록 불러오기
     suspend fun loadUserLinkData(userIdx: Int?): List<SqlUserLinkData> = _remoteUserDataSource.loadUserLinkDataByUserIdx(userIdx!!)
 
-    // userIdx를 통해 등록된 링크 목록을 가져오는 메서드
-    suspend fun loadPartStudyList(userIdx: Int?): List<SqlStudyData> = _remoteUserDataSource.loadHostStudyList(userIdx!!)
+    // 사용자가 진행한 스터디 목록
+    suspend fun loadHostStudyList(userIdx: Int?): List<SqlStudyData> = _remoteUserDataSource.loadHostStudyList(userIdx!!)
+
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록
+    suspend fun loadPartStudyList(userIdx: Int?): List<SqlStudyData> = _remoteUserDataSource.loadPartStudyList(userIdx!!)
 
     // 해당 유저의 전화번호 업데이트
     suspend fun updateUserData(user: SqlUserData?) = _remoteUserDataSource.updateUserData(user!!)
