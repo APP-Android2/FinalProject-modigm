@@ -4,7 +4,7 @@ import java.sql.ResultSet
 
 data class SqlUserData(
     val userIdx: Int = -1,              // 회원 고유번호
-    val userUid: String,                // 회원 UID
+    val userUid: String = "",           // 회원 UID
     val userName: String = "",          // 이름
     val userPhone: String = "",         // 전화번호
     val userProfilePic: String = "",    // 프로필 사진

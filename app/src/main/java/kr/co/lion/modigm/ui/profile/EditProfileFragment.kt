@@ -1,12 +1,14 @@
 package kr.co.lion.modigm.ui.profile
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,6 +17,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
@@ -38,6 +41,7 @@ import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Picture
+import java.io.ByteArrayOutputStream
 
 class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragment() {
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
@@ -50,8 +54,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     private lateinit var linkAddAdapter: LinkAddAdapter
     // 앨범 실행을 위한 런처
     lateinit var albumLauncher: ActivityResultLauncher<Intent>
-    // 촬영된 사진이 저장된 경로 정보를 가지고 있는 Uri 객체
-    var newImageUri: Uri? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentEditProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_profile, container, false)
@@ -94,7 +96,8 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
     private fun setupUserInfo() {
         // 데이터베이스로부터 데이터를 불러와 뷰모델에 담기
-        editProfileViewModel.loadUserData(user, requireContext(), fragmentEditProfileBinding.imageProfilePic)
+        editProfileViewModel.loadUserData()
+        editProfileViewModel.loadUserLinkData()
     }
 
     private fun setupButtonChangePic() {
@@ -136,7 +139,8 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     private fun setupButtonDone() {
         fragmentEditProfileBinding.buttonEditProfileDone.setOnClickListener {
             // 데이터베이스 업데이트
-            editProfileViewModel.updateUserData(profileFragment, newImageUri)
+            editProfileViewModel.updateUserData(profileFragment)
+            editProfileViewModel.updateUserLinkData(profileFragment)
 
             // 스낵바 띄우기
             val snackbar = Snackbar.make(fragmentEditProfileBinding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
@@ -151,11 +155,12 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     fun setupAlbumLauncher() {
         // 앨범 실행을 위한 런처
         val albumContract = ActivityResultContracts.StartActivityForResult()
-        albumLauncher = registerForActivityResult(albumContract){
+        albumLauncher = registerForActivityResult(albumContract) {
             // 사진 선택을 완료한 후 돌아왔다면
-            if(it.resultCode == AppCompatActivity.RESULT_OK){
+            if(it.resultCode == AppCompatActivity.RESULT_OK) {
                 // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출한다.
-                newImageUri = it.data?.data
+                val newImageUri = it.data?.data
+
                 if(newImageUri != null){
                     // 안드로이드 Q(10) 이상이라면
                     val bitmap = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
@@ -165,7 +170,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                         ImageDecoder.decodeBitmap(source)
                     } else {
                         // 컨텐츠 프로바이더를 통해 이미지 데이터에 접근한다.
-                        val cursor = requireContext().contentResolver.query(newImageUri!!, null, null, null, null)
+                        val cursor = requireContext().contentResolver.query(newImageUri, null, null, null, null)
                         if(cursor != null){
                             cursor.moveToNext()
 
@@ -175,20 +180,27 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
                             // 이미지를 생성한다
                             BitmapFactory.decodeFile(source)
-                        }  else {
-                            null
-                        }
+                        }  else null
                     }
 
                     // 회전 각도값을 가져온다.
-                    val degree = Picture.getDegree(requireContext(), newImageUri!!)
+                    val degree = Picture.getDegree(requireContext(), newImageUri)
                     // 회전 이미지를 가져온다
                     val bitmap2 = Picture.rotateBitmap(bitmap!!, degree.toFloat())
                     // 크기를 줄인 이미지를 가져온다.
                     val bitmap3 = Picture.resizeBitmap(bitmap2, 1024)
 
+                    // 비트맵을 Base64 형식으로 변환
+                    val byteArrayOutputStream = ByteArrayOutputStream()
+                    // 비트맵을 JPEG 형식으로 압축
+                    bitmap3.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+                    // 압축된 이미지를 바이트 배열로 변환
+                    val imageBytes = byteArrayOutputStream.toByteArray()
+                    // 바이트 배열을 Base64 문자열로 인코딩
+                    val encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+
                     fragmentEditProfileBinding.imageProfilePic.setImageBitmap(bitmap3)
-                    editProfileViewModel.editProfilePicSrc.value = "${System.currentTimeMillis()}.jpg"
+                    editProfileViewModel.editProfilePic.value = encodedImage
                 }
             }
         }
@@ -200,7 +212,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
         val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         // 실행할 액티비티의 타입을 설정(이미지를 선택할 수 있는 것이 뜨게 한다)
         albumIntent.setType("image/*")
-        // 선택할 수 있는 파들의 MimeType을 설정한다.
+        // 선택할 수 있는 파일들의 MimeType을 설정한다.
         // 여기서 선택한 종류의 파일만 선택이 가능하다. 모든 이미지로 설정한다.
         val mimeType = arrayOf("image/*")
         albumIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeType)
@@ -213,27 +225,28 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
         // 로그인 방식
         editProfileViewModel.editProfileProvider.observe(viewLifecycleOwner) { provider ->
             when (provider) {
-                JoinType.KAKAO -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "카카오로 로그인된 계정입니다."
-                JoinType.GITHUB -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "깃허브로 로그인된 계정입니다."
-                JoinType.EMAIL -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
-                JoinType.ERROR -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
+                "kakao" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "카카오로 로그인된 계정입니다."
+                "github" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "깃허브로 로그인된 계정입니다."
+                "email" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
+                "naver" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "네이버로 로그인된 계정입니다."
+                "google" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "구글로 로그인된 계정입니다."
+                else -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "로그인 정보를 불러올 수 없습니다."
             }
         }
 
         // 관심 분야 chipGroup
-        editProfileViewModel.editProfileInterestList.observe(viewLifecycleOwner) { list ->
+        editProfileViewModel.editProfileInterests.observe(viewLifecycleOwner) { interests ->
             // 기존 칩들 제거
             fragmentEditProfileBinding.chipGroupProfile.removeAllViews()
 
+            val interestList = interests.split(",").map { it.trim() }
+
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
-            for (interestNum in list) {
+            for (interest in interestList) {
                 // 아이템 처리 코드
                 fragmentEditProfileBinding.chipGroupProfile.addView(Chip(context).apply {
-                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
-                    text = Interest.fromNum(interestNum)!!.str
-
+                    text = interest
                     setTextAppearance(R.style.ChipTextStyle)
-
                     // 자동 padding 없애기
                     setEnsureMinTouchTargetSize(false)
                     // 배경 흰색으로 지정
@@ -246,10 +259,15 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                     setOnCloseIconClickListener {
                         fragmentEditProfileBinding.chipGroupProfile.removeView(this)
 
-                        // ViewModel의 리스트에서 해당 항목 삭제
-                        val currentList = editProfileViewModel.editProfileInterestList.value?.toMutableList()
-                        currentList?.remove(interestNum)
-                        editProfileViewModel.editProfileInterestList.value = currentList
+                        // 선택된 칩들 텍스트를 콤마로 연결한 문자열 생성
+                        val remainingChips = fragmentEditProfileBinding.chipGroupProfile.children
+                            .filterIsInstance<Chip>()
+                            .map { it.text.toString() }
+                            .filter { it != "+" } // '+' 버튼 제외
+                            .joinToString(",")
+
+                        // ViewModel의 interest 문자열 업데이트
+                        editProfileViewModel.editProfileInterests.value = remainingChips
                     }
                 })
             }

@@ -13,7 +13,7 @@ import kr.co.lion.modigm.model.SqlUserLinkData
 import java.util.Locale
 
 class LinkAdapter(
-    private var linkList: List<SqlUserLinkData>,
+    private var linkList: List<String>,
     private val rowClickListener: (String) -> Unit,
 ) : RecyclerView.Adapter<LinkViewHolder>() {
 
@@ -32,7 +32,7 @@ class LinkAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<SqlUserLinkData>) {
+    fun updateData(list: List<String>) {
         linkList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())

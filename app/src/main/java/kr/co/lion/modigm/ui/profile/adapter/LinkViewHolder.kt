@@ -30,10 +30,10 @@ class LinkViewHolder(
     )
 
     // 구성요소 세팅
-    fun bind(data: SqlUserLinkData, rowClickListener: (String) -> Unit) {
+    fun bind(data: String, rowClickListener: (String) -> Unit) {
         rowLinkBinding.apply {
             // 도메인 추출
-            val domain = extractDomain(data.linkUrl)
+            val domain = extractDomain(data)
             Log.d("test1234", domain)
 
             // 아이콘
@@ -49,7 +49,7 @@ class LinkViewHolder(
 
                 // 클릭 리스너 설정: Url 전달..?
                 setOnClickListener {
-                    rowClickListener.invoke(data.linkUrl)
+                    rowClickListener.invoke(data)
                 }
             }
         }

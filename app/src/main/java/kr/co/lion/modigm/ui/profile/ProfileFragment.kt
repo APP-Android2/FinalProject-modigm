@@ -306,9 +306,7 @@ class ProfileFragment: Fragment() {
             for (interest in interestList) {
                 // 아이템 처리 코드
                 fragmentProfileBinding.chipGroupProfile.addView(Chip(context).apply {
-                    // chip 텍스트 설정: 저장되어 있는 숫자로부터 enum 클래스를 불러오고 저장된 str 보여주기
                     text = interest
-
                     setTextAppearance(R.style.ChipTextStyle)
                     // 자동 padding 없애기
                     setEnsureMinTouchTargetSize(false)

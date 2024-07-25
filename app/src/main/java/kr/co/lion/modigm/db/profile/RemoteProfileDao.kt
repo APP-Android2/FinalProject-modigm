@@ -73,7 +73,7 @@ class RemoteProfileDao {
     }
 
     // userIdx를 통해 등록된 링크 목록을 가져오는 메서드
-    suspend fun loadUserLinkDataByUserIdx(userIdx: Int): List<SqlUserLinkData> = withContext(Dispatchers.IO) {
+    suspend fun loadUserLinkDataByUserIdx(userIdx: Int): List<String> = withContext(Dispatchers.IO) {
         val linkList = mutableListOf<SqlUserLinkData>()
 
         try {
@@ -103,27 +103,25 @@ class RemoteProfileDao {
             Log.e("RemoteProfileDao", "loadUserLinkDataByUserIdx(): General error - $error")
         }
 
-        return@withContext linkList.sortedBy { it.linkOrder }
+        return@withContext linkList.sortedBy { it.linkOrder }.map { it.linkUrl }
     }
 
     // 사용자 정보를 수정하는 메서드
-    suspend fun updateUserData(user: SqlUserData) {
+    suspend fun updateUserData(user: SqlUserData) = withContext(Dispatchers.IO) {
         try {
             getConnection().use { connection ->
                 val query = """
                     UPDATE tb_user
                     SET userProfilePic = ?,
                         userIntro = ?,
-                        userEmail = ?,
-                        userInterestList = ?
+                        userInterests = ?
                     WHERE userIdx = ?
                 """
                 connection.prepareStatement(query).use { statement ->
                     statement.setString(1, user.userProfilePic)
                     statement.setString(2, user.userIntro)
-                    statement.setString(3, user.userEmail)
-                    statement.setString(4, user.userInterests)
-                    statement.setInt(5, user.userIdx)
+                    statement.setString(3, user.userInterests)
+                    statement.setInt(4, user.userIdx)
 
                     statement.executeUpdate()
                 }
@@ -133,12 +131,12 @@ class RemoteProfileDao {
         }
     }
 
-    // 사용자 정보를 수정하는 메서드
-    suspend fun updateUserListData(userIdx: Int, linkList: List<String>) {
+    // 사용자 링크 목록 정보를 수정하는 메서드
+    suspend fun updateUserLinkData(userIdx: Int, linkList: List<String>) = withContext(Dispatchers.IO) {
         try {
             getConnection().use { connection ->
                 val userQuery = """
-                    DELETE FROM tb_user_list
+                    DELETE FROM tb_user_link
                     WHERE userIdx = ?
                 """
                 connection.prepareStatement(userQuery).use { statement ->
@@ -149,19 +147,19 @@ class RemoteProfileDao {
                 // 입력된 링크 저장
                 linkList.forEachIndexed { index, link ->
                     val insertQuery = """
-                    INSERT INTO tb_user_list (userIdx, linkUrl, linkOrder)
+                    INSERT INTO tb_user_link (userIdx, linkUrl, linkOrder)
                     VALUES (?, ?, ?)
                 """
                     connection.prepareStatement(insertQuery).use { statement ->
                         statement.setInt(1, userIdx)
                         statement.setString(2, link)
-                        statement.setInt(3, index + 1) // Assuming linkOrder is 1-based
+                        statement.setInt(3, index) // Assuming linkOrder is 1-based
                         statement.executeUpdate()
                     }
                 }
             }
         } catch (error: Exception) {
-            Log.e("RemoteProfileDao", "updateUserData(): $error")
+            Log.e("RemoteProfileDao", "updateUserLinkData(): $error")
         }
     }
 

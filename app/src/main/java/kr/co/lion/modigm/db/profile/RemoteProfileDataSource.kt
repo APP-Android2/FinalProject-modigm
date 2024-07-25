@@ -22,7 +22,7 @@ class RemoteProfileDataSource {
     }
 
     // userIdx를 통해 등록된 링크 목록을 가져오는 메서드
-    suspend fun loadUserLinkDataByUserIdx(userIdx: Int): List<SqlUserLinkData> {
+    suspend fun loadUserLinkDataByUserIdx(userIdx: Int): List<String> {
         try {
             val linkList = dao.loadUserLinkDataByUserIdx(userIdx)
             return linkList
@@ -42,9 +42,9 @@ class RemoteProfileDataSource {
     }
 
     // 사용자 링크 정보를 수정
-    suspend fun updateUserListData(userIdx: Int, linkList: List<String>) {
+    suspend fun updateUserLinkData(userIdx: Int, linkList: List<String>) {
         try {
-            dao.updateUserListData(userIdx, linkList)
+            dao.updateUserLinkData(userIdx, linkList)
         } catch (error: Exception) {
             Log.e("RemoteProfileDataSource", "updateUserListData(): $error")
         }

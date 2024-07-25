@@ -44,8 +44,8 @@ class ProfileViewModel : ViewModel() {
     val profileInterests: MutableLiveData<String> = _profileInterests
 
     // 링크 리스트
-    private val _profileLinkList = MutableLiveData<List<SqlUserLinkData>>()
-    val profileLinkList: MutableLiveData<List<SqlUserLinkData>> = _profileLinkList
+    private val _profileLinkList = MutableLiveData<List<String>>()
+    val profileLinkList: MutableLiveData<List<String>> = _profileLinkList
 
     // 사용자가 참여한 스터디 리스트
     private val _profilePartStudyList = MutableLiveData<List<SqlStudyData>>()
