@@ -24,6 +24,7 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -221,6 +222,20 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     }
 
     fun observeData() {
+        // 프로필 사진
+        editProfileViewModel.editProfilePic.observe(viewLifecycleOwner) { image ->
+            if (image.isNotEmpty()) {
+                val imageBytes = Base64.decode(image, Base64.DEFAULT) // Base64 문자열을 바이트 배열로 디코딩
+                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size) // 바이트 배열을 비트맵으로 디코딩
+                Glide.with(requireContext()) // Glide를 사용하여 이미지를 로드
+                    .load(bitmap)
+                    .into(fragmentEditProfileBinding.imageProfilePic)
+            } else {
+                // Handle the case where the image string is null (e.g., show a default image)
+                fragmentEditProfileBinding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+            }
+        }
+
         // 데이터 변경 관찰
         // 로그인 방식
         editProfileViewModel.editProfileProvider.observe(viewLifecycleOwner) { provider ->
