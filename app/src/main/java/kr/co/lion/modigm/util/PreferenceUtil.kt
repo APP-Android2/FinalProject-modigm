@@ -5,21 +5,13 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
-import com.google.gson.Gson
-import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.model.UserData
 
 class PreferenceUtil(context: Context) {
 
-    private val prefs: SharedPreferences
-    private val gson = Gson()
-
-    init {
-        // 마스터 키 생성 또는 가져오기
+    // 암호화된 SharedPreferences 초기화
+    private val prefs: SharedPreferences by lazy {
         val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-
-        // EncryptedSharedPreferences 생성
-        prefs = EncryptedSharedPreferences.create(
+        EncryptedSharedPreferences.create(
             "encrypted_prefs",
             masterKeyAlias,
             context,
@@ -28,49 +20,41 @@ class PreferenceUtil(context: Context) {
         )
     }
 
-    fun getString(key: String, defValue: String): String {
-        return prefs.getString(key, defValue) ?: defValue
-    }
+    // 정수 값을 가져오는 함수 (ex. userIdx, studyIdx 등...)
+    fun getInt(key: String, defValue: Int = 0): Int =
+        prefs.getInt(key, defValue)
 
-    fun setString(key: String, str: String) {
-        prefs.edit().putString(key, str).apply()
-    }
+    // 정수 값을 저장하는 함수 (ex. userIdx, studyIdx 등...)
+    fun setInt(key: String, value: Int) =
+        prefs.edit().putInt(key, value).apply()
 
-    // 유저 정보를 SharedPreferences에 저장
-    fun setUserData(key: String, user: SqlUserData) {
-        Log.d("currentUserData",user.toString())
-        val userJson = gson.toJson(user)
-        prefs.edit().putString(key, userJson).apply()
-    }
+    // 문자열 값을 가져오는 함수 (ex. userUid, userName 등...)
+    fun getString(key: String, defValue: String = ""): String =
+        prefs.getString(key, defValue) ?: defValue
 
-    // SharedPreferences에서 유저 정보를 가져옴
-    fun getUserData(key: String): UserData? {
-        val userJson = prefs.getString(key, null)
-        return if (userJson != null) {
-            gson.fromJson(userJson, UserData::class.java)
-        } else {
-            null
-        }
-    }
+    // 문자열 값을 저장하는 함수 (ex. userUid, userName 등...)
+    fun setString(key: String, value: String) =
+        prefs.edit().putString(key, value).apply()
 
-    // 자동 로그인 설정 저장
-    fun setAutoLogin(autoLogin: Boolean) {
-        prefs.edit().putBoolean("autoLogin", autoLogin).apply()
-    }
+    // Boolean 값을 저장하는 함수 (ex. autoLogin 등...)
+    fun setBoolean(key: String, value: Boolean) =
+        prefs.edit().putBoolean(key, value).apply()
 
-    // 자동 로그인 설정 불러오기
-    fun getAutoLogin(): Boolean {
-        return prefs.getBoolean("autoLogin", false)
-    }
+    // Boolean 값을 가져오는 함수 (ex. autoLogin 등...)
+    fun getBoolean(key: String, defValue: Boolean = false): Boolean =
+        prefs.getBoolean(key, defValue)
 
-    fun clearUserData(key: String) {
+    // 특정 키에 해당하는 값을 삭제하는 함수 (ex. 해당 키 값을 가진 자료'만' 삭제해야 할 경우 등...)
+    fun clearOnePrefs(key: String) =
         prefs.edit().remove(key).apply()
-    }
 
-    // 모든 SharedPreferences 데이터를 로그로 출력
+    // 모든 SharedPreferences 값을 삭제하는 함수 (ex. 로그아웃, 에러 발생 시 처리 등...)
+    fun clearAllPrefs() =
+        prefs.edit().clear().apply()
+
+    // 모든 SharedPreferences 값을 로그에 출력하는 함수 (개발 확인용)
     fun logAllPreferences() {
-        val allEntries = prefs.all
-        for ((key, value) in allEntries) {
+        prefs.all.forEach { (key, value) ->
             Log.d("SharedPreferencesLog", "$key: $value")
         }
     }
