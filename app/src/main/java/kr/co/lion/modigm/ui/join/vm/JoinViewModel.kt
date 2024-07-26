@@ -160,7 +160,7 @@ class JoinViewModel : ViewModel() {
             val userIdx = _joinUserRepository.insetUserData(user)
             if(userIdx != 0){
                 // SharedPreferences에 유저 idx 저장
-                prefs.setInt("currentUserData", userIdx)
+                prefs.setInt("currentUserIdx", userIdx)
 
                 _joinCompleted.value = true
             }else{
@@ -182,7 +182,7 @@ class JoinViewModel : ViewModel() {
 
             if(userIdx != 0){
                 // SharedPreferences에 유저 idx 저장
-                prefs.setInt("currentUserData", userIdx)
+                prefs.setInt("currentUserIdx", userIdx)
 
                 _joinCompleted.value = true
             }else{
