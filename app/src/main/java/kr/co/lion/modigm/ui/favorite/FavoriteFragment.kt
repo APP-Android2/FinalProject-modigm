@@ -4,63 +4,66 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFavoriteBinding
-import kr.co.lion.modigm.databinding.RowFavoriteBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.favorite.adapter.FavoriteAdapter
 import kr.co.lion.modigm.ui.favorite.vm.FavoriteViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 
 class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
 
-    private lateinit var rowBinding: RowFavoriteBinding
-
     // 뷰모델
-    private val viewModel: FavoriteViewModel by activityViewModels()
+    private val viewModel: FavoriteViewModel by viewModels()
 
-    private val currentUserUid = 1
+    private val prefs by lazy {
+        ModigmApplication.prefs
+    }
 
     // 어답터
-    private val favoriteAdapter: FavoriteAdapter = FavoriteAdapter(
-        // 최초 리스트
-        emptyList(),
+    private val favoriteAdapter: FavoriteAdapter by lazy {
+        FavoriteAdapter (
+            // 최초 리스트
+            emptyList(),
 
-        // 항목 클릭 시
-        rowClickListener = { studyIdx ->
+            // 항목 클릭 시
+            rowClickListener = { studyIdx ->
 
-            // DetailFragment로 이동
-            val detailFragment = DetailFragment().apply {
-                arguments = Bundle().apply {
-                    putInt("studyIdx", studyIdx)
+                // DetailFragment로 이동
+                val detailFragment = DetailFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", studyIdx)
+                    }
                 }
-            }
 
-            requireActivity().supportFragmentManager.commit {
-                replace(R.id.containerMain, detailFragment)
-                addToBackStack(FragmentName.DETAIL.str)
-            }
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
 
-        },
-        favoriteClickListener = { studyIdx ->
-            // 현재 접속중인 유저의 userIdx를 전달해야하므로 수정 요망./////////////////////////////////////////////////////////////////////////////////////
-            viewModel.toggleFavorite(1, studyIdx)
-        }
-    )
+            },
+            favoriteClickListener = { studyIdx ->
+                // 현재 접속중인 유저의 userIdx를 전달해야하므로 수정 요망./////////////////////////////////////////////////////////////////////////////////////
+                viewModel.toggleFavorite(prefs.getInt("currentUserIdx"), studyIdx)
+            }
+        )
+    }
+
+    // --------------------------------- LC START ---------------------------------
 
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentFavoriteBinding.bind(view)
-        rowBinding = RowFavoriteBinding.inflate(layoutInflater)
 
         // 초기 뷰 세팅
         initView(binding)
-        viewModel.getMyFavoriteStudyDataList(1)
+        viewModel.getMyFavoriteStudyDataList(prefs.getInt("currentUserIdx"))
         observeData(binding)
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
 
@@ -72,6 +75,8 @@ class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
         // ViewModel 데이터 초기화
         viewModel.clearData()
     }
+
+    // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
     private fun initView(binding: FragmentFavoriteBinding) {

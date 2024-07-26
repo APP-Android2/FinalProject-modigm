@@ -9,12 +9,23 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyListRepository
+import kr.co.lion.modigm.util.ModigmApplication
 
 class StudyViewModel : ViewModel() {
 
-    // ------------------MySQL 적용-----------------------
-    private val studyListRepository = StudyListRepository()
+    // --------------------------------- MySQL 적용 ---------------------------------
+    // --------------------------------- 초기화 시작 --------------------------------
 
+    private val studyListRepository by lazy {
+        StudyListRepository()
+    }
+
+    private val prefs by lazy {
+        ModigmApplication.prefs
+    }
+
+    // --------------------------------- 초기화 끝 --------------------------------
+    // --------------------------------- 라이브데이터 시작 --------------------------------
     // 전체 스터디 목록 중 모집중인 스터디 리스트
     private val _allStudyStateTrueDataList = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
     val allStudyStateTrueDataList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyStateTrueDataList
@@ -34,12 +45,18 @@ class StudyViewModel : ViewModel() {
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()
     val isFavorite: LiveData<Pair<Int, Boolean>> get() = _isFavorite
 
+    // --------------------------------- 라이브데이터 끝 --------------------------------
+
+    private fun getCurrentUserIdx(): Int {
+        return prefs.getInt("currentUserIdx")
+    }
 
     // 전체 스터디 목록 중 모집중인 스터디만 가져온다. (홈화면 '전체 스터디' 접근 시)
-    fun getAllStudyStateTrueDataList(userIdx: Int) {
+    fun getAllStudyStateTrueDataList() {
         viewModelScope.launch {
             try {
-                val data = studyListRepository.getAllStudyAndMemberCount(userIdx)
+                val currentUserIdx = getCurrentUserIdx()
+                val data = studyListRepository.getAllStudyAndMemberCount(currentUserIdx)
                 _allStudyStateTrueDataList.value = data
             } catch (e: Exception) {
                 Log.e("StudyViewModel", "Error getStudyStateTrueData", e)
@@ -48,10 +65,11 @@ class StudyViewModel : ViewModel() {
     }
 
     // 전체 스터디 목록 중 내 스터디만 가져온다. (홈화면 '내 스터디' 접근 시)
-    fun getMyStudyDataList(userIdx: Int) {
+    fun getMyStudyDataList() {
         viewModelScope.launch {
             try {
-                val data = studyListRepository.getMyStudyList(userIdx)
+                val currentUserIdx = getCurrentUserIdx()
+                val data = studyListRepository.getMyStudyList(currentUserIdx)
                 _myStudyDataList.value = data
             } catch (e: Exception) {
                 Log.e("StudyViewModel", "Error getMyStudyData", e)
@@ -60,19 +78,40 @@ class StudyViewModel : ViewModel() {
     }
 
     // 좋아요 토글
-    fun toggleFavorite(userIdx: Int, studyIdx: Int) {
+    fun toggleFavorite(studyIdx: Int) {
         viewModelScope.launch {
             try {
-                val currentState = studyListRepository.toggleFavorite(userIdx, studyIdx)
+                val currentUserIdx = getCurrentUserIdx()
+                val currentState = studyListRepository.toggleFavorite(currentUserIdx, studyIdx)
                 _isFavorite.value = Pair(studyIdx, currentState)
-                // 전체 목록 다시 가져오기
-                getAllStudyStateTrueDataList(userIdx)
             } catch (e: Exception) {
                 Log.e("StudyViewModel", "Error toggling favorite", e)
             }
         }
     }
 
+    // 데이터 초기화 메서드
+    fun clearData() {
+        _allStudyStateTrueDataList.value = emptyList()
+        _setNullStudyAllLoading.value = null
+        _myStudyDataList.value = emptyList()
+        _studyMyDataLoading.value = null
+        _filteredStudyList.value = emptyList()
+        _filteredMyStudyList.value = emptyList()
+        filterData.clear()
+    }
+
+    // Dao 코루틴 및 히카리CP 자원 해제하기
+    private fun close() {
+        viewModelScope.launch {
+            studyListRepository.close()
+        }
+    }
+    // 뷰모델에서 Dao 코루틴 및 히카리CP 자원 해제
+    override fun onCleared() {
+        super.onCleared()
+        close()
+    }
 
     // ------------------MySQL 적용 끝-----------------------
 
@@ -232,26 +271,5 @@ class StudyViewModel : ViewModel() {
 //        Log.d("StudyViewModel", "필터링된 결과: ${_filteredMyStudyList.value?.size} 개, 필터링된 데이터: ${_filteredMyStudyList.value}")
 //    }
 
-    // 데이터 초기화 메서드
-    fun clearData() {
-        _allStudyStateTrueDataList.value = emptyList()
-        _setNullStudyAllLoading.value = null
-        _myStudyDataList.value = emptyList()
-        _studyMyDataLoading.value = null
-        _filteredStudyList.value = emptyList()
-        _filteredMyStudyList.value = emptyList()
-        filterData.clear()
-    }
 
-    // Dao 코루틴 및 히카리CP 자원 해제하기
-    private fun close() {
-        viewModelScope.launch {
-            studyListRepository.close()
-        }
-    }
-    // 뷰모델에서 Dao 코루틴 및 히카리CP 자원 해제
-    override fun onCleared() {
-        super.onCleared()
-        close()
-    }
 }

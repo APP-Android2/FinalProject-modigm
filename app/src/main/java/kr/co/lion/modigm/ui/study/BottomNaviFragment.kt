@@ -6,56 +6,47 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.favorite.FavoriteFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.showCustomSnackbar
 import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.showLoginSnackBar
 
 class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
-    private lateinit var binding: FragmentBottomNaviBinding
+    private val viewModel: StudyViewModel by viewModels()
 
-    private val currentUserUid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid ?: Firebase.auth.currentUser?.uid
+    private val prefs by lazy {
+        ModigmApplication.prefs
+    }
+
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding = FragmentBottomNaviBinding.bind(view)
+        val binding = FragmentBottomNaviBinding.bind(view)
+
         initView(binding)
+        // 프리퍼런스 전체 확인 로그 (필터 입력: SharedPreferencesLog)
+        ModigmApplication.prefs.logAllPreferences()
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            private var doubleBackToExitPressedOnce = false
+        backBotton(binding)
 
-            override fun handleOnBackPressed() {
-                val currentFragment = childFragmentManager.findFragmentById(R.id.containerBottomNavi)
-                if (currentFragment !is StudyFragment) {
-                    // 항상 StudyFragment로 이동
-                    childFragmentManager.commit {
-                        setReorderingAllowed(true)
-                        replace<StudyFragment>(R.id.containerBottomNavi)
-                    }
-                    binding.bottomNavigationView.selectedItemId = R.id.bottomNaviStudy
-                } else {
-                    // 백버튼을 두 번 눌렀을 때 앱 종료
-                    if (doubleBackToExitPressedOnce) {
-                        requireActivity().finish()
-                    } else {
-                        doubleBackToExitPressedOnce = true
-                        // Snackbar를 표시하여 사용자에게 알림
-                        requireActivity().showCustomSnackbar("한 번 더 누르면 앱이 종료됩니다.",null)
-                        // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
-                        view.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-                    }
-                }
-            }
-        })
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        viewModel.clearData() // ViewModel 데이터 초기화
+    }
+
+    // --------------------------------- LC START ---------------------------------
 
     private var currentNavItemIndex = 0
 
@@ -74,6 +65,11 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 R.id.bottomNaviChat -> 2
                 R.id.bottomNaviMy -> 3
                 else -> currentNavItemIndex
+            }
+
+            // 현재 선택된 아이템과 동일하면 아무 동작도 하지 않음
+            if (newNavItemIndex == currentNavItemIndex) {
+                return@setOnItemSelectedListener true
             }
 
             // 애니메이션 방향 설정
@@ -110,7 +106,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 R.id.bottomNaviChat -> {
                     val chatFragment = ChatFragment().apply {
                         arguments = Bundle().apply {
-                            putString("uid", currentUserUid)
+                            putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
                         }
                     }
                     childFragmentManager.commit {
@@ -123,7 +119,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 R.id.bottomNaviMy -> {
                     val profileFragment = ProfileFragment().apply {
                         arguments = Bundle().apply {
-                            putString("uid", currentUserUid)
+                            putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
                         }
                     }
                     childFragmentManager.commit {
@@ -137,5 +133,34 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
             currentNavItemIndex = newNavItemIndex
             true
         }
+    }
+
+    private fun backBotton(binding: FragmentBottomNaviBinding){
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            private var doubleBackToExitPressedOnce = false
+
+            override fun handleOnBackPressed() {
+                val currentFragment = childFragmentManager.findFragmentById(R.id.containerBottomNavi)
+                if (currentFragment !is StudyFragment) {
+                    // 항상 StudyFragment로 이동
+                    childFragmentManager.commit {
+                        setReorderingAllowed(true)
+                        replace<StudyFragment>(R.id.containerBottomNavi)
+                    }
+                    binding.bottomNavigationView.selectedItemId = R.id.bottomNaviStudy
+                } else {
+                    // 백버튼을 두 번 눌렀을 때 앱 종료
+                    if (doubleBackToExitPressedOnce) {
+                        requireActivity().finish()
+                    } else {
+                        doubleBackToExitPressedOnce = true
+                        // Snackbar를 표시하여 사용자에게 알림
+                        requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.",null)
+                        // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
+                        view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
+                    }
+                }
+            }
+        })
     }
 }
