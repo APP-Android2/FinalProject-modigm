@@ -21,52 +21,56 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
 
-    private val currentUserUid = 1
-
     // 어답터
-    private val studyAdapter: StudyAdapter = StudyAdapter(
-        // 최초 리스트
-        emptyList(),
+    private val studyAdapter: StudyAdapter by lazy {
+        StudyAdapter(
+            // 최초 리스트
+            emptyList(),
 
-        // 항목 클릭 시
-        rowClickListener = { studyIdx ->
+            // 항목 클릭 시
+            rowClickListener = { studyIdx ->
 
-            // DetailFragment로 이동
-            val detailFragment = DetailFragment().apply {
-                arguments = Bundle().apply {
-                    putInt("studyIdx", studyIdx)
+                // DetailFragment로 이동
+                val detailFragment = DetailFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", studyIdx)
+                    }
                 }
-            }
 
-            requireActivity().supportFragmentManager.commit {
-                replace(R.id.containerMain, detailFragment)
-                addToBackStack(FragmentName.DETAIL.str)
-            }
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
 
-        },
-        favoriteClickListener = { studyIdx ->
-            // 현재 접속중인 유저의 userIdx를 전달해야하므로 수정 요망./////////////////////////////////////////////////////////////////////////////////////
-            viewModel.toggleFavorite(1, studyIdx)
-        }
-    )
+            },
+            favoriteClickListener = { studyIdx ->
+                viewModel.toggleFavorite(studyIdx)
+            }
+        )
+    }
+
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 바인딩
         val binding = FragmentStudyAllBinding.bind(view)
 
         // 초기 뷰 세팅
         initView(binding)
-        viewModel.getAllStudyStateTrueDataList(currentUserUid)
+        viewModel.getAllStudyStateTrueDataList()
         observeData()
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // ViewModel 데이터 초기화
-        viewModel.clearData()
+
+        viewModel.clearData() // ViewModel 데이터 초기화
     }
+
+    // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
     private fun initView(binding: FragmentStudyAllBinding) {
@@ -139,13 +143,6 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
 
 
     private fun observeData() {
-//        // 필터링된 데이터 관찰
-//        viewModel.filteredStudyList.observe(viewLifecycleOwner) { studyList ->
-//            studyAllAdapter.updateData(studyList)
-//            Log.d("StudyAllFragment", "필터링된 전체 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
-//        }
-
-
         // 전체 데이터 관찰 (필터링이 없을 때)
         viewModel.allStudyStateTrueDataList.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)

@@ -1,52 +1,47 @@
 package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindEmailAuthBinding
 import kr.co.lion.modigm.ui.login.vm.FindEmailAuthViewModel
-import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 
 class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
 
     private val viewModel: FindEmailAuthViewModel by viewModels()
-    lateinit var binding: FragmentFindEmailAuthBinding
 
     private val verificationId by lazy {
         arguments?.getString("verificationId")
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_find_email_auth, container, false)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
-
-        viewModel.setVerificationId(verificationId?:"")
-
-        return binding.root
-    }
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
-        settingObserver()
+
+        // 바인딩
+        val binding = FragmentFindEmailAuthBinding.bind(view)
+
+        viewModel.setVerificationId(verificationId?:"")
+
+        initView(binding)
+        settingObserver(binding)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // 뷰모델 클리어 함수 구현 요망
+    }
+
+    // --------------------------------- LC END ---------------------------------
+
     // 초기 뷰 세팅
-    private fun initView() {
+    private fun initView(binding: FragmentFindEmailAuthBinding) {
         with(binding) {
 
             // 툴바
@@ -77,7 +72,7 @@ class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
         }
     }
 
-    private fun settingObserver(){
+    private fun settingObserver(binding: FragmentFindEmailAuthBinding){
         // 유효성 검사
         viewModel.inputCodeError.observe(viewLifecycleOwner) {
             binding.textInputEditFindPassCode.error = it

@@ -11,8 +11,14 @@ import kr.co.lion.modigm.repository.FavoriteStudyRepository
 import kr.co.lion.modigm.repository.StudyListRepository
 
 class FavoriteViewModel : ViewModel() {
-    private val favoriteStudyRepository = FavoriteStudyRepository()
-    private val studyListRepository = StudyListRepository()
+
+    private val favoriteStudyRepository by lazy {
+        FavoriteStudyRepository()
+    }
+
+    private val studyListRepository by lazy {
+        StudyListRepository()
+    }
 
     private val _favoritedStudyList = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
     val favoritedStudyList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _favoritedStudyList

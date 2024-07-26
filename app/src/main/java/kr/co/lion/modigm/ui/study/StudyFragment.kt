@@ -4,31 +4,33 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import com.google.android.material.tabs.TabLayout
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
-import kr.co.lion.modigm.ui.write.WriteFragment
-import kr.co.lion.modigm.util.FragmentName
 
 class StudyFragment : Fragment(R.layout.fragment_study) {
 
-    private lateinit var binding: FragmentStudyBinding
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding = FragmentStudyBinding.bind(view)
+        // 바인딩
+        val binding = FragmentStudyBinding.bind(view)
+
+        // 초기 뷰 세팅
+        initView(binding)
 
         // 초기 프래그먼트 설정
         if (savedInstanceState == null) {
             childFragmentManager.commit {
-                replace(R.id.fragmentContainerStudy, StudyAllFragment())
+                replace<StudyAllFragment>(R.id.fragmentContainerStudy)
             }
         }
-
-        // 초기 뷰 세팅
-        initView(binding)
     }
+
+    // --------------------------------- LC END ---------------------------------
 
     private fun initView(binding: FragmentStudyBinding) {
         // 바인딩
@@ -45,6 +47,7 @@ class StudyFragment : Fragment(R.layout.fragment_study) {
                         else -> StudyAllFragment()
                     }
                     childFragmentManager.commit {
+                        setReorderingAllowed(true)
                         replace(R.id.fragmentContainerStudy, fragment)
                     }
                 }
