@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
@@ -311,19 +312,18 @@ class JoinFragment : Fragment() {
             viewModel.setInterests(it1)
         }
 
-        lifecycleScope.launch {
-            showLoading()
-            try{
-                when(joinType){
-                    JoinType.EMAIL -> viewModel.completeJoinEmailUser()
-                    else -> viewModel.completeJoinSnsUser()
-                }
-            }catch (e:Exception){
-                Log.e("JoinError", "$e")
-                showSnackBar()
-                hideLoading()
-            }
+        val handler = CoroutineExceptionHandler { _, throwable ->
+            Log.e("JoinError", "${throwable.message}")
+            hideLoading()
+            showSnackBar()
+        }
 
+        lifecycleScope.launch(handler) {
+            showLoading()
+            when(joinType){
+                JoinType.EMAIL -> viewModel.completeJoinEmailUser()
+                else -> viewModel.completeJoinSnsUser()
+            }
         }
     }
 
