@@ -7,9 +7,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,7 +15,7 @@ import kr.co.lion.modigm.BuildConfig
 import java.sql.Connection
 import java.sql.PreparedStatement
 
-class JoinUserDao {
+class RemoteJoinUserDao {
     private val TAG = "JoinUserDao"
 
     // HikariCP 설정을 초기화하는 suspend 함수
@@ -70,10 +68,11 @@ class JoinUserDao {
         }
     }
 
-    suspend fun insertUserData(model: Map<String, Any>): Boolean{
+    suspend fun insertUserData(model: Map<String, Any>): Int?{
         var preparedStatement: PreparedStatement?
         val columns = model.keys
         val values = model.values
+        var idx:Int? = null
 
         return try {
             val columnsString = StringBuilder()
@@ -103,12 +102,17 @@ class JoinUserDao {
                         }
                     }
                     preparedStatement?.executeUpdate() // 쿼리 실행
+
+                    val afterExecute = connection?.prepareStatement("SELECT LAST_INSERT_ID()")
+                    val resultSet = afterExecute?.executeQuery()
+                    resultSet?.next()
+                    if(resultSet != null) idx = resultSet.getInt("LAST_INSERT_ID()")
                 }
             }
-            true
+            idx ?: 0
         } catch (e: Exception) {
             Log.e(TAG, "Error in insertUserData", e) // 오류 로그 출력
-            false
+            0
         }
     }
 }

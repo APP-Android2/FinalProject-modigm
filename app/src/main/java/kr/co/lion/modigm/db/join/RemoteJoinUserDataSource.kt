@@ -3,17 +3,17 @@ package kr.co.lion.modigm.db.join
 import android.util.Log
 import kr.co.lion.modigm.model.SqlUserData
 
-class JoinUserDataSource {
+class RemoteJoinUserDataSource {
 
-    private val dao = JoinUserDao()
+    private val dao = RemoteJoinUserDao()
 
     //사용자 정보 저장
-    suspend fun insetUserData(userInfoData: SqlUserData): Boolean{
+    suspend fun insetUserData(userInfoData: SqlUserData): Int{
         return try {
-            dao.insertUserData(userInfoData.toMap())
+            dao.insertUserData(userInfoData.toMap()) ?: 0
         }catch (error: Exception){
             Log.e("Modigm_Error","insetUserData() error : $error")
-            false
+            0
         }
     }
 

@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
@@ -31,21 +33,33 @@ class JoinStep2Fragment : Fragment() {
         settingTextInputLayoutError()
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
-        settingObserver()
+        settingCollector()
 
         return binding.root
     }
 
     // 에러 메시지 설정
     private fun settingTextInputLayoutError(){
-        joinStep2ViewModel.nameValidation.observe(viewLifecycleOwner){
-            binding.textInputLayoutJoinUserName.error = it
+        lifecycleScope.launch {
+            joinStep2ViewModel.nameValidation.collect{
+                if(it.isNotEmpty()){
+                    binding.textInputLayoutJoinUserName.error = it
+                }
+            }
         }
-        joinStep2ViewModel.phoneValidation.observe(viewLifecycleOwner){
-            binding.textInputLayoutJoinUserPhone.error = it
+        lifecycleScope.launch {
+            joinStep2ViewModel.phoneValidation.collect{
+                if(it.isNotEmpty()){
+                    binding.textInputLayoutJoinUserPhone.error = it
+                }
+            }
         }
-        joinStep2ViewModel.inputSmsCodeValidation.observe(viewLifecycleOwner){
-            binding.textInputLayoutJoinPhoneAuth.error = it
+        lifecycleScope.launch {
+            joinStep2ViewModel.inputSmsCodeValidation.collect{
+                if(it.isNotEmpty()){
+                    binding.textInputLayoutJoinPhoneAuth.error = it
+                }
+            }
         }
     }
 
@@ -66,24 +80,28 @@ class JoinStep2Fragment : Fragment() {
         }
     }
 
-    private fun settingObserver(){
+    private fun settingCollector(){
         // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
-        joinStep2ViewModel.isCodeSent.observe(viewLifecycleOwner){
-            if(it){
-                binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
-                binding.textinputJoinPhoneAuth.requestFocus()
-            }else{
-                binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
+        lifecycleScope.launch {
+            joinStep2ViewModel.isCodeSent.collect {
+                if(it){
+                    binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+                    binding.textinputJoinPhoneAuth.requestFocus()
+                }else{
+                    binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
+                }
             }
         }
 
-        joinStep2ViewModel.authExpired.observe(viewLifecycleOwner){
-            if(it){
-                binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.pointColor))
-                binding.buttonJoinPhoneAuth.isClickable = true
-            }else{
-                binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.textGray))
-                binding.buttonJoinPhoneAuth.isClickable = false
+        lifecycleScope.launch {
+            joinStep2ViewModel.authExpired.collect {
+                if(it){
+                    binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.pointColor))
+                    binding.buttonJoinPhoneAuth.isClickable = true
+                }else{
+                    binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.textGray))
+                    binding.buttonJoinPhoneAuth.isClickable = false
+                }
             }
         }
     }
