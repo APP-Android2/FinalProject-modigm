@@ -41,7 +41,8 @@ class FavoriteStudyDao {
         Log.e(tag, "HikariCP coroutineExceptionHandler 에러 ", throwable)
     }
     private val job = Job()
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + job + coroutineExceptionHandler)
+    private val coroutineScope: CoroutineScope =
+        CoroutineScope(Dispatchers.IO + job + coroutineExceptionHandler)
     private val dataSourceDeferred: Deferred<HikariDataSource> by lazy {
         coroutineScope.async {
             initDataSource()

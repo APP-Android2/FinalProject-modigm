@@ -3,12 +3,9 @@ package kr.co.lion.modigm.ui.study
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.view.animation.AnimationUtils
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
-import kr.co.lion.modigm.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class FABBehavior(context: Context, attrs: AttributeSet) : FloatingActionButton.Behavior(context, attrs) {
 

@@ -40,6 +40,7 @@ class StudyDao {
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e(tag, "HikariCP coroutineExceptionHandler 에러 ", throwable)
     }
+
     private val job = Job()
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + job + coroutineExceptionHandler)
     private val dataSourceDeferred: Deferred<HikariDataSource> by lazy {
@@ -93,7 +94,7 @@ class StudyDao {
         withContext(Dispatchers.IO) {
             runCatching {
                 getConnection().use { connection ->
-                    val combinedQuery = """
+                    val query = """
                     SELECT s.*, COUNT(sm.userIdx) as memberCount,
                            IF(f.favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite
                     FROM tb_study s
@@ -102,7 +103,7 @@ class StudyDao {
                     WHERE sm.userIdx = ?
                     GROUP BY s.studyIdx
                 """
-                    connection.prepareStatement(combinedQuery).use { statement ->
+                    connection.prepareStatement(query).use { statement ->
                         statement.setInt(1, userIdx)
                         statement.setInt(2, userIdx)
                         val resultSet = statement.executeQuery()
