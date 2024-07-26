@@ -27,6 +27,7 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
+import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Interest
@@ -67,7 +68,7 @@ class ProfileFragment: Fragment() {
         }
     )
 
-    val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
+    val partStudyAdapter: ProfileStudyAdapter = ProfileStudyAdapter(
         // 빈 리스트를 넣어 초기화
         emptyList(),
 
@@ -85,7 +86,6 @@ class ProfileFragment: Fragment() {
                 detailFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
-                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
@@ -93,7 +93,7 @@ class ProfileFragment: Fragment() {
         }
     )
 
-    val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
+    val hostStudyAdapter: ProfileStudyAdapter = ProfileStudyAdapter(
         // 빈 리스트를 넣어 초기화
         emptyList(),
 
@@ -111,7 +111,6 @@ class ProfileFragment: Fragment() {
                 detailFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
-                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
