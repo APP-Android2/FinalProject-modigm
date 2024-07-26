@@ -196,7 +196,7 @@ class ChangePhoneViewModel: ViewModel() {
                 val userData = prefs.getUserData("currentUserData")
                 userData?.userPhone = userPhone.value?:""
                 if (userData != null) {
-                    prefs.setUserData("currentUserData", userData)
+                    //prefs.setUserData("currentUserData", userData)
                 }
 
                 _isVerified.value = true

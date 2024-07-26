@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.RowPartStudyBinding
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyRepository
 
@@ -19,11 +20,11 @@ class PartStudyViewHolder(
     private val studyRepository = StudyRepository()
 
     // 구성요소 세팅
-    fun bind(data: StudyData, rowClickListener: (Int) -> Unit) {
+    fun bind(data: SqlStudyData, rowClickListener: (Int) -> Unit) {
         rowPartStudyBinding.apply {
             CoroutineScope(Dispatchers.Main).launch {
                 // 데이터베이스로부터 썸네일을 불러온다
-                studyRepository.loadStudyThumbnail(context, data.studyPic, imageRowPartStudy)
+                // studyRepository.loadStudyThumbnail(context, data.studyPic, imageRowPartStudy)
                 // 스터디 제목
                 textViewRowPartStudy.text = data.studyTitle
             }
