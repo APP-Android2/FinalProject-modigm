@@ -36,7 +36,6 @@ android {
         val databaseUser = localProperties.getProperty("database_user") ?: ""
         val databasePassword = localProperties.getProperty("database_password") ?: ""
 
-
         buildConfigField("String", "DB_URL", databaseUrl)
         buildConfigField("String", "DB_USER", databaseUser)
         buildConfigField("String", "DB_PASSWORD", databasePassword)
@@ -118,4 +117,7 @@ dependencies {
 
     // MySQL
     implementation("mysql:mysql-connector-java:5.1.48")
+
+    // hikari
+    implementation("com.zaxxer:HikariCP:2.7.9")
 }

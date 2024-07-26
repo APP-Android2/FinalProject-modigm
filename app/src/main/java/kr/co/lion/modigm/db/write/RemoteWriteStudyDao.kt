@@ -10,7 +10,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 
-class WriteStudyDao {
+class RemoteWriteStudyDao {
     private var connection: Connection? = null
     private val TAG = "MySQLDataSource"
 

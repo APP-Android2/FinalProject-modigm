@@ -37,39 +37,6 @@ class StudyViewModel : ViewModel() {
     val isFavorite: LiveData<Pair<Int, Boolean>> get() = _isFavorite
 
 
-//    init {
-//        getAllStudyStateTrueDataList()
-//        getMyStudyDataList()
-//    }
-
-//    // 전체 스터디 목록 중 모집중인 스터디만 가져온다. (홈화면 '전체 스터디' 접근 시)
-//    private fun getAllStudyStateTrueDataList() {
-//        viewModelScope.launch {
-//            try {
-//                // userIdx는 실제 로그인된 유저의 id로 대체 필요
-//                val userIdx = 0 // 테스트 데이터. 추후 수정 요망.
-//                val data = studyListRepository.getAllStudyAndMemberCount(userIdx)
-//                _allStudyStateTrueDataList.value = data
-//            } catch (e: Exception) {
-//                Log.e("StudyViewModel", "Error getStudyStateTrueData", e)
-//            }
-//        }
-//    }
-//
-//    // 전체 스터디 목록 중 내 스터디만 가져온다. (홈화면 '내 스터디' 접근 시)
-//    private fun getMyStudyDataList() {
-//        viewModelScope.launch {
-//            try {
-//                // userIdx는 실제 로그인된 유저의 id로 대체 필요
-//                val userIdx = 0 // 테스트 데이터. 추후 수정 요망.
-//                val data = studyListRepository.getMyStudyList(userIdx)
-//                _myStudyDataList.value = data
-//            } catch (e: Exception) {
-//                Log.e("StudyViewModel", "Error getMyStudyData", e)
-//            }
-//        }
-//    }
-
     // 전체 스터디 목록 중 모집중인 스터디만 가져온다. (홈화면 '전체 스터디' 접근 시)
     fun getAllStudyStateTrueDataList(userIdx: Int) {
         viewModelScope.launch {

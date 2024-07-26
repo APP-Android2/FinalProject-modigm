@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLinkBinding
+import kr.co.lion.modigm.model.SqlUserLinkData
 import kr.co.lion.modigm.model.UserData
 import java.net.URL
 
@@ -24,6 +25,7 @@ class LinkViewHolder(
         "notion.com" to R.drawable.icon_notion_logo,
         "facebook.com" to R.drawable.icon_facebook_logo,
         "twitter.com" to R.drawable.icon_twitter_logo,
+        "open.kakao.com" to R.drawable.kakaotalk_sharing_btn_small,
         "default" to R.drawable.icon_link,  // 도메인을 찾을 수 없는 경우 기본 아이콘
     )
 
