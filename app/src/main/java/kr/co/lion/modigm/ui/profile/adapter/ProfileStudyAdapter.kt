@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowHostStudyBinding
+import kr.co.lion.modigm.databinding.RowPartStudyBinding
+import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.StudyData
 
-class ProfileStudyAdapter(
-    private var hostStudyList: List<StudyData>,
+class HostStudyAdapter(
+    private var hostStudyList: List<SqlStudyData>,
     private val rowClickListener: (Int) -> Unit,
 ) : RecyclerView.Adapter<HostStudyViewHolder>() {
 
@@ -29,7 +31,7 @@ class ProfileStudyAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<StudyData>) {
+    fun updateData(list: List<SqlStudyData>) {
         hostStudyList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())
