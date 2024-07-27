@@ -27,75 +27,103 @@ class StudyViewModel : ViewModel() {
     // --------------------------------- 초기화 끝 --------------------------------
     // --------------------------------- 라이브데이터 시작 --------------------------------
     // 전체 스터디 목록 중 모집중인 스터디 리스트
-    private val _allStudyStateTrueDataList = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val allStudyStateTrueDataList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyStateTrueDataList
+    private val _allStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
+    val allStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyData
 
-    // 전체 스터디 목록 중 모집중인 스터디 리스트 로딩
-    private val _setNullStudyAllLoading = MutableLiveData<Boolean?>(null)
-    val setNullStudyAllLoading: LiveData<Boolean?> = _setNullStudyAllLoading
+    private val _allStudyError = MutableLiveData<Throwable>()
+    val allStudyError: LiveData<Throwable> get() = _allStudyError
 
     // 내 스터디 리스트
-    private val _myStudyDataList = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val myStudyDataList: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _myStudyDataList
+    private val _myStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
+    val myStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _myStudyData
 
-    // 내 스터디 로딩
-    private val _studyMyDataLoading = MutableLiveData<Boolean?>(null)
-    val studyMyDataLoading: LiveData<Boolean?> = _studyMyDataLoading
+    private val _myStudyError = MutableLiveData<Throwable>()
+    val myStudyError: LiveData<Throwable> get() = _myStudyError
+
+    private val _favoritedData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
+    val favoritedData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _favoritedData
+
+    private val _favoriteStudyError = MutableLiveData<Throwable>()
+    val favoriteStudyError: LiveData<Throwable> get() = _favoriteStudyError
 
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()
     val isFavorite: LiveData<Pair<Int, Boolean>> get() = _isFavorite
 
+    private val _isFavoriteError = MutableLiveData<Throwable>()
+    val isFavoriteError: LiveData<Throwable> get() = _isFavoriteError
+
+
     // --------------------------------- 라이브데이터 끝 --------------------------------
 
-    private fun getCurrentUserIdx(): Int {
+    fun getCurrentUserIdx(): Int {
         return prefs.getInt("currentUserIdx")
     }
 
-    // 전체 스터디 목록 중 모집중인 스터디만 가져온다. (홈화면 '전체 스터디' 접근 시)
-    fun getAllStudyStateTrueDataList() {
+    // 전체 스터디 목록 중 모집중인 스터디 가져오기 (홈화면 '전체 스터디' 접근 시)
+    fun getAllStudyData() {
         viewModelScope.launch {
-            try {
-                val currentUserIdx = getCurrentUserIdx()
-                val data = studyListRepository.getAllStudyAndMemberCount(currentUserIdx)
-                _allStudyStateTrueDataList.value = data
-            } catch (e: Exception) {
-                Log.e("StudyViewModel", "Error getStudyStateTrueData", e)
+            val result = studyListRepository.getAllStudyData(getCurrentUserIdx())
+            result.onSuccess {
+                _allStudyData.postValue(it)
+            }.onFailure {
+                Log.e("StudyViewModel", "Error getAllStudyData", it)
+                _allStudyError.postValue(it)
             }
         }
     }
 
-    // 전체 스터디 목록 중 내 스터디만 가져온다. (홈화면 '내 스터디' 접근 시)
-    fun getMyStudyDataList() {
+    // 전체 스터디 목록 중 내 스터디 목록 가져오기 (홈화면 '내 스터디' 접근 시)
+    fun getMyStudyData() {
         viewModelScope.launch {
-            try {
-                val currentUserIdx = getCurrentUserIdx()
-                val data = studyListRepository.getMyStudyList(currentUserIdx)
-                _myStudyDataList.value = data
-            } catch (e: Exception) {
+            val result = studyListRepository.getMyStudyData(getCurrentUserIdx())
+            result.onSuccess {
+                _myStudyData.postValue(it)
+            }.onFailure { e ->
                 Log.e("StudyViewModel", "Error getMyStudyData", e)
+                _myStudyError.postValue(e)
+            }
+        }
+    }
+
+    // 좋아요한 스터디 목록 가져오기 (찜화면 접근 시)
+    fun getFavoriteStudyData() {
+        viewModelScope.launch {
+            val result = studyListRepository.getFavoriteStudyData(getCurrentUserIdx())
+            result.onSuccess {
+                _favoritedData.postValue(it)
+            }.onFailure { e ->
+                Log.e("StudyViewModel", "Error getMyStudyData", e)
+                _favoriteStudyError.postValue(e)
             }
         }
     }
 
     // 좋아요 토글
-    fun toggleFavorite(studyIdx: Int) {
+    fun changeFavoriteState(studyIdx: Int, currentState: Boolean) {
         viewModelScope.launch {
-            try {
-                val currentUserIdx = getCurrentUserIdx()
-                val currentState = studyListRepository.toggleFavorite(currentUserIdx, studyIdx)
-                _isFavorite.value = Pair(studyIdx, currentState)
-            } catch (e: Exception) {
-                Log.e("StudyViewModel", "Error toggling favorite", e)
+            // 좋아요 상태 변경
+            val result = if (currentState) {
+                studyListRepository.removeFavorite(getCurrentUserIdx(), studyIdx)
+            } else {
+                studyListRepository.addFavorite(getCurrentUserIdx(), studyIdx)
+            }
+
+            // 결과에 따른 UI 업데이트
+            result.onSuccess {
+                _isFavorite.value = Pair(studyIdx, !currentState)
+            }.onFailure { e ->
+                Log.e("StudyViewModel", "Error changing favorite state", e)
+                _isFavoriteError.postValue(e)
             }
         }
     }
 
     // 데이터 초기화 메서드
     fun clearData() {
-        _allStudyStateTrueDataList.value = emptyList()
-        _setNullStudyAllLoading.value = null
-        _myStudyDataList.value = emptyList()
-        _studyMyDataLoading.value = null
+        _allStudyData.value = emptyList()
+        _myStudyData.value = emptyList()
+        _favoritedData.value = emptyList()
+        _isFavorite.value = Pair(0, false)
         _filteredStudyList.value = emptyList()
         _filteredMyStudyList.value = emptyList()
         filterData.clear()
@@ -118,17 +146,6 @@ class StudyViewModel : ViewModel() {
 
     // 필터 데이터
     private val filterData = mutableMapOf<String, String>()
-
-    // ========================로딩 초기화============================
-    fun setNullStudyAllLoading() {
-        _setNullStudyAllLoading.value = null
-    }
-
-    fun setNullStudyMyLoading() {
-        _studyMyDataLoading.value = null
-    }
-    // ===============================================================
-
 
     //===========================필터============================
 

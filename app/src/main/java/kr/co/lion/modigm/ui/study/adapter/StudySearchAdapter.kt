@@ -12,7 +12,7 @@ class StudySearchAdapter(
     private var studyList: List<Triple<SqlStudyData, Int, Boolean>>,
     // 항목 1개 클릭 리스너
     private val rowClickListener: (Int) -> Unit,
-    private val favoriteClickListener: (Int) -> Unit,
+    private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.Adapter<StudyViewHolder>() {
 
     private var filteredList: List<Triple<SqlStudyData, Int, Boolean>> = studyList

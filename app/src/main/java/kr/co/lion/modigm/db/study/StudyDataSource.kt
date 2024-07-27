@@ -9,43 +9,54 @@ class StudyDataSource {
     private val dao = StudyDao()
 
     // 모집 중인 전체 스터디 목록 조회 (좋아요 여부 포함)
-    suspend fun getAllStudyAndMemberCount(userIdx: Int): List<Triple<SqlStudyData, Int, Boolean>> {
-        return dao.selectAllStudyAndMemberCount(userIdx).fold(
-            onSuccess = { result ->
-                result
-            },
-            onFailure = { e ->
-                Log.e(tag, "전체 스터디 목록 조회 중 오류 발생", e)
-                emptyList()
-            }
-        )
+    suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+        return runCatching {
+            dao.selectAllStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "전체 스터디 목록 조회 중 오류 발생", e)
+            Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+        }
     }
 
     // 내가 속한 스터디 목록 조회 (좋아요 여부 포함)
-    suspend fun getMyStudyAndMemberCount(userIdx: Int): List<Triple<SqlStudyData, Int, Boolean>> {
-        return dao.selectMyStudyAndMemberCount(userIdx).fold(
-            onSuccess = { result ->
-                result
-            },
-            onFailure = { e ->
-                Log.e(tag, "내 스터디 목록 조회 중 오류 발생", e)
-                emptyList()
-            }
-        )
+    suspend fun getMyStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+        return runCatching {
+            dao.selectMyStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "전체 스터디 목록 조회 중 오류 발생", e)
+            Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+        }
     }
 
-    // 좋아요 토글 메소드
-    suspend fun toggleFavorite(userIdx: Int, studyIdx: Int): Boolean {
-        return dao.toggleFavorite(userIdx, studyIdx).fold(
-            onSuccess = { result ->
-                result
-            },
-            onFailure = { e ->
-                Log.e(tag, "좋아요 토글 중 오류 발생", e)
-                false
-            }
-        )
+    suspend fun getFavoriteStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+        return runCatching {
+            dao.selectFavoriteStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요한 스터디 목록 조회 중 오류 발생", e)
+            Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+        }
     }
+
+    // 좋아요 추가 메소드
+    suspend fun addFavorite(userIdx: Int, studyIdx: Int): Result<Boolean> {
+        return runCatching {
+            dao.addFavorite(userIdx, studyIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요 추가 중 오류 발생", e)
+            Result.failure<Boolean>(e)
+        }
+    }
+
+    // 좋아요 삭제 메소드
+    suspend fun removeFavorite(userIdx: Int, studyIdx: Int): Result<Boolean> {
+        return runCatching {
+            dao.removeFavorite(userIdx, studyIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요 삭제 중 오류 발생", e)
+            Result.failure<Boolean>(e)
+        }
+    }
+
     // 리소스를 해제하는 메서드 추가
     suspend fun close() {
         dao.close()

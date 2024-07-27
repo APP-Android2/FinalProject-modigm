@@ -39,8 +39,8 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
                     addToBackStack(FragmentName.DETAIL.str)
                 }
             },
-            favoriteClickListener = { studyIdx ->
-                viewModel.toggleFavorite(studyIdx)
+            favoriteClickListener = { studyIdx, currentState ->
+                viewModel.changeFavoriteState(studyIdx, currentState)
             }
         )
     }
@@ -55,7 +55,7 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
         // 초기 뷰 세팅
         initView(binding)
-        viewModel.getMyStudyDataList()
+        viewModel.getMyStudyData()
         observeData()
     }
 
@@ -118,7 +118,7 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 //        }
 
         // 내 스터디 데이터 관찰 (필터링이 없을 때)
-        viewModel.myStudyDataList.observe(viewLifecycleOwner) { studyList ->
+        viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)
             Log.d("StudyMyFragment", "내 스터디 목록 업데이트: ${studyList.size} 개")
         }

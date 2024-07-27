@@ -44,8 +44,8 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
                 }
 
             },
-            favoriteClickListener = { studyIdx ->
-                viewModel.toggleFavorite(studyIdx)
+            favoriteClickListener = { studyIdx, currentState ->
+                viewModel.changeFavoriteState(studyIdx, currentState)
             }
         )
     }
@@ -60,7 +60,7 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
 
         initView(binding)
 
-        viewModel.allStudyStateTrueDataList.observe(viewLifecycleOwner, Observer { studyList ->
+        viewModel.allStudyData.observe(viewLifecycleOwner, Observer { studyList ->
             studySearchAdapter.updateData(studyList)
         })
     }

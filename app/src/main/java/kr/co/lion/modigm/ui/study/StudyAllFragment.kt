@@ -43,8 +43,8 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
                 }
 
             },
-            favoriteClickListener = { studyIdx ->
-                viewModel.toggleFavorite(studyIdx)
+            favoriteClickListener = { studyIdx, currentState ->
+                viewModel.changeFavoriteState(studyIdx, currentState)
             }
         )
     }
@@ -59,7 +59,7 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
 
         // 초기 뷰 세팅
         initView(binding)
-        viewModel.getAllStudyStateTrueDataList()
+        viewModel.getAllStudyData()
         observeData()
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
     }
@@ -114,7 +114,7 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
                 })
             }
 
-
+            // 검색바 클릭 시
             with(searchBarStudyAll) {
                 setOnClickListener {
                     requireActivity().supportFragmentManager.commit {
@@ -144,9 +144,14 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
 
     private fun observeData() {
         // 전체 데이터 관찰 (필터링이 없을 때)
-        viewModel.allStudyStateTrueDataList.observe(viewLifecycleOwner) { studyList ->
+        viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)
             Log.d("StudyAllFragment", "전체 스터디 목록 업데이트: ${studyList.size} 개")
+        }
+        viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
+            // 오류 처리 (에러 핸들러 구현 후 구현 요망@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@)
+            Log.e("StudyAllFragment", "전체 스터디 목록 업데이트 실패", e)
+            // handleStudyError(e)
         }
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
@@ -154,4 +159,14 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
             studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
     }
+
+//    // 로그인 오류 처리 메서드
+//    private fun handleStudyError(e: Throwable) {
+//        val message = if (e is StudyError) {
+//            e.getFullMessage()
+//        } else {
+//            "알 수 없는 오류!\n코드번호: 9999"
+//        }
+//        requireActivity().showLoginSnackBar(message, R.drawable.icon_error_24px)
+//    }
 }
