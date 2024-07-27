@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.chat.ChatFragment
-import kr.co.lion.modigm.ui.favorite.FavoriteFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
@@ -20,10 +19,6 @@ import kr.co.lion.modigm.util.showLoginSnackBar
 class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
     private val viewModel: StudyViewModel by viewModels()
-
-    private val prefs by lazy {
-        ModigmApplication.prefs
-    }
 
     // --------------------------------- LC START ---------------------------------
 
@@ -48,9 +43,11 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
     // --------------------------------- LC START ---------------------------------
 
-    private var currentNavItemIndex = 0
+
 
     private fun initView(binding: FragmentBottomNaviBinding) {
+        val currentNavItemIndex = hashMapOf("index" to 0)
+
         if (childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null) {
             childFragmentManager.commit {
                 setReorderingAllowed(true)
@@ -64,23 +61,23 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 R.id.bottomNaviHeart -> 1
                 R.id.bottomNaviChat -> 2
                 R.id.bottomNaviMy -> 3
-                else -> currentNavItemIndex
+                else -> currentNavItemIndex["index"]!!
             }
 
             // 현재 선택된 아이템과 동일하면 아무 동작도 하지 않음
-            if (newNavItemIndex == currentNavItemIndex) {
+            if (newNavItemIndex == currentNavItemIndex["index"]) {
                 return@setOnItemSelectedListener true
             }
 
             // 애니메이션 방향 설정
             val enterAnim =
-                if (newNavItemIndex > currentNavItemIndex) {
+                if (newNavItemIndex > currentNavItemIndex["index"]!!) {
                     R.anim.slide_in_right
                 } else {
                     R.anim.slide_in_left
                 }
             val exitAnim =
-                if (newNavItemIndex > currentNavItemIndex) {
+                if (newNavItemIndex > currentNavItemIndex["index"]!!) {
                     R.anim.slide_out_left
                 } else {
                     R.anim.slide_out_right
@@ -106,7 +103,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 R.id.bottomNaviChat -> {
                     val chatFragment = ChatFragment().apply {
                         arguments = Bundle().apply {
-                            putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
+                            putInt("currentUserIdx", viewModel.getCurrentUserIdx())
                         }
                     }
                     childFragmentManager.commit {
@@ -119,7 +116,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                 R.id.bottomNaviMy -> {
                     val profileFragment = ProfileFragment().apply {
                         arguments = Bundle().apply {
-                            putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
+                            putInt("currentUserIdx", viewModel.getCurrentUserIdx())
                         }
                     }
                     childFragmentManager.commit {
@@ -130,7 +127,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
                     }
                 }
             }
-            currentNavItemIndex = newNavItemIndex
+            currentNavItemIndex["index"] = newNavItemIndex
             true
         }
     }
