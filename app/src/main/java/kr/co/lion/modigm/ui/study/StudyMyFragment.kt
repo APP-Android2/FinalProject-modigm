@@ -9,7 +9,6 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
-import kr.co.lion.modigm.databinding.RowStudyBinding
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
@@ -18,49 +17,55 @@ import kr.co.lion.modigm.util.FragmentName
 
 class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 
-    private lateinit var rowbinding: RowStudyBinding
-
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
 
-    private val currentUserUid = 1
-
     // 어답터
-    private val studyAdapter: StudyAdapter = StudyAdapter(
-        // 최초 리스트
-        emptyList(),
+    private val studyAdapter: StudyAdapter by lazy {
+        StudyAdapter(
+            // 최초 리스트
+            emptyList(),
 
-        // 항목 클릭 시
-        rowClickListener = { studyIdx ->
-            // DetailFragment로 이동
-            val detailFragment = DetailFragment().apply {
-                arguments = Bundle().apply {
-                    putInt("studyIdx", studyIdx)
+            // 항목 클릭 시
+            rowClickListener = { studyIdx ->
+                // DetailFragment로 이동
+                val detailFragment = DetailFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", studyIdx)
+                    }
                 }
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
+            },
+            favoriteClickListener = { studyIdx, currentState ->
+                viewModel.changeFavoriteState(studyIdx, currentState)
             }
-            requireActivity().supportFragmentManager.commit {
-                replace(R.id.containerMain, detailFragment)
-                addToBackStack(FragmentName.DETAIL.str)
-            }
-        },
-        favoriteClickListener = { studyIdx ->
-            // 현재 접속중인 유저의 userIdx를 전달해야하므로 수정 요망./////////////////////////////////////////////////////////////////////////////////////
-            viewModel.toggleFavorite(1, studyIdx)
-        }
-    )
+        )
+    }
+
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 바인딩
         val binding = FragmentStudyMyBinding.bind(view)
-        rowbinding = RowStudyBinding.inflate(layoutInflater)
 
         // 초기 뷰 세팅
         initView(binding)
-        viewModel.getMyStudyDataList(1)
+        viewModel.getMyStudyData()
         observeData()
-        Log.d("StudyMyFragment", "onViewCreated 호출됨")
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        viewModel.clearData() // ViewModel 데이터 초기화
+    }
+
+    // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
     private fun initView(binding: FragmentStudyMyBinding) {
@@ -113,7 +118,7 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
 //        }
 
         // 내 스터디 데이터 관찰 (필터링이 없을 때)
-        viewModel.myStudyDataList.observe(viewLifecycleOwner) { studyList ->
+        viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)
             Log.d("StudyMyFragment", "내 스터디 목록 업데이트: ${studyList.size} 개")
         }

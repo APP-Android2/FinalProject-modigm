@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
     android:paddingVertical="10dp"
-    tools:context=".ui.favorite.FavoriteFragment">
+    tools:context=".ui.study.FavoriteFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolBarFavorite"

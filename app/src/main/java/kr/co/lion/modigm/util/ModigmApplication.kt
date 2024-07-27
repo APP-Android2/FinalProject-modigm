@@ -2,13 +2,19 @@ package kr.co.lion.modigm.util
 
 import android.app.Application
 
-class ModigmApplication: Application(){
+class ModigmApplication : Application() {
+
     companion object {
-        lateinit var prefs: PreferenceUtil
+        val prefs: PreferenceUtil by lazy {
+            PreferenceUtil(instance.applicationContext)
+        }
+
+        lateinit var instance: ModigmApplication
+            private set
     }
 
     override fun onCreate() {
-        prefs = PreferenceUtil(applicationContext)
         super.onCreate()
+        instance = this
     }
 }
