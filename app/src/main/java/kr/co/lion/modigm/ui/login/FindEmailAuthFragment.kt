@@ -2,15 +2,15 @@ package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindEmailAuthBinding
+import kr.co.lion.modigm.ui.BaseFragment
 import kr.co.lion.modigm.ui.login.vm.FindEmailAuthViewModel
 import kr.co.lion.modigm.util.hideSoftInput
 
-class FindEmailAuthFragment : Fragment(R.layout.fragment_find_email_auth) {
+class FindEmailAuthFragment : BaseFragment<FragmentFindEmailAuthBinding>(FragmentFindEmailAuthBinding::inflate) {
 
     private val viewModel: FindEmailAuthViewModel by viewModels()
 

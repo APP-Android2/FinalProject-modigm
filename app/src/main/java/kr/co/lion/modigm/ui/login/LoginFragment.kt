@@ -3,7 +3,6 @@ package kr.co.lion.modigm.ui.login
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
@@ -15,6 +14,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
+import kr.co.lion.modigm.ui.BaseFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
@@ -22,7 +22,7 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class LoginFragment : Fragment(R.layout.fragment_login) {
+class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
 
     private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
 
@@ -31,13 +31,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentLoginBinding.bind(view)
-
         // Kakao SDK 초기화
         KakaoSdk.init(requireContext(), BuildConfig.KAKAO_NATIVE_APP_KEY)
 
         // 초기 뷰 설정
-        initView(binding)
+        initView()
 
         // Glide를 사용하여 이미지에 블러 효과 적용
         Glide.with(this)
@@ -66,25 +64,27 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     /**
      * 초기 뷰 설정 메서드
      */
-    private fun initView(binding: FragmentLoginBinding) {
-        // 카카오 로그인 버튼 클릭 리스너 설정
-        binding.imageButtonLoginKakao.setOnClickListener {
-            Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
-            viewModel.loginWithKakao(requireContext())
-        }
+    private fun initView() {
+        with(binding){
+            // 카카오 로그인 버튼 클릭 리스너 설정
+            imageButtonLoginKakao.setOnClickListener {
+                Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
+                viewModel.loginWithKakao(requireContext())
+            }
 
-        // 깃허브 로그인 버튼 클릭 리스너 설정
-        binding.imageButtonLoginGithub.setOnClickListener {
-            Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
-            viewModel.loginWithGithub(requireActivity())
-        }
+            // 깃허브 로그인 버튼 클릭 리스너 설정
+            imageButtonLoginGithub.setOnClickListener {
+                Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
+                viewModel.loginWithGithub(requireActivity())
+            }
 
-        // 다른 방법으로 로그인 버튼 클릭 리스너 설정
-        binding.textButtonLoginOther.setOnClickListener {
-            Log.i("LoginFragment", "다른 방법으로 로그인 버튼 클릭됨")
-            parentFragmentManager.commit {
-                replace<OtherLoginFragment>(R.id.containerMain)
-                addToBackStack(FragmentName.OTHER_LOGIN.str)
+            // 다른 방법으로 로그인 버튼 클릭 리스너 설정
+            textButtonLoginOther.setOnClickListener {
+                Log.i("LoginFragment", "다른 방법으로 로그인 버튼 클릭됨")
+                parentFragmentManager.commit {
+                    replace<OtherLoginFragment>(R.id.containerMain)
+                    addToBackStack(FragmentName.OTHER_LOGIN.str)
+                }
             }
         }
     }

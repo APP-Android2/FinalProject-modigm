@@ -3,20 +3,20 @@ package kr.co.lion.modigm.ui.study
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
+import kr.co.lion.modigm.ui.BaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
+class StudyAllFragment : BaseFragment<FragmentStudyAllBinding>(FragmentStudyAllBinding::inflate) {
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()

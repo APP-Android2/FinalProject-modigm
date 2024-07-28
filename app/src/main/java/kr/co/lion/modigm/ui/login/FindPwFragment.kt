@@ -3,14 +3,14 @@ package kr.co.lion.modigm.ui.login
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindPwBinding
+import kr.co.lion.modigm.ui.BaseFragment
 import kr.co.lion.modigm.ui.login.vm.FindPwViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class FindPwFragment : Fragment(R.layout.fragment_find_pw) {
+class FindPwFragment : BaseFragment<FragmentFindPwBinding>(FragmentFindPwBinding::inflate) {
 
     private val viewModel: FindPwViewModel by viewModels()
 
@@ -19,17 +19,14 @@ class FindPwFragment : Fragment(R.layout.fragment_find_pw) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentFindPwBinding.bind(view)
-
-        initView(binding)
-        settingObserver(binding)
+        initView()
+        settingObserver()
     }
 
     // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
-    private fun initView(binding: FragmentFindPwBinding) {
+    private fun initView() {
         with(binding) {
             // 툴바
             with(toolbarFindPw) {
@@ -63,21 +60,23 @@ class FindPwFragment : Fragment(R.layout.fragment_find_pw) {
         }
     }
 
-    private fun settingObserver(binding: FragmentFindPwBinding){
-        // 유효성 검사
-        viewModel.emailError.observe(viewLifecycleOwner) {
-            binding.textInputEditFindPwEmail.error = it
-            binding.textInputEditFindPwEmail.requestFocus()
-        }
-        viewModel.phoneError.observe(viewLifecycleOwner) {
-            binding.textInputEditFindPwPhone.error = it
-            binding.textInputEditFindPwPhone.requestFocus()
-        }
+    private fun settingObserver(){
+        with(binding){
+            // 유효성 검사
+            viewModel.emailError.observe(viewLifecycleOwner) {
+                textInputEditFindPwEmail.error = it
+                textInputEditFindPwEmail.requestFocus()
+            }
+            viewModel.phoneError.observe(viewLifecycleOwner) {
+                textInputEditFindPwPhone.error = it
+                textInputEditFindPwPhone.requestFocus()
+            }
 
-        // 다음으로 이동
-        viewModel.isComplete.observe(viewLifecycleOwner) {
-            if(it){
-                moveToNext()
+            // 다음으로 이동
+            viewModel.isComplete.observe(viewLifecycleOwner) {
+                if(it){
+                    moveToNext()
+                }
             }
         }
     }

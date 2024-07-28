@@ -3,14 +3,14 @@ package kr.co.lion.modigm.ui.login
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindEmailBinding
+import kr.co.lion.modigm.ui.BaseFragment
 import kr.co.lion.modigm.ui.login.vm.FindEmailViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class FindEmailFragment : Fragment(R.layout.fragment_find_email) {
+class FindEmailFragment : BaseFragment<FragmentFindEmailBinding>(FragmentFindEmailBinding::inflate) {
 
     private val viewModel: FindEmailViewModel by viewModels()
 
@@ -19,17 +19,14 @@ class FindEmailFragment : Fragment(R.layout.fragment_find_email) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentFindEmailBinding.bind(view)
-
-        initView(binding)
-        settingObserver(binding)
+        initView()
+        settingObserver()
     }
 
     // --------------------------------- LC START ---------------------------------
 
     // 초기 뷰 세팅
-    private fun initView(binding: FragmentFindEmailBinding) {
+    private fun initView() {
         with(binding) {
             // 툴바
             with(toolbarFindEmail) {
@@ -62,21 +59,23 @@ class FindEmailFragment : Fragment(R.layout.fragment_find_email) {
         }
     }
 
-    private fun settingObserver(binding: FragmentFindEmailBinding){
-        // 유효성 검사
-        viewModel.nameError.observe(viewLifecycleOwner) {
-            binding.textInputEditFindEmailName.error = it
-            binding.textInputEditFindEmailName.requestFocus()
-        }
-        viewModel.phoneError.observe(viewLifecycleOwner) {
-            binding.textInputEditFindEmailPhone.error = it
-            binding.textInputEditFindEmailPhone.requestFocus()
-        }
+    private fun settingObserver(){
+        with(binding){
+            // 유효성 검사
+            viewModel.nameError.observe(viewLifecycleOwner) {
+                textInputEditFindEmailName.error = it
+                textInputEditFindEmailName.requestFocus()
+            }
+            viewModel.phoneError.observe(viewLifecycleOwner) {
+                textInputEditFindEmailPhone.error = it
+                textInputEditFindEmailPhone.requestFocus()
+            }
 
-        // 다음으로 이동
-        viewModel.isComplete.observe(viewLifecycleOwner) {
-            if(it){
-                moveToNext()
+            // 다음으로 이동
+            viewModel.isComplete.observe(viewLifecycleOwner) {
+                if(it){
+                    moveToNext()
+                }
             }
         }
     }
