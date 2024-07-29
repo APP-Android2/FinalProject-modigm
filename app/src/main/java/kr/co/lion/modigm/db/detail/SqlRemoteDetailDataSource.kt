@@ -30,10 +30,11 @@ class SqlRemoteDetailDataSource {
         }
     }
 
-    // 특정 studyIdx에 해당하는 studyPic을 가져오는 메소드
+    // studyIdx에 해당하는 studyPic을 반환하는 메소드
     suspend fun getStudyPicByStudyIdx(studyIdx: Int): String? {
         return try {
-            studyDao.getStudyPicByStudyIdx(studyIdx)
+            val studies = studyDao.getAllStudies()
+            studies.find { it.studyIdx == studyIdx }?.studyPic
         } catch (e: Exception) {
             Log.e(TAG, "Error getStudyPicByStudyIdx: ${e.message}")
             null

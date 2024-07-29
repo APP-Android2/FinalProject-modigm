@@ -12,7 +12,7 @@ import java.sql.ResultSet
 
 class SqlRemoteDetailDao {
     private val TAG = "SqlRemoteDetailDao"
-//    private var dataSource: HikariDataSource? = null
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e(TAG, "Coroutine exception", throwable)
     }
@@ -117,14 +117,6 @@ class SqlRemoteDetailDao {
         }
     }
 
-    suspend fun getStudyPicByStudyIdx(studyIdx: Int): String? {
-        val query = "SELECT studyPic FROM tb_study WHERE studyIdx = ?"
-        val results = executeQuery(query, studyIdx) { resultSet ->
-            resultSet.getString("studyPic")
-        }
-        return results.firstOrNull()
-    }
-
     // studyState 값을 업데이트하는 메소드 추가
     suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
         try {
@@ -141,14 +133,6 @@ class SqlRemoteDetailDao {
             return@withContext 0
         }
     }
-
-    // Dao가 더 이상 필요 없을 때 자원을 해제하는 메소드 (destroy에 호출)
-//    suspend fun close() {
-//        coroutineScope.cancel()
-//        if (dataSourceDeferred.isCompleted) {
-//            dataSourceDeferred.await().close()
-//        }
-//    }
 
     suspend fun close() {
         try {
