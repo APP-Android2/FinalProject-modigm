@@ -11,18 +11,6 @@ import kr.co.lion.modigm.model.SqlStudyData
 class RemoteWriteStudyDataSource {
 
     // 사용자 정보를 저장한다.
-//    suspend fun uploadStudyData(userIdx: Int, study: SqlStudyData, studyTechStack: List<Int>,studyPicBytes:ByteArray):Int?{
-//        return try {
-//            val db = RemoteWriteStudyDao()
-//            db.insertStudyData(userIdx, study.toMap(), studyTechStack,studyPicBytes)
-//        } catch (e: Exception) {
-//            Log.e("WriteStudyDataSource Error", "Error uploadStudyData: ${e.message}")
-//            null
-//        }
-//    }
-
-//    private val dao: RemoteWriteStudyDao
-
     suspend fun uploadStudyData(userIdx: Int, study: SqlStudyData, studyTechStack: List<Int>, studyPicUrl: String?): Int? {
         return try {
             val dao = RemoteWriteStudyDao()
