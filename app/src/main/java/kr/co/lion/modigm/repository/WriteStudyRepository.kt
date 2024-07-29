@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.repository
 
 import android.util.Log
-import kr.co.lion.modigm.db.write.RemoteWriteStudyDao
 import kr.co.lion.modigm.db.write.RemoteWriteStudyDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 
