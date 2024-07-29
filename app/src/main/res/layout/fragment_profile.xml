@@ -130,12 +130,39 @@
                         android:text="홍길동님이 진행한 스터디"
                         android:textSize="18dp" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recyclerViewProfileHostStudy"
+                    <LinearLayout
+                        android:id="@+id/layoutListProfileHostStudy"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:overScrollMode="never"/>
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:paddingBottom="20dp">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerViewProfileHostStudy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="16dp"
+                            android:overScrollMode="never" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/textViewHostStudyMore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="더보기" />
+
+                            <ImageView
+                                android:id="@+id/iconHostStudyMore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:srcCompat="@drawable/keyboard_arrow_down_24px" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/layoutBlankProfileHostStudy"
@@ -170,12 +197,39 @@
                         android:textSize="18dp"
                         android:textStyle="bold" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recyclerViewProfilePartStudy"
+                    <LinearLayout
+                        android:id="@+id/layoutListProfilePartStudy"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:overScrollMode="never" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:paddingBottom="20dp">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerViewProfilePartStudy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="16dp"
+                            android:overScrollMode="never" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/textViewPartStudyMore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="더보기" />
+
+                            <ImageView
+                                android:id="@+id/iconPartStudyMore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:srcCompat="@drawable/keyboard_arrow_down_24px" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/layoutBlankProfilePartStudy"
