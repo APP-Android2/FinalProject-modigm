@@ -230,8 +230,8 @@ class JoinFragment : Fragment() {
 
         // 응답 받은 이메일, 비밀번호
         viewModel.setEmailAndPw(
-            viewModelStep1.userEmail.value.toString(),
-            viewModelStep1.userPassword.value.toString()
+            viewModelStep1.userEmail.value,
+            viewModelStep1.userPassword.value
         )
 
         lifecycleScope.launch {
@@ -318,12 +318,10 @@ class JoinFragment : Fragment() {
             showSnackBar()
         }
 
+        // 회원가입 완료 처리
         lifecycleScope.launch(handler) {
             showLoading()
-            when(joinType){
-                JoinType.EMAIL -> viewModel.completeJoinEmailUser()
-                else -> viewModel.completeJoinSnsUser()
-            }
+            viewModel.completeJoinUser()
         }
     }
 
@@ -404,6 +402,8 @@ class JoinFragment : Fragment() {
                     when(viewModel.userProvider.value){
                         // 이메일 계정 회원가입인 경우에는 로그인 화면으로 돌아오기
                         JoinType.EMAIL.provider ->{
+                            // 로그아웃 처리
+                            viewModel.signOut()
                             parentFragmentManager.beginTransaction()
                                 .replace(R.id.containerMain, OtherLoginFragment())
                                 .commit()
