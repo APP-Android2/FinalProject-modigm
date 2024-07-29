@@ -68,10 +68,11 @@ class RemoteJoinUserDao {
         }
     }
 
-    suspend fun insertUserData(model: Map<String, Any>): Boolean{
+    suspend fun insertUserData(model: Map<String, Any>): Int?{
         var preparedStatement: PreparedStatement?
         val columns = model.keys
         val values = model.values
+        var idx:Int? = null
 
         return try {
             val columnsString = StringBuilder()
@@ -101,12 +102,17 @@ class RemoteJoinUserDao {
                         }
                     }
                     preparedStatement?.executeUpdate() // 쿼리 실행
+
+                    val afterExecute = connection?.prepareStatement("SELECT LAST_INSERT_ID()")
+                    val resultSet = afterExecute?.executeQuery()
+                    resultSet?.next()
+                    if(resultSet != null) idx = resultSet.getInt("LAST_INSERT_ID()")
                 }
             }
-            true
+            idx ?: 0
         } catch (e: Exception) {
             Log.e(TAG, "Error in insertUserData", e) // 오류 로그 출력
-            false
+            0
         }
     }
 }

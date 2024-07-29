@@ -7,7 +7,7 @@ class JoinUserRepository {
 
     private val _joinUserDataSource = RemoteJoinUserDataSource()
     // 회원가입
-    suspend fun insetUserData(userInfoData: SqlUserData): Boolean = _joinUserDataSource.insetUserData(userInfoData)
+    suspend fun insetUserData(userInfoData: SqlUserData): Int = _joinUserDataSource.insetUserData(userInfoData)
 
     // 리소스를 해제하는 메서드 추가
     suspend fun closeConn() {
