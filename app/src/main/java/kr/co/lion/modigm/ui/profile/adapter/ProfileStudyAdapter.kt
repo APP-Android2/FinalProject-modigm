@@ -6,11 +6,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowHostStudyBinding
-import kr.co.lion.modigm.databinding.RowPartStudyBinding
 import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.StudyData
 
-class HostStudyAdapter(
+class ProfileStudyAdapter(
     private var hostStudyList: List<SqlStudyData>,
     private val rowClickListener: (Int) -> Unit,
 ) : RecyclerView.Adapter<HostStudyViewHolder>() {

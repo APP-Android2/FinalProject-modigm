@@ -125,10 +125,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="20dp"
                         android:textStyle="bold"
                         android:text="홍길동님이 진행한 스터디"
-                        android:textSize="16dp" />
+                        android:textSize="18dp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerViewProfileHostStudy"
@@ -165,16 +165,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="20dp"
                         android:text="홍길동님이 참여한 스터디"
-                        android:textSize="16dp"
+                        android:textSize="18dp"
                         android:textStyle="bold" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerViewProfilePartStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
+                        android:layout_marginHorizontal="16dp"
                         android:overScrollMode="never" />
 
                     <LinearLayout

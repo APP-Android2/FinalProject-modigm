@@ -11,22 +11,18 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
-import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
-import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
+import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 
@@ -260,7 +256,7 @@ class ProfileFragment: Fragment() {
                 adapter = partStudyAdapter
 
                 // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+                layoutManager = LinearLayoutManager(requireContext())
             }
         }
     }
