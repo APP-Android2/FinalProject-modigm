@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.db.study
+package kr.co.lion.modigm.db.detail
 
 import android.util.Log
 import kr.co.lion.modigm.model.SqlStudyData
