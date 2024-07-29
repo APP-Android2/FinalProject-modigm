@@ -1,96 +1,262 @@
 package kr.co.lion.modigm.db.write
 
+import android.content.Context
+import android.database.Cursor
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.mobile.config.AWSConfiguration
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.model.CannedAccessControlList
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
+import java.io.File
+import java.nio.file.Paths
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.PreparedStatement
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class RemoteWriteStudyDao {
-    private var connection: Connection? = null
-    private val TAG = "MySQLDataSource"
+    private val TAG = "RemoteWriteStudyDao"
+    private var context: Context? = null
 
-    suspend fun insertStudyData(
-        userIdx: Int,
-        model: Map<String, Any>,
-        studyTechStack: List<Int>
-    ):Int? {
-        var preparedStatement: PreparedStatement? = null
-        val columns = model.keys
-        val values = model.values
-        var idx:Int? = null
-        try {
-            val columnsString = StringBuilder()
-            val valuesString = StringBuilder()
-            columns.forEach { column ->
-                columnsString.append("$column,")
-                valuesString.append("?,")
+    // Coroutine 예외 처리
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e(TAG, "Coroutine exception", throwable)
+    }
+
+    // CoroutineScope 설정
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job() + coroutineExceptionHandler)
+
+    // Context 설정
+    fun setContext(context: Context) {
+        this.context = context
+    }
+
+    // HikariDataSource 초기화
+    private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
+        val hikariConfig = HikariConfig().apply {
+            jdbcUrl = BuildConfig.DB_URL
+            username = BuildConfig.DB_USER
+            password = BuildConfig.DB_PASSWORD
+            driverClassName = "com.mysql.jdbc.Driver"
+            maximumPoolSize = 10
+            minimumIdle = 5
+            connectionTimeout = 30000 // 30초
+            idleTimeout = 600000 // 10분
+            maxLifetime = 1800000 // 30분
+            validationTimeout = 5000 // 5초
+            leakDetectionThreshold = 0 // 비활성화
+        }
+        HikariDataSource(hikariConfig)
+    }
+
+    // DataSource 비동기 초기화를 위한 CompletableDeferred
+    private val dataSourceDeferred: CompletableDeferred<HikariDataSource> = CompletableDeferred()
+
+    init {
+        // CoroutineScope에서 DataSource 초기화
+        coroutineScope.launch {
+            dataSourceDeferred.complete(initDataSource())
+        }
+    }
+
+    // Connection 객체를 얻는 함수
+    private suspend fun getConnection(): Connection {
+        val dataSource: HikariDataSource = dataSourceDeferred.await()
+        return withContext(Dispatchers.IO) {
+            dataSource.connection
+        }
+    }
+
+    // 이미지 업로드 함수 (Amazon S3에 업로드)
+    suspend fun uploadImageToS3(uri: Uri): String {
+        val context = this.context ?: throw IllegalStateException("Context has not been initialized")
+        // URI로부터 실제 파일 경로를 얻음
+        val filePath = getRealPathFromURI(context, uri) // URI로부터 실제 파일 경로를 얻음
+        val file = File(filePath ?: throw IllegalArgumentException("Invalid file: $uri"))
+
+        // AWS 자격 증명
+        val accessKey = BuildConfig.BK_ACCESSKEY
+        val secretKey = BuildConfig.BK_SECRETKEY
+        val bucketName = BuildConfig.BK_NAME
+//        val region = "AP_NORTHEAST_2"
+
+        // AWS S3 클라이언트 초기화
+        val credentials = BasicAWSCredentials(accessKey, secretKey)
+        val s3Client = AmazonS3Client(credentials)
+
+        // 파일 업로드를 위한 TransferUtility 초기화
+        val transferUtility = TransferUtility.builder()
+            .context(context)
+            .awsConfiguration(AWSConfiguration(context))
+            .s3Client(s3Client)
+            .build()
+
+        // 파일명을 현재 시간 기준으로 설정
+        val fileName = "${System.currentTimeMillis()}.jpg"
+        val uploadObserver = transferUtility.upload(
+            bucketName,
+            fileName,
+            file,
+            CannedAccessControlList.PublicRead
+        )
+
+        // 코루틴을 사용하여 업로드 완료를 기다림
+        return suspendCoroutine { continuation ->
+            uploadObserver.setTransferListener(object : TransferListener {
+                override fun onStateChanged(id: Int, state: TransferState) {
+                    if (state == TransferState.COMPLETED) {
+                        // 업로드 완료 시 URL 반환
+                        val url = s3Client.getUrl(bucketName, fileName).toString()
+                        continuation.resume(url)
+                    } else if (state == TransferState.FAILED) {
+                        // 업로드 실패 시 예외 발생
+                        continuation.resumeWithException(Exception("Upload failed")) // 업로드 실패 시 예외 발생
+                    }
+                }
+
+                override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+                    // 업로드 진행 상황 업데이트 (필요 시 구현)
+                }
+
+                override fun onError(id: Int, ex: Exception) {
+                    // 오류 발생 시 예외 처리
+                    continuation.resumeWithException(ex)
+                }
+            })
+        }
+    }
+
+    // URI로부터 실제 파일 경로를 얻는 함수
+    private fun getRealPathFromURI(context: Context, uri: Uri): String? {
+        var path: String? = null
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                path = it.getString(columnIndex)
+                Log.d(TAG, "Real path from URI: $path")
             }
+        }
+        if (path == null) {
+            Log.e(TAG, "Failed to get real path from URI: $uri")
+        }
+        return path
+    }
 
-            columnsString.deleteCharAt(columnsString.length-1)
-            valuesString.deleteCharAt(valuesString.length-1)
+    // study 데이터를 삽입하는 함수
+    suspend fun insertStudyData(model: Map<String, Any>, studyPicUrl: String?): Int? {
+        var preparedStatement: PreparedStatement? = null
+        val columns = model.keys.toMutableList()
+        val values = model.values.toMutableList()
+        var idx: Int? = null
+
+        // 이미지 URL을 studyPic 컬럼에 추가
+        if (studyPicUrl != null) {
+            if (columns.contains("studyPic")) {
+                val index = columns.indexOf("studyPic")
+                values[index] = studyPicUrl
+            } else {
+                columns.add("studyPic")
+                values.add(studyPicUrl)
+            }
+        }
+
+        try {
+            // SQL 쿼리 문자열 생성
+            val columnsString = columns.joinToString(",")
+            val valuesString = values.joinToString(",") { "?" }
             val sql = "INSERT INTO tb_study ($columnsString) VALUES ($valuesString)"
 
-            val deferred = CoroutineScope(Dispatchers.IO).async {
-                Class.forName("com.mysql.jdbc.Driver")
-                connection = DriverManager.getConnection(BuildConfig.DB_URL, BuildConfig.DB_USER, BuildConfig.DB_PASSWORD)
-                preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
-                values.forEachIndexed { index, value ->
-                    // 쿼리 매개변수 설정
-                    if(value is String){
-                        preparedStatement?.setString(index+1, value)
-                    }
-                    if(value is Int){
-                        preparedStatement?.setInt(index+1, value)
-                    }
-                    if(value is Boolean){
-                        preparedStatement?.setBoolean(index+1, value)
-                    }
-                }
-                preparedStatement?.executeUpdate() // 쿼리 실행
+            Log.d(TAG, "SQL: $sql")
+            Log.d(TAG, "Values: $values")
 
-                // insert된 행의 idx를 가져온다.
-                // == 마지막으로 insert된 행의 auto_increment 값을 가져온다.
-                val afterExecute = connection?.prepareStatement("SELECT LAST_INSERT_ID()")
-                val resultSet = afterExecute?.executeQuery()
-                resultSet?.next()
-                if(resultSet != null) idx = resultSet.getInt("LAST_INSERT_ID()")
-
-                if(idx != null){
-                    // 기술 스택 등록
-                    studyTechStack.forEach {
-                        preparedStatement = connection?.prepareStatement(
-                            "INSERT INTO tb_study_tech_stack (studyIdx,techIdx) VALUES (?, ?)"
-                        ) // PreparedStatement 생성
-                        preparedStatement?.setInt(1, idx!!)
-                        preparedStatement?.setInt(2, it)
-                        preparedStatement?.executeUpdate() // 쿼리 실행
+            // 데이터베이스에 연결하여 데이터 삽입
+            withContext(Dispatchers.IO) {
+                getConnection().use { connection ->
+                    preparedStatement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)
+                    values.forEachIndexed { index, value ->
+                        // 값의 타입에 따라 PreparedStatement 설정
+                        when (value) {
+                            is String -> preparedStatement?.setString(index + 1, value)
+                            is Int -> preparedStatement?.setInt(index + 1, value)
+                            is Boolean -> preparedStatement?.setBoolean(index + 1, value)
+                            is ByteArray -> {
+                                preparedStatement?.setBytes(index + 1, value)
+                                Log.d(TAG, "Setting byte array for index ${index + 1}")
+                                Log.d(TAG, "Byte array length: ${value.size}")
+                            }
+                        }
                     }
-                    // 스터디 멤버 등록
-                    val sql = "INSERT INTO tb_study_member (studyIdx,userIdx) VALUES (?, ?)"
-                    preparedStatement = connection?.prepareStatement(sql) // PreparedStatement 생성
-                    preparedStatement?.setInt(1, idx!!)
-                    preparedStatement?.setInt(2, userIdx)
-                    preparedStatement?.executeUpdate() // 쿼리 실행
+                    preparedStatement?.executeUpdate()
+                    val resultSet = preparedStatement?.generatedKeys
+                    if (resultSet?.next() == true) {
+                        idx = resultSet.getInt(1) // 삽입된 데이터의 ID를 반환
+                    }
                 }
             }
-            awaitAll(deferred)
         } catch (e: Exception) {
-            Log.e(TAG, "Error in insertStudyData", e) // 오류 로그 출력
+            Log.e(TAG, "Error in insertStudyData", e)
         } finally {
-            try {
-                preparedStatement?.close() // PreparedStatement 닫기
-                connection?.close() // 데이터베이스 연결 닫기
-                connection = null
-            } catch (e: Exception) {
-                Log.e(TAG, "Error closing resources", e) // 리소스 닫기 오류 로그 출력
-            }
+            preparedStatement?.close() // PreparedStatement 닫기
         }
         return idx
     }
 
+    // study 테이블에 tech stack 데이터를 삽입
+    suspend fun insertStudyTechStack(studyIdx: Int, techStack: List<Int>) {
+        val sql = "INSERT INTO tb_study_tech_stack (studyIdx, techIdx) VALUES (?, ?)"
+        val paramsList = techStack.map { arrayOf<Any>(studyIdx, it) }
+        executeBatchUpdate(sql, paramsList) // 배치 업데이트 실행
+    }
+
+    // study 테이블에 멤버 데이터를 삽입
+    suspend fun insertStudyMember(studyIdx: Int, userIdxList: List<Int>) {
+        val sql = "INSERT INTO tb_study_member (studyIdx, userIdx) VALUES (?, ?)"
+        val paramsList = userIdxList.map { arrayOf<Any>(studyIdx, it) }
+        executeBatchUpdate(sql, paramsList) // 배치 업데이트 실행
+    }
+
+    // 여러 개의 SQL 업데이트를 한 번에 실행하는 배치 업데이트 함수
+    private suspend fun executeBatchUpdate(sql: String, paramsList: List<Array<out Any>>) {
+        var preparedStatement: PreparedStatement? = null
+        try {
+            withContext(Dispatchers.IO) {
+                getConnection().use { connection ->
+                    preparedStatement = connection.prepareStatement(sql)
+                    paramsList.forEach { params ->
+                        params.forEachIndexed { index, value ->
+                            when (value) {
+                                is String -> preparedStatement?.setString(index + 1, value)
+                                is Int -> preparedStatement?.setInt(index + 1, value)
+                            }
+                        }
+                        preparedStatement?.addBatch() // 배치에 추가
+                    }
+                    preparedStatement?.executeBatch() // 배치 실행
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in executeBatchUpdate", e)
+        } finally {
+            preparedStatement?.close() // PreparedStatement 닫기
+        }
+    }
 }
