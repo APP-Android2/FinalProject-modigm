@@ -5,6 +5,7 @@ import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 
 class SqlRemoteDetailDataSource {
+    private val TAG = "SqlRemoteDetailDataSource"
     private val studyDao = SqlRemoteDetailDao()
 
     // 특정 studyIdx에 해당하는 스터디 데이터를 가져오는 메소드
@@ -26,6 +27,16 @@ class SqlRemoteDetailDataSource {
         } catch (e: Exception) {
             Log.e("RemoteStudyDataSource Error", "Error countMembersByStudyIdx: ${e.message}")
             0
+        }
+    }
+
+    // 특정 studyIdx에 해당하는 studyPic을 가져오는 메소드
+    suspend fun getStudyPicByStudyIdx(studyIdx: Int): String? {
+        return try {
+            studyDao.getStudyPicByStudyIdx(studyIdx)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getStudyPicByStudyIdx: ${e.message}")
+            null
         }
     }
 

@@ -40,6 +40,15 @@ android {
         buildConfigField("String", "DB_USER", databaseUser)
         buildConfigField("String", "DB_PASSWORD", databasePassword)
 
+        // aws s3
+        val bucketAccessKey = localProperties.getProperty("bucket_accessKey") ?:""
+        val bucketSecretKey = localProperties.getProperty("bucket_secretKey") ?:""
+        val bucketName = localProperties.getProperty("bucket_name") ?:""
+
+        buildConfigField("String", "BK_ACCESSKEY", bucketAccessKey)
+        buildConfigField("String", "BK_SECRETKEY", bucketSecretKey)
+        buildConfigField("String", "BK_NAME", bucketName)
+
         // manifestPlaceholders 설정
         manifestPlaceholders["PLACE_API_KEY"] = placeApiKey
         manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
@@ -120,4 +129,8 @@ dependencies {
 
     // hikari
     implementation("com.zaxxer:HikariCP:2.7.9")
+
+    //aws s3
+    implementation("com.amazonaws:aws-android-sdk-s3:2.22.0")
+    implementation("com.amazonaws:aws-android-sdk-core:2.22.0")
 }

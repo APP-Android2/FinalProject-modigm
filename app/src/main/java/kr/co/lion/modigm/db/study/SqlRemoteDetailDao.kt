@@ -117,6 +117,14 @@ class SqlRemoteDetailDao {
         }
     }
 
+    suspend fun getStudyPicByStudyIdx(studyIdx: Int): String? {
+        val query = "SELECT studyPic FROM tb_study WHERE studyIdx = ?"
+        val results = executeQuery(query, studyIdx) { resultSet ->
+            resultSet.getString("studyPic")
+        }
+        return results.firstOrNull()
+    }
+
     // studyState 값을 업데이트하는 메소드 추가
     suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
         try {

@@ -151,7 +151,8 @@ class WriteViewModel : ViewModel() {
                 writeStudyRepository.uploadStudyData(
                     userIdx.toInt(),
                     studyData,
-                    studySkillList.value?:listOf()
+                    studySkillList.value?:listOf(),
+                    studyPicUri.value
                 )
             }
             studyIdx

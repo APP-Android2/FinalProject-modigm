@@ -1,17 +1,45 @@
 package kr.co.lion.modigm.db.write
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.SqlStudyData
 
 class RemoteWriteStudyDataSource {
 
     // 사용자 정보를 저장한다.
-    suspend fun uploadStudyData(userIdx: Int, study: SqlStudyData, studyTechStack: List<Int>):Int?{
+//    suspend fun uploadStudyData(userIdx: Int, study: SqlStudyData, studyTechStack: List<Int>,studyPicBytes:ByteArray):Int?{
+//        return try {
+//            val db = RemoteWriteStudyDao()
+//            db.insertStudyData(userIdx, study.toMap(), studyTechStack,studyPicBytes)
+//        } catch (e: Exception) {
+//            Log.e("WriteStudyDataSource Error", "Error uploadStudyData: ${e.message}")
+//            null
+//        }
+//    }
+
+//    private val dao: RemoteWriteStudyDao
+
+    suspend fun uploadStudyData(userIdx: Int, study: SqlStudyData, studyTechStack: List<Int>, studyPicUrl: String?): Int? {
         return try {
-            val db = RemoteWriteStudyDao()
-            db.insertStudyData(userIdx, study.toMap(), studyTechStack)
+            val dao = RemoteWriteStudyDao()
+            withContext(Dispatchers.IO) {
+                val studyId = dao.insertStudyData(study.toMap(), studyPicUrl)
+                studyId?.let {
+                    coroutineScope {
+                        val insertTechStackJob = async { dao.insertStudyTechStack(it, studyTechStack) }
+                        val insertMemberJob = async { dao.insertStudyMember(it, listOf(userIdx)) }
+                        insertTechStackJob.await()
+                        insertMemberJob.await()
+                    }
+                }
+                studyId
+            }
         } catch (e: Exception) {
-            Log.e("WriteStudyDataSource Error", "Error uploadStudyData: ${e.message}")
+            Log.e("RemoteWriteStudyDataSource Error", "Error uploadStudyData: ${e.message}")
             null
         }
     }

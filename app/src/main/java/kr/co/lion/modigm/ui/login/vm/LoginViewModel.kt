@@ -112,7 +112,7 @@ class LoginViewModel : ViewModel() {
                         Log.d("LoginViewModel", "로그인 성공 - 사용자 UID: $uid")
                         val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
                         if (isRegistered) {
-                            saveCurrentUserData(uid, "email", email)
+//                            saveCurrentUserData(uid, "email", email)
                             _emailLoginResult.postValue(LoginResult.Success)
                             if (autoLogin) {
                                 prefs.setAutoLogin(true)  // 자동 로그인 설정 저장
@@ -139,13 +139,13 @@ class LoginViewModel : ViewModel() {
     // ----------------- Shared Preferences 처리 -----------------
 
     // 유저 정보를 SharedPreferences에 저장
-    private suspend fun saveCurrentUserData(uid: String, provider: String, email: String) {
-        val userData = userInfoRepository.loadUserData(uid)
-        if (userData != null) {
-            val updatedUserData = userData.copy(userProvider = provider, userEmail = email)
-            prefs.setUserData("currentUserData", updatedUserData)
-        }
-    }
+//    private suspend fun saveCurrentUserData(uid: String, provider: String, email: String) {
+//        val userData = userInfoRepository.loadUserData(uid)
+//        if (userData != null) {
+//            val updatedUserData = userData.copy(userProvider = provider, userEmail = email)
+//            prefs.setUserData("currentUserData", updatedUserData)
+//        }
+//    }
 
     // 유저 정보를 SharedPreferences에서 제거
     private fun clearCurrentUserData() {
@@ -285,7 +285,7 @@ class LoginViewModel : ViewModel() {
                         Log.i("LoginViewModel", "사용자 정보 요청 성공 - 이메일: $kakaoEmail")
                         viewModelScope.launch {
                             if (isRegistered) {
-                                saveCurrentUserData(uid, "kakao", kakaoEmail)
+//                                saveCurrentUserData(uid, "kakao", kakaoEmail)
                                 prefs.setAutoLogin(true)  // 카카오 자동 로그인 설정 저장
                                 _kakaoLoginResult.postValue(LoginResult.Success)
                             } else {
@@ -321,7 +321,7 @@ class LoginViewModel : ViewModel() {
                     val isRegistered = userInfoRepository.isUserAlreadyRegistered(uid)
 
                     if (isRegistered) {
-                        saveCurrentUserData(uid, "github", authResult.user?.email.toString())
+//                        saveCurrentUserData(uid, "github", authResult.user?.email.toString())
                         prefs.setAutoLogin(true)  // 깃허브 자동 로그인 설정 저장
                         _githubLoginResult.postValue(LoginResult.Success)
                     } else {
