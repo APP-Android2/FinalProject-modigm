@@ -47,6 +47,14 @@ class ProfileViewModel : ViewModel() {
     private val _profileLinkList = MutableLiveData<List<String>>()
     val profileLinkList: MutableLiveData<List<String>> = _profileLinkList
 
+    // 사용자가 참여한 스터디 제목
+    private val _profilePartStudyTitle = MutableLiveData<String>()
+    val profilePartStudyTitle: MutableLiveData<String> = _profilePartStudyTitle
+
+    // 사용자가 진행한 스터디 제목
+    private val _profileHostStudyTitle = MutableLiveData<String>()
+    val profileHostStudyTitle: MutableLiveData<String> = _profileHostStudyTitle
+
     // 사용자가 참여한 스터디 리스트
     private val _profilePartStudyList = MutableLiveData<List<SqlStudyData>>()
     val profilePartStudyList: MutableLiveData<List<SqlStudyData>> = _profilePartStudyList
@@ -67,6 +75,8 @@ class ProfileViewModel : ViewModel() {
 
             // 사용자 이름
             _profileName.value = response?.userName
+            _profileHostStudyTitle.value = "${response?.userName}님이 진행한 스터디"
+            _profilePartStudyTitle.value = "${response?.userName}님이 참여한 스터디"
             // 자기소개
             _profileIntro.value = response?.userIntro
             // 관심분야 리스트
@@ -89,10 +99,10 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    // 사용자가 진행한 스터디 목록
+    // 사용자가 진행한 스터디 목록 (3개만)
     fun loadHostStudyList(userIdx: Int) = viewModelScope.launch {
         try {
-            val response = profileRepository.loadHostStudyList(userIdx)
+            val response = profileRepository.loadSmallHostStudyList(userIdx)
 
             _profileHostStudyList.value = response
 
@@ -101,10 +111,10 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    // 사용자가 진행하지 않고 단순 참여한 스터디 목록
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (3개만)
     fun loadPartStudyList(userIdx: Int) = viewModelScope.launch {
         try {
-            val response = profileRepository.loadPartStudyList(userIdx)
+            val response = profileRepository.loadSmallPartStudyList(userIdx)
 
             _profilePartStudyList.value = response
 

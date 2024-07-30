@@ -49,17 +49,7 @@ class RemoteProfileDao {
                     val resultSet = statement.executeQuery()
                     if (resultSet.next()) {
                         // 결과를 NewUserData 객체에 매핑
-                        user = SqlUserData(
-                            userIdx = resultSet.getInt("userIdx"),
-                            userUid = resultSet.getString("userUid") ?: "",
-                            userName = resultSet.getString("userName") ?: "",
-                            userPhone = resultSet.getString("userPhone") ?: "",
-                            userProfilePic = resultSet.getString("userProfilePic") ?: "",
-                            userIntro = resultSet.getString("userIntro") ?: "",
-                            userEmail = resultSet.getString("userEmail") ?: "",
-                            userProvider = resultSet.getString("userProvider") ?: "",
-                            userInterests = resultSet.getString("userInterests") ?: ""
-                        )
+                        user = SqlUserData.getUserData(resultSet)
                     }
                 }
             }
@@ -86,12 +76,7 @@ class RemoteProfileDao {
                     statement.setInt(1, userIdx)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val link = SqlUserLinkData(
-                            linkIdx = resultSet.getInt("linkIdx"),
-                            userIdx = resultSet.getInt("userIdx"),
-                            linkUrl = resultSet.getString("linkUrl") ?: "",
-                            linkOrder = resultSet.getInt("linkOrder")
-                        )
+                        val link = SqlUserLinkData.getUserLinkData(resultSet)
 
                         linkList.add(link)
                     }
@@ -163,39 +148,25 @@ class RemoteProfileDao {
         }
     }
 
-    // 사용자가 진행한 스터디 목록
-    suspend fun loadHostStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
+    // 사용자가 진행한 스터디 목록 (3개만)
+    suspend fun loadSmallHostStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
         val studyList = mutableListOf<SqlStudyData>()
 
         try {
             getConnection().use { connection ->
-                // 먼저 링크를 모두 삭제
                 val query = """
                     SELECT * FROM tb_study
                     WHERE userIdx = ?
                     AND studyState = ?
+                    ORDER BY studyIdx DESC
+                    LIMIT 3
                 """
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, userIdx)
                     statement.setBoolean(2, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val study = SqlStudyData(
-                            studyIdx = resultSet.getInt("studyIdx"),
-                            studyTitle = resultSet.getString("studyTitle"),
-                            studyContent = resultSet.getString("studyContent") ?: "",
-                            studyType = resultSet.getString("studyType"),
-                            studyPeriod = resultSet.getString("studyPeriod"),
-                            studyOnOffline = resultSet.getString("studyOnOffline"),
-                            studyDetailPlace = resultSet.getString("studyDetailPlace"),
-                            studyPlace = resultSet.getString("studyPlace"),
-                            studyApplyMethod = resultSet.getString("studyApplyMethod"),
-                            studyCanApply = resultSet.getString("studyCanApply"),
-                            studyPic = resultSet.getString("studyPic"),
-                            studyMaxMember = resultSet.getInt("studyMaxMember"),
-                            studyState = resultSet.getBoolean("studyState"),
-                            userIdx = resultSet.getInt("userIdx"),
-                        )
+                        val study = SqlStudyData.getStudyData(resultSet)
 
                         studyList.add(study)
                     }
@@ -208,8 +179,8 @@ class RemoteProfileDao {
         return@withContext studyList
     }
 
-    // 사용자가 진행하지 않고 단순 참여한 스터디 목록
-    suspend fun loadPartStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (3개만)
+    suspend fun loadSmallPartStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
         val studyList = mutableListOf<SqlStudyData>()
 
         try {
@@ -221,6 +192,8 @@ class RemoteProfileDao {
                     WHERE sm.userIdx = ?
                     AND s.userIdx != ?
                     AND s.studyState = ?
+                    ORDER BY studyIdx DESC
+                    LIMIT 3
                 """
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, userIdx)
@@ -228,22 +201,7 @@ class RemoteProfileDao {
                     statement.setBoolean(3, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val study = SqlStudyData(
-                            studyIdx = resultSet.getInt("studyIdx"),
-                            studyTitle = resultSet.getString("studyTitle"),
-                            studyContent = resultSet.getString("studyContent") ?: "",
-                            studyType = resultSet.getString("studyType"),
-                            studyPeriod = resultSet.getString("studyPeriod"),
-                            studyOnOffline = resultSet.getString("studyOnOffline"),
-                            studyDetailPlace = resultSet.getString("studyDetailPlace"),
-                            studyPlace = resultSet.getString("studyPlace"),
-                            studyApplyMethod = resultSet.getString("studyApplyMethod"),
-                            studyCanApply = resultSet.getString("studyCanApply"),
-                            studyPic = resultSet.getString("studyPic"),
-                            studyMaxMember = resultSet.getInt("studyMaxMember"),
-                            studyState = resultSet.getBoolean("studyState"),
-                            userIdx = resultSet.getInt("userIdx"),
-                        )
+                        val study = SqlStudyData.getStudyData(resultSet)
 
                         studyList.add(study)
                     }

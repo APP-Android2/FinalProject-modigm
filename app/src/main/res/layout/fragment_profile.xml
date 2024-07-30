@@ -127,7 +127,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginBottom="20dp"
                         android:textStyle="bold"
-                        android:text="홍길동님이 진행한 스터디"
+                        android:text="@={profileViewModel.profileHostStudyTitle}"
                         android:textSize="18dp" />
 
                     <LinearLayout
@@ -193,7 +193,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginBottom="20dp"
-                        android:text="홍길동님이 참여한 스터디"
+                        android:text="@={profileViewModel.profilePartStudyTitle}"
                         android:textSize="18dp"
                         android:textStyle="bold" />
 
