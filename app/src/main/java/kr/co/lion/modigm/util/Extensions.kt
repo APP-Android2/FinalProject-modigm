@@ -4,15 +4,16 @@ import android.app.Activity
 import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomSnackbarWithIconBinding
 import kr.co.lion.modigm.databinding.CustomSnackbarWithoutIconBinding
 
@@ -45,50 +46,55 @@ fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
     })
 }
 
-// Activity의 확장 함수로 showCustomSnackbar 작성
-fun Activity.showCustomSnackbar(message: String, iconResId: Int?) {
-    Log.d("CustomSnackbar", "showCustomSnackbar 호출됨")
-    // Snackbar를 생성할 rootView를 참조합니다.
+fun Activity.showLoginSnackBar(message: String, iconResId: Int?) {
+
     val rootView = this.findViewById<View>(android.R.id.content)
+    val snackBar = Snackbar.make(rootView, "", Snackbar.LENGTH_INDEFINITE)
+    val snackBarLayout = snackBar.view as ViewGroup
+    val layoutInflater = this.layoutInflater
 
-    // 기본 Snackbar 생성
-    val snackbar = Snackbar.make(rootView, "", Snackbar.LENGTH_INDEFINITE)
+    // 텍스트 숨기기
+    snackBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text).visibility = View.INVISIBLE
 
-    // Snackbar의 기본 텍스트를 숨김
-    val snackbarText = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-    snackbarText.visibility = View.INVISIBLE
-
-    // 커스텀 레이아웃에 메시지와 아이콘을 설정
-    if (iconResId != null) {
-        val snackbarBinding = CustomSnackbarWithIconBinding.inflate(layoutInflater)
-        snackbarBinding.snackbarIcon.setImageResource(iconResId)
-        snackbarBinding.snackbarIcon.visibility = View.VISIBLE
-        snackbarBinding.snackbarText.text = message
-        // Snackbar의 레이아웃을 가져와서 커스텀 레이아웃을 추가
-        val snackbarLayout = snackbar.view as ViewGroup
-        snackbarLayout.addView(snackbarBinding.root, 0)
-    } else {
-        val snackbarBinding = CustomSnackbarWithoutIconBinding.inflate(layoutInflater)
-        snackbarBinding.snackbarText.text = message
-        // Snackbar의 레이아웃을 가져와서 커스텀 레이아웃을 추가
-        val snackbarLayout = snackbar.view as ViewGroup
-        snackbarLayout.addView(snackbarBinding.root, 0)
+    // 커스텀 레이아웃 설정 함수
+    fun setCustomLayoutWithIcon(layoutInflater: LayoutInflater, layoutId: Int, message: String, iconResId: Int?) {
+        when(layoutId) {
+            R.layout.custom_snackbar_with_icon -> {
+                val binding = CustomSnackbarWithIconBinding.inflate(layoutInflater)
+                binding.snackbarText.text = message
+                iconResId?.let {
+                    binding.snackbarIcon.setImageResource(it)
+                    binding.snackbarIcon.visibility = View.VISIBLE
+                }
+                snackBarLayout.addView(binding.root, 0)
+            }
+            R.layout.custom_snackbar_without_icon -> {
+                val binding = CustomSnackbarWithoutIconBinding.inflate(layoutInflater)
+                binding.snackbarText.text = message
+                snackBarLayout.addView(binding.root, 0)
+            }
+        }
     }
 
-    // Snackbar의 너비와 높이 및 위치 조정
-    val layoutParams = snackbar.view.layoutParams as FrameLayout.LayoutParams
-    layoutParams.width = 250.dp
-    layoutParams.height = 50.dp
-    layoutParams.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL // 아래로 배치하고 가로로 가운데 정렬
-    layoutParams.bottomMargin = 80.dp // BottomNavigationView를 고려하여 마진 추가 (적절한 값으로 설정)
-    snackbar.view.layoutParams = layoutParams
+    // 레이아웃 선택
+    val layoutId = if (iconResId != null) R.layout.custom_snackbar_with_icon else R.layout.custom_snackbar_without_icon
+    setCustomLayoutWithIcon(layoutInflater, layoutId, message, iconResId)
 
-    // Snackbar 표시
-    snackbar.show()
+    // 레이아웃 파라미터 설정
+    val layoutParams = snackBar.view.layoutParams as FrameLayout.LayoutParams
+    layoutParams.apply {
+        width = FrameLayout.LayoutParams.MATCH_PARENT
+        height = FrameLayout.LayoutParams.WRAP_CONTENT
+        gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+        bottomMargin = 80.dp
+    }
+    snackBar.view.layoutParams = layoutParams
+
+    snackBar.show()
 
     // 설정된 시간 후에 Snackbar를 닫기
-    val displayDuration = 1500
-    snackbar.view.postDelayed({
-        snackbar.dismiss()
-    }, displayDuration.toLong())
+    snackBar.view.postDelayed({
+        snackBar.dismiss()
+    }, 2000)
 }
+

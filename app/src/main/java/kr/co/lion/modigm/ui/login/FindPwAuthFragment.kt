@@ -1,10 +1,7 @@
 package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
@@ -15,35 +12,35 @@ import kr.co.lion.modigm.util.FragmentName
 class FindPwAuthFragment : Fragment(R.layout.fragment_find_pw_auth) {
 
     private val viewModel: FindPwAuthViewModel by viewModels()
-    lateinit var binding: FragmentFindPwAuthBinding
 
     private val verificationId by lazy {
         arguments?.getString("verificationId")
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_find_pw_auth, container, false)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
-
-        viewModel.setVerificationId(verificationId?:"")
-
-        return binding.root
-    }
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
-        settingObserver()
+
+        // 바인딩
+        val binding = FragmentFindPwAuthBinding.bind(view)
+
+        viewModel.setVerificationId(verificationId?:"")
+
+        initView(binding)
+        settingObserver(binding)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // 뷰모델 클리어 함수 구현요망
+    }
+
+    // --------------------------------- LC END ---------------------------------
+
     // 초기 뷰 세팅
-    private fun initView() {
+    private fun initView(binding: FragmentFindPwAuthBinding) {
         with(binding) {
             // 툴바
             with(toolbarFindPwAuth) {
@@ -72,7 +69,7 @@ class FindPwAuthFragment : Fragment(R.layout.fragment_find_pw_auth) {
         }
     }
 
-    private fun settingObserver(){
+    private fun settingObserver(binding: FragmentFindPwAuthBinding){
         // 유효성 검사
         viewModel.inputCodeError.observe(viewLifecycleOwner) {
             binding.textInputEditFindPwPassCode.error = it

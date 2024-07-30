@@ -10,7 +10,7 @@ import kr.co.lion.modigm.model.SqlStudyData
 class StudyViewHolder(
     private val binding: RowStudyBinding,
     private val rowClickListener: (Int) -> Unit,
-    private val favoriteClickListener: (Int) -> Unit,
+    private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(studyData: Triple<SqlStudyData, Int, Boolean>) {
@@ -31,7 +31,7 @@ class StudyViewHolder(
             // 신청 방식 (선착순, 신청제)
             textViewStudyApplyMethod.text = studyData.first.studyApplyMethod
             // 찜 상태
-            setupFavoriteButton(studyData)
+            setFavoriteButton(studyData)
         }
     }
 
@@ -110,7 +110,7 @@ class StudyViewHolder(
         binding.textViewStudyCurrentMember.text = studyData.second.toString()
     }
 
-    private fun setupFavoriteButton(studyData: Triple<SqlStudyData, Int, Boolean>) {
+    private fun setFavoriteButton(studyData: Triple<SqlStudyData, Int, Boolean>) {
         with(binding.imageViewStudyFavorite) {
             if (studyData.third) {
                 setImageResource(R.drawable.icon_favorite_full_24px)
@@ -121,7 +121,7 @@ class StudyViewHolder(
             }
 
             setOnClickListener {
-                favoriteClickListener.invoke(studyData.first.studyIdx)
+                favoriteClickListener.invoke(studyData.first.studyIdx, studyData.third)
             }
         }
     }
