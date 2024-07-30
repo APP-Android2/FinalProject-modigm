@@ -140,6 +140,7 @@ class ProfileFragment: Fragment() {
         setupRecyclerViewLink()
         setupRecyclerViewPartStudy()
         setupRecyclerViewHostStudy()
+        setupIconMoreStudy()
 
         observeData()
     }
@@ -226,13 +227,11 @@ class ProfileFragment: Fragment() {
 //    }
 
     private fun setupUserInfo() {
-        Log.d("zunione", "setupUserInfo")
         profileViewModel.profileUserIdx.value = userIdx
         profileViewModel.loadUserData()
         profileViewModel.loadUserLinkListData()
         profileViewModel.loadHostStudyList(userIdx!!)
         profileViewModel.loadPartStudyList(userIdx!!)
-
     }
 
     private fun setupRecyclerViewLink() {
@@ -270,6 +269,42 @@ class ProfileFragment: Fragment() {
 
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(requireContext())
+            }
+        }
+    }
+
+    private fun setupIconMoreStudy() {
+        fragmentProfileBinding.apply {
+            layoutMoreProfileHostStudy.setOnClickListener {
+                // bundle 에 필요한 정보를 담는다
+                val bundle = Bundle()
+                bundle.putInt("type", 1)
+                bundle.putInt("userIdx", userIdx!!)
+
+                // 이동할 프래그먼트로 bundle을 넘긴다
+                val profileStudyFragment = ProfileStudyFragment()
+                profileStudyFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    add(R.id.containerMain, profileStudyFragment)
+                    addToBackStack(FragmentName.PROFILE_STUDY.str)
+                }
+            }
+
+            layoutMoreProfilePartStudy.setOnClickListener {
+                // bundle 에 필요한 정보를 담는다
+                val bundle = Bundle()
+                bundle.putInt("type", 2)
+                bundle.putInt("userIdx", userIdx!!)
+
+                // 이동할 프래그먼트로 bundle을 넘긴다
+                val profileStudyFragment = ProfileStudyFragment()
+                profileStudyFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    add(R.id.containerMain, profileStudyFragment)
+                    addToBackStack(FragmentName.PROFILE_STUDY.str)
+                }
             }
         }
     }
@@ -336,6 +371,11 @@ class ProfileFragment: Fragment() {
                 fragmentProfileBinding.layoutListProfileHostStudy.visibility = View.VISIBLE
                 fragmentProfileBinding.layoutBlankProfileHostStudy.visibility = View.GONE
             }
+
+            // 2개 이하이면 더보기 아이콘 표시 안함
+            if (profileHostStudyList.size < 3) {
+                fragmentProfileBinding.layoutMoreProfileHostStudy.visibility = View.GONE
+            }
         }
 
         // 참여한 스터디 리스트
@@ -349,6 +389,11 @@ class ProfileFragment: Fragment() {
             } else {
                 fragmentProfileBinding.layoutListProfilePartStudy.visibility = View.VISIBLE
                 fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.GONE
+            }
+
+            // 2개 이하이면 더보기 아이콘 표시 안함
+            if (profilePartStudyList.size < 3) {
+                fragmentProfileBinding.layoutMoreProfilePartStudy.visibility = View.GONE
             }
         }
     }

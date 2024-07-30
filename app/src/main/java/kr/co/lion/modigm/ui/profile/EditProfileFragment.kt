@@ -191,7 +191,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                     // 크기를 줄인 이미지를 가져온다.
                     val bitmap3 = Picture.resizeBitmap(bitmap2, 1024)
 
-                    // 비트맵을 Base64 형식으로 변환
                     val byteArrayOutputStream = ByteArrayOutputStream()
                     // 비트맵을 JPEG 형식으로 압축
                     bitmap3.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)

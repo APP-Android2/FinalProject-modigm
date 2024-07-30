@@ -145,6 +145,7 @@
                             android:overScrollMode="never" />
 
                         <LinearLayout
+                            android:id="@+id/layoutMoreProfileHostStudy"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:orientation="horizontal"
@@ -212,6 +213,7 @@
                             android:overScrollMode="never" />
 
                         <LinearLayout
+                            android:id="@+id/layoutMoreProfilePartStudy"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:orientation="horizontal"

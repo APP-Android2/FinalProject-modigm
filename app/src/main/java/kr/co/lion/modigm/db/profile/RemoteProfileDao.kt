@@ -213,4 +213,68 @@ class RemoteProfileDao {
 
         return@withContext studyList
     }
+
+    // 사용자가 진행한 스터디 목록 (전체)
+    suspend fun loadHostStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<SqlStudyData>()
+
+        try {
+            getConnection().use { connection ->
+                val query = """
+                    SELECT * FROM tb_study
+                    WHERE userIdx = ?
+                    AND studyState = ?
+                    ORDER BY studyIdx DESC
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.setBoolean(2, true)
+                    val resultSet = statement.executeQuery()
+                    while (resultSet.next()) {
+                        val study = SqlStudyData.getStudyData(resultSet)
+
+                        studyList.add(study)
+                    }
+                }
+            }
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDao", "loadHostStudyList(): $error")
+        }
+
+        return@withContext studyList
+    }
+
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (전체)
+    suspend fun loadPartStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<SqlStudyData>()
+
+        try {
+            getConnection().use { connection ->
+                val query = """
+                    SELECT s.*
+                    FROM tb_study s
+                    JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
+                    WHERE sm.userIdx = ?
+                    AND s.userIdx != ?
+                    AND s.studyState = ?
+                    ORDER BY studyIdx DESC
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.setInt(2, userIdx)
+                    statement.setBoolean(3, true)
+                    val resultSet = statement.executeQuery()
+                    while (resultSet.next()) {
+                        val study = SqlStudyData.getStudyData(resultSet)
+
+                        studyList.add(study)
+                    }
+                }
+            }
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDao", "loadHostStudyList(): $error")
+        }
+
+        return@withContext studyList
+    }
 }
