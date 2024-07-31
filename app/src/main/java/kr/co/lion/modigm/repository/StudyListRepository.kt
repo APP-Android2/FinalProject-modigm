@@ -5,7 +5,7 @@ import kr.co.lion.modigm.model.SqlStudyData
 
 class StudyListRepository() {
 
-    private val studyDataSource = StudyDataSource()
+    private val studyDataSource by lazy { StudyDataSource() }
 
     // 전체 스터디 목록을 가져오는 메소드 (좋아요 여부 포함)
     suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
@@ -30,7 +30,7 @@ class StudyListRepository() {
     }
 
     // 리소스를 해제하는 메서드 추가
-    suspend fun close() {
-        studyDataSource.close()
+    suspend fun closeDataSource() {
+        studyDataSource.closeDataSource()
     }
 }

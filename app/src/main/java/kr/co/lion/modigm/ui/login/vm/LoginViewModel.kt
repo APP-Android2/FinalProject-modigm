@@ -8,20 +8,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.repository.LoginRepository
-import kr.co.lion.modigm.ui.login.LoginError
 import kr.co.lion.modigm.util.ModigmApplication
 
 class LoginViewModel : ViewModel() {
 
     // LoginRepository 초기화
-    private val loginRepository by lazy {
-        LoginRepository()
-    }
+    private val loginRepository by lazy { LoginRepository() }
 
     // SharedPreferences 초기화
-    private val prefs by lazy {
-        ModigmApplication.prefs
-    }
+    private val prefs by lazy { ModigmApplication.prefs }
 
     // 이메일 로그인 결과를 담는 LiveData
     private val _emailLoginResult = MutableLiveData<Boolean>()
@@ -128,7 +123,6 @@ class LoginViewModel : ViewModel() {
                 _githubLoginResult.postValue(false)
                 _githubLoginError.postValue(e)
             }
-
         }
     }
 
@@ -210,9 +204,9 @@ class LoginViewModel : ViewModel() {
     /**
      * DAO 코루틴을 취소하는 함수
      */
-    private fun daoCoroutineCancel() {
+    private fun closeDataSource() {
         viewModelScope.launch {
-            loginRepository.daoCoroutineCancel()
+            loginRepository.closeDataSource()
         }
     }
 
@@ -222,6 +216,6 @@ class LoginViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         // DAO 코루틴 취소
-        daoCoroutineCancel()
+        closeDataSource()
     }
 }
