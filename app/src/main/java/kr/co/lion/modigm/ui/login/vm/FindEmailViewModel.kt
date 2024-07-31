@@ -110,14 +110,18 @@ class FindEmailViewModel : ViewModel() {
             }
         }
     }
+    fun authLogout(){
+        val result = loginRepository.authLogout()
+        result.onSuccess {
+            Log.d(tag, "로그아웃 성공.")
+        }.onFailure { e ->
+            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
+        }
+    }
 
     fun clearData(){
         _emailResult.postValue("")
         _isComplete.postValue(false)
-        _nameError.postValue(null)
-        _phoneError.postValue(null)
-        _inputCodeError.postValue(null)
         _verificationId.postValue("")
-        _resendToken.postValue(null)
     }
 }

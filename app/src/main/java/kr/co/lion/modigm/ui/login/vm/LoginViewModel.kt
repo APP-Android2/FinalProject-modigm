@@ -2,6 +2,7 @@ package kr.co.lion.modigm.ui.login.vm
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,8 @@ import kr.co.lion.modigm.repository.LoginRepository
 import kr.co.lion.modigm.util.ModigmApplication
 
 class LoginViewModel : ViewModel() {
+
+    private val tag by lazy { "LoginViewModel" }
 
     // LoginRepository 초기화
     private val loginRepository by lazy { LoginRepository() }
@@ -193,16 +196,25 @@ class LoginViewModel : ViewModel() {
     }
 
     /**
+     * 로그아웃
+     */
+    fun authLogout() {
+
+        val result = loginRepository.authLogout()
+        result.onSuccess {
+            Log.d(tag, "로그아웃 성공.")
+        }.onFailure { e ->
+            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
+        }
+    }
+
+    /**
      * 뷰모델 데이터를 초기화하는 함수
      */
     fun clearData() {
         _emailLoginResult.postValue(false)
         _githubLoginResult.postValue(false)
         _kakaoLoginResult.postValue(false)
-        _autoLoginError.postValue(null)
-        _emailLoginError.postValue(null)
-        _githubLoginError.postValue(null)
-        _kakaoLoginError.postValue(null)
 
     }
 }

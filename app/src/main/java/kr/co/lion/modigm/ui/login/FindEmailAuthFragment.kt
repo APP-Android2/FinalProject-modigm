@@ -6,6 +6,8 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.FragmentFindEmailAuthBinding
 import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.login.vm.FindEmailViewModel
@@ -50,7 +52,9 @@ class FindEmailAuthFragment :
             with(toolbarFindEmailAuth) {
                 // 뒤로가기 버튼 클릭 시
                 setNavigationOnClickListener {
-                    parentFragmentManager.popBackStack()
+
+                    // 취소 다이얼로그
+                    showCancelDialog()
                 }
             }
 
@@ -131,6 +135,23 @@ class FindEmailAuthFragment :
         }
 
         override fun afterTextChanged(p0: Editable?) { }
+    }
+
+    // 뒤로가기 다이얼로그 표시
+    private fun showCancelDialog() {
+        val dialog = CustomCancelDialog(requireContext())
+        dialog.setTitle("뒤로가기")
+        dialog.setPositiveButton("확인") {
+            lifecycleScope.launch {
+                viewModel.authLogout()
+                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+            }
+        }
+        dialog.setNegativeButton("취소") {
+
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 
 }

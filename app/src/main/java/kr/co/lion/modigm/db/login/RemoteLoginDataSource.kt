@@ -407,4 +407,14 @@ class RemoteLoginDataSource {
             Result.failure<Boolean>(e)
         }
     }
+
+    fun authLogout(): Result<Boolean> {
+        return runCatching {
+            auth.signOut()
+            true
+        }.onFailure { e ->
+            Log.e(tag, "로그아웃 중 오류 발생", e)
+            Result.failure<Unit>(e)
+        }
+    }
 }

@@ -44,7 +44,9 @@ class FindPasswordAuthFragment : ViewBindingFragment<FragmentFindPasswordAuthBin
             with(toolbarFindPwAuth) {
                 // 뒤로가기 버튼 클릭 시
                 setNavigationOnClickListener {
-                    parentFragmentManager.popBackStack()
+
+                    // 취소 다이얼로그
+                    showCancelDialog()
                 }
             }
 
@@ -125,5 +127,19 @@ class FindPasswordAuthFragment : ViewBindingFragment<FragmentFindPasswordAuthBin
             replace(R.id.containerMain, fragment)
             addToBackStack(FragmentName.RESET_PW.str)
         }
+    }
+
+    // 뒤로가기 다이얼로그 표시
+    private fun showCancelDialog() {
+        val dialog = CustomCancelDialog(requireContext())
+        dialog.setTitle("뒤로가기")
+        dialog.setPositiveButton("확인") {
+            parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+        }
+        dialog.setNegativeButton("취소") {
+
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 }

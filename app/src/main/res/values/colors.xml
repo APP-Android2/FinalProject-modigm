@@ -21,4 +21,7 @@
 
     <!-- TextView 클릭 시 -->
     <color name="textViewClickGray">#ddd</color>
+
+    <!-- 빨간 글씨 -->
+    <color name="redColor">#ff0000</color>
 </resources>

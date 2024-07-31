@@ -156,4 +156,16 @@ class LoginRepository {
             Result.failure<Boolean>(e)
         }
     }
+
+    /**
+     * 로그아웃
+     */
+    fun authLogout(): Result<Boolean> {
+        return runCatching {
+            loginDataSource.authLogout().getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "로그아웃 중 오류 발생: ${e.message}", e)
+            Result.failure<Boolean>(e)
+        }
+    }
 }

@@ -127,13 +127,19 @@ class UpdatePasswordViewModel: ViewModel() {
         }
     }
 
+    fun authLogout() {
+        val result = loginRepository.authLogout()
+        result.onSuccess {
+            Log.d(tag, "로그아웃 성공.")
+        }.onFailure { e ->
+            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
+        }
+    }
+
     /**
      * 데이터 초기화 메서드
      */
     fun clearData() {
-        _emailError.postValue(null)
-        _phoneError.postValue(null)
-        _inputCodeError.postValue(null)
         _verificationId.postValue("")
         _isComplete.postValue(false)
     }

@@ -40,7 +40,7 @@ class FindPasswordFragment : ViewBindingFragment<FragmentFindPasswordBinding>(Fr
             with(toolbarFindPw) {
                 // 뒤로가기 버튼 클릭 시
                 setNavigationOnClickListener {
-                    parentFragmentManager.popBackStack()
+                    parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
                 }
             }
 

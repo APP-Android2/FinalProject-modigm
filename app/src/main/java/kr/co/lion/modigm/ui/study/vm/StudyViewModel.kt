@@ -135,13 +135,7 @@ class StudyViewModel : ViewModel() {
         _myStudyData.postValue(emptyList())
         _favoritedData.postValue(emptyList())
         _isFavorite.postValue(Pair(-1, false))
-        _isFavoriteError.postValue(null)
-        _allStudyError.postValue(null)
-        _myStudyError.postValue(null)
-        _favoriteStudyError.postValue(null)
-        _isFavoriteError.postValue(null)
         filterData.clear()
-
     }
 
     // ------------------MySQL 적용 끝-----------------------
