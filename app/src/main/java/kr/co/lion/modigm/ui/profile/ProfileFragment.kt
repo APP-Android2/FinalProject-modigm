@@ -25,6 +25,7 @@ import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
@@ -119,7 +120,7 @@ class ProfileFragment: Fragment() {
         fragmentProfileBinding.lifecycleOwner = this
 
         userIdx = 9689//arguments?.getInt("userIdx")
-        //myProfile = userIdx == ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        myProfile = userIdx == ModigmApplication.prefs.getInt("currentUserIdx")
 
         return fragmentProfileBinding.root
     }
