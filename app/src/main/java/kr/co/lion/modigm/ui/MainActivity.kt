@@ -12,9 +12,8 @@ import kr.co.lion.modigm.ui.login.LoginFragment
 class MainActivity : AppCompatActivity() {
 
     // 바인딩
-    private val binding: ActivityMainBinding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
+    private var _binding: ActivityMainBinding? = null
+    private val binding get() = _binding!!
 
     // --------------------------------- LC START ---------------------------------
 
@@ -22,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // 바인딩
+        _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         Log.d("MainActivity1", "onCreate: MainActivity 시작")
@@ -34,6 +34,11 @@ class MainActivity : AppCompatActivity() {
             setReorderingAllowed(true)
             replace<LoginFragment>(R.id.containerMain)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     // --------------------------------- LC END ---------------------------------

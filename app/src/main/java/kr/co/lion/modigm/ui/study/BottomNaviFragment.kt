@@ -8,7 +8,7 @@ import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
-import kr.co.lion.modigm.ui.BaseFragment
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
@@ -16,7 +16,7 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class BottomNaviFragment : BaseFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate) {
+class BottomNaviFragment : ViewBindingFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate) {
 
     private val viewModel: StudyViewModel by viewModels()
 

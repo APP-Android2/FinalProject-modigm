@@ -4,13 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
-import androidx.viewbinding.ViewBinding
 
-typealias Inflate<T> = (LayoutInflater, ViewGroup?, Boolean) -> T
-
-abstract class BaseFragment<VB : ViewBinding>(
-    private val inflate: Inflate<VB>
+abstract class DataBindingFragment<VB : ViewDataBinding>(
+    private val layoutResId: Int
 ) : Fragment() {
 
     private var _binding: VB? = null
@@ -21,7 +20,8 @@ abstract class BaseFragment<VB : ViewBinding>(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = inflate.invoke(inflater, container, false)
+        _binding = DataBindingUtil.inflate(inflater, layoutResId, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 

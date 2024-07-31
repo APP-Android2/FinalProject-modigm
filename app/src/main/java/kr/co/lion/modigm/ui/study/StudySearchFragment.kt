@@ -11,13 +11,13 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudySearchBinding
-import kr.co.lion.modigm.ui.BaseFragment
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudySearchAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class StudySearchFragment : BaseFragment<FragmentStudySearchBinding>(FragmentStudySearchBinding::inflate) {
+class StudySearchFragment : ViewBindingFragment<FragmentStudySearchBinding>(FragmentStudySearchBinding::inflate) {
 
     // 뷰모델
     private val viewModel: StudyViewModel by viewModels()
