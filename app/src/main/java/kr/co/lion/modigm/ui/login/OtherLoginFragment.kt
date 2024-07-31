@@ -1,48 +1,57 @@
 package kr.co.lion.modigm.ui.login
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentOtherLoginBinding
 import kr.co.lion.modigm.ui.join.JoinFragment
-import kr.co.lion.modigm.ui.login.vm.LoginResult
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.hideSoftInput
-import kr.co.lion.modigm.util.showCustomSnackbar
+import kr.co.lion.modigm.util.showLoginSnackBar
 
-class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄을 추가하여 올바른 레이아웃을 지정합니다.
+class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
 
-    private val viewModel: LoginViewModel by viewModels() // LoginViewModel 인스턴스 생성
-    private lateinit var binding: FragmentOtherLoginBinding
+    private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
 
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding = FragmentOtherLoginBinding.bind(view) // view에서 binding을 초기화합니다.
+        // 바인딩
+        val binding = FragmentOtherLoginBinding.bind(view)
+
         initView(binding) // 초기 UI 설정
-        observeViewModel(binding) // ViewModel의 데이터 변경 관찰
+        observeViewModel() // ViewModel의 데이터 변경 관찰
     }
 
     override fun onResume() {
         super.onResume()
 
-        // 이메일 텍스트 필드 포커싱 및 소프트키보드 보여주기
-        binding.textInputEditOtherEmail.requestFocus()
-        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.textInputEditOtherEmail, InputMethodManager.SHOW_IMPLICIT)
+            // 키보드 올리기 binding 없이 하거나 onViewCreated에서 할것 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+//        // 이메일 텍스트 필드 포커싱 및 소프트키보드 보여주기
+//        binding.textInputEditOtherEmail.requestFocus()
+//        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//        imm.showSoftInput(binding.textInputEditOtherEmail, InputMethodManager.SHOW_IMPLICIT)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        viewModel.clearData() // ViewModel 데이터 초기화
+    }
+
+    // --------------------------------- LC END ---------------------------------
 
     private fun initView(binding: FragmentOtherLoginBinding) {
         // 로그인 버튼 초기값을 비활성화 상태로 설정
@@ -62,22 +71,16 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
             }
         }
 
-        // 이메일 입력 중 에러 메시지 제거
+        // 이메일 입력 중 에러 메시지 제거 및 유효성 검사
         binding.textInputEditOtherEmail.addTextChangedListener {
             clearEmailError(binding)
-            viewModel.loginDataChanged(
-                binding.textInputEditOtherEmail.text.toString(),
-                binding.textInputEditOtherPassword.text.toString()
-            )
+            validateLoginForm(binding)
         }
 
-        // 비밀번호 입력 중 에러 메시지 제거
+        // 비밀번호 입력 중 에러 메시지 제거 및 유효성 검사
         binding.textInputEditOtherPassword.addTextChangedListener {
             clearPasswordError(binding)
-            viewModel.loginDataChanged(
-                binding.textInputEditOtherEmail.text.toString(),
-                binding.textInputEditOtherPassword.text.toString()
-            )
+            validateLoginForm(binding)
         }
 
         // 로그인 버튼 클릭 시 로그인 시도
@@ -87,7 +90,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
             val password = binding.textInputEditOtherPassword.text.toString()
             val autoLogin = binding.checkBoxOtherAutoLogin.isChecked
             Log.d("OtherLoginFragment", "autoLogin : $autoLogin")
-            viewModel.login(email, password, autoLogin)
+            viewModel.emailLogin(email, password, autoLogin)
         }
 
         // 회원가입 버튼 클릭 시 회원가입 화면으로 이동
@@ -98,7 +101,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
         // 이메일 찾기 버튼 클릭 시
         binding.buttonOtherFindEmail.setOnClickListener {
             parentFragmentManager.commit {
-                replace(R.id.containerMain, FindEmailFragment())
+                replace<FindEmailFragment>(R.id.containerMain)
                 addToBackStack(FragmentName.FIND_EMAIL.str)
             }
         }
@@ -106,7 +109,7 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
         // 비밀번호 찾기 버튼 클릭 시
         binding.buttonOtherFindPassword.setOnClickListener {
             parentFragmentManager.commit {
-                replace(R.id.containerMain, FindPwFragment())
+                replace<FindPwFragment>(R.id.containerMain)
                 addToBackStack(FragmentName.FIND_PW.str)
             }
         }
@@ -126,7 +129,6 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
         } else {
             binding.textInputLayoutOtherEmail.error = null
         }
-        viewModel.loginDataChanged(email, binding.textInputEditOtherPassword.text.toString())
     }
 
     // 비밀번호 유효성 검사
@@ -139,7 +141,15 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
         } else {
             binding.textInputLayoutOtherPassword.error = null
         }
-        viewModel.loginDataChanged(binding.textInputEditOtherEmail.text.toString(), password)
+    }
+
+    // 로그인 폼 유효성 검사 및 로그인 버튼 활성화
+    private fun validateLoginForm(binding: FragmentOtherLoginBinding) {
+        val email = binding.textInputEditOtherEmail.text.toString()
+        val password = binding.textInputEditOtherPassword.text.toString()
+        val isEmailValid = viewModel.isEmailValid(email)
+        val isPasswordValid = viewModel.isPasswordValid(password)
+        binding.buttonOtherLogin.isEnabled = isEmailValid && isPasswordValid
     }
 
     // 이메일 에러 메시지 제거
@@ -153,42 +163,29 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) { // 이 줄�
     }
 
     // ViewModel의 데이터 변경을 관찰하여 UI 업데이트
-    private fun observeViewModel(binding: FragmentOtherLoginBinding) {
-        viewModel.loginFormState.observe(viewLifecycleOwner, Observer { loginState ->
-            if (loginState != null) {
-                binding.buttonOtherLogin.isEnabled = loginState.isDataValid
-                if (loginState.emailError != null && !binding.textInputEditOtherEmail.hasFocus()) {
-                    binding.textInputLayoutOtherEmail.error = loginState.emailError
-                }
-                if (loginState.passwordError != null && !binding.textInputEditOtherPassword.hasFocus()) {
-                    binding.textInputLayoutOtherPassword.error = loginState.passwordError
-                }
-            }
-        })
-
+    private fun observeViewModel() {
         // 이메일 로그인 데이터 관찰
-        viewModel.emailLoginResult.observe(viewLifecycleOwner, Observer { result ->
-            when (result) {
-                is LoginResult.Loading -> {
-                    Log.i("LoginFragment", "이메일 로그인 진행 중...")
-                }
-                is LoginResult.Success -> {
-                    Log.i("LoginFragment", "이메일 로그인 성공")
-                    // 커스텀 스낵바 메시지 추가
-                    requireActivity().showCustomSnackbar("이메일 로그인 성공", R.drawable.email_login_logo)
-                    // 메인 화면으로 이동
-                    navigateToBottomNaviFragment()
-                }
-                is LoginResult.NeedSignUp -> {
-                    Log.i("LoginFragment", "이메일 로그인 성공, 회원가입 필요")
-                    val joinType = viewModel.joinType.value ?: JoinType.EMAIL
-                    navigateToJoinFragment(joinType) // 이메일 로그인은 별도의 토큰이 필요 없음
-                }
-                is LoginResult.Error -> {
-                    Log.e("LoginFragment", "이메일 로그인 실패", result.exception)
-                }
+        viewModel.emailLoginResult.observe(viewLifecycleOwner) { result ->
+            if (result) {
+                Log.i("LoginFragment", "이메일 로그인 성공")
+                requireActivity().showLoginSnackBar("이메일 로그인 성공", R.drawable.email_login_logo)
+                navigateToBottomNaviFragment()
             }
-        })
+        }
+        // 이메일 로그인 실패 시 에러 처리
+        viewModel.emailLoginError.observe(viewLifecycleOwner) { e ->
+            handleLoginError(e)
+        }
+    }
+
+    // 로그인 오류 처리 메서드
+    private fun handleLoginError(e: Throwable) {
+        val message = if (e is LoginError) {
+            e.getFullMessage()
+        } else {
+            "알 수 없는 오류!\n코드번호: 9999"
+        }
+        requireActivity().showLoginSnackBar(message, R.drawable.icon_error_24px)
     }
 
     // 회원가입 버튼 클릭 시 호출되는 메소드

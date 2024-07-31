@@ -1,12 +1,8 @@
 package kr.co.lion.modigm.ui.login
 
-import android.app.Dialog
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
-import android.view.Window
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.databinding.CustomDialogFindEmailBinding
 
