@@ -3,6 +3,7 @@ package kr.co.lion.modigm.ui.detail.vm
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -34,19 +35,24 @@ class SqlDetailViewModel: ViewModel() {
     private val _updateResult = MutableSharedFlow<Boolean>()
     val updateResult: SharedFlow<Boolean> = _updateResult
 
+    private val _studyPic = MutableStateFlow<String?>(null)
+    val studyPic: StateFlow<String?> = _studyPic
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
         _userData.value = null
         _studyTechList.value = emptyList()
+        _studyPic.value = null
     }
 
     // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
     fun getStudy(studyIdx: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 sqlDetailRepository.getStudyById(studyIdx).collect { data ->
                     _studyData.value = data
+                    data?.let { getStudyPic(it.studyIdx) } // 데이터 가져온 후 이미지 로드
                 }
             } catch (throwable: Throwable) {
                 Log.e("DetailViewModel", "Error fetching study data", throwable)
@@ -63,6 +69,27 @@ class SqlDetailViewModel: ViewModel() {
                 }
             } catch (throwable: Throwable) {
                 Log.e("DetailViewModel", "Error counting members", throwable)
+            }
+        }
+    }
+
+    // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
+//    fun getStudyPic(studyIdx: Int) {
+//        viewModelScope.launch {
+//            try {
+//                sqlDetailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
+//                    _studyPic.value = pic
+//                }
+//            } catch (throwable: Throwable) {
+//                Log.e("DetailViewModel", "Error fetching study pic", throwable)
+//            }
+//        }
+//    }
+    // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
+    fun getStudyPic(studyIdx: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sqlDetailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
+                _studyPic.value = pic
             }
         }
     }

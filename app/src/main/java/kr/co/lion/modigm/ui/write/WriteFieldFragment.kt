@@ -34,9 +34,9 @@ class WriteFieldFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding){
-            cardviewWriteFieldStudy.setTag(1)
-            cardviewWriteFieldContest.setTag(3)
-            cardviewWriteFieldProject.setTag(2)
+            cardviewWriteFieldStudy.setTag("스터디")
+            cardviewWriteFieldContest.setTag("공모전")
+            cardviewWriteFieldProject.setTag("프로젝트")
 
             cardviewWriteFieldStudy.setOnClickListener {
                 onCardClicked(it as MaterialCardView)
@@ -52,9 +52,9 @@ class WriteFieldFragment : Fragment() {
         // ViewModel에 저장된 선택 상태를 확인하고 복원
         viewModel.selectedFieldTag.value?.let { selectedTag ->
             when (selectedTag) {
-                1 -> binding.cardviewWriteFieldStudy.performClick()
-                2 -> binding.cardviewWriteFieldProject.performClick()
-                3 -> binding.cardviewWriteFieldContest.performClick()
+                "스터디" -> binding.cardviewWriteFieldStudy.performClick()
+                "프로젝트" -> binding.cardviewWriteFieldProject.performClick()
+                "공모전" -> binding.cardviewWriteFieldContest.performClick()
                 else -> { /* 저장된 데이터 없음 */ }
             }
         }
@@ -84,7 +84,7 @@ class WriteFieldFragment : Fragment() {
         changeStrokeColor(clickedCardView, !wasSelected)
 
         // 선택된 카드뷰의 태그를 뷰모델에 저장
-        viewModel.selectedFieldTag.value = clickedCardView.tag as Int
+        viewModel.selectedFieldTag.value = clickedCardView.tag as String
     }
 
 }

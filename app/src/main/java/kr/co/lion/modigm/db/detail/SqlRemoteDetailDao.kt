@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.db.study
+package kr.co.lion.modigm.db.detail
 
 import android.util.Log
 import com.zaxxer.hikari.HikariConfig
@@ -12,7 +12,7 @@ import java.sql.ResultSet
 
 class SqlRemoteDetailDao {
     private val TAG = "SqlRemoteDetailDao"
-//    private var dataSource: HikariDataSource? = null
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e(TAG, "Coroutine exception", throwable)
     }
@@ -133,14 +133,6 @@ class SqlRemoteDetailDao {
             return@withContext 0
         }
     }
-
-    // Dao가 더 이상 필요 없을 때 자원을 해제하는 메소드 (destroy에 호출)
-//    suspend fun close() {
-//        coroutineScope.cancel()
-//        if (dataSourceDeferred.isCompleted) {
-//            dataSourceDeferred.await().close()
-//        }
-//    }
 
     suspend fun close() {
         try {

@@ -115,7 +115,7 @@ class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
             }
         }
         // 초기 유효성 검사 실행
-        viewModel.studyOnOffline.value = 2 // 오프라인으로 설정
+        viewModel.studyOnOffline.value = "오프라인" // 오프라인으로 설정
         viewModel.validateProceedInput()
     }
 
@@ -130,9 +130,9 @@ class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
                 updateChipStyles(binding.chipGroupWriteType, view.id)
 
                 onOffline = view.tag as Int
-                viewModel.studyOnOffline.value = onOffline
+                viewModel.studyOnOffline.value = onOffline.toString()
 
-                if (onOffline == 1) { // "온라인"이 선택된 경우
+                if (onOffline == 2) { // "온라인"이 선택된 경우
                     val locationText = ""
                     binding.textFieldWriteProceedLocation.setText(locationText)
                     viewModel.studyPlace.value = locationText
@@ -313,7 +313,7 @@ class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
 
     fun validateAnswer() {
         viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
-            if (onOffline == 0) {
+            if (onOffline == null) {
                 Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT).show()
             }
         }

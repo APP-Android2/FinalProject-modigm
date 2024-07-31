@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.detail
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -17,12 +18,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.bumptech.glide.load.resource.bitmap.Downsampler
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
 import kr.co.lion.modigm.model.SqlStudyData
@@ -88,19 +102,17 @@ class DetailFragment : Fragment() {
     }
 
     fun fetchDataAndUpdateUI() {
-        viewModel.getStudy(studyIdx)
-        viewModel.countMembersByStudyIdx(studyIdx)
-        // getStudy 호출 후 userIdx를 가져와서 getUserById 호출
         lifecycleScope.launch {
-            viewModel.studyData.collect { data ->
-                data?.let {
-                    val writeUserIdx = it.userIdx
-                    viewModel.getUserById(writeUserIdx)
-                }
-            }
+            // 동시에 데이터 로드
+            val dataDeferred = async { viewModel.getStudy(studyIdx) }
+            val membersDeferred = async { viewModel.countMembersByStudyIdx(studyIdx) }
+            val techDeferred = async { viewModel.getTechIdxByStudyIdx(studyIdx) }
+            val imageDeferred = async { loadImage() }
+
+            // 모든 데이터 로드 완료까지 대기
+            awaitAll(dataDeferred, membersDeferred, techDeferred, imageDeferred)
         }
-//        viewModel.getUserById(userIdx)
-        viewModel.getTechIdxByStudyIdx(studyIdx)
+
 
         // 좋아요 토글 및 상태
 //        lifecycleScope.launch {
@@ -114,6 +126,26 @@ class DetailFragment : Fragment() {
 //                }
 //            }
 //        }
+    }
+    private suspend fun loadImage() {
+        viewModel.studyPic.collect { imageUrl ->
+            imageUrl?.let {
+                withContext(Dispatchers.Main) {
+                    Glide.with(this@DetailFragment)
+                        .load(it)
+                        .apply(
+                            RequestOptions()
+                                .format(DecodeFormat.PREFER_RGB_565)
+                                .placeholder(R.drawable.image_loading_gray)
+                                .error(R.drawable.icon_error_24px)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .override(800, 600)
+                        )
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .into(binding.imageViewDetailCover)
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -146,7 +178,7 @@ class DetailFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.userData.collect { user ->
                 user?.let {
-                    currentUserData = it
+//                    currentUserData = it
                     updateUIIfReady()
                     // 유저 이름 설정
                     binding.textViewDetailUserName.text = it.userName
@@ -161,14 +193,6 @@ class DetailFragment : Fragment() {
                 updateTechChips(techList)
             }
         }
-
-        // 스터디 커버 이미지 (랜덤 이미지 구현 후 수정)
-//        viewModel.imageUri.observe(viewLifecycleOwner) { uri ->
-//            Glide.with(this)
-//                .load(uri)
-//                .error(R.drawable.icon_error_24px) // 에러 발생시 보여줄 이미지
-//                .into(binding.imageViewDetailCover)
-//        }
 //
 //        // 유저 프로필 이미지
 //        viewModel.userImageUri.observe(viewLifecycleOwner) { uri ->
