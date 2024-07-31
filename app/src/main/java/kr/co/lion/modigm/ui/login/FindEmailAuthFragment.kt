@@ -5,12 +5,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindEmailAuthBinding
 import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.login.vm.FindEmailViewModel
+import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.shake
 
@@ -35,7 +34,7 @@ class FindEmailAuthFragment :
     override fun onDestroyView() {
         super.onDestroyView()
 
-        // 뷰모델 클리어 함수 구현 요망
+        viewModel.clearData() // 뷰모델 클리어 함수
     }
 
     // --------------------------------- LC END ---------------------------------
@@ -114,10 +113,7 @@ class FindEmailAuthFragment :
         dialog.setTitle("이메일 찾기")
         dialog.setEmail("$email 입니다.")
         dialog.setPositiveButton("확인") {
-            // Handle button click
-            parentFragmentManager.commit {
-                replace(R.id.containerMain, OtherLoginFragment())
-            }
+            parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
         }
         dialog.show()
     }
