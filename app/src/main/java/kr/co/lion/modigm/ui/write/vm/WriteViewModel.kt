@@ -6,12 +6,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.repository.WriteStudyRepository
+import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
+import kr.co.lion.modigm.util.PreferenceUtil
 
 
 class WriteViewModel : ViewModel() {
     // 스터디 Repository
     val writeStudyRepository = WriteStudyRepository()
+
+//    private val prefs: PreferenceUtil = ModigmApplication.prefs
 
     private val _isItemSelected = MutableLiveData<Boolean>()
     val isItemSelected: LiveData<Boolean> get() = _isItemSelected
@@ -141,7 +145,7 @@ class WriteViewModel : ViewModel() {
                 studyPlace = studyPlace.value ?: "",
                 studyDetailPlace = studyDetailPlace.value ?: "",
                 studyApplyMethod = selectedApplyTag.value ?: "",
-                studyCanApply = "모집 중",
+                studyCanApply = "모집중",
                 studyPic = studyPicUri.value ?: "",
                 studyMaxMember = studyMaxMember.value ?: 0,
                 studyState = true,
@@ -151,7 +155,8 @@ class WriteViewModel : ViewModel() {
                 writeStudyRepository.uploadStudyData(
                     userIdx.toInt(),
                     studyData,
-                    studySkillList.value?:listOf()
+                    studySkillList.value?:listOf(),
+                    studyPicUri.value
                 )
             }
             studyIdx

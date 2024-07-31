@@ -1,0 +1,9 @@
+{
+  "Version": "1.0",
+  "S3TransferUtility": {
+    "Default": {
+      "Bucket": "modigm-bucket",
+      "Region": "ap-northeast-2"
+    }
+  }
+}

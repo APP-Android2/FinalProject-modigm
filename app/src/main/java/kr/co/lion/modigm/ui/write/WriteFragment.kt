@@ -2,6 +2,7 @@ package kr.co.lion.modigm.ui.write
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -113,13 +114,9 @@ class WriteFragment : Fragment() {
             if (viewModel.validateCurrentTab()) {
                 if (viewModel.currentTab == 4) {
                     val introFragment = childFragmentManager.fragments.find { it is WriteIntroFragment } as? WriteIntroFragment
-                    introFragment?.uploadImageAndSaveData {
-                        lifecycleScope.launch {
-                            val studyIdx = viewModel.saveDataToDB()
-                            if (studyIdx != null) {
-                                navigateToDetailFragment(studyIdx)
-                            }
-                        }
+                    introFragment?.uploadImageAndSaveData  { studyIdx ->
+                        Log.d("WriteFragment", "Navigating to detail with studyIdx: $studyIdx")
+                        navigateToDetailFragment(studyIdx)  // 데이터베이스에 저장된 studyIdx 값을 전달하여 상세 프래그먼트로 이동
                     }
                 } else {
                     val currentTab = binding.tabLayoutWriteFragment.selectedTabPosition
@@ -141,10 +138,11 @@ class WriteFragment : Fragment() {
                 putInt("studyIdx", studyIdx)
             }
         }
+        Log.d("WriteFragment", "DetailFragment created with studyIdx: $studyIdx")
         parentFragmentManager.beginTransaction()
             .replace(R.id.containerMain,detailFragment)
             .commit()
-
+        Log.d("WriteFragment", "DetailFragment transaction committed with studyIdx: $studyIdx")
     }
 
     private fun selectFragment(fragmentManager: FragmentManager, fragment: Fragment) {

@@ -149,46 +149,28 @@ class JoinViewModel : ViewModel() {
         )
     }
 
-    // 이메일 계정 회원 가입 완료
-    suspend fun completeJoinEmailUser(){
+    // 회원 가입 완료
+    fun completeJoinUser(){
         viewModelScope.launch {
             _user.value = _auth.currentUser
 
-            // UserInfoData 객체 생성
             val user = createUserInfoData()
-            // DB에 데이터 저장
-            val userIdx = _joinUserRepository.insetUserData(user)
-            if(userIdx != 0){
+            val result = _joinUserRepository.insetUserData(user)
+            result.onSuccess { userIdx ->
                 // SharedPreferences에 유저 idx 저장
-                prefs.setInt("currentUserIdx", userIdx)
+                 prefs.setInt("currentUserIdx", userIdx)
 
                 _joinCompleted.value = true
-            }else{
+            }.onFailure {
                 _joinCompleted.value = false
-                throw Exception("회원가입 실패")
+                throw Exception("회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.")
             }
         }
     }
 
-    // SNS 계정 회원 가입 완료
-    fun completeJoinSnsUser(){
-        viewModelScope.launch {
-            _user.value = _auth.currentUser
-
-            // UserInfoData 객체 생성
-            val user = createUserInfoData()
-            // DB에 데이터 저장
-            val userIdx = _joinUserRepository.insetUserData(user)
-
-            if(userIdx != 0){
-                // SharedPreferences에 유저 idx 저장
-                prefs.setInt("currentUserIdx", userIdx)
-
-                _joinCompleted.value = true
-            }else{
-                _joinCompleted.value = false
-                throw Exception("회원가입 실패")
-            }
+    fun signOut(){
+        if(_auth.currentUser != null){
+            _auth.signOut()
         }
     }
 

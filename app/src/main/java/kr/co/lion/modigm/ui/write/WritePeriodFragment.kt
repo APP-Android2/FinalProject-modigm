@@ -26,7 +26,7 @@ class WritePeriodFragment : Fragment() {
     var selectPeriod :String = ""
 
     // 선택된 기간에 해당하는 숫자를 저장하는 배열
-    val periodTags = listOf(0, 1, 2, 3, 4, 5, 6, 7)
+    val periodTags = listOf("0", "1개월 이하", "2개월 이하", "3개월 이하","4개월 이하", "5개월 이하", "6개월 미만", "6개월 이상")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,7 +77,8 @@ class WritePeriodFragment : Fragment() {
                     if (position == 0) {
                         viewModel.validatePeriod(false)
                     } else {
-                        viewModel.selectedPeriodTag.value = tag
+                        val tagWithoutSpaces = tag.replace(" ", "")  // 띄어쓰기를 제거
+                        viewModel.selectedPeriodTag.value = tagWithoutSpaces
                         viewModel.validatePeriod(true)
                     }
                 }
