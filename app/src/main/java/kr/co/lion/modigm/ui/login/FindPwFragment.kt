@@ -2,12 +2,8 @@ package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindPwBinding
@@ -17,28 +13,23 @@ import kr.co.lion.modigm.util.FragmentName
 class FindPwFragment : Fragment(R.layout.fragment_find_pw) {
 
     private val viewModel: FindPwViewModel by viewModels()
-    lateinit var binding: FragmentFindPwBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_find_pw, container, false)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
-
-        return binding.root
-    }
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
-        settingObserver()
+
+        // 바인딩
+        val binding = FragmentFindPwBinding.bind(view)
+
+        initView(binding)
+        settingObserver(binding)
     }
 
+    // --------------------------------- LC END ---------------------------------
+
     // 초기 뷰 세팅
-    private fun initView() {
+    private fun initView(binding: FragmentFindPwBinding) {
         with(binding) {
             // 툴바
             with(toolbarFindPw) {
@@ -72,7 +63,7 @@ class FindPwFragment : Fragment(R.layout.fragment_find_pw) {
         }
     }
 
-    private fun settingObserver(){
+    private fun settingObserver(binding: FragmentFindPwBinding){
         // 유효성 검사
         viewModel.emailError.observe(viewLifecycleOwner) {
             binding.textInputEditFindPwEmail.error = it

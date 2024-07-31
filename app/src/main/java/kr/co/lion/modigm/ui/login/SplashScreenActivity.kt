@@ -1,20 +1,34 @@
 package kr.co.lion.modigm.ui.login
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.ActivitySplashScreenBinding
 import kr.co.lion.modigm.ui.MainActivity
 
-class SplashScreenActivity : AppCompatActivity(R.layout.activity_splash_screen) {
+@SuppressLint("CustomSplashScreen")
+class SplashScreenActivity : AppCompatActivity() {
+
+    private val binding: ActivitySplashScreenBinding by lazy {
+        ActivitySplashScreenBinding.inflate(layoutInflater)
+    }
+
+    // --------------------------------- LC START ---------------------------------
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 바인딩
+        setContentView(binding.root)
+
         showSplashScreen()
     }
+
+    // --------------------------------- LC END ---------------------------------
 
     private fun showSplashScreen() {
         lifecycleScope.launch {

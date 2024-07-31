@@ -1,10 +1,7 @@
 package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
@@ -15,29 +12,22 @@ class ResetPwFragment : Fragment(R.layout.fragment_reset_pw) {
 
     private val viewModel: ResetPwViewModel by viewModels()
 
-    lateinit var binding: FragmentResetPwBinding
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_reset_pw, container, false)
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
-
-        return binding.root
-    }
+    // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
-        settingObserver()
+
+        // 바인딩
+        val binding = FragmentResetPwBinding.bind(view)
+
+        initView(binding)
+        settingObserver(binding)
     }
 
+    // --------------------------------- LC END ---------------------------------
+
     // 초기 뷰 세팅
-    private fun initView() {
+    private fun initView(binding: FragmentResetPwBinding) {
         with(binding) {
             // 툴바
             with(toolbarResetPw) {
@@ -64,7 +54,7 @@ class ResetPwFragment : Fragment(R.layout.fragment_reset_pw) {
         }
     }
 
-    private fun settingObserver(){
+    private fun settingObserver(binding: FragmentResetPwBinding){
         // 유효성 검사
         viewModel.newPasswordError.observe(viewLifecycleOwner) {
             binding.resetPwInputNewPw.error = it
