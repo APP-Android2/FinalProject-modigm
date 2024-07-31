@@ -5,13 +5,13 @@ import android.content.Context
 import android.util.Log
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
-import kr.co.lion.modigm.db.login.LoginDataSource
+import kr.co.lion.modigm.db.login.RemoteLoginDataSource
 import kr.co.lion.modigm.model.SqlUserData
 
 class LoginRepository {
     private val tag by lazy { "LoginRepository" }
 
-    private val loginDataSource by lazy { LoginDataSource() }
+    private val loginDataSource by lazy { RemoteLoginDataSource() }
 
     /**
      * 이메일과 비밀번호로 로그인
@@ -58,6 +58,7 @@ class LoginRepository {
 
     /**
      * 자동 로그인
+     * @param userIdx 사용자의 인덱스
      * @return Result<Int> 로그인 성공 여부를 반환
      */
     suspend fun autoLogin(userIdx: Int): Result<Int> {
@@ -69,6 +70,11 @@ class LoginRepository {
         }
     }
 
+    /**
+     * 전화번호로 사용자 데이터 조회
+     * @param userPhone 사용자의 전화번호
+     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
+     */
     suspend fun getUserDataByUserPhone(userPhone: String): Result<SqlUserData> {
         return runCatching {
             loginDataSource.getUserDataByUserPhone(userPhone).getOrThrow()
@@ -78,14 +84,26 @@ class LoginRepository {
         }
     }
 
+    /**
+     * 이메일로 사용자 데이터 조회
+     * @param userEmail 사용자의 이메일
+     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
+     */
     suspend fun getUserDataByUserEmail(userEmail: String): Result<SqlUserData> {
         return runCatching {
             loginDataSource.getUserDataByUserEmail(userEmail).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "이메일로 유저 이름과 전화번호 조회 중 오류 발생: ${e.message}", e)
+            Result.failure<SqlUserData>(e)
         }
     }
 
+    /**
+     * 전화 인증 코드 발송
+     * @param activity 액티비티 컨텍스트
+     * @param userPhone 사용자의 전화번호
+     * @return Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> 인증 코드 발송 결과를 반환
+     */
     suspend fun sendPhoneAuthCode(activity: Activity, userPhone: String): Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> {
         return runCatching {
             loginDataSource.sendPhoneAuthCode(activity, userPhone).getOrThrow()
@@ -95,7 +113,12 @@ class LoginRepository {
         }
     }
 
-    // 인증번호 확인 (이메일 찾기)
+    /**
+     * 인증번호 확인 (이메일 찾기)
+     * @param verificationId 인증 ID
+     * @param inputCode 사용자가 입력한 인증 코드
+     * @return Result<String> 이메일을 반환
+     */
     suspend fun getEmailByInputCode(verificationId: String, inputCode: String): Result<String> {
         return runCatching {
             loginDataSource.getEmailByInputCode(verificationId, inputCode).getOrThrow()
@@ -105,21 +128,32 @@ class LoginRepository {
         }
     }
 
+    /**
+     * 인증 코드로 로그인
+     * @param verificationId 인증 ID
+     * @param inputCode 사용자가 입력한 인증 코드
+     * @return Result<Boolean> 로그인 성공 여부를 반환
+     */
     suspend fun signInByInputCode(verificationId: String, inputCode: String): Result<Boolean> {
         return runCatching {
             loginDataSource.signInByInputCode(verificationId, inputCode).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
-            Result.failure<String>(e)
+            Result.failure<Boolean>(e)
         }
     }
 
+    /**
+     * 비밀번호 변경
+     * @param newPassword 새로운 비밀번호
+     * @return Result<Boolean> 비밀번호 변경 성공 여부를 반환
+     */
     fun updatePassword(newPassword: String): Result<Boolean> {
         return runCatching {
             loginDataSource.updatePassword(newPassword).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "비밀번호 변경 중 오류 발생: ${e.message}", e)
-            Result.failure<Unit>(e)
+            Result.failure<Boolean>(e)
         }
     }
 

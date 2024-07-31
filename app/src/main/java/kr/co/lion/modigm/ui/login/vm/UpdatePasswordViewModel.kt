@@ -14,7 +14,7 @@ class UpdatePasswordViewModel: ViewModel() {
     private val tag by lazy { "UpdatePasswordViewModel" }
     private val loginRepository by lazy { LoginRepository() }
 
-
+    // 이메일 에러
     private val _emailError = MutableLiveData<Throwable>()
     val emailError: LiveData<Throwable> = _emailError
 
@@ -30,28 +30,37 @@ class UpdatePasswordViewModel: ViewModel() {
     private var _verificationId = MutableLiveData<String>()
     val verificationId: LiveData<String> = _verificationId
 
-    // 이름, 연락처, 문자 발송까지 모두 확인 되면
+    // 이름, 연락처, 문자 발송까지 모두 확인되면
     private var _isComplete = MutableLiveData<Boolean>()
     val isComplete: LiveData<Boolean> = _isComplete
 
+    // 새 비밀번호 에러
     private val _newPasswordError = MutableLiveData<Throwable>()
     val newPasswordError: MutableLiveData<Throwable> = _newPasswordError
 
+    // 새 비밀번호 확인 에러
     private val _newPasswordConfirmError = MutableLiveData<Throwable>()
     val newPasswordConfirmError: MutableLiveData<Throwable> = _newPasswordConfirmError
 
+    private val _resendToken = MutableLiveData<PhoneAuthProvider.ForceResendingToken?>()
+    private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken?> get() = _resendToken
 
-    // isComplete 값을 설정하는 메서드
+    /**
+     * isComplete 값을 설정하는 메서드
+     * @param value 설정할 값
+     */
     fun isCompleteTo(value: Boolean) {
         viewModelScope.launch {
             _isComplete.postValue(value)
         }
     }
 
-    private val _resendToken = MutableLiveData<PhoneAuthProvider.ForceResendingToken?>()
-    private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken?> get() = _resendToken
-
-    // 이메일이 DB에 등록된 회원 정보에 있는지 확인하고 등록된 이메일과 입력한 이메일을 매칭 (FindPasswordFragment)
+    /**
+     * 이메일이 DB에 등록된 회원 정보에 있는지 확인하고 등록된 이메일과 입력한 이메일을 매칭 (FindPasswordFragment)
+     * @param activity 액티비티 컨텍스트
+     * @param userEmail 사용자의 이메일
+     * @param userPhone 사용자의 전화번호
+     */
     fun checkEmailAndPhone(activity: Activity, userEmail: String, userPhone: String) {
         viewModelScope.launch {
             val emailResult = loginRepository.getUserDataByUserEmail(userEmail)
@@ -64,7 +73,6 @@ class UpdatePasswordViewModel: ViewModel() {
                         _verificationId.postValue(verificationId)
                         Log.d(tag, "인증 문자 발송 성공. credential: $credential")
                         _isComplete.postValue(true)
-
                     }.onFailure { e ->
                         Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
                         _phoneError.postValue(e)
@@ -80,8 +88,12 @@ class UpdatePasswordViewModel: ViewModel() {
         }
     }
 
-    // 인증번호 확인 (FindPasswordAuthFragment)
-    fun checkByInputCode(verificationId: String, inputCode: String){
+    /**
+     * 인증번호 확인 (FindPasswordAuthFragment)
+     * @param verificationId 인증 ID
+     * @param inputCode 입력한 인증 코드
+     */
+    fun checkByInputCode(verificationId: String, inputCode: String) {
         Log.d(tag, "checkCodeAndFindPW 호출됨. verificationId: $verificationId, inputCode: $inputCode")
         viewModelScope.launch {
             val signInResult = loginRepository.signInByInputCode(verificationId, inputCode)
@@ -96,7 +108,10 @@ class UpdatePasswordViewModel: ViewModel() {
         }
     }
 
-    // 비밀번호 변경
+    /**
+     * 비밀번호 변경
+     * @param newPassword 새로운 비밀번호
+     */
     fun updatePassword(newPassword: String) {
         viewModelScope.launch {
             if (newPassword.isNotEmpty()) {

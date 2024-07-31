@@ -17,11 +17,15 @@ import java.sql.SQLTimeoutException
 import java.sql.SQLTransactionRollbackException
 import java.sql.SQLTransientConnectionException
 
-class LoginDao {
+class RemoteLoginDao {
 
     private val tag by lazy { "LoginDao" }
 
-    // userIdx를 통해 해당 유저의 데이터 조회
+    /**
+     * userIdx를 통해 해당 유저의 데이터 조회
+     * @param userIdx 사용자 인덱스
+     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
+     */
     suspend fun selectUserDataByUserIdx(userIdx: Int): Result<SqlUserData> =
         withContext(Dispatchers.IO) {
             runCatching {
@@ -48,7 +52,11 @@ class LoginDao {
             }
         }
 
-    // userUid를 통해 해당 유저의 데이터 조회
+    /**
+     * userUid를 통해 해당 유저의 데이터 조회
+     * @param userUid 사용자 UID
+     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
+     */
     suspend fun selectUserDataByUserUid(userUid: String): Result<SqlUserData> =
         withContext(Dispatchers.IO) {
             runCatching {
@@ -75,7 +83,11 @@ class LoginDao {
             }
         }
 
-    // userUid를 통해 해당 유저의 인덱스 조회
+    /**
+     * userUid를 통해 해당 유저의 인덱스 조회
+     * @param userUid 사용자 UID
+     * @return Result<Int> 조회된 사용자 인덱스를 반환
+     */
     suspend fun selectUserIdxByUserUid(userUid: String): Result<Int> =
         withContext(Dispatchers.IO) {
             runCatching {
@@ -102,7 +114,11 @@ class LoginDao {
             }
         }
 
-    // userIdx를 통해 해당 유저의 UID 조회
+    /**
+     * userIdx를 통해 해당 유저의 UID 조회
+     * @param userIdx 사용자 인덱스
+     * @return Result<String> 조회된 사용자 UID를 반환
+     */
     suspend fun selectUserUidByUserIdx(userIdx: Int): Result<String> =
         withContext(Dispatchers.IO) {
             runCatching {
@@ -129,7 +145,11 @@ class LoginDao {
             }
         }
 
-    // userPhone을 통해 해당 유저의 데이터 조회
+    /**
+     * userPhone을 통해 해당 유저의 데이터 조회
+     * @param userPhone 사용자 전화번호
+     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
+     */
     suspend fun selectUserDataByUserPhone(userPhone: String): Result<SqlUserData> =
         withContext(Dispatchers.IO) {
             runCatching {
@@ -157,7 +177,11 @@ class LoginDao {
             }
         }
 
-    // userEmail을 통해 해당 유저의 데이터 조회
+    /**
+     * userEmail을 통해 해당 유저의 데이터 조회
+     * @param userEmail 사용자 이메일
+     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
+     */
     suspend fun selectUserDataByUserEmail(userEmail: String): Result<SqlUserData> =
         withContext(Dispatchers.IO) {
             runCatching {
@@ -184,6 +208,11 @@ class LoginDao {
             }
         }
 
+    /**
+     * SQL 예외를 LoginError로 매핑
+     * @param e 발생한 예외
+     * @return LoginError 매핑된 로그인 오류
+     */
     private fun mapToLoginError(e: Throwable): LoginError {
         return when (e) {
             is SQLSyntaxErrorException -> LoginError.DatabaseSyntaxError

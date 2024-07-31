@@ -97,7 +97,7 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _favoritedData.postValue(it)
             }.onFailure { e ->
-                Log.e("StudyViewModel", "Error getMyStudyData", e)
+                Log.e("StudyViewModel", "Error getFavoriteStudyData", e)
                 _favoriteStudyError.postValue(e)
             }
         }

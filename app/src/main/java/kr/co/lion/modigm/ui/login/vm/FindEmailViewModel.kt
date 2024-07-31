@@ -13,7 +13,7 @@ import kr.co.lion.modigm.repository.LoginRepository
 class FindEmailViewModel : ViewModel() {
 
     private val tag by lazy { "FindEmailViewModel" }
-    private val loginRepository by lazy {LoginRepository()}
+    private val loginRepository by lazy { LoginRepository() }
 
     // 찾은 이메일
     private val _emailResult = MutableLiveData<String>()
@@ -38,18 +38,26 @@ class FindEmailViewModel : ViewModel() {
     private val _resendToken = MutableLiveData<PhoneAuthProvider.ForceResendingToken>()
     private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken> get() = _resendToken
 
-
-    // 이름, 연락처, 문자 발송까지 모두 확인 되면
+    // 이름, 연락처, 문자 발송까지 모두 확인되면
     private var _isComplete = MutableLiveData<Boolean>()
     val isComplete: MutableLiveData<Boolean> = _isComplete
 
-    // isComplete 값을 설정하는 메서드
+    /**
+     * isComplete 값을 설정하는 메서드
+     * @param value 설정할 값
+     */
     fun isCompleteTo(value: Boolean) {
         viewModelScope.launch {
             _isComplete.postValue(value)
         }
     }
 
+    /**
+     * 이름과 전화번호를 확인하고 인증 코드를 발송하는 메서드
+     * @param activity 액티비티 컨텍스트
+     * @param userName 사용자의 이름
+     * @param userPhone 사용자의 전화번호
+     */
     fun checkNameAndPhone(activity: Activity, userName: String, userPhone: String) {
         Log.d(tag, "checkNameAndPhone 호출됨. userName: $userName, userPhone: $userPhone")
         viewModelScope.launch {
@@ -71,7 +79,6 @@ class FindEmailViewModel : ViewModel() {
                     }.onFailure { e ->
                         Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
                         _phoneError.postValue(e)
-
                     }
                 } else {
                     Log.e(tag, "이름 불일치. 입력한 이름: $userName, DB 이름: ${userData.userName}")
@@ -84,8 +91,12 @@ class FindEmailViewModel : ViewModel() {
         }
     }
 
-
-    fun checkCodeAndFindEmail(verificationId: String, inputCode: String){
+    /**
+     * 인증 코드를 확인하고 이메일을 찾는 메서드
+     * @param verificationId 인증 ID
+     * @param inputCode 입력한 인증 코드
+     */
+    fun checkCodeAndFindEmail(verificationId: String, inputCode: String) {
         Log.d(tag, "checkCodeAndFindEmail 호출됨. verificationId: $verificationId, inputCode: $inputCode")
         viewModelScope.launch {
             val result = loginRepository.getEmailByInputCode(verificationId, inputCode)
