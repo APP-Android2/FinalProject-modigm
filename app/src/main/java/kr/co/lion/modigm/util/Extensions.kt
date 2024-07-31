@@ -1,7 +1,13 @@
 package kr.co.lion.modigm.util
 
+import android.animation.ObjectAnimator
 import android.app.Activity
+import android.content.Context
 import android.content.res.Resources
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
@@ -96,5 +102,27 @@ fun Activity.showLoginSnackBar(message: String, iconResId: Int?) {
     snackBar.view.postDelayed({
         snackBar.dismiss()
     }, 2000)
+}
+// 흔들림 애니메이션 함수
+fun View.shake() {
+    val shake = ObjectAnimator.ofFloat(this, "translationX", 0f, 25f, -25f, 25f, -25f, 15f, -15f, 6f, -6f, 0f)
+    shake.duration = 300
+    shake.start()
+
+    // 진동 추가
+    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+        @Suppress("DEPRECATION")
+        vibrator.vibrate(50)
+    }
 }
 

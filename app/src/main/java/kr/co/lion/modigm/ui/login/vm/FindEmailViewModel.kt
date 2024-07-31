@@ -6,103 +6,97 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.repository.UserInfoRepository
-import java.util.concurrent.TimeUnit
+import kr.co.lion.modigm.repository.LoginRepository
 
-class FindEmailViewModel: ViewModel() {
-    private val _repository = UserInfoRepository()
-    private val _auth = FirebaseAuth.getInstance()
+class FindEmailViewModel : ViewModel() {
 
-    // 이름
-    val name = MutableLiveData<String>()
-    val nameError = MutableLiveData<String>()
+    private val tag by lazy { "FindEmailViewModel" }
+    private val loginRepository by lazy {LoginRepository()}
 
-    // 연락처
-    val phone = MutableLiveData<String>()
-    val phoneError = MutableLiveData<String>()
+    // 찾은 이메일
+    private val _emailResult = MutableLiveData<String>()
+    val email: LiveData<String> = _emailResult
+
+    // 이름 에러
+    private val _nameError = MutableLiveData<Throwable>()
+    val nameError: LiveData<Throwable> = _nameError
+
+    // 연락처 에러
+    private val _phoneError = MutableLiveData<Throwable>()
+    val phoneError: LiveData<Throwable> = _phoneError
+
+    // 인증번호 에러
+    private val _inputCodeError = MutableLiveData<Throwable>()
+    val inputCodeError: LiveData<Throwable> = _inputCodeError
 
     // 전화번호 인증에 필요 onCodeSent에서 전달받음
     private var _verificationId = MutableLiveData<String>()
     val verificationId: LiveData<String> = _verificationId
 
+    private val _resendToken = MutableLiveData<PhoneAuthProvider.ForceResendingToken>()
+    private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken> get() = _resendToken
+
+
     // 이름, 연락처, 문자 발송까지 모두 확인 되면
     private var _isComplete = MutableLiveData<Boolean>()
     val isComplete: MutableLiveData<Boolean> = _isComplete
 
-    // 유효성 검사
-    fun validateInput(): Boolean{
-        if(name.value.isNullOrEmpty()){
-            nameError.value = "이름을 입력해주세요."
-            return false
+    // isComplete 값을 설정하는 메서드
+    fun isCompleteTo(value: Boolean) {
+        viewModelScope.launch {
+            _isComplete.postValue(value)
         }
-        if(phone.value.isNullOrEmpty()){
-            phoneError.value = "전화번호를 입력해주세요."
-            return false
-        }
-        return true
     }
 
-    // 전화번호가 DB에 등록된 회원 정보에 있는지 확인하고 등록된 이름과 입력한 이름을 매칭
-    fun checkNameAndPhone(activity: Activity){
+    fun checkNameAndPhone(activity: Activity, userName: String, userPhone: String) {
+        Log.d(tag, "checkNameAndPhone 호출됨. userName: $userName, userPhone: $userPhone")
         viewModelScope.launch {
-            val result1 = _repository.checkUserByPhoneFindNameAndEmail(phone.value?:"")
-            if(result1 != null){
-                // 등록된 연락처라면 등록된 이름이 입력한 이름과 맞는지 확인
-                val resultName = result1["name"]
-                if(resultName == name.value){
-                    // 확인이 완료되면 인증 문자 발송
-                    sendCode(activity)
-                }else{
-                    nameError.value = "등록되지 않은 이름입니다."
+            val resultPhone = loginRepository.getUserDataByUserPhone(userPhone)
+            resultPhone.onSuccess { userData ->
+                Log.d(tag, "전화번호 확인 성공. userData: $userData")
+                if (userData.userName == userName) {
+                    Log.d(tag, "이름 일치 확인됨. 인증 문자 발송 시작.")
+                    // 이름이 일치하면 인증 문자 발송
+                    val resultAuth = loginRepository.sendPhoneAuthCode(activity, userPhone)
+                    resultAuth.onSuccess { result ->
+                        val verificationId = result.first
+                        val credential = result.second as? com.google.firebase.auth.PhoneAuthCredential
+                        val token = result.third as? PhoneAuthProvider.ForceResendingToken
+                        Log.d(tag, "인증 문자 발송 성공.")
+                        _verificationId.postValue(verificationId)
+                        _isComplete.postValue(true)
+
+                    }.onFailure { e ->
+                        Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
+                        _phoneError.postValue(e)
+
+                    }
+                } else {
+                    Log.e(tag, "이름 불일치. 입력한 이름: $userName, DB 이름: ${userData.userName}")
+                    _nameError.postValue(Throwable("일치하는 이름이 없습니다."))
                 }
-            }else{
-                phoneError.value = "등록되지 않은 전화번호입니다."
+            }.onFailure { e ->
+                Log.e(tag, "전화번호 확인 실패. 오류: ${e.message}", e)
+                _phoneError.postValue(Throwable("등록되지 않은 전화번호입니다."))
             }
         }
     }
 
-    // 인증 문자 발송
-    private fun sendCode(activity: Activity){
-        // 전화번호 앞에 "+82 " 국가코드 붙여주기
-        val setNumber = phone.value?.replaceRange(0,1,"+82 ")?:""
 
-        _auth.setLanguageCode("kr")
-
-        if(setNumber.isNullOrEmpty()) return
-        val options = PhoneAuthOptions.newBuilder(_auth)
-            .setPhoneNumber(setNumber) // Phone number to verify
-            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-            .setActivity(activity) // Activity (for callback binding)
-            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
-    }
-
-    // 전화 인증코드 발송 콜백
-    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            // 입력한 전화번호가 정상적으로 확인될 경우(인증이 완료된게 아님, 실제 번호일때만 호출됨)
-        }
-
-        override fun onVerificationFailed(e: FirebaseException) {
-            // 입력한 전화번호가 잘못되었을 경우
-            phoneError.value = "전화번호가 잘못되었습니다."
-        }
-
-        override fun onCodeSent(
-            verificationId: String,
-            token: PhoneAuthProvider.ForceResendingToken
-        ) {
-            // verificationId는 문자로 받는 코드가 아니었다
-            _verificationId.value = verificationId
-            _isComplete.value = true
+    fun checkCodeAndFindEmail(verificationId: String, inputCode: String){
+        Log.d(tag, "checkCodeAndFindEmail 호출됨. verificationId: $verificationId, inputCode: $inputCode")
+        viewModelScope.launch {
+            val result = loginRepository.getEmailByInputCode(verificationId, inputCode)
+            result.onSuccess { email ->
+                Log.d(tag, "인증번호 확인 성공. email: $email")
+                _emailResult.value = email
+                _isComplete.postValue(true)
+            }.onFailure { e ->
+                Log.e(tag, "인증번호 확인 실패. 오류: ${e.message}", e)
+                _inputCodeError.postValue(Throwable("인증번호가 잘못되었습니다."))
+            }
         }
     }
 }

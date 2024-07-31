@@ -11,7 +11,7 @@ import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentOtherLoginBinding
-import kr.co.lion.modigm.ui.BaseFragment
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
@@ -20,7 +20,7 @@ import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class OtherLoginFragment : BaseFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
+class OtherLoginFragment : ViewBindingFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
 
     private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
 
@@ -109,7 +109,7 @@ class OtherLoginFragment : BaseFragment<FragmentOtherLoginBinding>(FragmentOther
             // 비밀번호 찾기 버튼 클릭 시
             buttonOtherFindPassword.setOnClickListener {
                 parentFragmentManager.commit {
-                    replace<FindPwFragment>(R.id.containerMain)
+                    replace<FindPasswordFragment>(R.id.containerMain)
                     addToBackStack(FragmentName.FIND_PW.str)
                 }
             }

@@ -1,65 +1,31 @@
 package kr.co.lion.modigm.db.login
 
 import android.util.Log
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.*
-import kr.co.lion.modigm.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.ui.login.LoginError
-import java.sql.Connection
 import java.sql.SQLDataException
 import java.sql.SQLIntegrityConstraintViolationException
+import java.sql.SQLInvalidAuthorizationSpecException
+import java.sql.SQLNonTransientConnectionException
+import java.sql.SQLNonTransientException
+import java.sql.SQLRecoverableException
 import java.sql.SQLSyntaxErrorException
 import java.sql.SQLTimeoutException
+import java.sql.SQLTransactionRollbackException
+import java.sql.SQLTransientConnectionException
 
 class LoginDao {
 
-    private val tag = "LoginDao"
-
-    // HikariCP 설정을 초기화하는 suspend 함수
-    private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
-        val hikariConfig = HikariConfig().apply {
-            jdbcUrl = BuildConfig.DB_URL
-            username = BuildConfig.DB_USER
-            password = BuildConfig.DB_PASSWORD
-            driverClassName = "com.mysql.jdbc.Driver"
-            maximumPoolSize = 10
-            minimumIdle = 10
-            connectionTimeout = 30000 // 30초
-            idleTimeout = 600000 // 10분
-            maxLifetime = 1800000 // 30분
-            validationTimeout = 5000 // 5초
-            leakDetectionThreshold = 30000 // 30초
-        }
-        HikariDataSource(hikariConfig)
-    }
-
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.e(tag, "HikariCP coroutineExceptionHandler 에러 ", throwable)
-    }
-
-    private val job = Job()
-    private val coroutineScope: CoroutineScope =
-        CoroutineScope(Dispatchers.IO + job + coroutineExceptionHandler)
-    private val dataSourceDeferred: Deferred<HikariDataSource> by lazy {
-        coroutineScope.async {
-            initDataSource()
-        }
-    }
-
-    private suspend fun getConnection(): Connection {
-        val dataSource = dataSourceDeferred.await()
-        return withContext(Dispatchers.IO) {
-            dataSource.connection
-        }
-    }
+    private val tag by lazy { "LoginDao" }
 
     // userIdx를 통해 해당 유저의 데이터 조회
     suspend fun selectUserDataByUserIdx(userIdx: Int): Result<SqlUserData> =
         withContext(Dispatchers.IO) {
             runCatching {
-                getConnection().use { connection ->
+                HikariCPDataSource.getConnection().use { connection ->
                     val query = """
                         SELECT *
                         FROM tb_user
@@ -78,30 +44,7 @@ class LoginDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "userIdx로 유저 데이터 조회 중 오류 발생", e)
-                throw mapToLoginError(e)
-            }
-        }
-
-    // uid를 통해 이미 존재하는 유저인지 확인
-    suspend fun isUserAlreadyRegistered(uid: String): Result<Boolean> =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                getConnection().use { connection ->
-                    val query = """
-                        SELECT *
-                        FROM tb_user
-                        WHERE userUid = ?
-                    """
-                    connection.prepareStatement(query).use { statement ->
-                        statement.setString(1, uid)
-                        statement.executeQuery().use { resultSet ->
-                            resultSet.next()
-                        }
-                    }
-                }
-            }.onFailure { e ->
-                Log.e(tag, "이미 존재하는 유저인지 조회 중 오류 발생", e)
-                throw mapToLoginError(e)
+                Result.failure<SqlUserData>(mapToLoginError(e))
             }
         }
 
@@ -109,7 +52,7 @@ class LoginDao {
     suspend fun selectUserDataByUserUid(userUid: String): Result<SqlUserData> =
         withContext(Dispatchers.IO) {
             runCatching {
-                getConnection().use { connection ->
+                HikariCPDataSource.getConnection().use { connection ->
                     val query = """
                         SELECT *
                         FROM tb_user
@@ -128,14 +71,15 @@ class LoginDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "userUid로 유저 데이터 조회 중 오류 발생", e)
-                throw mapToLoginError(e)
+                Result.failure<SqlUserData>(mapToLoginError(e))
             }
         }
 
+    // userUid를 통해 해당 유저의 인덱스 조회
     suspend fun selectUserIdxByUserUid(userUid: String): Result<Int> =
         withContext(Dispatchers.IO) {
             runCatching {
-                getConnection().use { connection ->
+                HikariCPDataSource.getConnection().use { connection ->
                     val query = """
                         SELECT userIdx
                         FROM tb_user
@@ -145,7 +89,7 @@ class LoginDao {
                         statement.setString(1, userUid)
                         statement.executeQuery().use { resultSet ->
                             if (resultSet.next()) {
-                                resultSet.getInt("userIdx") // userIdx 값을 추출하여 리턴
+                                resultSet.getInt("userIdx")
                             } else {
                                 throw LoginError.DatabaseConnectionError
                             }
@@ -154,14 +98,15 @@ class LoginDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "userUid로 유저 데이터 조회 중 오류 발생", e)
-                throw mapToLoginError(e)
+                Result.failure<Int>(mapToLoginError(e))
             }
         }
 
+    // userIdx를 통해 해당 유저의 UID 조회
     suspend fun selectUserUidByUserIdx(userIdx: Int): Result<String> =
         withContext(Dispatchers.IO) {
             runCatching {
-                getConnection().use { connection ->
+                HikariCPDataSource.getConnection().use { connection ->
                     val query = """
                         SELECT userUid
                         FROM tb_user
@@ -171,7 +116,7 @@ class LoginDao {
                         statement.setInt(1, userIdx)
                         statement.executeQuery().use { resultSet ->
                             if (resultSet.next()) {
-                                resultSet.getString("userUid") // userUid 값을 추출하여 리턴
+                                resultSet.getString("userUid")
                             } else {
                                 throw LoginError.DatabaseConnectionError
                             }
@@ -179,8 +124,63 @@ class LoginDao {
                     }
                 }
             }.onFailure { e ->
-                Log.e(tag, "userUid로 유저 데이터 조회 중 오류 발생", e)
-                throw mapToLoginError(e)
+                Log.e(tag, "userIdx로 유저 데이터 조회 중 오류 발생", e)
+                Result.failure<String>(mapToLoginError(e))
+            }
+        }
+
+    // userPhone을 통해 해당 유저의 데이터 조회
+    suspend fun selectUserDataByUserPhone(userPhone: String): Result<SqlUserData> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                HikariCPDataSource.getConnection().use { connection ->
+                    val query = """
+                        SELECT *
+                        FROM tb_user
+                        WHERE userPhone = ?
+                    """
+                    connection.prepareStatement(query).use { statement ->
+                        statement.setString(1, userPhone)
+                        statement.executeQuery().use { resultSet ->
+                            if (resultSet.next()) {
+                                SqlUserData.getUserData(resultSet)
+                            } else {
+                                Log.e(tag, "없는 전화번호")
+                                throw LoginError.DatabaseConnectionError
+                            }
+                        }
+                    }
+                }
+            }.onFailure { e ->
+                Log.e(tag, "userPhone로 유저 데이터 조회 중 오류 발생", e)
+                Result.failure<SqlUserData>(mapToLoginError(e))
+            }
+        }
+
+    // userEmail을 통해 해당 유저의 데이터 조회
+    suspend fun selectUserDataByUserEmail(userEmail: String): Result<SqlUserData> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                HikariCPDataSource.getConnection().use { connection ->
+                    val query = """
+                        SELECT *
+                        FROM tb_user
+                        WHERE userEmail = ?
+                    """
+                    connection.prepareStatement(query).use { statement ->
+                        statement.setString(1, userEmail)
+                        statement.executeQuery().use { resultSet ->
+                            if (resultSet.next()) {
+                                SqlUserData.getUserData(resultSet)
+                            } else {
+                                throw LoginError.DatabaseConnectionError
+                            }
+                        }
+                    }
+                }
+            }.onFailure { e ->
+                Log.e(tag, "userEmail로 유저 데이터 조회 중 오류 발생", e)
+                Result.failure<SqlUserData>(mapToLoginError(e))
             }
         }
 
@@ -190,22 +190,13 @@ class LoginDao {
             is SQLIntegrityConstraintViolationException -> LoginError.DatabaseIntegrityError
             is SQLDataException -> LoginError.DatabaseConnectionError
             is SQLTimeoutException -> LoginError.DatabaseTimeoutError
+            is SQLTransientConnectionException -> LoginError.DatabaseNetworkError
+            is SQLInvalidAuthorizationSpecException -> LoginError.DatabaseAuthenticationError
+            is SQLNonTransientConnectionException -> LoginError.DatabaseDiskError
+            is SQLTransactionRollbackException -> LoginError.DatabaseConstraintError
+            is SQLRecoverableException -> LoginError.DatabaseDataCorruptionError
+            is SQLNonTransientException -> LoginError.DatabaseShutdownError
             else -> LoginError.DatabaseUnknownError
-        }
-    }
-
-    suspend fun daoCoroutineCancel() {
-        try {
-            // Job을 취소하고 모든 하위 코루틴이 종료될 때까지 대기
-            job.cancelAndJoin()
-            // 데이터 소스가 완료된 경우, 데이터 소스를 안전하게 종료
-            withContext(Dispatchers.IO + coroutineExceptionHandler) {
-                if (dataSourceDeferred.isCompleted) {
-                    dataSourceDeferred.await().close()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(tag, "HikariCP 코루틴 취소 실패", e)
         }
     }
 }
