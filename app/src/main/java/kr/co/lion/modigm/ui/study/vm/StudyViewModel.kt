@@ -131,30 +131,17 @@ class StudyViewModel : ViewModel() {
      * 데이터 초기화 메서드
      */
     fun clearData() {
-        _allStudyData.value = emptyList()
-        _myStudyData.value = emptyList()
-        _favoritedData.value = emptyList()
-        _isFavorite.value = Pair(0, false)
-        _filteredStudyList.value = emptyList()
-        _filteredMyStudyList.value = emptyList()
+        _allStudyData.postValue(emptyList())
+        _myStudyData.postValue(emptyList())
+        _favoritedData.postValue(emptyList())
+        _isFavorite.postValue(Pair(-1, false))
+        _isFavoriteError.postValue(null)
+        _allStudyError.postValue(null)
+        _myStudyError.postValue(null)
+        _favoriteStudyError.postValue(null)
+        _isFavoriteError.postValue(null)
         filterData.clear()
-    }
 
-    /**
-     * Dao 코루틴 및 히카리CP 자원 해제하기
-     */
-    private fun closeDataSource() {
-        viewModelScope.launch {
-            studyListRepository.closeDataSource()
-        }
-    }
-
-    /**
-     * 뷰모델에서 Dao 코루틴 및 히카리CP 자원 해제
-     */
-    override fun onCleared() {
-        super.onCleared()
-        closeDataSource()
     }
 
     // ------------------MySQL 적용 끝-----------------------

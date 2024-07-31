@@ -196,26 +196,13 @@ class LoginViewModel : ViewModel() {
      * 뷰모델 데이터를 초기화하는 함수
      */
     fun clearData() {
-        _emailLoginResult.value = false
-        _kakaoLoginResult.value = false
-        _githubLoginResult.value = false
-    }
+        _emailLoginResult.postValue(false)
+        _githubLoginResult.postValue(false)
+        _kakaoLoginResult.postValue(false)
+        _autoLoginError.postValue(null)
+        _emailLoginError.postValue(null)
+        _githubLoginError.postValue(null)
+        _kakaoLoginError.postValue(null)
 
-    /**
-     * DAO 코루틴을 취소하는 함수
-     */
-    private fun closeDataSource() {
-        viewModelScope.launch {
-            loginRepository.closeDataSource()
-        }
-    }
-
-    /**
-     * 뷰모델이 삭제될 때 호출되는 함수
-     */
-    override fun onCleared() {
-        super.onCleared()
-        // DAO 코루틴 취소
-        closeDataSource()
     }
 }

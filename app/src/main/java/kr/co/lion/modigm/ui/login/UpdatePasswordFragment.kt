@@ -25,6 +25,12 @@ class UpdatePasswordFragment : ViewBindingFragment<FragmentUpdatePasswordBinding
         observeViewModel()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        viewModel.clearData() // 뷰모델 클리어 함수
+    }
+
     // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅

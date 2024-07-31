@@ -53,11 +53,4 @@ class StudyListRepository() {
     suspend fun removeFavorite(userIdx: Int, studyIdx: Int): Result<Boolean>{
         return studyDataSource.removeFavorite(userIdx, studyIdx)
     }
-
-    /**
-     * 리소스를 해제하는 메서드
-     */
-    suspend fun closeDataSource() {
-        studyDataSource.closeDataSource()
-    }
 }

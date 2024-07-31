@@ -13,7 +13,6 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.ui.login.LoginError
 import java.util.concurrent.TimeUnit
@@ -407,13 +406,5 @@ class RemoteLoginDataSource {
             Log.e(tag, "비밀번호 변경 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
-    }
-
-    /**
-     * DAO 코루틴 취소
-     */
-    suspend fun closeDataSource() {
-        Log.d(tag, "closeDataSource 호출됨.")
-        HikariCPDataSource.closeDataSource()
     }
 }

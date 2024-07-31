@@ -156,11 +156,4 @@ class LoginRepository {
             Result.failure<Boolean>(e)
         }
     }
-
-    /**
-     * DAO 코루틴 취소
-     */
-    suspend fun closeDataSource() {
-        loginDataSource.closeDataSource()
-    }
 }

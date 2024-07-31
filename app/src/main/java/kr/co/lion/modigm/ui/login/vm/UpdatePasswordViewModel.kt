@@ -27,11 +27,11 @@ class UpdatePasswordViewModel: ViewModel() {
     val inputCodeError: LiveData<Throwable> = _inputCodeError
 
     // 전화번호 인증에 필요 onCodeSent에서 전달받음
-    private var _verificationId = MutableLiveData<String>()
+    private val _verificationId = MutableLiveData<String>()
     val verificationId: LiveData<String> = _verificationId
 
     // 이름, 연락처, 문자 발송까지 모두 확인되면
-    private var _isComplete = MutableLiveData<Boolean>()
+    private val _isComplete = MutableLiveData<Boolean>()
     val isComplete: LiveData<Boolean> = _isComplete
 
     // 새 비밀번호 에러
@@ -125,5 +125,16 @@ class UpdatePasswordViewModel: ViewModel() {
                 }
             }
         }
+    }
+
+    /**
+     * 데이터 초기화 메서드
+     */
+    fun clearData() {
+        _emailError.postValue(null)
+        _phoneError.postValue(null)
+        _inputCodeError.postValue(null)
+        _verificationId.postValue("")
+        _isComplete.postValue(false)
     }
 }

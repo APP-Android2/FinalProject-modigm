@@ -32,14 +32,14 @@ class FindEmailViewModel : ViewModel() {
     val inputCodeError: LiveData<Throwable> = _inputCodeError
 
     // 전화번호 인증에 필요 onCodeSent에서 전달받음
-    private var _verificationId = MutableLiveData<String>()
+    private val _verificationId = MutableLiveData<String>()
     val verificationId: LiveData<String> = _verificationId
 
     private val _resendToken = MutableLiveData<PhoneAuthProvider.ForceResendingToken>()
     private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken> get() = _resendToken
 
     // 이름, 연락처, 문자 발송까지 모두 확인되면
-    private var _isComplete = MutableLiveData<Boolean>()
+    private val _isComplete = MutableLiveData<Boolean>()
     val isComplete: MutableLiveData<Boolean> = _isComplete
 
     /**
@@ -109,5 +109,15 @@ class FindEmailViewModel : ViewModel() {
                 _inputCodeError.postValue(Throwable("인증번호가 잘못되었습니다."))
             }
         }
+    }
+
+    fun clearData(){
+        _emailResult.postValue("")
+        _isComplete.postValue(false)
+        _nameError.postValue(null)
+        _phoneError.postValue(null)
+        _inputCodeError.postValue(null)
+        _verificationId.postValue("")
+        _resendToken.postValue(null)
     }
 }

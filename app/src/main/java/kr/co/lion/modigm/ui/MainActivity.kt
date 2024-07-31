@@ -5,8 +5,12 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.ActivityMainBinding
+import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.login.LoginFragment
 
 class MainActivity : AppCompatActivity() {
@@ -39,6 +43,10 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        // 애플리케이션 종료 시 히카리CP 데이터 소스를 해제
+        CoroutineScope(Dispatchers.IO).launch {
+            HikariCPDataSource.closeDataSource()
+        }
     }
 
     // --------------------------------- LC END ---------------------------------

@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.db.study
 
 import android.util.Log
-import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 
 class StudyDataSource {
@@ -80,12 +79,4 @@ class StudyDataSource {
             Result.failure<Boolean>(e)
         }
     }
-
-    /**
-     * 리소스를 해제하는 메서드
-     */
-    suspend fun closeDataSource() {
-        HikariCPDataSource.closeDataSource()
-    }
-
 }
