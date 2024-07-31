@@ -142,4 +142,12 @@ class EditProfileViewModel: ViewModel() {
         // 프로필 화면 재로드
         profileFragment.updateViews()
     }
+
+    // 링크 목록 순서 변경
+    fun reorderLinks(from: Int, to: Int) {
+        val updatedList = editProfileLinkList.value?.toMutableList() ?: return
+        val movedLink = updatedList.removeAt(from)
+        updatedList.add(to, movedLink)
+        editProfileLinkList.value = updatedList
+    }
 }

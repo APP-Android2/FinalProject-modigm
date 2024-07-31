@@ -11,20 +11,20 @@ import kr.co.lion.modigm.model.SqlStudyData
 class ProfileStudyAdapter(
     private var hostStudyList: List<SqlStudyData>,
     private val rowClickListener: (Int) -> Unit,
-) : RecyclerView.Adapter<HostStudyViewHolder>() {
+) : RecyclerView.Adapter<ProfileStudyViewHolder>() {
 
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): HostStudyViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ProfileStudyViewHolder {
         val rowHostStudyBinding: RowHostStudyBinding = RowHostStudyBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
 
-        return HostStudyViewHolder(viewGroup.context, rowHostStudyBinding, rowClickListener)
+        return ProfileStudyViewHolder(viewGroup.context, rowHostStudyBinding, rowClickListener)
     }
 
     override fun getItemCount(): Int {
         return hostStudyList.size
     }
 
-    override fun onBindViewHolder(holder: HostStudyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ProfileStudyViewHolder, position: Int) {
         holder.bind(hostStudyList[position], rowClickListener)
     }
 

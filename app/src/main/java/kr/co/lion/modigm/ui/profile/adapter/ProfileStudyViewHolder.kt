@@ -8,14 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowHostStudyBinding
-import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyRepository
-import kr.co.lion.modigm.util.StudyCategory
-import kr.co.lion.modigm.util.StudyPlace
 
-class HostStudyViewHolder(
+class ProfileStudyViewHolder(
     private val context: Context,
     private val rowHostStudyBinding: RowHostStudyBinding,
     private val rowClickListener: (Int) -> Unit, ): RecyclerView.ViewHolder(rowHostStudyBinding.root) {
