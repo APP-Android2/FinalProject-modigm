@@ -24,15 +24,14 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
+import kr.co.lion.modigm.db.write.RemoteWriteStudyDao
 import kr.co.lion.modigm.ui.detail.CustomIntroDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import java.io.File
+import kotlin.random.Random
 
 class WriteIntroFragment : Fragment() {
 
@@ -49,9 +48,6 @@ class WriteIntroFragment : Fragment() {
     // 촬영된 사진이 저장된 경로 정보를 가지고 있는 Uri 객체
     lateinit var contentUri: Uri
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var uid: String
-
     // 확인할 권한 목록
     val permissionList = arrayOf(
         android.Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -64,6 +60,8 @@ class WriteIntroFragment : Fragment() {
     // 이미지가 업로드되었는지 여부를 나타내는 플래그
     private var isImageUploaded = false
 
+    private lateinit var remoteWriteStudyDao: RemoteWriteStudyDao
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,11 +69,8 @@ class WriteIntroFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentWriteIntroBinding.inflate(inflater, container, false)
 
-        auth = FirebaseAuth.getInstance()
-        uid = auth.currentUser?.uid.toString()
-
-        viewModel.writeUid.value = uid
-
+        // RemoteWriteStudyDao 객체 생성
+        remoteWriteStudyDao = RemoteWriteStudyDao()
 
         // 카메라 및 앨범 런처 설정
         initData()
@@ -86,6 +81,9 @@ class WriteIntroFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupButton() // 이미지 추가 버튼
+
+        // context 설정을 view가 생성된 후에 수행
+        remoteWriteStudyDao.setContext(requireContext())
 
         // ViewModel에 저장된 이미지 URI가 있으면 복원
         viewModel.studyPic.value?.let { uriString ->
@@ -107,7 +105,8 @@ class WriteIntroFragment : Fragment() {
 
         // 텍스트 입력 변경 사항을 관찰
         binding.textInputWriteIntroContent.addTextChangedListener {
-            viewModel.studyContent.value = binding.textInputWriteIntroContent.text.toString().replace(System.getProperty("line.separator"), "\\n")
+            viewModel.studyContent.value = binding.textInputWriteIntroContent.text.toString()
+                .replace(System.getProperty("line.separator"), "\\n")
             validateIntro()
 
         }
@@ -122,6 +121,7 @@ class WriteIntroFragment : Fragment() {
             validateIntro()
         }
     }
+
     // ImageView에 이미지를 로드하는 메서드
     private fun loadImageIntoImageView(uri: Uri) {
         try {
@@ -140,7 +140,7 @@ class WriteIntroFragment : Fragment() {
 
 
     fun setupButton() {
-        with(binding){
+        with(binding) {
             // image 버튼 클릭 리스너
             cardviewWriteIntroCardCover.setOnClickListener {
                 showPopupWindow(it)
@@ -234,9 +234,10 @@ class WriteIntroFragment : Fragment() {
     fun validateIntro() {
         val isTitleValid = binding.textInputWriteIntroTitle.text.toString().length >= 8
         val isContentValid = binding.textInputWriteIntroContent.text.toString().length >= 10
-        val isImageAdded = isAddPicture
+//        val isImageAdded = isAddPicture
 
-        val isValid = isTitleValid && isContentValid && isImageAdded
+//        val isValid = isTitleValid && isContentValid && isImageAdded
+        val isValid = isTitleValid && isContentValid
         viewModel.validateIntro(isValid)
     }
 
@@ -388,25 +389,51 @@ class WriteIntroFragment : Fragment() {
         popupWindow.showAsDropDown(anchorView)
     }
 
-    fun uploadImageAndSaveData(onComplete: () -> Unit) {
-        if (!isImageUploaded && this::contentUri.isInitialized) {
+    // 이미지 업로드 및 데이터 저장 메서드
+    fun uploadImageAndSaveData(callback: (Int) -> Unit) {
+        lifecycleScope.launch {
+            if (isAddPicture && this@WriteIntroFragment::contentUri.isInitialized && contentUri.toString().isNotEmpty()) {
+                try {
+                    val imageUrl = remoteWriteStudyDao.uploadImageToS3(contentUri)
+                    viewModel.studyPicUri.value = imageUrl
+                    saveDataToDatabase(callback)
+                } catch (e: Exception) {
+                    Log.e("WriteIntroFragment", "Error uploading image and saving data", e)
+                    saveDataToDatabase(callback)  // 이미지 업로드가 실패해도 데이터베이스에 저장
+                }
+            } else {
+                selectRandomImageFromS3 { randomImageUrl ->
+                    viewModel.studyPicUri.value = randomImageUrl
+                    saveDataToDatabase(callback)
+                }
+            }
+        }
+    }
+
+    //랜덤 이미지
+    private fun selectRandomImageFromS3(callback: (String) -> Unit) {
+        val randomImages = listOf(
+            "https://modigm-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_1.jpg",
+            "https://modigm-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_2.jpg"
+        )
+        val randomIndex = Random.nextInt(randomImages.size)
+        callback(randomImages[randomIndex])
+    }
+
+    private fun saveDataToDatabase(callback: (Int) -> Unit) {
+        lifecycleScope.launch {
             try {
-                val fileName = "${System.currentTimeMillis()}.jpg"
-                val storageReference = FirebaseStorage.getInstance().reference.child("studyPic/$fileName")
-                storageReference.putFile(contentUri)
-                    .addOnSuccessListener { taskSnapshot ->
-                        Log.d("WriteIntroFragment", "Image upload successful")
-                        Log.d("WriteIntroFragment","$fileName")
-                        isImageUploaded = true
-                        viewModel.studyPicUri.value = fileName
-                        onComplete() // 이미지 업로드 완료 후 콜백 호출
-                    }
-                    .addOnFailureListener {
-                        Log.e("WriteIntroFragment", "Image upload failed: ${it.message}")
-                    }
+                val studyIdx = viewModel.saveDataToDB()
+                if (studyIdx != null) {
+                    Log.d("WriteIntroFragment", "Data saved with studyIdx: $studyIdx")
+                    callback(studyIdx)
+                } else {
+                    Log.e("WriteIntroFragment", "Failed to get studyIdx")
+                }
             } catch (e: Exception) {
-                Log.e("WriteIntroFragment", "Error uploading image: ${e.message}")
+                Log.e("WriteIntroFragment", "Error saving data to database", e)
             }
         }
     }
 }
+
