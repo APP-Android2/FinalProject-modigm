@@ -68,25 +68,25 @@ class RemoteJoinUserDao {
         }
     }
 
-    suspend fun insertUserData(model: Map<String, Any>): Int?{
-        var preparedStatement: PreparedStatement?
-        val columns = model.keys
-        val values = model.values
-        var idx:Int? = null
+    suspend fun insertUserData(model: Map<String, Any>): Result<Int>
+        = withContext(Dispatchers.IO) {
+            runCatching{
+                var preparedStatement: PreparedStatement?
+                val columns = model.keys
+                val values = model.values
+                var idx:Int? = null
 
-        return try {
-            val columnsString = StringBuilder()
-            val valuesString = StringBuilder()
-            columns.forEach { column ->
-                columnsString.append("$column,")
-                valuesString.append("?,")
-            }
+                val columnsString = StringBuilder()
+                val valuesString = StringBuilder()
+                columns.forEach { column ->
+                    columnsString.append("$column,")
+                    valuesString.append("?,")
+                }
 
-            columnsString.deleteCharAt(columnsString.length-1)
-            valuesString.deleteCharAt(valuesString.length-1)
-            val sql = "INSERT INTO tb_user ($columnsString) VALUES ($valuesString)"
+                columnsString.deleteCharAt(columnsString.length-1)
+                valuesString.deleteCharAt(valuesString.length-1)
+                val sql = "INSERT INTO tb_user ($columnsString) VALUES ($valuesString)"
 
-            withContext(Dispatchers.IO){
                 getConnection().use { connection ->
                     preparedStatement = connection.prepareStatement(sql) // PreparedStatement 생성
                     values.forEachIndexed { index, value ->
@@ -103,16 +103,15 @@ class RemoteJoinUserDao {
                     }
                     preparedStatement?.executeUpdate() // 쿼리 실행
 
-                    val afterExecute = connection?.prepareStatement("SELECT LAST_INSERT_ID()")
+                    val afterExecute = connection.prepareStatement("SELECT LAST_INSERT_ID()")
                     val resultSet = afterExecute?.executeQuery()
                     resultSet?.next()
                     if(resultSet != null) idx = resultSet.getInt("LAST_INSERT_ID()")
                 }
+                idx ?: -1
+            }.onFailure { e ->
+                Log.e(TAG, "Error in insertUserData", e) // 오류 로그 출력
             }
-            idx ?: 0
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in insertUserData", e) // 오류 로그 출력
-            0
         }
-    }
+
 }
