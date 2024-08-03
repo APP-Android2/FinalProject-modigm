@@ -8,14 +8,14 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class StudyMyFragment : ViewBindingFragment<FragmentStudyMyBinding>(FragmentStudyMyBinding::inflate) {
+class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBinding::inflate) {
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()

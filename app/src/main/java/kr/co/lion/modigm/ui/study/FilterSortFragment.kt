@@ -11,13 +11,13 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFilterSortBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FilterSort
 import kr.co.lion.modigm.util.FilterSort.Category
 import kr.co.lion.modigm.util.FragmentName
 
-class FilterSortFragment : ViewBindingFragment<FragmentFilterSortBinding>(FragmentFilterSortBinding::inflate) {
+class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFilterSortBinding::inflate) {
 
     private val viewModel: StudyViewModel by activityViewModels()
 
