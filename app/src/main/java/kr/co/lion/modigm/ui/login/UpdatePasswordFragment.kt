@@ -8,13 +8,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.FragmentUpdatePasswordBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.login.vm.UpdatePasswordViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 import java.util.regex.Pattern
 
-class UpdatePasswordFragment : ViewBindingFragment<FragmentUpdatePasswordBinding>(FragmentUpdatePasswordBinding::inflate) {
+class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(FragmentUpdatePasswordBinding::inflate) {
 
     private val viewModel: UpdatePasswordViewModel by viewModels()
 
@@ -117,14 +117,20 @@ class UpdatePasswordFragment : ViewBindingFragment<FragmentUpdatePasswordBinding
         with(binding){
             // 유효성 검사
             viewModel.newPasswordError.observe(viewLifecycleOwner) { error ->
-                textInputLayoutUpdatePassword.error = error.message
-                textInputEditUpdatePassword.requestFocus()
-                textInputLayoutUpdatePassword.shake()
+                if (error != null) {
+                    textInputLayoutUpdatePassword.error = error.message
+                    textInputEditUpdatePassword.requestFocus()
+                    textInputLayoutUpdatePassword.shake()
+                }
+
             }
             viewModel.newPasswordConfirmError.observe(viewLifecycleOwner) { error ->
-                textInputLayoutUpdatePasswordConfirm.error = error.message
-                textInputEditUpdatePasswordConfirm.requestFocus()
-                textInputLayoutUpdatePasswordConfirm.shake()
+                if (error != null) {
+                    textInputLayoutUpdatePasswordConfirm.error = error.message
+                    textInputEditUpdatePasswordConfirm.requestFocus()
+                    textInputLayoutUpdatePasswordConfirm.shake()
+                }
+
             }
 
             // 비밀번호 변경 완료 여부

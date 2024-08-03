@@ -14,7 +14,6 @@ import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.ui.login.LoginError
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -27,50 +26,11 @@ class RemoteLoginDataSource {
     private val functions by lazy { FirebaseFunctions.getInstance("asia-northeast3") }
 
     /**
-     * 이메일과 비밀번호로 로그인
-     * @param email 사용자의 이메일
-     * @param password 사용자의 비밀번호
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
-    suspend fun loginWithEmailPassword(email: String, password: String): Result<Int> {
-        Log.d(tag, "loginWithEmailPassword 호출됨. email: $email")
-        return runCatching {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
-            val uid = result.user?.uid ?: throw LoginError.FirebaseEmailLoginError
-            Log.d(tag, "Firebase 로그인 성공. uid: $uid")
-            getUserIdxByUserUid(uid).getOrThrow()
-        }.onFailure { e ->
-            Log.e(tag, "이메일과 비밀번호로 로그인 중 오류 발생", e)
-            Result.failure<Int>(e)
-        }
-    }
-
-    /**
-     * 깃허브로 로그인
-     * @param context 액티비티 컨텍스트
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
-    suspend fun signInWithGithub(context: Activity): Result<Int> {
-        Log.d(tag, "signInWithGithub 호출됨.")
-        return runCatching {
-            val provider = OAuthProvider.newBuilder("github.com")
-            val result = auth.startActivityForSignInWithProvider(context, provider.build()).await()
-            val uid = result.user?.uid ?: throw LoginError.GithubOAuthError
-            Log.d(tag, "Github 로그인 성공. uid: $uid")
-            getUserIdxByUserUid(uid).getOrThrow()
-        }.onFailure { e ->
-            Log.e(tag, "깃허브로 로그인 중 오류 발생", e)
-            Result.failure<Int>(e)
-        }
-    }
-
-    /**
      * 카카오로 로그인
      * @param context 컨텍스트
      * @return Result<Int> 로그인 성공 여부를 반환
      */
-    suspend fun loginWithKakao(context: Context): Result<Int> {
-        Log.d(tag, "loginWithKakao 호출됨.")
+    suspend fun kakaoLogin(context: Context): Result<Int> {
         return runCatching {
             val token = if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
                 loginWithKakaoTalk(context)
@@ -85,86 +45,6 @@ class RemoteLoginDataSource {
     }
 
     /**
-     * 카카오 로그인 응답 처리
-     * @param token 카카오 OAuth 토큰
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
-    private suspend fun handleKakaoResponse(token: OAuthToken?): Result<Int> {
-        Log.d(tag, "handleKakaoResponse 호출됨. token: $token")
-        return runCatching {
-            if (token != null) {
-                val customToken = getKakaoCustomToken(token.accessToken).getOrThrow()
-                val uid = signInWithCustomToken(customToken).getOrThrow()
-                getUserIdxByUserUid(uid).getOrThrow()
-            } else {
-                throw LoginError.KakaoAuthError
-            }
-        }.onFailure { e ->
-            Log.e(tag, "카카오 로그인 응답 처리 중 오류 발생", e)
-            Result.failure<Int>(e)
-        }
-    }
-
-    /**
-     * 자동 로그인
-     * @param userIdx 사용자의 인덱스
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
-    suspend fun autoLogin(userIdx: Int): Result<Int> {
-        Log.d(tag, "autoLogin 호출됨. userIdx: $userIdx")
-        return runCatching {
-            val authUserUid = auth.currentUser?.uid ?: throw LoginError.FirebaseInvalidUser
-            val prefsUserUid = getUserUidByUserIdx(userIdx).getOrThrow()
-            if (authUserUid == prefsUserUid) {
-                Log.d(tag, "자동 로그인 성공. userIdx: $userIdx")
-                userIdx
-            } else {
-                throw LoginError.FirebaseInvalidUser
-            }
-        }.onFailure { e ->
-            Log.e(tag, "자동 로그인 중 오류 발생", e)
-            Result.failure<Int>(e)
-        }
-    }
-
-    /**
-     * 카카오 커스텀 토큰 획득
-     * @param accessToken 카카오 OAuth 액세스 토큰
-     * @return Result<String> 카카오 커스텀 토큰을 반환
-     */
-    private suspend fun getKakaoCustomToken(accessToken: String): Result<String> {
-        Log.d(tag, "getKakaoCustomToken 호출됨. accessToken: $accessToken")
-        val data = hashMapOf("token" to accessToken)
-        return runCatching {
-            val result = functions.getHttpsCallable("getKakaoCustomAuth").call(data).await()
-            val customToken = result.data as Map<*, *>
-            Log.d(tag, "카카오 커스텀 토큰 획득 성공.")
-            customToken["custom_token"] as String
-        }.onFailure { e ->
-            Log.e(tag, "카카오 커스텀 토큰 획득 중 오류 발생", e)
-            Result.failure<String>(e)
-        }
-    }
-
-    /**
-     * 커스텀 토큰으로 로그인
-     * @param customToken Firebase 커스텀 토큰
-     * @return Result<String> Firebase 사용자 UID를 반환
-     */
-    private suspend fun signInWithCustomToken(customToken: String): Result<String> {
-        Log.d(tag, "signInWithCustomToken 호출됨. customToken: $customToken")
-        return runCatching {
-            val authResult = auth.signInWithCustomToken(customToken).await()
-            val uid = authResult.user?.uid ?: throw LoginError.FirebaseEmailLoginError
-            Log.d(tag, "Firebase 커스텀 토큰 로그인 성공. uid: $uid")
-            uid
-        }.onFailure { e ->
-            Log.e(tag, "커스텀 토큰으로 Firebase 로그인 중 오류 발생", e)
-            Result.failure<String>(e)
-        }
-    }
-
-    /**
      * 카카오톡으로 로그인
      * @param context 컨텍스트
      * @return OAuthToken 카카오 OAuth 토큰
@@ -174,13 +54,13 @@ class RemoteLoginDataSource {
             UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
                 if (error != null) {
                     Log.e(tag, "카카오톡 로그인 실패", error)
-                    cont.resumeWithException(LoginError.KakaoAuthError)
+                    cont.resumeWithException(IllegalStateException("카카오톡 로그인 실패: ${error.message}"))
                 } else if (token != null) {
                     Log.d(tag, "카카오톡 로그인 성공")
                     cont.resume(token)
                 } else {
                     Log.e(tag, "카카오톡 로그인 실패: 알 수 없는 오류")
-                    cont.resumeWithException(LoginError.KakaoAuthError)
+                    cont.resumeWithException(IllegalStateException("카카오톡 로그인 실패: 알 수 없는 오류"))
                 }
             }
         }
@@ -195,24 +75,132 @@ class RemoteLoginDataSource {
             UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
                 if (error != null) {
                     Log.e(tag, "카카오 계정 로그인 실패", error)
-                    cont.resumeWithException(LoginError.KakaoAuthError)
+                    cont.resumeWithException(IllegalStateException("카카오 계정 로그인 실패: ${error.message}"))
                 } else if (token != null) {
                     Log.d(tag, "카카오 계정 로그인 성공")
                     cont.resume(token)
                 } else {
                     Log.e(tag, "카카오 계정 로그인 실패: 알 수 없는 오류")
-                    cont.resumeWithException(LoginError.KakaoAuthError)
+                    cont.resumeWithException(IllegalStateException("카카오 계정 로그인 실패: 알 수 없는 오류"))
                 }
             }
         }
+
+    /**
+     * 카카오 로그인 응답 처리
+     * @param token 카카오 OAuth 토큰
+     * @return Result<Int> 로그인 성공 여부를 반환
+     */
+    private suspend fun handleKakaoResponse(token: OAuthToken?): Result<Int> {
+        return runCatching {
+            if (token != null) {
+                val customToken = getKakaoCustomToken(token.accessToken).getOrThrow()
+                val result = auth.signInWithCustomToken(customToken).await()
+                val user = result.user ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
+                val uid = user.uid
+                getUserIdxByUserUid(uid).fold(
+                    onSuccess = { userIdx ->
+                        Log.d(tag, "카카오 로그인 성공. uid: $uid")
+                        userIdx
+                    },
+                    onFailure = { e ->
+                        Log.d(tag, "데이터베이스에 없는 사용자", e)
+                        if (e.message == "해당 유저를 찾을 수 없습니다.") 0 else throw e
+                    }
+                )
+            } else {
+                throw IllegalStateException("유효하지 않은 카카오 토큰입니다.")
+            }
+        }.onFailure { e ->
+            Log.e(tag, "카카오 로그인 응답 처리 중 오류 발생", e)
+            Result.failure<Int>(e)
+        }
+    }
+
+    /**
+     * 카카오 커스텀 토큰 획득
+     * @param accessToken 카카오 OAuth 액세스 토큰
+     * @return Result<String> 카카오 커스텀 토큰을 반환
+     */
+    private suspend fun getKakaoCustomToken(accessToken: String): Result<String> {
+        val data = hashMapOf("token" to accessToken)
+        return runCatching {
+            val result = functions.getHttpsCallable("getKakaoCustomAuth").call(data).await()
+            val customToken = result.data as Map<*, *>
+            Log.d(tag, "카카오 커스텀 토큰 획득 성공.")
+            customToken["custom_token"] as String
+        }.onFailure { e ->
+            Log.e(tag, "카카오 커스텀 토큰 획득 중 오류 발생", e)
+            Result.failure<String>(e)
+        }
+    }
+
+    /**
+     * 깃허브로 로그인
+     * @param context 액티비티 컨텍스트
+     * @return Result<Int> 로그인 성공 여부를 반환
+     */
+    suspend fun githubLogin(context: Activity): Result<Int> {
+        return runCatching {
+            val provider = OAuthProvider.newBuilder("github.com")
+            val result = auth.startActivityForSignInWithProvider(context, provider.build()).await()
+            val user = result.user ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
+            val uid = user.uid
+            Log.d(tag, "Github 로그인 성공. uid: $uid")
+            val isNewUser = result.additionalUserInfo?.isNewUser
+            Log.d(tag, "isNewUser: $isNewUser")
+            if (isNewUser != null && isNewUser == true) 0 else getUserIdxByUserUid(uid).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "깃허브로 로그인 중 오류 발생: ${e.message}", e)
+            Result.failure<Int>(e)
+        }
+    }
+
+    /**
+     * 이메일과 비밀번호로 로그인
+     * @param email 사용자의 이메일
+     * @param password 사용자의 비밀번호
+     * @return Result<Int> 로그인 성공 여부를 반환
+     */
+    suspend fun emailLogin(email: String, password: String): Result<Int> {
+        return runCatching {
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val uid = result.user?.uid ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
+            Log.d(tag, "Firebase 로그인 성공. uid: $uid")
+            getUserIdxByUserUid(uid).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "이메일과 비밀번호로 로그인 중 오류 발생", e)
+            Result.failure<Int>(e)
+        }
+    }
+
+    /**
+     * 자동 로그인
+     * @param userIdx 사용자의 인덱스
+     * @return Result<Int> 로그인 성공 여부를 반환
+     */
+    suspend fun autoLogin(userIdx: Int): Result<Int> {
+        return runCatching {
+            val authUserUid = auth.currentUser?.uid ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
+            val prefsUserUid = getUserUidByUserIdx(userIdx).getOrThrow()
+            if (authUserUid == prefsUserUid) {
+                Log.d(tag, "자동 로그인 성공")
+                userIdx
+            } else {
+                throw IllegalStateException("사용자 ID가 일치하지 않습니다.")
+            }
+        }.onFailure { e ->
+            Log.e(tag, "자동 로그인 중 오류 발생", e)
+            Result.failure<Int>(e)
+        }
+    }
 
     /**
      * 사용자 인덱스로 사용자 데이터 조회
      * @param userIdx 사용자 인덱스
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    private suspend fun getUserDataByUserIdx(userIdx: Int): Result<SqlUserData> {
-        Log.d(tag, "getUserDataByUserIdx 호출됨. userIdx: $userIdx")
+    suspend fun getUserDataByUserIdx(userIdx: Int): Result<SqlUserData> {
         return runCatching {
             dao.selectUserDataByUserIdx(userIdx).getOrThrow()
         }.onFailure { e ->
@@ -227,7 +215,6 @@ class RemoteLoginDataSource {
      * @return Result<Int> 조회된 사용자 인덱스를 반환
      */
     private suspend fun getUserIdxByUserUid(userUid: String): Result<Int> {
-        Log.d(tag, "getUserIdxByUserUid 호출됨. userUid: $userUid")
         return runCatching {
             dao.selectUserIdxByUserUid(userUid).getOrThrow()
         }.onFailure { e ->
@@ -241,8 +228,7 @@ class RemoteLoginDataSource {
      * @param userUid 사용자 UID
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    private suspend fun getUserDataByUserUid(userUid: String): Result<SqlUserData> {
-        Log.d(tag, "getUserDataByUserUid 호출됨. userUid: $userUid")
+    suspend fun getUserDataByUserUid(userUid: String): Result<SqlUserData> {
         return runCatching {
             dao.selectUserDataByUserUid(userUid).getOrThrow()
         }.onFailure { e ->
@@ -257,7 +243,6 @@ class RemoteLoginDataSource {
      * @return Result<String> 조회된 사용자 UID를 반환
      */
     private suspend fun getUserUidByUserIdx(userIdx: Int): Result<String> {
-        Log.d(tag, "getUserUidByUserIdx 호출됨. userIdx: $userIdx")
         return runCatching {
             dao.selectUserUidByUserIdx(userIdx).getOrThrow()
         }.onFailure { e ->
@@ -272,7 +257,6 @@ class RemoteLoginDataSource {
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
     suspend fun getUserDataByUserPhone(userPhone: String): Result<SqlUserData> {
-        Log.d(tag, "getUserDataByUserPhone 호출됨. userPhone: $userPhone")
         return runCatching {
             dao.selectUserDataByUserPhone(userPhone).getOrThrow()
         }.onFailure { e ->
@@ -287,7 +271,6 @@ class RemoteLoginDataSource {
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
     suspend fun getUserDataByUserEmail(userEmail: String): Result<SqlUserData> {
-        Log.d(tag, "getUserDataByUserEmail 호출됨. userEmail: $userEmail")
         return runCatching {
             dao.selectUserDataByUserEmail(userEmail).getOrThrow()
         }.onFailure { e ->
@@ -303,7 +286,6 @@ class RemoteLoginDataSource {
      * @return Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> 인증 코드 발송 결과를 반환
      */
     suspend fun sendPhoneAuthCode(activity: Activity, userPhone: String): Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> {
-        Log.d(tag, "sendPhoneAuthCode 호출됨. userPhone: $userPhone")
         return runCatching {
             suspendCancellableCoroutine { cont ->
                 val setNumber = userPhone.replaceRange(0, 1, "+82 ")
@@ -351,15 +333,14 @@ class RemoteLoginDataSource {
     /**
      * 인증번호 확인 (이메일 찾기)
      * @param verificationId 인증 ID
-     * @param inputCode 사용자 입력 인증 코드
+     * @param authCode 사용자 입력 인증 코드
      * @return Result<String> 이메일을 반환
      */
-    suspend fun getEmailByInputCode(verificationId: String, inputCode: String): Result<String> {
-        Log.d(tag, "getEmailByInputCode 호출됨. verificationId: $verificationId, inputCode: $inputCode")
+    suspend fun getEmailByInputCode(verificationId: String, authCode: String): Result<String> {
         return runCatching {
-            val phoneCredential = PhoneAuthProvider.getCredential(verificationId, inputCode)
+            val phoneCredential = PhoneAuthProvider.getCredential(verificationId, authCode)
             val result = auth.signInWithCredential(phoneCredential).await()
-            val email = result.user?.email ?: throw LoginError.FirebaseEmailLoginError
+            val email = result.user?.email ?: throw IllegalStateException("유효한 이메일이 아닙니다.")
             auth.signOut()
             email
         }.onFailure { e ->
@@ -374,10 +355,9 @@ class RemoteLoginDataSource {
      * @param inputCode 사용자 입력 인증 코드
      * @return Result<Boolean> 인증 성공 여부를 반환
      */
-    suspend fun signInByInputCode(verificationId: String, inputCode: String): Result<Boolean> {
+    suspend fun signInByAuthCode(verificationId: String, authCode: String): Result<Boolean> {
         return runCatching {
-            Log.d(tag, "signInByInputCode 호출됨. verificationId: $verificationId, inputCode: $inputCode")
-            val credential = PhoneAuthProvider.getCredential(verificationId, inputCode)
+            val credential = PhoneAuthProvider.getCredential(verificationId, authCode)
             auth.signInWithCredential(credential).await()
             true
         }.onFailure { e ->
@@ -393,9 +373,7 @@ class RemoteLoginDataSource {
      */
     fun updatePassword(newPassword: String): Result<Boolean> {
         return runCatching {
-            Log.d(tag, "updatePassword 호출됨. newPassword: $newPassword")
-            val user = auth.currentUser ?: throw LoginError.FirebaseInvalidUser
-            Log.d(tag, "현재 사용자 로그인 상태. user: $user")
+            val user = auth.currentUser ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             user.updatePassword(newPassword).addOnSuccessListener {
                 Log.d(tag, "비밀번호 변경 성공")
                 auth.signOut()
@@ -410,11 +388,12 @@ class RemoteLoginDataSource {
 
     fun authLogout(): Result<Boolean> {
         return runCatching {
+            // 로그아웃
             auth.signOut()
             true
         }.onFailure { e ->
             Log.e(tag, "로그아웃 중 오류 발생", e)
-            Result.failure<Unit>(e)
+            Result.failure<Boolean>(e)
         }
     }
 }

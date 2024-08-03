@@ -8,12 +8,12 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindPasswordBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.login.vm.UpdatePasswordViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 
-class FindPasswordFragment : ViewBindingFragment<FragmentFindPasswordBinding>(FragmentFindPasswordBinding::inflate) {
+class FindPasswordFragment : VBBaseFragment<FragmentFindPasswordBinding>(FragmentFindPasswordBinding::inflate) {
 
     private val viewModel: UpdatePasswordViewModel by viewModels()
 
@@ -90,15 +90,21 @@ class FindPasswordFragment : ViewBindingFragment<FragmentFindPasswordBinding>(Fr
                 }
             }
             // 유효성 검사
-            viewModel.emailError.observe(viewLifecycleOwner) { error ->
-                textInputLayoutFindPwEmail.error = error.message
-                textInputEditFindPwEmail.requestFocus()
-                textInputLayoutFindPwEmail.shake()
+            viewModel.emailInputError.observe(viewLifecycleOwner) { error ->
+                if (error != null) {
+                    textInputLayoutFindPwEmail.error = error.message
+                    textInputEditFindPwEmail.requestFocus()
+                    textInputLayoutFindPwEmail.shake()
+                }
+
             }
-            viewModel.phoneError.observe(viewLifecycleOwner) { error ->
-                textInputLayoutFindPwPhone.error = error.message
-                textInputEditFindPwPhone.requestFocus()
-                textInputLayoutFindPwPhone.shake()
+            viewModel.phoneInputError.observe(viewLifecycleOwner) { error ->
+                if (error != null) {
+                    textInputLayoutFindPwPhone.error = error.message
+                    textInputEditFindPwPhone.requestFocus()
+                    textInputLayoutFindPwPhone.shake()
+                }
+
             }
         }
     }

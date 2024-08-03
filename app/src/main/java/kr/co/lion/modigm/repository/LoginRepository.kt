@@ -21,7 +21,7 @@ class LoginRepository {
      */
     suspend fun emailLogin(email: String, password: String): Result<Int> {
         return runCatching {
-            loginDataSource.loginWithEmailPassword(email, password).getOrThrow()
+            loginDataSource.emailLogin(email, password).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "이메일 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
@@ -35,7 +35,7 @@ class LoginRepository {
      */
     suspend fun githubLogin(context: Activity): Result<Int> {
         return runCatching {
-            loginDataSource.signInWithGithub(context).getOrThrow()
+            loginDataSource.githubLogin(context).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "깃허브 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
@@ -49,7 +49,7 @@ class LoginRepository {
      */
     suspend fun kakaoLogin(context: Context): Result<Int> {
         return runCatching {
-            loginDataSource.loginWithKakao(context).getOrThrow()
+            loginDataSource.kakaoLogin(context).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "카카오 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
@@ -116,12 +116,12 @@ class LoginRepository {
     /**
      * 인증번호 확인 (이메일 찾기)
      * @param verificationId 인증 ID
-     * @param inputCode 사용자가 입력한 인증 코드
+     * @param authCode 사용자가 입력한 인증 코드
      * @return Result<String> 이메일을 반환
      */
-    suspend fun getEmailByInputCode(verificationId: String, inputCode: String): Result<String> {
+    suspend fun getEmailByInputCode(verificationId: String, authCode: String): Result<String> {
         return runCatching {
-            loginDataSource.getEmailByInputCode(verificationId, inputCode).getOrThrow()
+            loginDataSource.getEmailByInputCode(verificationId, authCode).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<String>(e)
@@ -134,9 +134,9 @@ class LoginRepository {
      * @param inputCode 사용자가 입력한 인증 코드
      * @return Result<Boolean> 로그인 성공 여부를 반환
      */
-    suspend fun signInByInputCode(verificationId: String, inputCode: String): Result<Boolean> {
+    suspend fun signInByAuthCode(verificationId: String, authCode: String): Result<Boolean> {
         return runCatching {
-            loginDataSource.signInByInputCode(verificationId, inputCode).getOrThrow()
+            loginDataSource.signInByAuthCode(verificationId, authCode).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Boolean>(e)
