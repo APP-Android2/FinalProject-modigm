@@ -26,11 +26,15 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     // --------------------------------- LC START ---------------------------------
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         // Kakao SDK 초기화
         KakaoSdk.init(requireContext(), BuildConfig.KAKAO_NATIVE_APP_KEY)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // 초기 뷰 설정
         initView()
@@ -38,9 +42,8 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // Glide를 사용하여 이미지에 블러 효과 적용
         Glide.with(this)
             .load(R.drawable.background_login2)
-            .transform(CenterCrop(), BlurTransformation(5, 3)) // 블러 반경과 샘플 크기 설정
+            .transform(CenterCrop(), BlurTransformation(5, 3))
             .into(binding.imageViewLoginBackground)
-
 
         // 자동 로그인 확인
         viewModel.tryAutoLogin()
@@ -66,19 +69,19 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         with(binding){
             // 카카오 로그인 버튼 클릭 리스너 설정
             imageButtonLoginKakao.setOnClickListener {
-                Log.i("LoginFragment", "카카오 로그인 버튼 클릭됨")
+                Log.i(tag, "카카오 로그인 버튼 클릭됨")
                 viewModel.loginKakao(requireContext())
             }
 
             // 깃허브 로그인 버튼 클릭 리스너 설정
             imageButtonLoginGithub.setOnClickListener {
-                Log.i("LoginFragment", "깃허브 로그인 버튼 클릭됨")
+                Log.i(tag, "깃허브 로그인 버튼 클릭됨")
                 viewModel.githubLogin(requireActivity())
             }
 
             // 다른 방법으로 로그인 버튼 클릭 리스너 설정
             textButtonLoginOther.setOnClickListener {
-                Log.i("LoginFragment", "다른 방법으로 로그인 버튼 클릭됨")
+                Log.i(tag, "다른 방법으로 로그인 버튼 클릭됨")
                 parentFragmentManager.commit {
                     replace<OtherLoginFragment>(R.id.containerMain)
                     addToBackStack(FragmentName.OTHER_LOGIN.str)
@@ -94,7 +97,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 카카오 로그인 데이터 관찰
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                Log.i("LoginFragment", "카카오 로그인 성공")
+                Log.i(tag, "카카오 로그인 성공")
                 val joinType = JoinType.KAKAO
                 navigateToBottomNaviFragment(joinType)
             }
@@ -103,7 +106,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 깃허브 로그인 데이터 관찰
         viewModel.githubLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                Log.i("LoginFragment", "깃허브 로그인 성공")
+                Log.i(tag, "깃허브 로그인 성공")
                 val joinType = JoinType.GITHUB
                 navigateToBottomNaviFragment(joinType)
             }
@@ -112,7 +115,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 깃허브 회원가입 데이터 관찰
         viewModel.githubJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                Log.i("LoginFragment", "깃허브 회원가입으로 이동")
+                Log.i(tag, "깃허브 회원가입으로 이동")
                 val joinType = JoinType.GITHUB
                 navigateToJoinFragment(joinType)
             }
@@ -120,7 +123,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
         viewModel.kakaoJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                Log.i("LoginFragment", "카카오 회원가입으로 이동")
+                Log.i(tag, "카카오 회원가입으로 이동")
                 val joinType = JoinType.KAKAO
                 navigateToJoinFragment(joinType)
             }
@@ -149,7 +152,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         val message = if (e.message != null) {
             e.message.toString()
         } else {
-            "알 수 없는 오류!\n코드번호: 9999"
+            "알 수 없는 오류!"
         }
 
         showLoginErrorDialog(message)
@@ -157,7 +160,6 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     /**
      * 회원가입 화면으로 이동하는 메서드
-     * @param token 로그인 토큰
      * @param joinType 회원가입 타입
      */
     private fun navigateToJoinFragment(joinType: JoinType) {
