@@ -3,18 +3,18 @@ package kr.co.lion.modigm.ui.study
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFavoriteBinding
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
+class FavoriteFragment : ViewBindingFragment<FragmentFavoriteBinding>(FragmentFavoriteBinding::inflate) {
 
     // 뷰모델
 
@@ -50,12 +50,10 @@ class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentFavoriteBinding.bind(view)
-
         // 초기 뷰 세팅
-        initView(binding)
+        initView()
         viewModel.getFavoriteStudyData()
-        observeData(binding)
+        observeData()
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
 
 
@@ -70,7 +68,7 @@ class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
     // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
-    private fun initView(binding: FragmentFavoriteBinding) {
+    private fun initView() {
 
         with(binding) {
 
@@ -87,7 +85,7 @@ class FavoriteFragment : Fragment(R.layout.fragment_favorite) {
     }
 
 
-    private fun observeData(binding: FragmentFavoriteBinding) {
+    private fun observeData() {
 //        // 필터링된 데이터 관찰
 //        viewModel.filteredStudyList.observe(viewLifecycleOwner) { studyList ->
 //            studyAllAdapter.updateData(studyList)

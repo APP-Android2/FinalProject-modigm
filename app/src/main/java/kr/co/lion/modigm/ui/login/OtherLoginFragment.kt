@@ -1,15 +1,17 @@
 package kr.co.lion.modigm.ui.login
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentOtherLoginBinding
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
@@ -18,7 +20,7 @@ import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
+class OtherLoginFragment : ViewBindingFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
 
     private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
 
@@ -27,22 +29,19 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentOtherLoginBinding.bind(view)
-
-        initView(binding) // 초기 UI 설정
+        initView() // 초기 UI 설정
         observeViewModel() // ViewModel의 데이터 변경 관찰
     }
 
     override fun onResume() {
         super.onResume()
 
-            // 키보드 올리기 binding 없이 하거나 onViewCreated에서 할것 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-//        // 이메일 텍스트 필드 포커싱 및 소프트키보드 보여주기
-//        binding.textInputEditOtherEmail.requestFocus()
-//        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//        imm.showSoftInput(binding.textInputEditOtherEmail, InputMethodManager.SHOW_IMPLICIT)
+        // 이메일 텍스트 필드 포커싱 및 소프트키보드 보여주기
+        with(binding.textInputEditOtherEmail) {
+            requestFocus()
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     override fun onDestroyView() {
@@ -53,113 +52,129 @@ class OtherLoginFragment : Fragment(R.layout.fragment_other_login) {
 
     // --------------------------------- LC END ---------------------------------
 
-    private fun initView(binding: FragmentOtherLoginBinding) {
-        // 로그인 버튼 초기값을 비활성화 상태로 설정
-        binding.buttonOtherLogin.isEnabled = false
+    private fun initView() {
+        with(binding){
+            // 로그인 버튼 초기값을 비활성화 상태로 설정
+            buttonOtherLogin.isEnabled = false
 
-        // 이메일 필드 포커스 변경 시 유효성 검사
-        binding.textInputEditOtherEmail.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                validateEmail(binding) // 포커스가 떠날 때 이메일 유효성 검사
+            // 이메일 필드 포커스 변경 시 유효성 검사
+            textInputEditOtherEmail.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    validateEmail() // 포커스가 떠날 때 이메일 유효성 검사
+                }
             }
-        }
 
-        // 비밀번호 필드 포커스 변경 시 유효성 검사
-        binding.textInputEditOtherPassword.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                validatePassword(binding) // 포커스가 떠날 때 비밀번호 유효성 검사
+            // 비밀번호 필드 포커스 변경 시 유효성 검사
+            textInputEditOtherPassword.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    validatePassword() // 포커스가 떠날 때 비밀번호 유효성 검사
+                }
             }
-        }
 
-        // 이메일 입력 중 에러 메시지 제거 및 유효성 검사
-        binding.textInputEditOtherEmail.addTextChangedListener {
-            clearEmailError(binding)
-            validateLoginForm(binding)
-        }
-
-        // 비밀번호 입력 중 에러 메시지 제거 및 유효성 검사
-        binding.textInputEditOtherPassword.addTextChangedListener {
-            clearPasswordError(binding)
-            validateLoginForm(binding)
-        }
-
-        // 로그인 버튼 클릭 시 로그인 시도
-        binding.buttonOtherLogin.setOnClickListener {
-            requireActivity().hideSoftInput()
-            val email = binding.textInputEditOtherEmail.text.toString()
-            val password = binding.textInputEditOtherPassword.text.toString()
-            val autoLogin = binding.checkBoxOtherAutoLogin.isChecked
-            Log.d("OtherLoginFragment", "autoLogin : $autoLogin")
-            viewModel.emailLogin(email, password, autoLogin)
-        }
-
-        // 회원가입 버튼 클릭 시 회원가입 화면으로 이동
-        binding.buttonOtherJoin.setOnClickListener {
-            handleJoinClick()
-        }
-
-        // 이메일 찾기 버튼 클릭 시
-        binding.buttonOtherFindEmail.setOnClickListener {
-            parentFragmentManager.commit {
-                replace<FindEmailFragment>(R.id.containerMain)
-                addToBackStack(FragmentName.FIND_EMAIL.str)
+            // 이메일 입력 중 에러 메시지 제거 및 유효성 검사
+            textInputEditOtherEmail.addTextChangedListener {
+                clearEmailError()
+                validateLoginForm()
             }
-        }
 
-        // 비밀번호 찾기 버튼 클릭 시
-        binding.buttonOtherFindPassword.setOnClickListener {
-            parentFragmentManager.commit {
-                replace<FindPwFragment>(R.id.containerMain)
-                addToBackStack(FragmentName.FIND_PW.str)
+            // 비밀번호 입력 중 에러 메시지 제거 및 유효성 검사
+            textInputEditOtherPassword.addTextChangedListener {
+                clearPasswordError()
+                validateLoginForm()
             }
-        }
-        // 돌아가기 버튼 클릭 시
-        binding.buttonOtherBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
+
+            // 로그인 버튼 클릭 시 로그인 시도
+            buttonOtherLogin.setOnClickListener {
+                requireActivity().hideSoftInput()
+                val email = textInputEditOtherEmail.text.toString()
+                val password = textInputEditOtherPassword.text.toString()
+                val autoLogin = checkBoxOtherAutoLogin.isChecked
+                Log.d("OtherLoginFragment", "autoLogin : $autoLogin")
+                viewModel.emailLogin(email, password, autoLogin)
+            }
+
+            // 회원가입 버튼 클릭 시 회원가입 화면으로 이동
+            buttonOtherJoin.setOnClickListener {
+                handleJoinClick()
+            }
+
+            // 이메일 찾기 버튼 클릭 시
+            buttonOtherFindEmail.setOnClickListener {
+                parentFragmentManager.commit {
+                    replace<FindEmailFragment>(R.id.containerMain)
+                    addToBackStack(FragmentName.FIND_EMAIL.str)
+                }
+            }
+
+            // 비밀번호 찾기 버튼 클릭 시
+            buttonOtherFindPassword.setOnClickListener {
+                parentFragmentManager.commit {
+                    replace<FindPasswordFragment>(R.id.containerMain)
+                    addToBackStack(FragmentName.FIND_PW.str)
+                }
+            }
+            // 돌아가기 버튼 클릭 시
+            buttonOtherBack.setOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 
     // 이메일 유효성 검사
-    private fun validateEmail(binding: FragmentOtherLoginBinding) {
-        val email = binding.textInputEditOtherEmail.text.toString()
-        if (email.isEmpty()) {
-            binding.textInputLayoutOtherEmail.error = "이메일을 입력해주세요"
-        } else if (!viewModel.isEmailValid(email)) {
-            binding.textInputLayoutOtherEmail.error = "형식에 맞는 이메일을 입력해주세요"
-        } else {
-            binding.textInputLayoutOtherEmail.error = null
+    private fun validateEmail() {
+        with(binding){
+            val email = textInputEditOtherEmail.text.toString()
+            if (email.isEmpty()) {
+                textInputLayoutOtherEmail.error = "이메일을 입력해주세요"
+            } else if (!viewModel.isEmailValid(email)) {
+                textInputLayoutOtherEmail.error = "형식에 맞는 이메일을 입력해주세요"
+            } else {
+                textInputLayoutOtherEmail.error = null
+            }
         }
+        
     }
 
     // 비밀번호 유효성 검사
-    private fun validatePassword(binding: FragmentOtherLoginBinding) {
-        val password = binding.textInputEditOtherPassword.text.toString()
-        if (password.isEmpty()) {
-            binding.textInputLayoutOtherPassword.error = "비밀번호를 입력해주세요"
-        } else if (!viewModel.isPasswordValid(password)) {
-            binding.textInputLayoutOtherPassword.error = "비밀번호는 6자리 이상 입력해주세요"
-        } else {
-            binding.textInputLayoutOtherPassword.error = null
+    private fun validatePassword() {
+        with(binding){
+            val password = textInputEditOtherPassword.text.toString()
+            if (password.isEmpty()) {
+                textInputLayoutOtherPassword.error = "비밀번호를 입력해주세요"
+            } else if (!viewModel.isPasswordValid(password)) {
+                textInputLayoutOtherPassword.error = "비밀번호는 6자리 이상 입력해주세요"
+            } else {
+                textInputLayoutOtherPassword.error = null
+            }
         }
     }
 
     // 로그인 폼 유효성 검사 및 로그인 버튼 활성화
-    private fun validateLoginForm(binding: FragmentOtherLoginBinding) {
-        val email = binding.textInputEditOtherEmail.text.toString()
-        val password = binding.textInputEditOtherPassword.text.toString()
-        val isEmailValid = viewModel.isEmailValid(email)
-        val isPasswordValid = viewModel.isPasswordValid(password)
-        binding.buttonOtherLogin.isEnabled = isEmailValid && isPasswordValid
+    private fun validateLoginForm() {
+        with(binding){
+            val email = textInputEditOtherEmail.text.toString()
+            val password = textInputEditOtherPassword.text.toString()
+            val isEmailValid = viewModel.isEmailValid(email)
+            val isPasswordValid = viewModel.isPasswordValid(password)
+            buttonOtherLogin.isEnabled = isEmailValid && isPasswordValid
+        }
+
     }
 
     // 이메일 에러 메시지 제거
-    private fun clearEmailError(binding: FragmentOtherLoginBinding) {
-        binding.textInputLayoutOtherEmail.error = null
+    private fun clearEmailError() {
+        with(binding){
+            textInputLayoutOtherEmail.error = null
+        }
+
     }
 
     // 비밀번호 에러 메시지 제거
-    private fun clearPasswordError(binding: FragmentOtherLoginBinding) {
-        binding.textInputLayoutOtherPassword.error = null
+    private fun clearPasswordError() {
+        with(binding){
+            textInputLayoutOtherPassword.error = null
+        }
+
     }
 
     // ViewModel의 데이터 변경을 관찰하여 UI 업데이트

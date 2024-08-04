@@ -2,25 +2,22 @@ package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.google.android.material.tabs.TabLayout
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
+import kr.co.lion.modigm.ui.ViewBindingFragment
 
-class StudyFragment : Fragment(R.layout.fragment_study) {
+class StudyFragment : ViewBindingFragment<FragmentStudyBinding>(FragmentStudyBinding::inflate) {
 
     // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentStudyBinding.bind(view)
-
         // 초기 뷰 세팅
-        initView(binding)
+        initView()
 
         // 초기 프래그먼트 설정
         if (savedInstanceState == null) {
@@ -32,7 +29,7 @@ class StudyFragment : Fragment(R.layout.fragment_study) {
 
     // --------------------------------- LC END ---------------------------------
 
-    private fun initView(binding: FragmentStudyBinding) {
+    private fun initView() {
         // 바인딩
         with(binding) {
             // 탭 레이아웃 설정

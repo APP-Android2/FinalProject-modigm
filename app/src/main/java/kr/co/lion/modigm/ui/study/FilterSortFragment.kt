@@ -6,18 +6,18 @@ import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFilterSortBinding
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FilterSort
 import kr.co.lion.modigm.util.FilterSort.Category
 import kr.co.lion.modigm.util.FragmentName
 
-class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
+class FilterSortFragment : ViewBindingFragment<FragmentFilterSortBinding>(FragmentFilterSortBinding::inflate) {
 
     private val viewModel: StudyViewModel by activityViewModels()
 
@@ -26,17 +26,14 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentFilterSortBinding.bind(view)
-
         // 초기 뷰 세팅
-        initView(binding)
+        initView()
     }
 
     // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
-    private fun initView(binding: FragmentFilterSortBinding) {
+    private fun initView() {
 
         // 바인딩
         with(binding) {
@@ -57,44 +54,44 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
             setupChipGroup(binding.chipGroupGigan, getChipsByCategory(Category.PERIOD))
 
             // 분류 칩 클릭 이벤트
-            setChipClickListener(binding, binding.chipGroupBunryu, binding.layoutFilterGigan)
+            setChipClickListener(binding.chipGroupBunryu, binding.layoutFilterGigan)
 
             // 장소 칩그룹 초기화 및 비가시성 설정
             binding.layoutFilterJangso.visibility = View.GONE
             setupChipGroup(binding.chipGroupJangso, getChipsByCategory(Category.ONOFFLINE))
 
             // 기간 칩 클릭 이벤트
-            setChipClickListener(binding, binding.chipGroupGigan, binding.layoutFilterJangso)
+            setChipClickListener(binding.chipGroupGigan, binding.layoutFilterJangso)
 
             // 인원수 칩그룹 초기화 및 비가시성 설정
             binding.layoutFilterInwon.visibility = View.GONE
             setupChipGroup(binding.chipGroupInwon, getChipsByCategory(Category.PEOPLE))
 
             // 장소 칩 클릭 이벤트
-            setChipClickListener(binding, binding.chipGroupJangso, binding.layoutFilterInwon)
+            setChipClickListener(binding.chipGroupJangso, binding.layoutFilterInwon)
 
             // 신청 방식 칩그룹 초기화 및 비가시성 설정
             binding.layoutFilterSinchung.visibility = View.GONE
             setupChipGroup(binding.chipGroupSinchung, getChipsByCategory(Category.APPLY_METHOD))
 
             // 인원수 칩 클릭 이벤트
-            setChipClickListener(binding, binding.chipGroupInwon, binding.layoutFilterSinchung)
+            setChipClickListener(binding.chipGroupInwon, binding.layoutFilterSinchung)
 
             // 기술 스택 칩그룹 초기화 및 비가시성 설정
             binding.layoutFilterGisul.visibility = View.GONE
             setupChipGroup(binding.chipGroupGisul, getChipsByCategory(Category.TECH_STACK))
 
             // 신청 방식 칩 클릭 이벤트
-            setChipClickListener(binding, binding.chipGroupSinchung, binding.layoutFilterGisul)
+            setChipClickListener(binding.chipGroupSinchung, binding.layoutFilterGisul)
 
             // 기술 스택 칩 클릭 이벤트
-            setTechStackChipClickListener(binding, binding.chipGroupGisul, binding.layoutFilterPrograming)
+            setTechStackChipClickListener(binding.chipGroupGisul, binding.layoutFilterPrograming)
 
             // 프로그래밍 언어 칩그룹 초기화 및 비가시성 설정
             binding.layoutFilterPrograming.visibility = View.GONE
             setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.PROGRAMMING))
 
-            setChipClickListener(binding, binding.chipGroupPrograming, binding.layoutFilterPrograming)
+            setChipClickListener(binding.chipGroupPrograming, binding.layoutFilterPrograming)
 
             // 필터 적용 버튼 클릭 시
             buttonApplyFilter.setOnClickListener {
@@ -198,7 +195,7 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
     }
 
     // 기술 스택 칩 클릭 리스너 설정 함수
-    private fun setTechStackChipClickListener(binding:FragmentFilterSortBinding, chipGroup: ChipGroup, targetLayout: View) {
+    private fun setTechStackChipClickListener(chipGroup: ChipGroup, targetLayout: View) {
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 val checkedId = checkedIds[0]
@@ -212,51 +209,51 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
                 when (chip.text) {
                     "프로그래밍 언어" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.PROGRAMMING))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "프론트엔드" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.FRONT_END))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "백엔드" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.BACK_END))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "모바일개발" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.MOBILE))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "데이터과학" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.DATA_SCIENCE))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "데브옵스 및 시스템관리" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.DEVOPS))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "클라우드 및 인프라" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.CLOUD))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "게임개발" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.GAME_DEVELOPMENT))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "보안" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.SECURITY))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "인공지능" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.AI))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "UI/UX 디자인" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.UI_UX))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
                     "빅데이터" -> {
                         setupChipGroup(binding.chipGroupPrograming, getChipsByCategory(Category.BIG_DATA))
-                        scrollToView(binding, binding.layoutFilterPrograming)
+                        scrollToView(binding.layoutFilterPrograming)
                     }
 
                     // 다른 카테고리 추가...
@@ -270,11 +267,11 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
                 updateChipStyles(chipGroup, -1) // Reset all chip styles
                 Log.d("FilterSortFragment", "Chip 선택 해제됨")
             }
-            updateApplyButtonState(binding)
+            updateApplyButtonState()
         }
     }
 
-    private fun setChipClickListener(binding: FragmentFilterSortBinding,chipGroup: ChipGroup, targetLayout: View) {
+    private fun setChipClickListener(chipGroup: ChipGroup, targetLayout: View) {
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 val checkedId = checkedIds[0]
@@ -287,7 +284,7 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
                 updateChipStyles(chipGroup, -1) // Reset all chip styles
                 Log.d("FilterSortFragment", "Chip 선택 해제됨")
             }
-            updateApplyButtonState(binding)
+            updateApplyButtonState()
         }
     }
 
@@ -324,14 +321,14 @@ class FilterSortFragment : Fragment(R.layout.fragment_filter_sort) {
     }
 
     // 스크롤 이동 함수
-    private fun scrollToView(binding:FragmentFilterSortBinding, targetView: View) {
+    private fun scrollToView(targetView: View) {
         binding.root.post {
             binding.scrollViewFilterSort.smoothScrollTo(0, targetView.top)
         }
     }
 
     // 추가된 부분: 적용 버튼 상태 업데이트 함수
-    private fun updateApplyButtonState(binding:FragmentFilterSortBinding) {
+    private fun updateApplyButtonState() {
         val hasActiveChip = listOf(
             binding.chipGroupBunryu,
             binding.chipGroupGigan,

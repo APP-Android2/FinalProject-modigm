@@ -3,12 +3,12 @@ package kr.co.lion.modigm.ui.study
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
@@ -16,7 +16,7 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
+class BottomNaviFragment : ViewBindingFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate) {
 
     private val viewModel: StudyViewModel by viewModels()
 
@@ -25,13 +25,11 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentBottomNaviBinding.bind(view)
-
-        initView(binding)
+        initView()
         // 프리퍼런스 전체 확인 로그 (필터 입력: SharedPreferencesLog)
         ModigmApplication.prefs.logAllPreferences()
 
-        backBotton(binding)
+        backBotton()
 
     }
 
@@ -45,7 +43,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
 
 
 
-    private fun initView(binding: FragmentBottomNaviBinding) {
+    private fun initView() {
         val currentNavItemIndex = hashMapOf("index" to 0)
 
         if (childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null) {
@@ -132,7 +130,7 @@ class BottomNaviFragment : Fragment(R.layout.fragment_bottom_navi) {
         }
     }
 
-    private fun backBotton(binding: FragmentBottomNaviBinding){
+    private fun backBotton(){
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             private var doubleBackToExitPressedOnce = false
 
