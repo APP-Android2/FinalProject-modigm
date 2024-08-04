@@ -20,7 +20,7 @@ import kotlin.coroutines.resumeWithException
 
 class RemoteLoginDataSource {
 
-    private val tag by lazy { "LoginDataSource" }
+    private val tag by lazy { RemoteLoginDataSource::class.simpleName }
     private val dao by lazy { RemoteLoginDao() }
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val functions by lazy { FirebaseFunctions.getInstance("asia-northeast3") }
@@ -352,7 +352,7 @@ class RemoteLoginDataSource {
     /**
      * 인증번호 확인 (비밀번호 찾기)
      * @param verificationId 인증 ID
-     * @param inputCode 사용자 입력 인증 코드
+     * @param authCode 사용자 입력 인증 코드
      * @return Result<Boolean> 인증 성공 여부를 반환
      */
     suspend fun signInByAuthCode(verificationId: String, authCode: String): Result<Boolean> {

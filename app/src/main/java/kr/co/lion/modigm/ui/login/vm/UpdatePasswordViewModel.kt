@@ -11,7 +11,7 @@ import kr.co.lion.modigm.repository.LoginRepository
 
 class UpdatePasswordViewModel: ViewModel() {
 
-    private val tag by lazy { "UpdatePasswordViewModel" }
+    private val tag by lazy { UpdatePasswordViewModel::class.simpleName }
     private val loginRepository by lazy { LoginRepository() }
 
     // 이메일 에러

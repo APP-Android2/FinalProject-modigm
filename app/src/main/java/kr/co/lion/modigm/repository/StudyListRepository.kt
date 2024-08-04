@@ -1,9 +1,12 @@
 package kr.co.lion.modigm.repository
 
+import android.util.Log
 import kr.co.lion.modigm.db.study.StudyDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 
 class StudyListRepository() {
+
+    private val tag by lazy { StudyListRepository::class.simpleName }
 
     private val studyDataSource by lazy { StudyDataSource() }
 
@@ -13,7 +16,12 @@ class StudyListRepository() {
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
     suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
-        return studyDataSource.getAllStudyData(userIdx)
+        return runCatching {
+            studyDataSource.getAllStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "전체 스터디 목록 조회 중 오류 발생: ${e.message}", e)
+            Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+        }
     }
 
     /**
@@ -22,7 +30,11 @@ class StudyListRepository() {
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
     suspend fun getMyStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
-        return studyDataSource.getMyStudyData(userIdx)
+        return runCatching {
+            studyDataSource.getMyStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "내 스터디 목록 조회 중 오류 발생: ${e.message}", e)
+        }
     }
 
     /**
@@ -31,7 +43,11 @@ class StudyListRepository() {
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
     suspend fun getFavoriteStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
-        return studyDataSource.getFavoriteStudyData(userIdx)
+        return runCatching {
+            studyDataSource.getFavoriteStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요한 스터디 목록 조회 중 오류 발생: ${e.message}", e)
+        }
     }
 
     /**
@@ -41,7 +57,12 @@ class StudyListRepository() {
      * @return Result<Boolean> 좋아요 추가 성공 여부를 반환
      */
     suspend fun addFavorite(userIdx: Int, studyIdx: Int): Result<Boolean>{
-        return studyDataSource.addFavorite(userIdx, studyIdx)
+        return runCatching {
+            studyDataSource.addFavorite(userIdx, studyIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요 추가 중 오류 발생: ${e.message}", e)
+            Result.failure<Boolean>(e)
+        }
     }
 
     /**
@@ -51,6 +72,11 @@ class StudyListRepository() {
      * @return Result<Boolean> 좋아요 삭제 성공 여부를 반환
      */
     suspend fun removeFavorite(userIdx: Int, studyIdx: Int): Result<Boolean>{
-        return studyDataSource.removeFavorite(userIdx, studyIdx)
+        return runCatching {
+            studyDataSource.removeFavorite(userIdx, studyIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요 삭제 중 오류 발생: ${e.message}", e)
+            Result.failure<Boolean>(e)
+        }
     }
 }

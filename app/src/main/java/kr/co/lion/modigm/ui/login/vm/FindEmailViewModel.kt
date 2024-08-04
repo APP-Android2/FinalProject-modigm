@@ -12,7 +12,7 @@ import kr.co.lion.modigm.repository.LoginRepository
 
 class FindEmailViewModel : ViewModel() {
 
-    private val tag by lazy { "FindEmailViewModel" }
+    private val tag by lazy { FindEmailViewModel::class.simpleName }
     private val loginRepository by lazy { LoginRepository() }
 
     // 찾은 이메일

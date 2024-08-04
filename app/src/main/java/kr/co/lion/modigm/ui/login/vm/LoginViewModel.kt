@@ -13,7 +13,7 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class LoginViewModel : ViewModel() {
 
-    private val tag by lazy { "LoginViewModel" }
+    private val tag by lazy { LoginViewModel::class.simpleName }
 
     // LoginRepository 초기화
     private val loginRepository by lazy { LoginRepository() }

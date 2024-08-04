@@ -8,7 +8,7 @@ import kr.co.lion.modigm.model.SqlStudyData
 
 class StudyDao {
 
-    private val tag = "StudyDao"
+    private val tag by lazy { StudyDao::class.simpleName }
 
     /**
      * 모든 스터디와 스터디 멤버 데이터 조회 (좋아요 여부 포함)

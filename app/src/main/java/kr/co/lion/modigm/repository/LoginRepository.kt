@@ -9,7 +9,7 @@ import kr.co.lion.modigm.db.login.RemoteLoginDataSource
 import kr.co.lion.modigm.model.SqlUserData
 
 class LoginRepository {
-    private val tag by lazy { "LoginRepository" }
+    private val tag by lazy { LoginRepository::class.simpleName }
 
     private val loginDataSource by lazy { RemoteLoginDataSource() }
 
@@ -131,7 +131,7 @@ class LoginRepository {
     /**
      * 인증 코드로 로그인
      * @param verificationId 인증 ID
-     * @param inputCode 사용자가 입력한 인증 코드
+     * @param authCode 사용자가 입력한 인증 코드
      * @return Result<Boolean> 로그인 성공 여부를 반환
      */
     suspend fun signInByAuthCode(verificationId: String, authCode: String): Result<Boolean> {

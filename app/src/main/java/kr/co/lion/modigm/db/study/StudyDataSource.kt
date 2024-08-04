@@ -5,8 +5,8 @@ import kr.co.lion.modigm.model.SqlStudyData
 
 class StudyDataSource {
 
-    private val tag = "StudyDataSource"
-    private val dao = StudyDao()
+    private val tag by lazy { StudyDataSource::class.simpleName }
+    private val dao by lazy { StudyDao() }
 
     /**
      * 모집 중인 전체 스터디 목록 조회 (좋아요 여부 포함)

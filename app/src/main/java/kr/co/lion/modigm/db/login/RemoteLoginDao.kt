@@ -9,7 +9,7 @@ import java.sql.SQLDataException
 
 class RemoteLoginDao {
 
-    private val tag by lazy { "LoginDao" }
+    private val tag by lazy { RemoteLoginDao::class.simpleName }
 
     suspend fun selectUserDataByUserIdx(userIdx: Int): Result<SqlUserData> =
         withContext(Dispatchers.IO) {
