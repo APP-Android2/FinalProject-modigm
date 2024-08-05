@@ -171,7 +171,6 @@ class ChangePhoneViewModel: ViewModel() {
         _isSendingCode.value = false
     }
 
-
     // 전화번호 변경
     suspend fun changePhone() {
         if(_isCodeSent.value == true){

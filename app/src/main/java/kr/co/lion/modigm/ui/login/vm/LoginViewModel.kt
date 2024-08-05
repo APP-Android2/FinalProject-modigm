@@ -2,26 +2,24 @@ package kr.co.lion.modigm.ui.login.vm
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.repository.LoginRepository
-import kr.co.lion.modigm.ui.login.LoginError
 import kr.co.lion.modigm.util.ModigmApplication
 
 class LoginViewModel : ViewModel() {
 
+    private val tag by lazy { "LoginViewModel" }
+
     // LoginRepository 초기화
-    private val loginRepository by lazy {
-        LoginRepository()
-    }
+    private val loginRepository by lazy { LoginRepository() }
 
     // SharedPreferences 초기화
-    private val prefs by lazy {
-        ModigmApplication.prefs
-    }
+    private val prefs by lazy { ModigmApplication.prefs }
 
     // 이메일 로그인 결과를 담는 LiveData
     private val _emailLoginResult = MutableLiveData<Boolean>()
@@ -128,7 +126,6 @@ class LoginViewModel : ViewModel() {
                 _githubLoginResult.postValue(false)
                 _githubLoginError.postValue(e)
             }
-
         }
     }
 
@@ -199,29 +196,25 @@ class LoginViewModel : ViewModel() {
     }
 
     /**
-     * 뷰모델 데이터를 초기화하는 함수
+     * 로그아웃
      */
-    fun clearData() {
-        _emailLoginResult.value = false
-        _kakaoLoginResult.value = false
-        _githubLoginResult.value = false
-    }
+    fun authLogout() {
 
-    /**
-     * DAO 코루틴을 취소하는 함수
-     */
-    private fun daoCoroutineCancel() {
-        viewModelScope.launch {
-            loginRepository.daoCoroutineCancel()
+        val result = loginRepository.authLogout()
+        result.onSuccess {
+            Log.d(tag, "로그아웃 성공.")
+        }.onFailure { e ->
+            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
         }
     }
 
     /**
-     * 뷰모델이 삭제될 때 호출되는 함수
+     * 뷰모델 데이터를 초기화하는 함수
      */
-    override fun onCleared() {
-        super.onCleared()
-        // DAO 코루틴 취소
-        daoCoroutineCancel()
+    fun clearData() {
+        _emailLoginResult.postValue(false)
+        _githubLoginResult.postValue(false)
+        _kakaoLoginResult.postValue(false)
+
     }
 }

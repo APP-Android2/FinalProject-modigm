@@ -121,7 +121,7 @@ class ChangePhoneFragment : Fragment() {
                 return@setOnClickListener
             }
             lifecycleScope.launch {
-                changePhoneViewModel.changePhone()
+//                changePhoneViewModel.changePhone()
                 editProfileViewModel.editProfilePhone.value = changePhoneViewModel.userPhone.value
             }
         }

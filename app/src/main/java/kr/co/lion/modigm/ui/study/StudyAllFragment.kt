@@ -3,20 +3,21 @@ package kr.co.lion.modigm.ui.study
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
+import kr.co.lion.modigm.ui.ViewBindingFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
+class StudyAllFragment : ViewBindingFragment<FragmentStudyAllBinding>(FragmentStudyAllBinding::inflate) {
+
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
@@ -54,11 +55,8 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentStudyAllBinding.bind(view)
-
         // 초기 뷰 세팅
-        initView(binding)
+        initView()
         viewModel.getAllStudyData()
         observeData()
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
@@ -68,12 +66,13 @@ class StudyAllFragment : Fragment(R.layout.fragment_study_all) {
         super.onDestroyView()
 
         viewModel.clearData() // ViewModel 데이터 초기화
+
     }
 
     // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
-    private fun initView(binding: FragmentStudyAllBinding) {
+    private fun initView() {
 
         with(binding) {
             // 필터 버튼

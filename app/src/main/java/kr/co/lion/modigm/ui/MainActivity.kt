@@ -5,16 +5,19 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.ActivityMainBinding
+import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.login.LoginFragment
 
 class MainActivity : AppCompatActivity() {
 
     // 바인딩
-    private val binding: ActivityMainBinding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
+    private var _binding: ActivityMainBinding? = null
+    private val binding get() = _binding!!
 
     // --------------------------------- LC START ---------------------------------
 
@@ -22,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // 바인딩
+        _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         Log.d("MainActivity1", "onCreate: MainActivity 시작")
@@ -33,6 +37,15 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.commit {
             setReorderingAllowed(true)
             replace<LoginFragment>(R.id.containerMain)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        // 애플리케이션 종료 시 히카리CP 데이터 소스를 해제
+        CoroutineScope(Dispatchers.IO).launch {
+            HikariCPDataSource.closeDataSource()
         }
     }
 
