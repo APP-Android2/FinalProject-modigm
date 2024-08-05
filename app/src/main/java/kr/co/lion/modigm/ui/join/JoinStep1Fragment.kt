@@ -1,21 +1,18 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep1Binding
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 
-class JoinStep1Fragment : Fragment() {
-
-    lateinit var binding: FragmentJoinStep1Binding
+class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.fragment_join_step1) {
 
     private val joinStep1ViewModel: JoinStep1ViewModel by activityViewModels()
 
@@ -24,9 +21,8 @@ class JoinStep1Fragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_join_step1, container, false)
+        super.onCreateView(inflater, container, savedInstanceState)
         binding.viewModel = joinStep1ViewModel
-        binding.lifecycleOwner = this
 
         settingTextInputLayoutError()
 
