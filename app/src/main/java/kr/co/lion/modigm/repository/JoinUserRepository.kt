@@ -10,6 +10,10 @@ class JoinUserRepository {
     suspend fun insetUserData(userInfoData: SqlUserData): Result<Int>
         = _joinUserDataSource.insetUserData(userInfoData)
 
+    // 해당 전화 번호의 계정이 있는지 확인 (중복 확인)
+    suspend fun checkUserByPhone(phoneNumber: String): Result<Map<String, String>?>
+        = _joinUserDataSource.checkUserByPhone(phoneNumber)
+
     // 리소스를 해제하는 메서드 추가
     suspend fun closeConn() {
         _joinUserDataSource.closeConn()
