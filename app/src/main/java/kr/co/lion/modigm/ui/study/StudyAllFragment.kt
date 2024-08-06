@@ -57,7 +57,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
         // 초기 뷰 세팅
         initView()
-        observeData()
+        observeViewModel()
         viewModel.getAllStudyData()
         Log.d(tag, "onViewCreated 호출됨")
     }
@@ -147,7 +147,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
     }
 
 
-    private fun observeData() {
+    private fun observeViewModel() {
         // 이미 관찰자가 등록된 경우를 피하기 위해 조건 추가
         viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)
@@ -182,11 +182,11 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             "알 수 없는 오류!"
         }
 
-        showStudyErrorDialog(message)
+        studyErrorDialog(message)
     }
 
     // 오류 다이얼로그 표시
-    private fun showStudyErrorDialog(message: String) {
+    private fun studyErrorDialog(message: String) {
         val dialog = CustomLoginErrorDialog(requireContext())
         dialog.setTitle("오류")
         dialog.setMessage(message)

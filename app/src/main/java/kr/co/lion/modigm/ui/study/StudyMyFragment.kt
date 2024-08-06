@@ -54,7 +54,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         // 초기 뷰 세팅
         initView()
         viewModel.getMyStudyData()
-        observeData()
+        observeViewModel()
     }
 
     override fun onDestroyView() {
@@ -108,7 +108,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         }
     }
 
-    private fun observeData() {
+    private fun observeViewModel() {
 //        // 필터링된 데이터 관찰
 //        viewModel.filteredMyStudyList.observe(viewLifecycleOwner) { studyList ->
 //            studyMyAdapter.updateData(studyList)
@@ -153,11 +153,11 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
             "알 수 없는 오류!"
         }
 
-        showStudyErrorDialog(message)
+        studyErrorDialog(message)
     }
 
     // 오류 다이얼로그 표시
-    private fun showStudyErrorDialog(message: String) {
+    private fun studyErrorDialog(message: String) {
         val dialog = CustomLoginErrorDialog(requireContext())
         dialog.setTitle("오류")
         dialog.setMessage(message)
