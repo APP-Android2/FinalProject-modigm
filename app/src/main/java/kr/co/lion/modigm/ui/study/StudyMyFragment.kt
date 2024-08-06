@@ -152,7 +152,6 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         } else {
             "알 수 없는 오류!"
         }
-
         studyErrorDialog(message)
     }
 

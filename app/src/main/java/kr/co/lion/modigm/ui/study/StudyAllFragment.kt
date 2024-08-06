@@ -110,10 +110,10 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                 // 스크롤 리스너 추가
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (dy > 0 && binding.fabStudyWrite.isShown) {
-                            binding.fabStudyWrite.hide()
+                        if (dy > 0 && fabStudyWrite.isShown) {
+                            fabStudyWrite.hide()
                         } else if (dy < 0 && !binding.fabStudyWrite.isShown) {
-                            binding.fabStudyWrite.show()
+                            fabStudyWrite.show()
                         }
                     }
                 })
