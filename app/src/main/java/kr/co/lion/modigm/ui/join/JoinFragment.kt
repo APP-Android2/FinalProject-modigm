@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,10 +16,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.adapter.JoinViewPagerAdapter
 import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
@@ -33,9 +34,8 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.hideSoftInput
 
-class JoinFragment : Fragment() {
-
-    private lateinit var binding: FragmentJoinBinding
+@AndroidEntryPoint
+class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
 
     private val viewModel: JoinViewModel by viewModels()
     private val viewModelStep1: JoinStep1ViewModel by activityViewModels()
@@ -51,8 +51,8 @@ class JoinFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-
-        binding = FragmentJoinBinding.inflate(inflater)
+        super.onCreateView(inflater, container, savedInstanceState)
+        binding.viewModel = viewModel
 
         settingValuesFromBundle()
         settingToolBar()
@@ -97,6 +97,9 @@ class JoinFragment : Fragment() {
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
         if(!viewModel.joinCompleted.value){
             viewModel.deleteCurrentUser()
+            viewModelStep1.reset()
+            viewModelStep2.reset()
+            viewModelStep3.reset()
         }
     }
 

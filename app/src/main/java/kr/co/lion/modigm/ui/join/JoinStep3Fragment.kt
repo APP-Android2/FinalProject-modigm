@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.join
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,13 +10,10 @@ import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep3Binding
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 
-class JoinStep3Fragment : Fragment() {
-
-    val binding: FragmentJoinStep3Binding by lazy {
-        FragmentJoinStep3Binding.inflate(layoutInflater)
-    }
+class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.fragment_join_step3) {
 
     private val joinStep3ViewModel: JoinStep3ViewModel by activityViewModels()
 
@@ -26,6 +22,9 @@ class JoinStep3Fragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        super.onCreateView(inflater, container, savedInstanceState)
+        binding.viewModel = joinStep3ViewModel
+
         settingCollector()
         return binding.root
     }
