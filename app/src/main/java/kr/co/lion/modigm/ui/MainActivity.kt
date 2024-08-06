@@ -1,5 +1,7 @@
 package kr.co.lion.modigm.ui
 
+import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +25,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!isChromeOS(this)) {
+            // Chrome OS가 아닌 장치에서는 세로 모드로 고정
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
 
         // 바인딩
         _binding = ActivityMainBinding.inflate(layoutInflater)
@@ -60,5 +67,9 @@ class MainActivity : AppCompatActivity() {
             val entry = fragmentManager.getBackStackEntryAt(i)
             Log.d("FragmentBackStackLog", "백스택 ${i}: ${entry.name}")
         }
+    }
+
+    private fun isChromeOS(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature("org.chromium.arc.device_management")
     }
 }

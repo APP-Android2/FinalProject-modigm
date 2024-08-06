@@ -12,7 +12,7 @@ import kr.co.lion.modigm.repository.LoginRepository
 
 class FindEmailViewModel : ViewModel() {
 
-    private val tag by lazy { "FindEmailViewModel" }
+    private val tag by lazy { FindEmailViewModel::class.simpleName }
     private val loginRepository by lazy { LoginRepository() }
 
     // 찾은 이메일
@@ -20,23 +20,23 @@ class FindEmailViewModel : ViewModel() {
     val email: LiveData<String> = _emailResult
 
     // 이름 에러
-    private val _nameError = MutableLiveData<Throwable>()
-    val nameError: LiveData<Throwable> = _nameError
+    private val _nameInputError = MutableLiveData<Throwable?>()
+    val nameInputError: LiveData<Throwable?> = _nameInputError
 
     // 연락처 에러
-    private val _phoneError = MutableLiveData<Throwable>()
-    val phoneError: LiveData<Throwable> = _phoneError
+    private val _phoneInputError = MutableLiveData<Throwable?>()
+    val phoneInputError: LiveData<Throwable?> = _phoneInputError
 
     // 인증번호 에러
-    private val _inputCodeError = MutableLiveData<Throwable>()
-    val inputCodeError: LiveData<Throwable> = _inputCodeError
+    private val _authCodeInputError = MutableLiveData<Throwable?>()
+    val authCodeInputError: LiveData<Throwable?> = _authCodeInputError
 
     // 전화번호 인증에 필요 onCodeSent에서 전달받음
     private val _verificationId = MutableLiveData<String>()
     val verificationId: LiveData<String> = _verificationId
 
     private val _resendToken = MutableLiveData<PhoneAuthProvider.ForceResendingToken>()
-    private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken> get() = _resendToken
+    private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken> = _resendToken
 
     // 이름, 연락처, 문자 발송까지 모두 확인되면
     private val _isComplete = MutableLiveData<Boolean>()
@@ -78,15 +78,15 @@ class FindEmailViewModel : ViewModel() {
 
                     }.onFailure { e ->
                         Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
-                        _phoneError.postValue(e)
+                        _phoneInputError.postValue(e)
                     }
                 } else {
                     Log.e(tag, "이름 불일치. 입력한 이름: $userName, DB 이름: ${userData.userName}")
-                    _nameError.postValue(Throwable("일치하는 이름이 없습니다."))
+                    _nameInputError.postValue(Throwable("일치하는 이름이 없습니다."))
                 }
             }.onFailure { e ->
                 Log.e(tag, "전화번호 확인 실패. 오류: ${e.message}", e)
-                _phoneError.postValue(Throwable("등록되지 않은 전화번호입니다."))
+                _phoneInputError.postValue(Throwable("등록되지 않은 전화번호입니다."))
             }
         }
     }
@@ -94,19 +94,19 @@ class FindEmailViewModel : ViewModel() {
     /**
      * 인증 코드를 확인하고 이메일을 찾는 메서드
      * @param verificationId 인증 ID
-     * @param inputCode 입력한 인증 코드
+     * @param authCode 입력한 인증 코드
      */
-    fun checkCodeAndFindEmail(verificationId: String, inputCode: String) {
-        Log.d(tag, "checkCodeAndFindEmail 호출됨. verificationId: $verificationId, inputCode: $inputCode")
+    fun checkCodeAndFindEmail(verificationId: String, authCode: String) {
+        Log.d(tag, "checkCodeAndFindEmail 호출됨. verificationId: $verificationId, inputCode: $authCode")
         viewModelScope.launch {
-            val result = loginRepository.getEmailByInputCode(verificationId, inputCode)
+            val result = loginRepository.getEmailByInputCode(verificationId, authCode)
             result.onSuccess { email ->
                 Log.d(tag, "인증번호 확인 성공. email: $email")
-                _emailResult.value = email
+                _emailResult.postValue(email)
                 _isComplete.postValue(true)
             }.onFailure { e ->
                 Log.e(tag, "인증번호 확인 실패. 오류: ${e.message}", e)
-                _inputCodeError.postValue(Throwable("인증번호가 잘못되었습니다."))
+                _authCodeInputError.postValue(Throwable("인증번호가 잘못되었습니다."))
             }
         }
     }
@@ -123,5 +123,8 @@ class FindEmailViewModel : ViewModel() {
         _emailResult.postValue("")
         _isComplete.postValue(false)
         _verificationId.postValue("")
+        _nameInputError.postValue(null)
+        _phoneInputError.postValue(null)
+        _authCodeInputError.postValue(null)
     }
 }

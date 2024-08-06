@@ -9,12 +9,12 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindPasswordAuthBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.login.vm.UpdatePasswordViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 
-class FindPasswordAuthFragment : ViewBindingFragment<FragmentFindPasswordAuthBinding>(FragmentFindPasswordAuthBinding::inflate) {
+class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>(FragmentFindPasswordAuthBinding::inflate) {
 
     private val viewModel: UpdatePasswordViewModel by viewModels()
 
@@ -60,9 +60,9 @@ class FindPasswordAuthFragment : ViewBindingFragment<FragmentFindPasswordAuthBin
                     }
 
                     // 인증 번호 확인
-                    val inputCode = textInputEditFindPwPassCode.text.toString()
-                    Log.d("FindPwAuthFragment", "인증 버튼 클릭됨. inputCode: $inputCode")
-                    viewModel.checkByInputCode(verificationId, inputCode)
+                    val authCode = textInputEditFindPwPassCode.text.toString()
+                    Log.d("FindPwAuthFragment", "인증 버튼 클릭됨. authCode: $authCode")
+                    viewModel.checkByAuthCode(verificationId, authCode)
                 }
             }
         }
@@ -76,10 +76,13 @@ class FindPasswordAuthFragment : ViewBindingFragment<FragmentFindPasswordAuthBin
                 }
             }
             // 유효성 검사
-            viewModel.inputCodeError.observe(viewLifecycleOwner) {
-                textInputLayoutFindPwPassCode.error = it.message
-                textInputEditFindPwPassCode.requestFocus()
-                textInputLayoutFindPwPassCode.shake()
+            viewModel.authCodeError.observe(viewLifecycleOwner) { error ->
+                if (error != null) {
+                    textInputLayoutFindPwPassCode.error = error.message
+                    textInputEditFindPwPassCode.requestFocus()
+                    textInputLayoutFindPwPassCode.shake()
+                }
+
             }
 
         }

@@ -8,13 +8,14 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFavoriteBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
+import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class FavoriteFragment : ViewBindingFragment<FragmentFavoriteBinding>(FragmentFavoriteBinding::inflate) {
+class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavoriteBinding::inflate) {
 
     // 뷰모델
 
@@ -53,7 +54,7 @@ class FavoriteFragment : ViewBindingFragment<FragmentFavoriteBinding>(FragmentFa
         // 초기 뷰 세팅
         initView()
         viewModel.getFavoriteStudyData()
-        observeData()
+        observeViewModel()
         Log.d("StudyAllFragment", "onViewCreated 호출됨")
 
 
@@ -85,7 +86,7 @@ class FavoriteFragment : ViewBindingFragment<FragmentFavoriteBinding>(FragmentFa
     }
 
 
-    private fun observeData() {
+    private fun observeViewModel() {
 //        // 필터링된 데이터 관찰
 //        viewModel.filteredStudyList.observe(viewLifecycleOwner) { studyList ->
 //            studyAllAdapter.updateData(studyList)
@@ -94,7 +95,7 @@ class FavoriteFragment : ViewBindingFragment<FragmentFavoriteBinding>(FragmentFa
 
 
         // 전체 데이터 관찰 (필터링이 없을 때)
-        viewModel.favoritedData.observe(viewLifecycleOwner) { studyList ->
+        viewModel.favoritedStudyData.observe(viewLifecycleOwner) { studyList ->
             if (studyList.isNotEmpty()) {
                 binding.recyclerviewFavorite.visibility = View.VISIBLE
                 binding.blankLayoutFavorite.visibility = View.GONE
@@ -110,5 +111,39 @@ class FavoriteFragment : ViewBindingFragment<FragmentFavoriteBinding>(FragmentFa
             // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
             studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
+
+        viewModel.favoriteStudyError.observe(viewLifecycleOwner) { e ->
+            Log.e("StudyAllFragment", "오류 발생", e)
+            if (e != null) {
+                showStudyErrorDialog(e)
+            }
+        }
+        viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
+            Log.e("StudyAllFragment", "오류 발생", e)
+            if (e != null) {
+                showStudyErrorDialog(e)
+            }
+        }
+    }
+    // 스터디 오류 처리 메서드
+    private fun showStudyErrorDialog(e: Throwable) {
+        val message = if (e.message != null) {
+            e.message.toString()
+        } else {
+            "알 수 없는 오류!"
+        }
+
+        showStudyErrorDialog(message)
+    }
+
+    // 오류 다이얼로그 표시
+    private fun showStudyErrorDialog(message: String) {
+        val dialog = CustomLoginErrorDialog(requireContext())
+        dialog.setTitle("오류")
+        dialog.setMessage(message)
+        dialog.setPositiveButton("확인") {
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 }

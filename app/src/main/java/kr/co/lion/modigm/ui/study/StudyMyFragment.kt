@@ -8,14 +8,15 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
+import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class StudyMyFragment : ViewBindingFragment<FragmentStudyMyBinding>(FragmentStudyMyBinding::inflate) {
+class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBinding::inflate) {
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
@@ -117,12 +118,52 @@ class StudyMyFragment : ViewBindingFragment<FragmentStudyMyBinding>(FragmentStud
         // 내 스터디 데이터 관찰 (필터링이 없을 때)
         viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)
-            Log.d("StudyMyFragment", "내 스터디 목록 업데이트: ${studyList.size} 개")
+            Log.d(tag, "내 스터디 목록 업데이트: ${studyList.size} 개")
         }
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
             // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
             studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
+
+        if (!viewModel.myStudyError.hasObservers()) {
+            viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
+                Log.e(tag, "내 스터디 목록 오류 발생", e)
+                if (e != null) {
+                    showStudyErrorDialog(e)
+                }
+            }
+        }
+
+        if (!viewModel.isFavoriteError.hasObservers()) {
+            viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
+                Log.e(tag, "좋아요 오류 발생", e)
+                if (e != null) {
+                    showStudyErrorDialog(e)
+                }
+            }
+        }
+    }
+
+    // 스터디 오류 처리 메서드
+    private fun showStudyErrorDialog(e: Throwable) {
+        val message = if (e.message != null) {
+            e.message.toString()
+        } else {
+            "알 수 없는 오류!"
+        }
+
+        showStudyErrorDialog(message)
+    }
+
+    // 오류 다이얼로그 표시
+    private fun showStudyErrorDialog(message: String) {
+        val dialog = CustomLoginErrorDialog(requireContext())
+        dialog.setTitle("오류")
+        dialog.setMessage(message)
+        dialog.setPositiveButton("확인") {
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 }

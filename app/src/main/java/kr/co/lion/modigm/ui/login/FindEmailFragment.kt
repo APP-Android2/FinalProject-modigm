@@ -4,19 +4,18 @@ import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindEmailBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.login.vm.FindEmailViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 
 class FindEmailFragment :
-    ViewBindingFragment<FragmentFindEmailBinding>(FragmentFindEmailBinding::inflate) {
+    VBBaseFragment<FragmentFindEmailBinding>(FragmentFindEmailBinding::inflate) {
 
     private val viewModel: FindEmailViewModel by viewModels()
 
@@ -39,6 +38,7 @@ class FindEmailFragment :
             textInputEditFindEmailName.addTextChangedListener(inputWatcher)
             textInputEditFindEmailPhone.addTextChangedListener(inputWatcher)
 
+
             // 툴바
             with(toolbarFindEmail) {
                 // 뒤로가기 버튼 클릭 시
@@ -53,7 +53,7 @@ class FindEmailFragment :
                 setOnClickListener {
 
                     // 유효성 검사
-                    if (!checkAllInputs()) {
+                    if (!checkAllInput()) {
                         return@setOnClickListener
                     }
                     // 입력한 이름이 계정 정보와 일치하는지 확인하고 인증 문자 발송
@@ -77,19 +77,23 @@ class FindEmailFragment :
                     moveToNext()
                 }
             }
-            viewModel.nameError.observe(viewLifecycleOwner) { error ->
-                Log.e("FindEmailFragment", "nameError 발생")
-                textInputLayoutFindEmailName.error = error.message
-                textInputEditFindEmailName.requestFocus()
-                textInputEditFindEmailName.shake()
+            viewModel.nameInputError.observe(viewLifecycleOwner) { error ->
+                if (error != null) {
+                    textInputLayoutFindEmailName.error = error.message
+                    textInputEditFindEmailName.requestFocus()
+                    textInputEditFindEmailName.shake()
+                }
+
             }
-            viewModel.phoneError.observe(viewLifecycleOwner) { error ->
-                textInputLayoutFindEmailPhone.error = error.message
-                textInputEditFindEmailPhone.requestFocus()
-                textInputEditFindEmailPhone.shake()
+            viewModel.phoneInputError.observe(viewLifecycleOwner) { error ->
+                if (error != null) {
+                    textInputLayoutFindEmailPhone.error = error.message
+                    textInputEditFindEmailPhone.requestFocus()
+                    textInputEditFindEmailPhone.shake()
+                }
+
             }
         }
-
     }
 
     // 유효성 검사 및 버튼 활성화/비활성화 업데이트
@@ -100,16 +104,19 @@ class FindEmailFragment :
             with(binding) {
                 buttonFindEmailNext.isEnabled =
                     !textInputEditFindEmailName.text.isNullOrEmpty() && !textInputEditFindEmailPhone.text.isNullOrEmpty()
+
             }
 
         }
 
         override fun afterTextChanged(p0: Editable?) {}
+
+
     }
 
 
     // 유효성 검사
-    private fun checkAllInputs(): Boolean {
+    private fun checkAllInput(): Boolean {
         return checkName() && checkPhone()
     }
 
@@ -181,27 +188,16 @@ class FindEmailFragment :
     }
 
     private fun isValidKoreanName(name: String): Boolean {
-        // 한글 자음과 모음 정의
-        val consonants = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ"
-        val vowels = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ"
-
-        // 이름의 각 글자가 자음이나 모음 단독으로 이루어져 있는 경우
-        for (char in name) {
-            if (consonants.contains(char) || vowels.contains(char)) {
-                return false
-            }
-
-            // 각 글자가 한글 음절인지 확인
-            if (!char.isHangulSyllable()) {
-                return false
-            }
+        // 이름이 비어 있거나, 앞뒤 공백이 있거나, 길이가 적절하지 않은지 확인
+        if (name.isBlank() || name.trim() != name || name.length > 6) {
+            return false
         }
-        return true
-    }
 
-    // 한글 음절인지 확인하는 확장 함수
-    private fun Char.isHangulSyllable(): Boolean {
-        return this in '\uAC00'..'\uD7A3'
+        // 허용되지 않는 문자 포함 여부 및 자음 또는 모음 단독으로 입력된 경우 확인
+        val invalidCharOrSoloRegex = Regex("[^가-힣]|[ㄱ-ㅎㅏ-ㅣ]")
+        return !invalidCharOrSoloRegex.containsMatchIn(name)
+
+        // 모든 검사를 통과하면 유효한 이름으로 간주
     }
 
 

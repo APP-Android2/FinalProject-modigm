@@ -9,45 +9,52 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.repository.LoginRepository
-import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class LoginViewModel : ViewModel() {
 
-    private val tag by lazy { "LoginViewModel" }
+    private val tag by lazy { LoginViewModel::class.simpleName }
 
     // LoginRepository 초기화
     private val loginRepository by lazy { LoginRepository() }
-
-    // SharedPreferences 초기화
-    private val prefs by lazy { ModigmApplication.prefs }
-
-    // 이메일 로그인 결과를 담는 LiveData
-    private val _emailLoginResult = MutableLiveData<Boolean>()
-    val emailLoginResult: LiveData<Boolean> = _emailLoginResult
-
-    // 이메일 로그인 에러를 담는 LiveData
-    private val _emailLoginError = MutableLiveData<Throwable>()
-    val emailLoginError: LiveData<Throwable> get() = _emailLoginError
-
-    // 깃허브 로그인 결과를 담는 LiveData
-    private val _githubLoginResult = MutableLiveData<Boolean>()
-    val githubLoginResult: LiveData<Boolean> = _githubLoginResult
-
-    // 깃허브 로그인 에러를 담는 LiveData
-    private val _githubLoginError = MutableLiveData<Throwable>()
-    val githubLoginError: LiveData<Throwable> get() = _githubLoginError
 
     // 카카오 로그인 결과를 담는 LiveData
     private val _kakaoLoginResult = MutableLiveData<Boolean>()
     val kakaoLoginResult: LiveData<Boolean> = _kakaoLoginResult
 
-    // 카카오 로그인 에러를 담는 LiveData
-    private val _kakaoLoginError = MutableLiveData<Throwable>()
-    val kakaoLoginError: LiveData<Throwable> get() = _kakaoLoginError
+    // 깃허브 로그인 결과를 담는 LiveData
+    private val _githubLoginResult = MutableLiveData<Boolean>()
+    val githubLoginResult: LiveData<Boolean> = _githubLoginResult
 
-    // 자동 로그인 에러를 담는 LiveData
-    private val _autoLoginError = MutableLiveData<Throwable>()
-    val autoLoginError: LiveData<Throwable> get() = _autoLoginError
+    // 이메일 로그인 결과를 담는 LiveData
+    private val _emailLoginResult = MutableLiveData<Boolean>()
+    val emailLoginResult: LiveData<Boolean> = _emailLoginResult
+
+
+    // 깃허브 회원가입 결과를 담는 LiveData
+    private val _githubJoinResult = MutableLiveData<Boolean>()
+    val githubJoinResult: LiveData<Boolean> = _githubJoinResult
+
+    // 카카오 회원가입 결과를 담는 LiveData
+    private val _kakaoJoinResult = MutableLiveData<Boolean>()
+    val kakaoJoinResult: LiveData<Boolean> = _kakaoJoinResult
+
+
+    // 카카오 로그인 에러를 담는 LiveData
+    private val _kakaoLoginError = MutableLiveData<Throwable?>()
+    val kakaoLoginError: LiveData<Throwable?> = _kakaoLoginError
+
+    // 깃허브 로그인 에러를 담는 LiveData
+    private val _githubLoginError = MutableLiveData<Throwable?>()
+    val githubLoginError: LiveData<Throwable?> = _githubLoginError
+
+    // 이메일 로그인 에러를 담는 LiveData
+    private val _emailLoginError = MutableLiveData<Throwable?>()
+    val emailDialogError: LiveData<Throwable?> = _emailLoginError
+
+    // 이메일 오류 결과를 담는 LiveData
+    private val _emailInputError = MutableLiveData<Throwable?>()
+    val emailInputError: LiveData<Throwable?> = _emailInputError
 
     // 현재 사용자의 인덱스를 가져오는 함수
     private fun getCurrentUserIdx(): Int {
@@ -91,7 +98,7 @@ class LoginViewModel : ViewModel() {
      * @param autoLogin 자동 로그인 설정 여부
      */
     fun emailLogin(email: String, password: String, autoLogin: Boolean) {
-        _emailLoginResult.value = false // 초기 상태 설정
+        _emailLoginResult.postValue(false) // 초기 상태 설정
         viewModelScope.launch {
             val result = loginRepository.emailLogin(email, password)
             result.onSuccess {
@@ -113,15 +120,20 @@ class LoginViewModel : ViewModel() {
      * 깃허브로 로그인
      * @param context 액티비티 컨텍스트
      */
-    fun loginWithGithub(context: Activity) {
-        _githubLoginResult.value = false // 초기 상태 설정
+    fun githubLogin(context: Activity) {
+        _githubLoginResult.postValue(false) // 초기 상태 설정
         viewModelScope.launch {
-            val result = loginRepository.githubLogin(context)
-            result.onSuccess {
-                setAutoLogin(true)
-                setCurrentUserProvider("github")
-                setCurrentUserIdx(it)
-                _githubLoginResult.postValue(true)
+            val githubLoginResult = loginRepository.githubLogin(context)
+            githubLoginResult.onSuccess {
+                if(it == 0){
+                    _githubJoinResult.postValue(true)
+                } else {
+                    setAutoLogin(true)
+                    setCurrentUserProvider("github")
+                    setCurrentUserIdx(it)
+                    _githubLoginResult.postValue(true)
+                }
+
             }.onFailure { e ->
                 _githubLoginResult.postValue(false)
                 _githubLoginError.postValue(e)
@@ -133,15 +145,20 @@ class LoginViewModel : ViewModel() {
      * 카카오로 로그인
      * @param context 컨텍스트
      */
-    fun loginWithKakao(context: Context) {
-        _kakaoLoginResult.value = false // 초기 상태 설정
+    fun loginKakao(context: Context) {
+        _kakaoLoginResult.postValue(false) // 초기 상태 설정
         viewModelScope.launch {
             val result = loginRepository.kakaoLogin(context)
             result.onSuccess {
-                setAutoLogin(true)
-                setCurrentUserProvider("kakao")
-                setCurrentUserIdx(it)
-                _kakaoLoginResult.postValue(true)
+                if(it == 0){
+                    _kakaoJoinResult.postValue(true)
+                } else {
+                    setAutoLogin(true)
+                    setCurrentUserProvider("kakao")
+                    setCurrentUserIdx(it)
+                    _kakaoLoginResult.postValue(true)
+                }
+
             }.onFailure { e ->
                 _kakaoLoginResult.postValue(false)
                 _kakaoLoginError.postValue(e)
@@ -152,7 +169,7 @@ class LoginViewModel : ViewModel() {
     /**
      * 자동 로그인 시도
      */
-    fun attemptAutoLogin() {
+    fun tryAutoLogin() {
         // 자동 로그인이 활성화 되어 있다면
         if(getAutoLogin()) {
             viewModelScope.launch {
@@ -170,36 +187,19 @@ class LoginViewModel : ViewModel() {
                         "kakao"  -> _kakaoLoginResult.postValue(false)
                         "email"  -> _emailLoginResult.postValue(false)
                     }
-                    _autoLoginError.postValue(e)
-
                 }
             }
         }
     }
 
-    /**
-     * 이메일 유효성을 검사하는 함수
-     * @param email 이메일 주소
-     * @return Boolean 이메일 유효성 검사 결과
-     */
-    fun isEmailValid(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    }
 
-    /**
-     * 비밀번호 유효성을 검사하는 함수
-     * @param password 비밀번호
-     * @return Boolean 비밀번호 유효성 검사 결과
-     */
-    fun isPasswordValid(password: String): Boolean {
-        return password.length >= 6
-    }
+
+
 
     /**
      * 로그아웃
      */
     fun authLogout() {
-
         val result = loginRepository.authLogout()
         result.onSuccess {
             Log.d(tag, "로그아웃 성공.")
@@ -215,6 +215,10 @@ class LoginViewModel : ViewModel() {
         _emailLoginResult.postValue(false)
         _githubLoginResult.postValue(false)
         _kakaoLoginResult.postValue(false)
-
+        _githubJoinResult.postValue(false)
+        _kakaoJoinResult.postValue(false)
+        _emailLoginError.postValue(null)
+        _githubLoginError.postValue(null)
+        _kakaoLoginError.postValue(null)
     }
 }

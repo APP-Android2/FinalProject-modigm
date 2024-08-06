@@ -9,16 +9,18 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyListRepository
-import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class StudyViewModel : ViewModel() {
 
     // --------------------------------- MySQL 적용 ---------------------------------
     // --------------------------------- 초기화 시작 --------------------------------
 
+    private val tag by lazy { StudyViewModel::class.simpleName }
+
     private val studyListRepository by lazy { StudyListRepository() }
 
-    private val prefs by lazy { ModigmApplication.prefs }
+
 
     // --------------------------------- 초기화 끝 --------------------------------
     // --------------------------------- 라이브데이터 시작 --------------------------------
@@ -27,34 +29,37 @@ class StudyViewModel : ViewModel() {
     private val _allStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
     val allStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyData
 
-    private val _allStudyError = MutableLiveData<Throwable>()
-    val allStudyError: LiveData<Throwable> get() = _allStudyError
+
 
     // 내 스터디 리스트
     private val _myStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
     val myStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _myStudyData
 
-    private val _myStudyError = MutableLiveData<Throwable>()
-    val myStudyError: LiveData<Throwable> get() = _myStudyError
-
     // 좋아요한 스터디 목록
-    private val _favoritedData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val favoritedData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _favoritedData
-
-    private val _favoriteStudyError = MutableLiveData<Throwable>()
-    val favoriteStudyError: LiveData<Throwable> get() = _favoriteStudyError
+    private val _favoritedStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
+    val favoritedStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _favoritedStudyData
 
     // 좋아요 상태
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()
-    val isFavorite: LiveData<Pair<Int, Boolean>> get() = _isFavorite
+    val isFavorite: LiveData<Pair<Int, Boolean>> = _isFavorite
 
-    private val _isFavoriteError = MutableLiveData<Throwable>()
-    val isFavoriteError: LiveData<Throwable> get() = _isFavoriteError
+
+    private val _allStudyError = MutableLiveData<Throwable?>()
+    val allStudyError: LiveData<Throwable?> = _allStudyError
+
+    private val _myStudyError = MutableLiveData<Throwable?>()
+    val myStudyError: LiveData<Throwable?> = _myStudyError
+
+    private val _favoriteStudyError = MutableLiveData<Throwable?>()
+    val favoriteStudyError: LiveData<Throwable?> = _favoriteStudyError
+
+    private val _isFavoriteError = MutableLiveData<Throwable?>()
+    val isFavoriteError: LiveData<Throwable?> = _isFavoriteError
 
     // --------------------------------- 라이브데이터 끝 --------------------------------
 
     // 현재 사용자의 인덱스를 가져오는 함수
-    fun getCurrentUserIdx(): Int {
+    private fun getCurrentUserIdx(): Int {
         return prefs.getInt("currentUserIdx")
     }
 
@@ -67,7 +72,7 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _allStudyData.postValue(it)
             }.onFailure {
-                Log.e("StudyViewModel", "Error getAllStudyData", it)
+                Log.e(tag, "Error getAllStudyData", it)
                 _allStudyError.postValue(it)
             }
         }
@@ -82,7 +87,7 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _myStudyData.postValue(it)
             }.onFailure { e ->
-                Log.e("StudyViewModel", "Error getMyStudyData", e)
+                Log.e(tag, "Error getMyStudyData", e)
                 _myStudyError.postValue(e)
             }
         }
@@ -95,9 +100,9 @@ class StudyViewModel : ViewModel() {
         viewModelScope.launch {
             val result = studyListRepository.getFavoriteStudyData(getCurrentUserIdx())
             result.onSuccess {
-                _favoritedData.postValue(it)
+                _favoritedStudyData.postValue(it)
             }.onFailure { e ->
-                Log.e("StudyViewModel", "Error getFavoriteStudyData", e)
+                Log.e(tag, "Error getFavoriteStudyData", e)
                 _favoriteStudyError.postValue(e)
             }
         }
@@ -121,7 +126,7 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _isFavorite.value = Pair(studyIdx, !currentState)
             }.onFailure { e ->
-                Log.e("StudyViewModel", "Error changing favorite state", e)
+                Log.e(tag, "Error changing favorite state", e)
                 _isFavoriteError.postValue(e)
             }
         }
@@ -133,8 +138,13 @@ class StudyViewModel : ViewModel() {
     fun clearData() {
         _allStudyData.postValue(emptyList())
         _myStudyData.postValue(emptyList())
-        _favoritedData.postValue(emptyList())
+        _favoritedStudyData.postValue(emptyList())
         _isFavorite.postValue(Pair(-1, false))
+        _favoriteStudyError.postValue(null)
+        _isFavoriteError.postValue(null)
+        _myStudyError.postValue(null)
+        _allStudyError.postValue(null)
+
         filterData.clear()
     }
 

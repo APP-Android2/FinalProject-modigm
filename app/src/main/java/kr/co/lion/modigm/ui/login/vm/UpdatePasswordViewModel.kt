@@ -6,25 +6,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.repository.LoginRepository
 
 class UpdatePasswordViewModel: ViewModel() {
-    private val tag by lazy { "UpdatePasswordViewModel" }
+
+    private val tag by lazy { UpdatePasswordViewModel::class.simpleName }
     private val loginRepository by lazy { LoginRepository() }
 
     // 이메일 에러
-    private val _emailError = MutableLiveData<Throwable>()
-    val emailError: LiveData<Throwable> = _emailError
+    private val _emailInputError = MutableLiveData<Throwable?>()
+    val emailInputError: LiveData<Throwable?> = _emailInputError
 
     // 연락처 에러
-    private val _phoneError = MutableLiveData<Throwable>()
-    val phoneError: LiveData<Throwable> = _phoneError
+    private val _phoneInputError = MutableLiveData<Throwable?>()
+    val phoneInputError: LiveData<Throwable?> = _phoneInputError
 
     // 인증번호 에러
-    private val _inputCodeError = MutableLiveData<Throwable>()
-    val inputCodeError: LiveData<Throwable> = _inputCodeError
+    private val _authCodeError = MutableLiveData<Throwable?>()
+    val authCodeError: LiveData<Throwable?> = _authCodeError
 
     // 전화번호 인증에 필요 onCodeSent에서 전달받음
     private val _verificationId = MutableLiveData<String>()
@@ -35,15 +35,12 @@ class UpdatePasswordViewModel: ViewModel() {
     val isComplete: LiveData<Boolean> = _isComplete
 
     // 새 비밀번호 에러
-    private val _newPasswordError = MutableLiveData<Throwable>()
-    val newPasswordError: MutableLiveData<Throwable> = _newPasswordError
+    private val _newPasswordError = MutableLiveData<Throwable?>()
+    val newPasswordError: MutableLiveData<Throwable?> = _newPasswordError
 
     // 새 비밀번호 확인 에러
-    private val _newPasswordConfirmError = MutableLiveData<Throwable>()
-    val newPasswordConfirmError: MutableLiveData<Throwable> = _newPasswordConfirmError
-
-    private val _resendToken = MutableLiveData<PhoneAuthProvider.ForceResendingToken?>()
-    private val resendToken: LiveData<PhoneAuthProvider.ForceResendingToken?> get() = _resendToken
+    private val _newPasswordConfirmError = MutableLiveData<Throwable?>()
+    val newPasswordConfirmError: MutableLiveData<Throwable?> = _newPasswordConfirmError
 
     /**
      * isComplete 값을 설정하는 메서드
@@ -75,15 +72,15 @@ class UpdatePasswordViewModel: ViewModel() {
                         _isComplete.postValue(true)
                     }.onFailure { e ->
                         Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
-                        _phoneError.postValue(e)
+                        _phoneInputError.postValue(e)
                     }
                 } else {
                     Log.e(tag, "이메일 불일치. 입력한 이메일: $userEmail, DB 이메일: ${userData.userEmail}")
-                    _emailError.postValue(Throwable("일치하는 이메일이 없습니다."))
+                    _emailInputError.postValue(Throwable("일치하는 이메일이 없습니다."))
                 }
             }.onFailure {
                 Log.e(tag, "이메일 확인 실패. 오류: ${it.message}", it)
-                _emailError.postValue(Throwable("등록되지 않은 이메일입니다."))
+                _emailInputError.postValue(Throwable("등록되지 않은 이메일입니다."))
             }
         }
     }
@@ -91,19 +88,19 @@ class UpdatePasswordViewModel: ViewModel() {
     /**
      * 인증번호 확인 (FindPasswordAuthFragment)
      * @param verificationId 인증 ID
-     * @param inputCode 입력한 인증 코드
+     * @param authCode 입력한 인증 코드
      */
-    fun checkByInputCode(verificationId: String, inputCode: String) {
-        Log.d(tag, "checkCodeAndFindPW 호출됨. verificationId: $verificationId, inputCode: $inputCode")
+    fun checkByAuthCode(verificationId: String, authCode: String) {
+        Log.d(tag, "checkCodeAndFindPW 호출됨. verificationId: $verificationId, authCode: $authCode")
         viewModelScope.launch {
-            val signInResult = loginRepository.signInByInputCode(verificationId, inputCode)
+            val signInResult = loginRepository.signInByAuthCode(verificationId, authCode)
             signInResult.onSuccess { signIn ->
                 Log.d(tag, "로그인 성공. signIn: $signIn")
                 _verificationId.value = verificationId
                 _isComplete.postValue(true)
             }.onFailure { e ->
                 Log.e(tag, "인증번호 확인 실패. 오류: ${e.message}", e)
-                _inputCodeError.postValue(Throwable("인증번호가 잘못되었습니다."))
+                _authCodeError.postValue(Throwable("인증번호가 잘못되었습니다."))
             }
         }
     }
@@ -142,5 +139,10 @@ class UpdatePasswordViewModel: ViewModel() {
     fun clearData() {
         _verificationId.postValue("")
         _isComplete.postValue(false)
+        _emailInputError.postValue(null)
+        _phoneInputError.postValue(null)
+        _authCodeError.postValue(null)
+        _newPasswordError.postValue(null)
+        _newPasswordConfirmError.postValue(null)
     }
 }
