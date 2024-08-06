@@ -50,9 +50,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
     private val editProfileViewModel: EditProfileViewModel by activityViewModels()
 
-    private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var user: FirebaseUser
-
     // 어댑터 선언
     private lateinit var linkAddAdapter: LinkAddAdapter
     // 앨범 실행을 위한 런처
@@ -60,13 +57,8 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentEditProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_profile, container, false)
-
-        // Bind ViewModel and lifecycle owner
         fragmentEditProfileBinding.editProfileViewModel = editProfileViewModel
         fragmentEditProfileBinding.lifecycleOwner = this
-
-        firebaseAuth = Firebase.auth
-        user = firebaseAuth.currentUser!!
 
         return fragmentEditProfileBinding.root
     }

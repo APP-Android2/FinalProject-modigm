@@ -1,23 +1,12 @@
 package kr.co.lion.modigm.db.profile
 
-import android.content.Context
-import android.net.Uri
 import android.util.Log
-import android.widget.ImageView
-import com.bumptech.glide.Glide
-import com.google.firebase.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.storage
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.model.SqlUserLinkData
-import kr.co.lion.modigm.ui.profile.ProfileFragment
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException

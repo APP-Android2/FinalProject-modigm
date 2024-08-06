@@ -1,33 +1,25 @@
 package kr.co.lion.modigm.ui.profile.vm
 
-import android.content.Context
 import android.util.Log
-import android.widget.ImageView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserLinkData
-import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ProfileRepository
-import kr.co.lion.modigm.repository.StudyRepository
-import kr.co.lion.modigm.repository.UserInfoRepository
-import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileViewModel : ViewModel() {
     private val profileRepository = ProfileRepository()
-    private val studyRepository = StudyRepository()
 
     // 사용자 uid
     private val _profileUid = MutableLiveData<Int>()
     val profileUid: MutableLiveData<Int> = _profileUid
 
-    // 사용자 uid
+    // UserIdx
     private val _profileUserIdx = MutableLiveData<Int>()
     val profileUserIdx: MutableLiveData<Int> = _profileUserIdx
 
-    // 사용자 uid
+    // 프로필 사진
     private val _profileUserImage = MutableLiveData<String>()
     val profileUserImage: MutableLiveData<String> = _profileUserImage
 
