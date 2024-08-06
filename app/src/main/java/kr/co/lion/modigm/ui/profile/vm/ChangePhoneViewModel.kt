@@ -171,39 +171,38 @@ class ChangePhoneViewModel: ViewModel() {
         _isSendingCode.value = false
     }
 
-
-//    // 전화번호 변경
-//    suspend fun changePhone() {
-//        if(_isCodeSent.value == true){
-//            try{
-//                phoneAuthErrorMessage.value = ""
-//                val phoneCredential = PhoneAuthProvider.getCredential(_verificationId.value?:"", phoneAuth.value?:"")
-//                // 현재 연결된 전화번호 연결을 해제한다.
-//                val linkedProviders = _auth.currentUser?.providerData?.map { it.providerId }
-//                if (linkedProviders != null) {
-//                    for(provider in linkedProviders){
-//                        if(provider == "phone"){
-//                            _auth.currentUser?.unlink("phone")?.await()
-//                            break
-//                        }
-//                    }
-//                }
-//                // 새로운 전화번호와 연결한다.
-//                _auth.currentUser?.linkWithCredential(phoneCredential)?.await()
-//                // 파이어스토어에 저장된 정보를 업데이트 한다
-//                _db.updatePhone(_auth.currentUser?.uid?:"", userPhone.value?:"")
-//                // SharedPreferences에 저장된 정보를 업데이트 한다.
-//                val userData = prefs.getUserData("currentUserData")
+    // 전화번호 변경
+    suspend fun changePhone() {
+        if(_isCodeSent.value == true){
+            try{
+                phoneAuthErrorMessage.value = ""
+                val phoneCredential = PhoneAuthProvider.getCredential(_verificationId.value?:"", phoneAuth.value?:"")
+                // 현재 연결된 전화번호 연결을 해제한다.
+                val linkedProviders = _auth.currentUser?.providerData?.map { it.providerId }
+                if (linkedProviders != null) {
+                    for(provider in linkedProviders){
+                        if(provider == "phone"){
+                            _auth.currentUser?.unlink("phone")?.await()
+                            break
+                        }
+                    }
+                }
+                // 새로운 전화번호와 연결한다.
+                _auth.currentUser?.linkWithCredential(phoneCredential)?.await()
+                // 파이어스토어에 저장된 정보를 업데이트 한다
+                _db.updatePhone(_auth.currentUser?.uid?:"", userPhone.value?:"")
+                // SharedPreferences에 저장된 정보를 업데이트 한다.
+                //val userData = prefs.getUserData("currentUserData")
 //                userData?.userPhone = userPhone.value?:""
 //                if (userData != null) {
 //                    //prefs.setUserData("currentUserData", userData)
 //                }
-//
-//                _isVerified.value = true
-//            }catch (e: FirebaseAuthException){
-//                phoneAuthErrorMessage.value = e.message.toString()
-//            }
-//        }
-//    }
+
+                _isVerified.value = true
+            }catch (e: FirebaseAuthException){
+                phoneAuthErrorMessage.value = e.message.toString()
+            }
+        }
+    }
 
 }

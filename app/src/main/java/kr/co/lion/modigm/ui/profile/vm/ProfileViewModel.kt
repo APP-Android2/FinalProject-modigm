@@ -1,33 +1,25 @@
 package kr.co.lion.modigm.ui.profile.vm
 
-import android.content.Context
 import android.util.Log
-import android.widget.ImageView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserLinkData
-import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ProfileRepository
-import kr.co.lion.modigm.repository.StudyRepository
-import kr.co.lion.modigm.repository.UserInfoRepository
-import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileViewModel : ViewModel() {
     private val profileRepository = ProfileRepository()
-    private val studyRepository = StudyRepository()
 
     // 사용자 uid
     private val _profileUid = MutableLiveData<Int>()
     val profileUid: MutableLiveData<Int> = _profileUid
 
-    // 사용자 uid
+    // UserIdx
     private val _profileUserIdx = MutableLiveData<Int>()
     val profileUserIdx: MutableLiveData<Int> = _profileUserIdx
 
-    // 사용자 uid
+    // 프로필 사진
     private val _profileUserImage = MutableLiveData<String>()
     val profileUserImage: MutableLiveData<String> = _profileUserImage
 
@@ -46,6 +38,14 @@ class ProfileViewModel : ViewModel() {
     // 링크 리스트
     private val _profileLinkList = MutableLiveData<List<String>>()
     val profileLinkList: MutableLiveData<List<String>> = _profileLinkList
+
+    // 사용자가 참여한 스터디 제목
+    private val _profilePartStudyTitle = MutableLiveData<String>()
+    val profilePartStudyTitle: MutableLiveData<String> = _profilePartStudyTitle
+
+    // 사용자가 진행한 스터디 제목
+    private val _profileHostStudyTitle = MutableLiveData<String>()
+    val profileHostStudyTitle: MutableLiveData<String> = _profileHostStudyTitle
 
     // 사용자가 참여한 스터디 리스트
     private val _profilePartStudyList = MutableLiveData<List<SqlStudyData>>()
@@ -67,6 +67,8 @@ class ProfileViewModel : ViewModel() {
 
             // 사용자 이름
             _profileName.value = response?.userName
+            _profileHostStudyTitle.value = "${response?.userName}님이 진행한 스터디"
+            _profilePartStudyTitle.value = "${response?.userName}님이 참여한 스터디"
             // 자기소개
             _profileIntro.value = response?.userIntro
             // 관심분야 리스트
@@ -89,10 +91,10 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    // 사용자가 진행한 스터디 목록
+    // 사용자가 진행한 스터디 목록 (3개만)
     fun loadHostStudyList(userIdx: Int) = viewModelScope.launch {
         try {
-            val response = profileRepository.loadHostStudyList(userIdx)
+            val response = profileRepository.loadSmallHostStudyList(userIdx)
 
             _profileHostStudyList.value = response
 
@@ -101,10 +103,10 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    // 사용자가 진행하지 않고 단순 참여한 스터디 목록
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (3개만)
     fun loadPartStudyList(userIdx: Int) = viewModelScope.launch {
         try {
-            val response = profileRepository.loadPartStudyList(userIdx)
+            val response = profileRepository.loadSmallPartStudyList(userIdx)
 
             _profilePartStudyList.value = response
 
