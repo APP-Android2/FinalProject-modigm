@@ -7,9 +7,9 @@ import androidx.fragment.app.replace
 import com.google.android.material.tabs.TabLayout
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 
-class StudyFragment : ViewBindingFragment<FragmentStudyBinding>(FragmentStudyBinding::inflate) {
+class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding::inflate) {
 
     // --------------------------------- LC START ---------------------------------
 

@@ -31,7 +31,8 @@
         <activity
             android:name=".ui.MainActivity"
             android:windowSoftInputMode="adjustResize"
-            android:exported="false">
+            android:exported="false"
+            android:screenOrientation="unspecified">
         </activity> <!-- Kakao Login Activity -->
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"

@@ -3,20 +3,19 @@ package kr.co.lion.modigm.ui.login
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.FragmentFindEmailAuthBinding
-import kr.co.lion.modigm.ui.ViewBindingFragment
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.login.vm.FindEmailViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.shake
 
 class FindEmailAuthFragment :
-    ViewBindingFragment<FragmentFindEmailAuthBinding>(FragmentFindEmailAuthBinding::inflate) {
+    VBBaseFragment<FragmentFindEmailAuthBinding>(FragmentFindEmailAuthBinding::inflate) {
 
     private val viewModel: FindEmailViewModel by viewModels()
 
@@ -65,20 +64,19 @@ class FindEmailAuthFragment :
                     requireActivity().hideSoftInput()
 
                     // 유효성 검사
-                    if (!validateInput()) {
+                    if (!checkInput()) {
                         return@setOnClickListener
                     }
                     // 인증번호 확인
-                    val inputCode = textInputEditFindPassCode.text.toString()
-                    Log.d("FindEmailAuthFragment", "완료 버튼 클릭됨. inputCode: $inputCode")
-                    viewModel.checkCodeAndFindEmail(verificationId, inputCode)
+                    val authCode = textInputEditFindPassCode.text.toString()
+                    viewModel.checkCodeAndFindEmail(verificationId, authCode)
                 }
             }
         }
     }
 
     // 유효성 검사
-    private fun validateInput(): Boolean {
+    private fun checkInput(): Boolean {
         with(binding) {
             if (textInputEditFindPassCode.text.isNullOrEmpty()) {
                 textInputLayoutFindPassCode.error = "인증번호를 입력해주세요."
@@ -94,10 +92,12 @@ class FindEmailAuthFragment :
 
         with(binding){
             // 유효성 검사
-            viewModel.inputCodeError.observe(viewLifecycleOwner) { error ->
-                textInputLayoutFindPassCode.error = error.message
-                textInputEditFindPassCode.requestFocus()
-                textInputLayoutFindPassCode.shake()
+            viewModel.authCodeInputError.observe(viewLifecycleOwner) { error ->
+                if (error != null) {
+                    textInputLayoutFindPassCode.error = error.message
+                    textInputEditFindPassCode.requestFocus()
+                    textInputLayoutFindPassCode.shake()
+                }
             }
             // 인증번호 확인해서 메일 찾았는지 여부
             viewModel.email.observe(viewLifecycleOwner) {
@@ -108,7 +108,6 @@ class FindEmailAuthFragment :
                 buttonFindEmailAuthOK.isEnabled = true
             }
         }
-
     }
 
     // 이메일 다이얼로그 표시
@@ -131,9 +130,7 @@ class FindEmailAuthFragment :
                 buttonFindEmailAuthOK.isEnabled =
                     !textInputEditFindPassCode.text.isNullOrEmpty()
             }
-
         }
-
         override fun afterTextChanged(p0: Editable?) { }
     }
 
