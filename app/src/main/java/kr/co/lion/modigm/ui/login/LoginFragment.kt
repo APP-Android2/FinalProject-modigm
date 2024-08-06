@@ -3,6 +3,7 @@ package kr.co.lion.modigm.ui.login
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.commit
@@ -211,26 +212,33 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         with(binding){
             // 화살표 바인딩
             with(imageViewLoginScrollArrow) {
+                // 화살표 보이기/숨기기 업데이트 함수
+                fun updateVisibility() {
+                    visibility = if (scrollViewLogin.canScrollVertically(1)) View.VISIBLE else View.GONE
+                }
                 // 애니메이션 설정
                 val floatAnimation = AnimationUtils.loadAnimation(context, R.anim.breathing_up_down).apply {
                     setAnimationListener(object : Animation.AnimationListener {
                         override fun onAnimationStart(p0: Animation?) { }
                         override fun onAnimationEnd(animation: Animation?) {
                             // 애니메이션 끝나면 화살표 가시성 업데이트
-                            visibility = if (scrollViewLogin.canScrollVertically(1)) View.VISIBLE else View.GONE
+                            updateVisibility() // 애니메이션 끝난 후에도 가시성 업데이트
                         }
                         override fun onAnimationRepeat(p0: Animation?) { }
                     })
                 }
 
-                // 화살표 보이기/숨기기 업데이트 함수
-                fun updateVisibility() {
-                    visibility = if (scrollViewLogin.canScrollVertically(1)) View.VISIBLE else View.GONE
-                }
+                // 레이아웃이 완전히 초기화된 후에 가시성 업데이트
+                scrollViewLogin.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        // 초기 상태에 따라 화살표 보이기/숨기기
+                        updateVisibility()
+                        if (visibility == View.VISIBLE) startAnimation(floatAnimation)
 
-                // 초기 상태에 따라 화살표 보이기/숨기기
-                updateVisibility()
-                if (visibility == View.VISIBLE) startAnimation(floatAnimation)
+                        // 리스너 제거
+                        scrollViewLogin.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    }
+                })
 
                 // 스크롤할 때 화살표 상태 업데이트
                 scrollViewLogin.setOnScrollChangeListener { v, _, _, _, _ ->
