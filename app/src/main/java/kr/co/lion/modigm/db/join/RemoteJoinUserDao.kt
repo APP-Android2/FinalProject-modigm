@@ -114,4 +114,27 @@ class RemoteJoinUserDao {
             }
         }
 
+    suspend fun checkUserByPhone(phone: String): Result<Map<String, String>?>
+        = withContext(Dispatchers.IO) {
+            runCatching {
+                var preparedStatement: PreparedStatement?
+                var resultMap: MutableMap<String, String>? = mutableMapOf()
+                val sql = "SELECT userEmail, userProvider FROM tb_user WHERE userPhone = ?"
+                getConnection().use { connection ->
+                    preparedStatement = connection.prepareStatement(sql) // PreparedStatement 생성
+                    preparedStatement?.setString(1, phone)
+                    val resultSet = preparedStatement?.executeQuery() // 쿼리 실행
+                    val hasRow = resultSet?.next()
+                    if(hasRow == true){
+                        resultMap?.set("userEmail", resultSet.getString("userEmail"))
+                        resultMap?.set("userProvider", resultSet.getString("userProvider"))
+                    }else{
+                        resultMap = null
+                    }
+                }
+                resultMap
+            }.onFailure { e ->
+                Log.e(TAG, "Error in checkUserByPhone", e) // 오류 로그 출력
+            }
+    }
 }

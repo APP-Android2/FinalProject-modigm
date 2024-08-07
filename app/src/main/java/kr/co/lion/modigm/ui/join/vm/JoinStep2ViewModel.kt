@@ -13,7 +13,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.repository.UserInfoRepository
+import kr.co.lion.modigm.repository.JoinUserRepository
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
@@ -90,7 +90,7 @@ class JoinStep2ViewModel: ViewModel() {
 
     private val _auth = FirebaseAuth.getInstance()
 
-    private val _db = UserInfoRepository()
+    private val _db = JoinUserRepository()
 
     private val _authButtonText = MutableStateFlow("인증하기")
     val authButtonText: StateFlow<String> = _authButtonText
@@ -148,10 +148,12 @@ class JoinStep2ViewModel: ViewModel() {
         // DB에 해당 번호로 등록된 계정이 있는지 확인한다.
         val checkResult = _db.checkUserByPhone(userPhone.value)
 
-        if(checkResult != null){
-            _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
-            _alreadyRegisteredUserProvider.value = checkResult["provider"] ?: ""
-            _alreadyRegisteredUserEmail.value = checkResult["email"] ?: ""
+        checkResult.onSuccess { resultMap ->
+            if(resultMap != null){
+                _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
+                _alreadyRegisteredUserProvider.value = resultMap["userProvider"] ?: ""
+                _alreadyRegisteredUserEmail.value = resultMap["userEmail"] ?: ""
+            }
             return _errorMessage.value
         }
         // 오류 메시지

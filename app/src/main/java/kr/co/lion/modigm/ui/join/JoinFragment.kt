@@ -16,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
@@ -34,7 +33,6 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.hideSoftInput
 
-@AndroidEntryPoint
 class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
 
     private val viewModel: JoinViewModel by viewModels()
