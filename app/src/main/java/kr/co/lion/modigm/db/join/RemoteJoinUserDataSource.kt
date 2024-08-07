@@ -14,8 +14,4 @@ class RemoteJoinUserDataSource {
     suspend fun checkUserByPhone(phone: String): Result<Map<String, String>?>
         = dao.checkUserByPhone(phone)
 
-    suspend fun closeConn(){
-        dao.closeConn()
-    }
-
 }
