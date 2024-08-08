@@ -7,7 +7,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudySearchBinding
@@ -30,19 +29,16 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
 
             // 항목 클릭 시
             rowClickListener = { studyIdx ->
-
                 // DetailFragment로 이동
                 val detailFragment = DetailFragment().apply {
                     arguments = Bundle().apply {
                         putInt("studyIdx", studyIdx)
                     }
                 }
-
                 requireActivity().supportFragmentManager.commit {
                     replace(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
-
             },
             favoriteClickListener = { studyIdx, currentState ->
                 viewModel.changeFavoriteState(studyIdx, currentState)
@@ -56,10 +52,7 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
         super.onViewCreated(view, savedInstanceState)
 
         initView()
-
-        viewModel.allStudyData.observe(viewLifecycleOwner, Observer { studyList ->
-            studySearchAdapter.updateData(studyList)
-        })
+        observeViewModel()
     }
 
     override fun onDestroyView() {
@@ -77,14 +70,15 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
             recyclerViewStudySearch.layoutManager = LinearLayoutManager(requireContext())
             recyclerViewStudySearch.adapter = studySearchAdapter
 
-            toolbarStudySearch.setNavigationOnClickListener{
+            toolbarStudySearch.setNavigationOnClickListener {
                 parentFragmentManager.popBackStack()
             }
 
             // init SearchView
             searchView.isSubmitButtonEnabled = true
 
-            val searchTextView: TextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
+            val searchTextView: TextView =
+                searchView.findViewById(androidx.appcompat.R.id.search_src_text)
             TextViewCompat.setTextAppearance(searchTextView, R.style.ChipTextStyle)
 
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -102,6 +96,12 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
                     return true
                 }
             })
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
+            studySearchAdapter.updateData(studyList)
         }
     }
 }

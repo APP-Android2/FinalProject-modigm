@@ -3,6 +3,9 @@ package kr.co.lion.modigm.ui.login
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
@@ -67,6 +70,10 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
      */
     private fun initView() {
         with(binding){
+
+            // 스크롤 가능할 때
+            showScrollArrow()
+
             // 카카오 로그인 버튼 클릭 리스너 설정
             imageButtonLoginKakao.setOnClickListener {
                 Log.i(tag, "카카오 로그인 버튼 클릭됨")
@@ -196,5 +203,52 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
             dialog.dismiss()
         }
         dialog.show()
+    }
+
+    /**
+     * 스크롤 가능할 때 화살표 보여주는 메서드
+     */
+    private fun showScrollArrow() {
+        with(binding){
+            // 화살표 바인딩
+            with(imageViewLoginScrollArrow) {
+                // 화살표 보이기/숨기기 업데이트 함수
+                fun updateVisibility() {
+                    visibility = if (scrollViewLogin.canScrollVertically(1)) View.VISIBLE else View.GONE
+                }
+                // 애니메이션 설정
+                val floatAnimation = AnimationUtils.loadAnimation(context, R.anim.breathing_up_down).apply {
+                    setAnimationListener(object : Animation.AnimationListener {
+                        override fun onAnimationStart(p0: Animation?) { }
+                        override fun onAnimationEnd(animation: Animation?) {
+                            // 애니메이션 끝나면 화살표 가시성 업데이트
+                            updateVisibility() // 애니메이션 끝난 후에도 가시성 업데이트
+                        }
+                        override fun onAnimationRepeat(p0: Animation?) { }
+                    })
+                }
+
+                // 레이아웃이 완전히 초기화된 후에 가시성 업데이트
+                scrollViewLogin.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        // 초기 상태에 따라 화살표 보이기/숨기기
+                        updateVisibility()
+                        if (visibility == View.VISIBLE) startAnimation(floatAnimation)
+
+                        // 리스너 제거
+                        scrollViewLogin.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    }
+                })
+
+                // 스크롤할 때 화살표 상태 업데이트
+                scrollViewLogin.setOnScrollChangeListener { v, _, _, _, _ ->
+                    updateVisibility()
+                    if (visibility == View.VISIBLE) startAnimation(floatAnimation) else clearAnimation()
+
+                    // 스크롤이 맨 위에 도달하면 화살표 보이기
+                    if (!v.canScrollVertically(-1)) visibility = View.VISIBLE
+                }
+            }
+        }
     }
 }
