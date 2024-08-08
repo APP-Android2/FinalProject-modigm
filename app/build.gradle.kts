@@ -93,8 +93,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("androidx.activity:activity-ktx:1.9.0")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
 
     // by viewModels 사용
     implementation("androidx.activity:activity-ktx:1.9.0")
@@ -131,7 +129,7 @@ dependencies {
     // hikari
     implementation("com.zaxxer:HikariCP:2.7.9")
 
-    //aws s3
+    // aws s3
     implementation("com.amazonaws:aws-android-sdk-s3:2.22.0")
     implementation("com.amazonaws:aws-android-sdk-core:2.22.0")
 }

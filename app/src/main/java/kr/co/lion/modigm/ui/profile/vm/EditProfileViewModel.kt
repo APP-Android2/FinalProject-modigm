@@ -1,20 +1,28 @@
 package kr.co.lion.modigm.ui.profile.vm
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.db.profile.RemoteProfileDao
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
+    private val remoteProfileDao = RemoteProfileDao()
 
-    // 프로필 사진
-    private val _editProfilePic = MutableLiveData<String>()
-    val editProfilePic: MutableLiveData<String> = _editProfilePic
+    // 프로필 사진 Uri
+    private val _editProfilePicUri = MutableLiveData<Uri>()
+    val editProfilePicUri: MutableLiveData<Uri> = _editProfilePicUri
+
+    // 프로필 사진 Url
+    private val _editProfilePicUrl = MutableLiveData<String>()
+    val editProfilePicUrl: MutableLiveData<String> = _editProfilePicUrl
 
     // 사용자 이름
     private val _editProfileName = MutableLiveData<String>()
@@ -59,7 +67,7 @@ class EditProfileViewModel: ViewModel() {
             val response = profileRepository.loadUserData(userIdx)
 
             // 프로필 사진
-            _editProfilePic.value = response?.userProfilePic
+            _editProfilePicUrl.value = response?.userProfilePic
             // 사용자 이름
             _editProfileName.value = response?.userName
             // 이메일
@@ -101,11 +109,15 @@ class EditProfileViewModel: ViewModel() {
         _editProfileLinkList.value = _editProfileLinkList.value?.filter { it != link }
     }
 
-    fun updateUserData(profileFragment: ProfileFragment) = viewModelScope.launch {
+    fun updateUserData(profileFragment: ProfileFragment, picChanged: Boolean, context: Context) = viewModelScope.launch {
+        if (picChanged) {
+            _editProfilePicUrl.value = profileRepository.uploadProfilePic(_editProfilePicUri.value!!, context)
+        }
+
         // 데이터를 객체에 담는다
         val user = SqlUserData(
             userIdx = 9689,//ModigmApplication.prefs.getInt("currentUserData"),
-            userProfilePic = _editProfilePic.value!!,
+            userProfilePic = _editProfilePicUrl.value!!,
             userIntro = _editProfileIntro.value!!,
             userInterests = _editProfileInterests.value!!
         )
