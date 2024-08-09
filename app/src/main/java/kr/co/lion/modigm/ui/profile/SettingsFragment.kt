@@ -13,6 +13,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
+import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -102,8 +103,18 @@ class SettingsFragment(private val profileFragment: ProfileFragment) : Fragment(
                 // 로그아웃 처리
                 Firebase.auth.signOut()
                 // Backstack 모두 제거하고 로그인 화면으로 돌아간다
-                parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                clearBackStack()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, LoginFragment())
+                    .addToBackStack(null)
+                    .commit()
             }
         }
+    }
+
+    // Backstack 의 모든 fragment 제거
+    private fun clearBackStack() {
+        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 }
