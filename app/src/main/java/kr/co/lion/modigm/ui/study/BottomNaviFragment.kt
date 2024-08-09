@@ -61,13 +61,13 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         if(joinType != null){
             when(joinType) {
                 JoinType.EMAIL -> {
-                    requireActivity().showLoginSnackBar("이메일 로그인 성공", R.drawable.email_login_logo)
+                    requireActivity().showLoginSnackBar("이메일 로그인 성공", JoinType.EMAIL.icon)
                 }
                 JoinType.KAKAO -> {
-                    requireActivity().showLoginSnackBar("카카오 로그인 성공", R.drawable.kakaotalk_sharing_btn_small)
+                    requireActivity().showLoginSnackBar("카카오 로그인 성공", JoinType.KAKAO.icon)
                 }
                 JoinType.GITHUB -> {
-                    requireActivity().showLoginSnackBar("깃허브 로그인 성공", R.drawable.icon_github_logo)
+                    requireActivity().showLoginSnackBar("깃허브 로그인 성공", JoinType.GITHUB.icon)
                 }
                 else -> {
                     return
