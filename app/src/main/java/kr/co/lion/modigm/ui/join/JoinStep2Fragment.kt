@@ -5,19 +5,16 @@ import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 
 
-class JoinStep2Fragment : Fragment() {
-
-    lateinit var binding: FragmentJoinStep2Binding
+class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.fragment_join_step2) {
 
     private val joinStep2ViewModel: JoinStep2ViewModel by activityViewModels()
 
@@ -26,9 +23,8 @@ class JoinStep2Fragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_join_step2, container, false)
+        super.onCreateView(inflater, container, savedInstanceState)
         binding.viewModel = joinStep2ViewModel
-        binding.lifecycleOwner = this
 
         settingTextInputLayoutError()
         settingTextInputUserPhone()

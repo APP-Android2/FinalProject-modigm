@@ -14,10 +14,16 @@ class ProfileRepository {
     // 자기소개 링크 목록 불러오기
     suspend fun loadUserLinkData(userIdx: Int?): List<String> = _remoteUserDataSource.loadUserLinkDataByUserIdx(userIdx!!)
 
-    // 사용자가 진행한 스터디 목록
+    // 사용자가 진행한 스터디 목록 (3개만)
+    suspend fun loadSmallHostStudyList(userIdx: Int?): List<SqlStudyData> = _remoteUserDataSource.loadSmallHostStudyList(userIdx!!)
+
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (3개만)
+    suspend fun loadSmallPartStudyList(userIdx: Int?): List<SqlStudyData> = _remoteUserDataSource.loadSmallPartStudyList(userIdx!!)
+
+    // 사용자가 진행한 스터디 목록 (전체)
     suspend fun loadHostStudyList(userIdx: Int?): List<SqlStudyData> = _remoteUserDataSource.loadHostStudyList(userIdx!!)
 
-    // 사용자가 진행하지 않고 단순 참여한 스터디 목록
+    // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (전체)
     suspend fun loadPartStudyList(userIdx: Int?): List<SqlStudyData> = _remoteUserDataSource.loadPartStudyList(userIdx!!)
 
     // 사용자 정보 업데이트

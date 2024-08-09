@@ -174,11 +174,4 @@ class JoinViewModel : ViewModel() {
         }
     }
 
-    // ViewModel이 파괴될 때 db 리소스를 해제를 위해 호출되는 메서드
-    override fun onCleared() {
-        super.onCleared()
-        viewModelScope.launch {
-            _joinUserRepository.closeConn()
-        }
-    }
 }

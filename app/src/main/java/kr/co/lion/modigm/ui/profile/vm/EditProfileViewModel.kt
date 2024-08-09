@@ -1,29 +1,13 @@
 package kr.co.lion.modigm.ui.profile.vm
 
-import android.content.Context
-import android.net.Uri
 import android.util.Log
-import android.widget.ImageView
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.model.SqlUserLinkData
-import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.ProfileRepository
-import kr.co.lion.modigm.repository.StudyRepository
-import kr.co.lion.modigm.repository.UserInfoRepository
 import kr.co.lion.modigm.ui.profile.ProfileFragment
-import kr.co.lion.modigm.util.Interest
-import kr.co.lion.modigm.util.JoinType
-import kr.co.lion.modigm.util.ModigmApplication
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
@@ -141,5 +125,13 @@ class EditProfileViewModel: ViewModel() {
 
         // 프로필 화면 재로드
         profileFragment.updateViews()
+    }
+
+    // 링크 목록 순서 변경
+    fun reorderLinks(from: Int, to: Int) {
+        val updatedList = editProfileLinkList.value?.toMutableList() ?: return
+        val movedLink = updatedList.removeAt(from)
+        updatedList.add(to, movedLink)
+        editProfileLinkList.value = updatedList
     }
 }

@@ -11,23 +11,21 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.profile.adapter.HostStudyAdapter
+import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
-import kr.co.lion.modigm.ui.profile.adapter.PartStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 
 class ProfileFragment: Fragment() {
     lateinit var fragmentProfileBinding: FragmentProfileBinding
@@ -64,7 +62,7 @@ class ProfileFragment: Fragment() {
         }
     )
 
-    val partStudyAdapter: PartStudyAdapter = PartStudyAdapter(
+    val partStudyAdapter: ProfileStudyAdapter = ProfileStudyAdapter(
         // 빈 리스트를 넣어 초기화
         emptyList(),
 
@@ -82,7 +80,6 @@ class ProfileFragment: Fragment() {
                 detailFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
-                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
@@ -90,7 +87,7 @@ class ProfileFragment: Fragment() {
         }
     )
 
-    val hostStudyAdapter: HostStudyAdapter = HostStudyAdapter(
+    val hostStudyAdapter: ProfileStudyAdapter = ProfileStudyAdapter(
         // 빈 리스트를 넣어 초기화
         emptyList(),
 
@@ -108,7 +105,6 @@ class ProfileFragment: Fragment() {
                 detailFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
-                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
@@ -124,7 +120,7 @@ class ProfileFragment: Fragment() {
         fragmentProfileBinding.lifecycleOwner = this
 
         userIdx = 9689//arguments?.getInt("userIdx")
-        //myProfile = userIdx == ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        myProfile = userIdx == ModigmApplication.prefs.getInt("currentUserIdx")
 
         return fragmentProfileBinding.root
     }
@@ -145,6 +141,7 @@ class ProfileFragment: Fragment() {
         setupRecyclerViewLink()
         setupRecyclerViewPartStudy()
         setupRecyclerViewHostStudy()
+        setupIconMoreStudy()
 
         observeData()
     }
@@ -231,13 +228,11 @@ class ProfileFragment: Fragment() {
 //    }
 
     private fun setupUserInfo() {
-        Log.d("zunione", "setupUserInfo")
         profileViewModel.profileUserIdx.value = userIdx
         profileViewModel.loadUserData()
         profileViewModel.loadUserLinkListData()
         profileViewModel.loadHostStudyList(userIdx!!)
         profileViewModel.loadPartStudyList(userIdx!!)
-
     }
 
     private fun setupRecyclerViewLink() {
@@ -261,7 +256,7 @@ class ProfileFragment: Fragment() {
                 adapter = partStudyAdapter
 
                 // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+                layoutManager = LinearLayoutManager(requireContext())
             }
         }
     }
@@ -275,6 +270,42 @@ class ProfileFragment: Fragment() {
 
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(requireContext())
+            }
+        }
+    }
+
+    private fun setupIconMoreStudy() {
+        fragmentProfileBinding.apply {
+            layoutMoreProfileHostStudy.setOnClickListener {
+                // bundle 에 필요한 정보를 담는다
+                val bundle = Bundle()
+                bundle.putInt("type", 1)
+                bundle.putInt("userIdx", userIdx!!)
+
+                // 이동할 프래그먼트로 bundle을 넘긴다
+                val profileStudyFragment = ProfileStudyFragment()
+                profileStudyFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    add(R.id.containerMain, profileStudyFragment)
+                    addToBackStack(FragmentName.PROFILE_STUDY.str)
+                }
+            }
+
+            layoutMoreProfilePartStudy.setOnClickListener {
+                // bundle 에 필요한 정보를 담는다
+                val bundle = Bundle()
+                bundle.putInt("type", 2)
+                bundle.putInt("userIdx", userIdx!!)
+
+                // 이동할 프래그먼트로 bundle을 넘긴다
+                val profileStudyFragment = ProfileStudyFragment()
+                profileStudyFragment.arguments = bundle
+
+                requireActivity().supportFragmentManager.commit {
+                    add(R.id.containerMain, profileStudyFragment)
+                    addToBackStack(FragmentName.PROFILE_STUDY.str)
+                }
             }
         }
     }
@@ -329,31 +360,41 @@ class ProfileFragment: Fragment() {
             }
         }
 
-        // 참여한 스터디 리스트
-        profileViewModel.profilePartStudyList.observe(viewLifecycleOwner) { profilePartStudyList ->
-            partStudyAdapter.updateData(profilePartStudyList)
-
-            // 데이터 유무에 따른 뷰 가시성 설정
-            if (profilePartStudyList.isEmpty()) {
-                fragmentProfileBinding.recyclerViewProfilePartStudy.visibility = View.GONE
-                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.VISIBLE
-            } else {
-                fragmentProfileBinding.recyclerViewProfilePartStudy.visibility = View.VISIBLE
-                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.GONE
-            }
-        }
-
         // 진행한 스터디 리스트
         profileViewModel.profileHostStudyList.observe(viewLifecycleOwner) { profileHostStudyList ->
             hostStudyAdapter.updateData(profileHostStudyList)
 
             // 데이터 유무에 따른 뷰 가시성 설정
             if (profileHostStudyList.isEmpty()) {
-                fragmentProfileBinding.recyclerViewProfileHostStudy.visibility = View.GONE
+                fragmentProfileBinding.layoutListProfileHostStudy.visibility = View.GONE
                 fragmentProfileBinding.layoutBlankProfileHostStudy.visibility = View.VISIBLE
             } else {
-                fragmentProfileBinding.recyclerViewProfileHostStudy.visibility = View.VISIBLE
+                fragmentProfileBinding.layoutListProfileHostStudy.visibility = View.VISIBLE
                 fragmentProfileBinding.layoutBlankProfileHostStudy.visibility = View.GONE
+            }
+
+            // 2개 이하이면 더보기 아이콘 표시 안함
+            if (profileHostStudyList.size < 3) {
+                fragmentProfileBinding.layoutMoreProfileHostStudy.visibility = View.GONE
+            }
+        }
+
+        // 참여한 스터디 리스트
+        profileViewModel.profilePartStudyList.observe(viewLifecycleOwner) { profilePartStudyList ->
+            partStudyAdapter.updateData(profilePartStudyList)
+
+            // 데이터 유무에 따른 뷰 가시성 설정
+            if (profilePartStudyList.isEmpty()) {
+                fragmentProfileBinding.layoutListProfilePartStudy.visibility = View.GONE
+                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.VISIBLE
+            } else {
+                fragmentProfileBinding.layoutListProfilePartStudy.visibility = View.VISIBLE
+                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.GONE
+            }
+
+            // 2개 이하이면 더보기 아이콘 표시 안함
+            if (profilePartStudyList.size < 3) {
+                fragmentProfileBinding.layoutMoreProfilePartStudy.visibility = View.GONE
             }
         }
     }
