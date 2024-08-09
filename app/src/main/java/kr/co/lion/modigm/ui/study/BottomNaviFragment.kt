@@ -16,6 +16,7 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
+import kotlin.system.exitProcess
 
 class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate) {
 
@@ -181,7 +182,8 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 } else {
                     // 백버튼을 두 번 눌렀을 때 앱 종료
                     if (doubleBackToExitPressedOnce) {
-                        requireActivity().finish()
+                        requireActivity().finishAffinity()
+                        exitProcess(0) // 앱 프로세스를 완전히 종료
                     } else {
                         doubleBackToExitPressedOnce = true
                         // Snackbar를 표시하여 사용자에게 알림

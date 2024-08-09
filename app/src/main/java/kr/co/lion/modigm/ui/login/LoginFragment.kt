@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
@@ -23,6 +24,8 @@ import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
+import kr.co.lion.modigm.util.showLoginSnackBar
+import kotlin.system.exitProcess
 
 class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
 
@@ -45,13 +48,18 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
             .load(R.drawable.background_login2)
             .transform(CenterCrop(), BlurTransformation(5, 3))
             .into(binding.imageViewLoginBackground)
+
         // 자동 로그인 확인
         val autoLogin = prefs.getBoolean("autoLogin")
         if(autoLogin){
             viewModel.tryAutoLogin()
         }
+
         // ViewModel의 데이터 변경 관찰
         observeViewModel()
+
+        // 백버튼 동작 설정
+        backButton()
     }
 
     override fun onDestroyView() {
@@ -241,5 +249,26 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 }
             }
         }
+    }
+
+    // 백버튼 동작 설정 함수
+    private fun backButton(){
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            private var doubleBackToExitPressedOnce = false
+
+            override fun handleOnBackPressed() {
+                // 백버튼을 두 번 눌렀을 때 앱 종료
+                if (doubleBackToExitPressedOnce) {
+                    requireActivity().finishAffinity()
+                    exitProcess(0) // 앱 프로세스를 완전히 종료
+                } else {
+                    doubleBackToExitPressedOnce = true
+                    // Snackbar를 표시하여 사용자에게 알림
+                    requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
+                    // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
+                    view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
+                }
+            }
+        })
     }
 }
