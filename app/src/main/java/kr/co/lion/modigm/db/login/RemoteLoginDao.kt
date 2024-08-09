@@ -166,5 +166,27 @@ class RemoteLoginDao {
                 Result.failure<SqlUserData>(e)
             }
         }
+
+    suspend fun updatePhoneByUserIdx(userIdx: Int, userPhone: String): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                HikariCPDataSource.getConnection().use { connection ->
+                    val query = """
+                        UPDATE tb_user
+                        SET userPhone = ?
+                        WHERE userIdx = ?
+                    """
+                    connection.prepareStatement(query).use { statement ->
+                        statement.setString(1, userPhone)
+                        statement.setInt(2, userIdx)
+                        statement.executeUpdate()
+                        true
+                    }
+                }
+            }.onFailure { e ->
+                Log.e(tag, "전화번호 변경 중 오류 발생", e)
+                Result.failure<Boolean>(e)
+            }
+        }
 }
 
