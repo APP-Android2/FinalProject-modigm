@@ -14,8 +14,4 @@ class JoinUserRepository {
     suspend fun checkUserByPhone(phoneNumber: String): Result<Map<String, String>?>
         = _joinUserDataSource.checkUserByPhone(phoneNumber)
 
-    // 리소스를 해제하는 메서드 추가
-    suspend fun closeConn() {
-        _joinUserDataSource.closeConn()
-    }
 }

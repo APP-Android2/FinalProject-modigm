@@ -153,8 +153,8 @@ class JoinStep2ViewModel: ViewModel() {
                 _errorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
                 _alreadyRegisteredUserProvider.value = resultMap["userProvider"] ?: ""
                 _alreadyRegisteredUserEmail.value = resultMap["userEmail"] ?: ""
+                return _errorMessage.value
             }
-            return _errorMessage.value
         }
         // 오류 메시지
         if(_isCodeSent.value){
@@ -173,7 +173,6 @@ class JoinStep2ViewModel: ViewModel() {
                 _auth.currentUser?.linkWithCredential(phoneCredential)?.await()
             }catch (e: FirebaseAuthException){
                 _errorMessage.value = e.message.toString()
-                e.errorCode
                 inputSmsCodeValidation.value = _errorMessage.value
             }
         }
