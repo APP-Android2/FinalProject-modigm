@@ -11,6 +11,7 @@ import kr.co.lion.modigm.db.profile.RemoteProfileDao
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.util.ModigmApplication
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
@@ -61,7 +62,7 @@ class EditProfileViewModel: ViewModel() {
 
     // 유저 기본 정보를 불러온다.
     fun loadUserData() = viewModelScope.launch {
-        val userIdx = 9689//ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
 
         try {
             val response = profileRepository.loadUserData(userIdx)
@@ -87,7 +88,7 @@ class EditProfileViewModel: ViewModel() {
 
     // 유저의 자기소개 링크를 불러온다.
     fun loadUserLinkData() = viewModelScope.launch {
-        val userIdx = 9689//ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
 
         try {
             _editProfileLinkList.value = profileRepository.loadUserLinkData(userIdx)
@@ -130,7 +131,7 @@ class EditProfileViewModel: ViewModel() {
     }
 
     fun updateUserLinkData(profileFragment: ProfileFragment) = viewModelScope.launch {
-        val userIdx = 9689//ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
 
         // 데이터베이스 업데이트
         profileRepository.updateUserLinkData(userIdx, _editProfileLinkList.value!!)
