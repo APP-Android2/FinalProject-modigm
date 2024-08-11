@@ -1,27 +1,38 @@
 package kr.co.lion.modigm.ui
 
+import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.ActivityMainBinding
+import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.login.LoginFragment
 
 class MainActivity : AppCompatActivity() {
 
     // 바인딩
-    private val binding: ActivityMainBinding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
+    private var _binding: ActivityMainBinding? = null
+    private val binding get() = _binding!!
 
     // --------------------------------- LC START ---------------------------------
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (!isChromeOS(this)) {
+            // Chrome OS가 아닌 장치에서는 세로 모드로 고정
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+
         // 바인딩
+        _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         Log.d("MainActivity1", "onCreate: MainActivity 시작")
@@ -36,6 +47,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        // 애플리케이션 종료 시 히카리CP 데이터 소스를 해제
+        CoroutineScope(Dispatchers.IO).launch {
+            HikariCPDataSource.closeDataSource()
+        }
+    }
+
     // --------------------------------- LC END ---------------------------------
 
     // 백스택 로그 출력 함수
@@ -47,5 +67,9 @@ class MainActivity : AppCompatActivity() {
             val entry = fragmentManager.getBackStackEntryAt(i)
             Log.d("FragmentBackStackLog", "백스택 ${i}: ${entry.name}")
         }
+    }
+
+    private fun isChromeOS(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature("org.chromium.arc.device_management")
     }
 }

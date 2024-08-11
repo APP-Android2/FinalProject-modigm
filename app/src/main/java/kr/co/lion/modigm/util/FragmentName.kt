@@ -35,6 +35,7 @@ enum class FragmentName (var str: String){
     // 프로필
     PROFILE("ProfileFragment"),
     PROFILE_WEB("ProfileWebFragment"),
+    PROFILE_STUDY("ProfileStudyFragment"),
     EDIT_PROFILE("EditProfileFragment"),
     SETTINGS("SettingsFragment"),
     CHANGE_PW("ChangePwFragment"),

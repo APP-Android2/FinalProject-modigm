@@ -5,19 +5,18 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.widget.TextViewCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudySearchBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.study.adapter.StudySearchAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
+class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentStudySearchBinding::inflate) {
 
     // 뷰모델
     private val viewModel: StudyViewModel by viewModels()
@@ -30,19 +29,16 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
 
             // 항목 클릭 시
             rowClickListener = { studyIdx ->
-
                 // DetailFragment로 이동
                 val detailFragment = DetailFragment().apply {
                     arguments = Bundle().apply {
                         putInt("studyIdx", studyIdx)
                     }
                 }
-
                 requireActivity().supportFragmentManager.commit {
                     replace(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
-
             },
             favoriteClickListener = { studyIdx, currentState ->
                 viewModel.changeFavoriteState(studyIdx, currentState)
@@ -55,14 +51,8 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentStudySearchBinding.bind(view)
-
-        initView(binding)
-
-        viewModel.allStudyData.observe(viewLifecycleOwner, Observer { studyList ->
-            studySearchAdapter.updateData(studyList)
-        })
+        initView()
+        observeViewModel()
     }
 
     override fun onDestroyView() {
@@ -73,21 +63,22 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
 
     // --------------------------------- LC END ---------------------------------
 
-    private fun initView(binding: FragmentStudySearchBinding) {
+    private fun initView() {
 
         with(binding) {
             // RecyclerView 설정
             recyclerViewStudySearch.layoutManager = LinearLayoutManager(requireContext())
             recyclerViewStudySearch.adapter = studySearchAdapter
 
-            toolbarStudySearch.setNavigationOnClickListener{
+            toolbarStudySearch.setNavigationOnClickListener {
                 parentFragmentManager.popBackStack()
             }
 
             // init SearchView
             searchView.isSubmitButtonEnabled = true
 
-            val searchTextView: TextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
+            val searchTextView: TextView =
+                searchView.findViewById(androidx.appcompat.R.id.search_src_text)
             TextViewCompat.setTextAppearance(searchTextView, R.style.ChipTextStyle)
 
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -105,6 +96,12 @@ class StudySearchFragment : Fragment(R.layout.fragment_study_search) {
                     return true
                 }
             })
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
+            studySearchAdapter.updateData(studyList)
         }
     }
 }

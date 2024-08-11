@@ -9,96 +9,110 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyListRepository
-import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class StudyViewModel : ViewModel() {
 
     // --------------------------------- MySQL 적용 ---------------------------------
     // --------------------------------- 초기화 시작 --------------------------------
 
-    private val studyListRepository by lazy {
-        StudyListRepository()
-    }
+    private val tag by lazy { StudyViewModel::class.simpleName }
 
-    private val prefs by lazy {
-        ModigmApplication.prefs
-    }
+    private val studyListRepository by lazy { StudyListRepository() }
+
+
 
     // --------------------------------- 초기화 끝 --------------------------------
     // --------------------------------- 라이브데이터 시작 --------------------------------
+
     // 전체 스터디 목록 중 모집중인 스터디 리스트
     private val _allStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
     val allStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyData
 
-    private val _allStudyError = MutableLiveData<Throwable>()
-    val allStudyError: LiveData<Throwable> get() = _allStudyError
+
 
     // 내 스터디 리스트
     private val _myStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
     val myStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _myStudyData
 
-    private val _myStudyError = MutableLiveData<Throwable>()
-    val myStudyError: LiveData<Throwable> get() = _myStudyError
+    // 좋아요한 스터디 목록
+    private val _favoritedStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
+    val favoritedStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _favoritedStudyData
 
-    private val _favoritedData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val favoritedData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _favoritedData
-
-    private val _favoriteStudyError = MutableLiveData<Throwable>()
-    val favoriteStudyError: LiveData<Throwable> get() = _favoriteStudyError
-
+    // 좋아요 상태
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()
-    val isFavorite: LiveData<Pair<Int, Boolean>> get() = _isFavorite
+    val isFavorite: LiveData<Pair<Int, Boolean>> = _isFavorite
 
-    private val _isFavoriteError = MutableLiveData<Throwable>()
-    val isFavoriteError: LiveData<Throwable> get() = _isFavoriteError
 
+    private val _allStudyError = MutableLiveData<Throwable?>()
+    val allStudyError: LiveData<Throwable?> = _allStudyError
+
+    private val _myStudyError = MutableLiveData<Throwable?>()
+    val myStudyError: LiveData<Throwable?> = _myStudyError
+
+    private val _favoriteStudyError = MutableLiveData<Throwable?>()
+    val favoriteStudyError: LiveData<Throwable?> = _favoriteStudyError
+
+    private val _isFavoriteError = MutableLiveData<Throwable?>()
+    val isFavoriteError: LiveData<Throwable?> = _isFavoriteError
 
     // --------------------------------- 라이브데이터 끝 --------------------------------
 
-    fun getCurrentUserIdx(): Int {
+    // 현재 사용자의 인덱스를 가져오는 함수
+    private fun getCurrentUserIdx(): Int {
         return prefs.getInt("currentUserIdx")
     }
 
-    // 전체 스터디 목록 중 모집중인 스터디 가져오기 (홈화면 '전체 스터디' 접근 시)
+    /**
+     * 전체 스터디 목록 중 모집중인 스터디 가져오기 (홈화면 '전체 스터디' 접근 시)
+     */
     fun getAllStudyData() {
         viewModelScope.launch {
             val result = studyListRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
             }.onFailure {
-                Log.e("StudyViewModel", "Error getAllStudyData", it)
+                Log.e(tag, "Error getAllStudyData", it)
                 _allStudyError.postValue(it)
             }
         }
     }
 
-    // 전체 스터디 목록 중 내 스터디 목록 가져오기 (홈화면 '내 스터디' 접근 시)
+    /**
+     * 전체 스터디 목록 중 내 스터디 목록 가져오기 (홈화면 '내 스터디' 접근 시)
+     */
     fun getMyStudyData() {
         viewModelScope.launch {
             val result = studyListRepository.getMyStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _myStudyData.postValue(it)
             }.onFailure { e ->
-                Log.e("StudyViewModel", "Error getMyStudyData", e)
+                Log.e(tag, "Error getMyStudyData", e)
                 _myStudyError.postValue(e)
             }
         }
     }
 
-    // 좋아요한 스터디 목록 가져오기 (찜화면 접근 시)
+    /**
+     * 좋아요한 스터디 목록 가져오기 (찜화면 접근 시)
+     */
     fun getFavoriteStudyData() {
         viewModelScope.launch {
             val result = studyListRepository.getFavoriteStudyData(getCurrentUserIdx())
             result.onSuccess {
-                _favoritedData.postValue(it)
+                _favoritedStudyData.postValue(it)
             }.onFailure { e ->
-                Log.e("StudyViewModel", "Error getMyStudyData", e)
+                Log.e(tag, "Error getFavoriteStudyData", e)
                 _favoriteStudyError.postValue(e)
             }
         }
     }
 
-    // 좋아요 토글
+    /**
+     * 좋아요 상태 변경
+     * @param studyIdx 스터디 인덱스
+     * @param currentState 현재 좋아요 상태
+     */
     fun changeFavoriteState(studyIdx: Int, currentState: Boolean) {
         viewModelScope.launch {
             // 좋아요 상태 변경
@@ -112,42 +126,32 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _isFavorite.value = Pair(studyIdx, !currentState)
             }.onFailure { e ->
-                Log.e("StudyViewModel", "Error changing favorite state", e)
+                Log.e(tag, "Error changing favorite state", e)
                 _isFavoriteError.postValue(e)
             }
         }
     }
 
-    // 데이터 초기화 메서드
+    /**
+     * 데이터 초기화 메서드
+     */
     fun clearData() {
-        _allStudyData.value = emptyList()
-        _myStudyData.value = emptyList()
-        _favoritedData.value = emptyList()
-        _isFavorite.value = Pair(0, false)
-        _filteredStudyList.value = emptyList()
-        _filteredMyStudyList.value = emptyList()
-        filterData.clear()
-    }
+        _allStudyData.postValue(emptyList())
+        _myStudyData.postValue(emptyList())
+        _favoritedStudyData.postValue(emptyList())
+        _isFavorite.postValue(Pair(-1, false))
+        _favoriteStudyError.postValue(null)
+        _isFavoriteError.postValue(null)
+        _myStudyError.postValue(null)
+        _allStudyError.postValue(null)
 
-    // Dao 코루틴 및 히카리CP 자원 해제하기
-    private fun close() {
-        viewModelScope.launch {
-            studyListRepository.close()
-        }
-    }
-    // 뷰모델에서 Dao 코루틴 및 히카리CP 자원 해제
-    override fun onCleared() {
-        super.onCleared()
-        close()
+        filterData.clear()
     }
 
     // ------------------MySQL 적용 끝-----------------------
 
-
     // 필터 데이터
     private val filterData = mutableMapOf<String, String>()
-
-    //===========================필터============================
 
     // 필터링된 스터디 목록 (전체)
     private val _filteredStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
@@ -157,8 +161,10 @@ class StudyViewModel : ViewModel() {
     private val _filteredMyStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
     val filteredMyStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredMyStudyList
 
-
-    // 필터 데이터 업데이트
+    /**
+     * 필터 데이터 업데이트
+     * @param newFilterData 새로운 필터 데이터
+     */
     fun updateFilterData(newFilterData: Map<String, String>) {
         filterData.putAll(newFilterData)
         Log.d("StudyViewModel", "필터 데이터 업데이트: $filterData")
@@ -287,6 +293,4 @@ class StudyViewModel : ViewModel() {
 //
 //        Log.d("StudyViewModel", "필터링된 결과: ${_filteredMyStudyList.value?.size} 개, 필터링된 데이터: ${_filteredMyStudyList.value}")
 //    }
-
-
 }

@@ -3,19 +3,20 @@ package kr.co.lion.modigm.ui.study
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyMyBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
+import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
+class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBinding::inflate) {
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
@@ -50,13 +51,10 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 바인딩
-        val binding = FragmentStudyMyBinding.bind(view)
-
         // 초기 뷰 세팅
-        initView(binding)
+        initView()
         viewModel.getMyStudyData()
-        observeData()
+        observeViewModel()
     }
 
     override fun onDestroyView() {
@@ -68,7 +66,7 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
     // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
-    private fun initView(binding: FragmentStudyMyBinding) {
+    private fun initView() {
         with(binding) {
             // 필터 버튼
             imageViewStudyMyFilter.setOnClickListener {
@@ -110,7 +108,7 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
         }
     }
 
-    private fun observeData() {
+    private fun observeViewModel() {
 //        // 필터링된 데이터 관찰
 //        viewModel.filteredMyStudyList.observe(viewLifecycleOwner) { studyList ->
 //            studyMyAdapter.updateData(studyList)
@@ -120,12 +118,51 @@ class StudyMyFragment : Fragment(R.layout.fragment_study_my) {
         // 내 스터디 데이터 관찰 (필터링이 없을 때)
         viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)
-            Log.d("StudyMyFragment", "내 스터디 목록 업데이트: ${studyList.size} 개")
+            Log.d(tag, "내 스터디 목록 업데이트: ${studyList.size} 개")
         }
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
             // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
             studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
+
+        if (!viewModel.myStudyError.hasObservers()) {
+            viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
+                Log.e(tag, "내 스터디 목록 오류 발생", e)
+                if (e != null) {
+                    showStudyErrorDialog(e)
+                }
+            }
+        }
+
+        if (!viewModel.isFavoriteError.hasObservers()) {
+            viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
+                Log.e(tag, "좋아요 오류 발생", e)
+                if (e != null) {
+                    showStudyErrorDialog(e)
+                }
+            }
+        }
+    }
+
+    // 스터디 오류 처리 메서드
+    private fun showStudyErrorDialog(e: Throwable) {
+        val message = if (e.message != null) {
+            e.message.toString()
+        } else {
+            "알 수 없는 오류!"
+        }
+        studyErrorDialog(message)
+    }
+
+    // 오류 다이얼로그 표시
+    private fun studyErrorDialog(message: String) {
+        val dialog = CustomLoginErrorDialog(requireContext())
+        dialog.setTitle("오류")
+        dialog.setMessage(message)
+        dialog.setPositiveButton("확인") {
+            dialog.dismiss()
+        }
+        dialog.show()
     }
 }

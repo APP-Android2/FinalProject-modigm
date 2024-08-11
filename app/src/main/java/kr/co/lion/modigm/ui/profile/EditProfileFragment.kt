@@ -22,6 +22,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -34,6 +35,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
+import kr.co.lion.modigm.ui.profile.adapter.ItemTouchHelperCallback
 import kr.co.lion.modigm.ui.profile.adapter.LinkAddAdapter
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
@@ -48,9 +50,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
     private val editProfileViewModel: EditProfileViewModel by activityViewModels()
 
-    private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var user: FirebaseUser
-
     // 어댑터 선언
     private lateinit var linkAddAdapter: LinkAddAdapter
     // 앨범 실행을 위한 런처
@@ -58,13 +57,8 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         fragmentEditProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_profile, container, false)
-
-        // Bind ViewModel and lifecycle owner
         fragmentEditProfileBinding.editProfileViewModel = editProfileViewModel
         fragmentEditProfileBinding.lifecycleOwner = this
-
-        firebaseAuth = Firebase.auth
-        user = firebaseAuth.currentUser!!
 
         return fragmentEditProfileBinding.root
     }
@@ -119,11 +113,23 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
     private fun setupRecyclerViewLink() {
         // 리사이클러뷰 어댑터와 뷰모델을 함께 초기화
-        linkAddAdapter = LinkAddAdapter(emptyList(), requireContext(), editProfileViewModel)
+        linkAddAdapter = LinkAddAdapter(mutableListOf(), requireContext(), editProfileViewModel)
+
+        // 리스너를 구현한 Adapter 클래스를 Callback 클래스의 생성자로 지정
+        val itemTouchHelperCallback = ItemTouchHelperCallback(linkAddAdapter)
+
+        // ItemTouchHelper의 생성자로 ItemTouchHelper.Callback 객체 셋팅
+        val helper = ItemTouchHelper(itemTouchHelperCallback)
+
         fragmentEditProfileBinding.apply {
             recyclerViewEditProfileLink.apply {
                 adapter = linkAddAdapter
                 layoutManager = LinearLayoutManager(requireContext())
+
+                // RecyclerView에 ItemTouchHelper 연결
+                helper.attachToRecyclerView(this)
+
+
             }
         }
     }
@@ -191,7 +197,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                     // 크기를 줄인 이미지를 가져온다.
                     val bitmap3 = Picture.resizeBitmap(bitmap2, 1024)
 
-                    // 비트맵을 Base64 형식으로 변환
                     val byteArrayOutputStream = ByteArrayOutputStream()
                     // 비트맵을 JPEG 형식으로 압축
                     bitmap3.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
@@ -307,7 +312,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
         // 링크 리스트
         editProfileViewModel.editProfileLinkList.observe(viewLifecycleOwner) { linkList ->
-            linkAddAdapter.updateData(linkList)
+            linkAddAdapter.updateData(linkList.toMutableList())
         }
     }
 }

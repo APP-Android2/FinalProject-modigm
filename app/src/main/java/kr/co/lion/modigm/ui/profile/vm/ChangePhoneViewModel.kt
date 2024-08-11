@@ -171,7 +171,6 @@ class ChangePhoneViewModel: ViewModel() {
         _isSendingCode.value = false
     }
 
-
     // 전화번호 변경
     suspend fun changePhone() {
         if(_isCodeSent.value == true){
@@ -193,11 +192,11 @@ class ChangePhoneViewModel: ViewModel() {
                 // 파이어스토어에 저장된 정보를 업데이트 한다
                 _db.updatePhone(_auth.currentUser?.uid?:"", userPhone.value?:"")
                 // SharedPreferences에 저장된 정보를 업데이트 한다.
-                val userData = prefs.getUserData("currentUserData")
-                userData?.userPhone = userPhone.value?:""
-                if (userData != null) {
-                    //prefs.setUserData("currentUserData", userData)
-                }
+                //val userData = prefs.getUserData("currentUserData")
+//                userData?.userPhone = userPhone.value?:""
+//                if (userData != null) {
+//                    //prefs.setUserData("currentUserData", userData)
+//                }
 
                 _isVerified.value = true
             }catch (e: FirebaseAuthException){
