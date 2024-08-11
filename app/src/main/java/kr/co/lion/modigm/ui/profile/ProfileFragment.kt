@@ -123,7 +123,7 @@ class ProfileFragment: Fragment() {
         fragmentProfileBinding.profileViewModel = profileViewModel
         fragmentProfileBinding.lifecycleOwner = this
 
-        userIdx = 9689//arguments?.getInt("userIdx")
+        userIdx = arguments?.getInt("userIdx")
         myProfile = userIdx == ModigmApplication.prefs.getInt("currentUserIdx")
 
         return fragmentProfileBinding.root

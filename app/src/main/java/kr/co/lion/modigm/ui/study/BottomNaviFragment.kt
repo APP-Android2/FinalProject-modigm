@@ -148,7 +148,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 R.id.bottomNaviMy -> {
                     val profileFragment = ProfileFragment().apply {
                         arguments = Bundle().apply {
-                            putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
+                            putInt("userIdx", prefs.getInt("currentUserIdx"))
                         }
                     }
                     childFragmentManager.commit {
