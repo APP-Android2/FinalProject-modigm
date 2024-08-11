@@ -8,7 +8,6 @@ import android.os.VibratorManager
 import android.util.Log
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLinkAddBinding
