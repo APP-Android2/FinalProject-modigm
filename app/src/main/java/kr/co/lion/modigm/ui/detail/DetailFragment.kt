@@ -44,6 +44,7 @@ import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Skill
 
 class DetailFragment : Fragment() {
@@ -73,9 +74,7 @@ class DetailFragment : Fragment() {
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-//        uid = ModigmApplication.prefs.getUserData("currentUserData")?.userUid.toString()
-
-
+        userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
         return binding.root
     }
 
@@ -156,11 +155,22 @@ class DetailFragment : Fragment() {
 
     fun observeViewModel() {
 
+//        // 스터디 데이터
+//        lifecycleScope.launch {
+//            viewModel.studyData.collect { data ->
+//                data?.let {
+//                    currentStudyData = it
+//                    updateUI(it)
+//                }
+//            }
+//        }
         // 스터디 데이터
         lifecycleScope.launch {
             viewModel.studyData.collect { data ->
                 data?.let {
                     currentStudyData = it
+                    // 스터디 데이터를 수신한 후 사용자 데이터를 요청
+                    viewModel.getUserById(it.userIdx)
                     updateUI(it)
                 }
             }
@@ -178,7 +188,7 @@ class DetailFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.userData.collect { user ->
                 user?.let {
-//                    currentUserData = it
+                    currentUserData = it
                     updateUIIfReady()
                     // 유저 이름 설정
                     binding.textViewDetailUserName.text = it.userName
