@@ -117,7 +117,7 @@ class EditProfileViewModel: ViewModel() {
 
         // 데이터를 객체에 담는다
         val user = SqlUserData(
-            userIdx = 9689,//ModigmApplication.prefs.getInt("currentUserData"),
+            userIdx = ModigmApplication.prefs.getInt("currentUserIdx"),
             userProfilePic = _editProfilePicUrl.value!!,
             userIntro = _editProfileIntro.value!!,
             userInterests = _editProfileInterests.value!!
