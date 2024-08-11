@@ -21,6 +21,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.model.SqlUserLinkData
@@ -49,7 +50,7 @@ class RemoteProfileDao {
         var user: SqlUserData? = null
 
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     SELECT * FROM tb_user
                     WHERE userIdx = ?
@@ -77,7 +78,7 @@ class RemoteProfileDao {
         val linkList = mutableListOf<SqlUserLinkData>()
 
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     SELECT * FROM tb_user_link
                     WHERE userIdx = ?
@@ -104,7 +105,7 @@ class RemoteProfileDao {
     // 사용자 정보를 수정하는 메서드
     suspend fun updateUserData(user: SqlUserData) = withContext(Dispatchers.IO) {
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     UPDATE tb_user
                     SET userProfilePic = ?,
@@ -129,7 +130,7 @@ class RemoteProfileDao {
     // 사용자 링크 목록 정보를 수정하는 메서드
     suspend fun updateUserLinkData(userIdx: Int, linkList: List<String>) = withContext(Dispatchers.IO) {
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val userQuery = """
                     DELETE FROM tb_user_link
                     WHERE userIdx = ?
@@ -247,7 +248,7 @@ class RemoteProfileDao {
         val studyList = mutableListOf<SqlStudyData>()
 
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     SELECT * FROM tb_study
                     WHERE userIdx = ?
@@ -278,7 +279,7 @@ class RemoteProfileDao {
         val studyList = mutableListOf<SqlStudyData>()
 
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     SELECT s.*
                     FROM tb_study s
@@ -313,7 +314,7 @@ class RemoteProfileDao {
         val studyList = mutableListOf<SqlStudyData>()
 
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     SELECT * FROM tb_study
                     WHERE userIdx = ?
@@ -343,7 +344,7 @@ class RemoteProfileDao {
         val studyList = mutableListOf<SqlStudyData>()
 
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     SELECT s.*
                     FROM tb_study s

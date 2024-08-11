@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.profile
 
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -15,6 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomViewTarget
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
@@ -315,11 +319,28 @@ class ProfileFragment: Fragment() {
         // 프로필 사진
         profileViewModel.profileUserImage.observe(viewLifecycleOwner) { image ->
             if (image.isNotEmpty()) {
-                val imageBytes = Base64.decode(image, Base64.DEFAULT) // Base64 문자열을 바이트 배열로 디코딩
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size) // 바이트 배열을 비트맵으로 디코딩
-                Glide.with(requireContext()) // Glide를 사용하여 이미지를 로드
-                    .load(bitmap)
-                    .into(fragmentProfileBinding.imageProfilePic)
+                val requestOptions = RequestOptions()
+                    .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
+                    .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
+
+                Glide.with(requireContext())
+                    .load(image)
+                    .apply(requestOptions)
+                    .into(object : CustomViewTarget<ImageView, Drawable>(fragmentProfileBinding.imageProfilePic) {
+                        override fun onLoadFailed(errorDrawable: Drawable?) {
+                            // 로딩 실패 시 기본 이미지를 보여줌
+                            fragmentProfileBinding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                        }
+
+                        override fun onResourceCleared(placeholder: Drawable?) {
+                            // 리소스가 클리어 될 때
+                        }
+
+                        override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
+                            // 로딩 성공 시
+                            fragmentProfileBinding.imageProfilePic.setImageDrawable(resource)
+                        }
+                    })
             } else {
                 // Handle the case where the image string is null (e.g., show a default image)
                 fragmentProfileBinding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
