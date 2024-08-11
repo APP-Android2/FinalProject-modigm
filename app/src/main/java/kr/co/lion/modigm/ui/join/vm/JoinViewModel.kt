@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -12,13 +13,13 @@ import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.JoinUserRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
+import javax.inject.Inject
 
-class JoinViewModel : ViewModel() {
-
-    // 리포지터리
-    private val _joinUserRepository = JoinUserRepository()
-    // 파이어베이스 인증
-    private val _auth = FirebaseAuth.getInstance()
+@HiltViewModel
+class JoinViewModel @Inject constructor(
+    private val _joinUserRepository: JoinUserRepository,
+    private val _auth: FirebaseAuth
+) : ViewModel() {
 
     // 파이어베이스에 연동된 유저
     private var _user: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null)
@@ -128,9 +129,7 @@ class JoinViewModel : ViewModel() {
     // 회원가입 이탈 시 이미 Auth에 등록되어있는 인증 정보 삭제
     fun deleteCurrentUser(){
         // 인증 정보 삭제
-        if(_auth.currentUser != null){
-            _auth.currentUser?.delete()
-        }
+        _auth.currentUser?.delete()
     }
 
     // UserInfoData 객체 생성
@@ -166,6 +165,39 @@ class JoinViewModel : ViewModel() {
                 throw Exception("회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.")
             }
         }
+    }
+
+    // 상태값 초기화
+    fun reset(){
+        _user.value = null
+
+        _userProvider.value = ""
+
+        _userEmail.value = null
+
+        _verifiedEmail.value = ""
+
+        _phoneVerification.value = false
+
+        _verifiedPhoneNumber.value = ""
+
+        _isPhoneAlreadyRegistered.value = false
+
+        _alreadyRegisteredUserEmail.value = ""
+
+        _alreadyRegisteredUserProvider.value = ""
+
+        _joinCompleted.value = false
+
+        _uid.value = null
+
+        _email.value = ""
+        _password.value = ""
+
+        _userName.value = ""
+        _phoneNumber.value = ""
+
+        _interests.value = null
     }
 
     fun signOut(){

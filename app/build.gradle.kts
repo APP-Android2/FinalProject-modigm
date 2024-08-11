@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -134,4 +135,8 @@ dependencies {
     //aws s3
     implementation("com.amazonaws:aws-android-sdk-s3:2.22.0")
     implementation("com.amazonaws:aws-android-sdk-core:2.22.0")
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
 }

@@ -10,14 +10,20 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.repository.JoinUserRepository
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+import javax.inject.Inject
 
-class JoinStep2ViewModel: ViewModel() {
+@HiltViewModel
+class JoinStep2ViewModel @Inject constructor(
+    private val _db: JoinUserRepository,
+    private val _auth: FirebaseAuth
+): ViewModel() {
     // ================1. 유효성 검사 관련==============================================================
 
     // 이름
@@ -87,10 +93,6 @@ class JoinStep2ViewModel: ViewModel() {
     }
 
     // ================2. 전화번호 인증 관련==============================================================
-
-    private val _auth = FirebaseAuth.getInstance()
-
-    private val _db = JoinUserRepository()
 
     private val _authButtonText = MutableStateFlow("인증하기")
     val authButtonText: StateFlow<String> = _authButtonText

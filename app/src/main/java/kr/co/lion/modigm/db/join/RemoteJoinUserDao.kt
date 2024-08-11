@@ -5,8 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.HikariCPDataSource
 import java.sql.PreparedStatement
+import javax.inject.Inject
 
-class RemoteJoinUserDao {
+class RemoteJoinUserDao @Inject constructor() {
     private val TAG = "JoinUserDao"
 
     suspend fun insertUserData(model: Map<String, Any>): Result<Int>
