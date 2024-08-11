@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.db.profile.RemoteProfileDao
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.ui.profile.ProfileFragment
@@ -15,7 +14,6 @@ import kr.co.lion.modigm.util.ModigmApplication
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
-    private val remoteProfileDao = RemoteProfileDao()
 
     // 프로필 사진 Uri
     private val _editProfilePicUri = MutableLiveData<Uri>()
