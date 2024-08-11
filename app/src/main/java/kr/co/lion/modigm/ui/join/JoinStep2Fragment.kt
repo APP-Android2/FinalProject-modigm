@@ -15,6 +15,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
+import kr.co.lion.modigm.util.collectWhenStarted
 
 @AndroidEntryPoint
 class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.fragment_join_step2) {
@@ -81,30 +82,22 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
 
     private fun settingCollector(){
         // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                joinStep2ViewModel.isCodeSent.collect {
-                    if(it){
-                        binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
-                        binding.textinputJoinPhoneAuth.requestFocus()
-                    }else{
-                        binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
-                    }
-                }
+        collectWhenStarted(joinStep2ViewModel.isCodeSent) {
+            if(it){
+                binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
+                binding.textinputJoinPhoneAuth.requestFocus()
+            }else{
+                binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
             }
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                joinStep2ViewModel.authExpired.collect {
-                    if(it){
-                        binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.pointColor))
-                        binding.buttonJoinPhoneAuth.isClickable = true
-                    }else{
-                        binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.textGray))
-                        binding.buttonJoinPhoneAuth.isClickable = false
-                    }
-                }
+        collectWhenStarted(joinStep2ViewModel.authExpired) {
+            if(it){
+                binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.pointColor))
+                binding.buttonJoinPhoneAuth.isClickable = true
+            }else{
+                binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.textGray))
+                binding.buttonJoinPhoneAuth.isClickable = false
             }
         }
     }
