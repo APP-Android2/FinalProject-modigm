@@ -129,6 +129,9 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         // 백 스택 로그 출력
         logFragmentBackStack(parentFragmentManager)
 
+        // 스킬 데이터를 로드
+        viewModel.getTechIdxByStudyIdx(studyIdx)
+
         // 입력값 검증 로직 메서드 호출
 //        setupMemberInputWatcher()
 
@@ -213,6 +216,15 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
             viewModel.memberCount.collect { count ->
                 minMembers = count
                 Log.d("DetailEditFragment", "Minimum members: $minMembers")
+            }
+        }
+
+        // 스킬 데이터 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.studyTechList.collect { techList ->
+                Log.d("DetailEditFragment", "Received techList from ViewModel: $techList")
+                val skills = techList.map { Skill.fromNum(it) }  // techIdx를 Skill 객체로 변환
+                addChipsToGroup(fragmentDetailEditBinding.ChipGroupDetailEdit, skills)
             }
         }
     }
@@ -677,16 +689,10 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
     override fun onSkillSelected(selectedSkills: List<Skill>) {
 
-        val selectedSkillNums = selectedSkills.map { it.num }  // Skill 객체에서 num 값 추출
-        val selectedSkillObjects = selectedSkills  // 원본 Skill 리스트를 저장
-
-        this.selectedSkills = selectedSkillNums  // selectedSkills를 num 리스트로 설정
-
-        selectedSkillNums.forEach { num ->
-            Log.d("DetailEditFragment", "Selected skill number: $num")
-        }
-
-        addChipsToGroup(fragmentDetailEditBinding.ChipGroupDetailEdit, selectedSkillObjects)
+        // 새로운 스킬 목록으로 칩그룹 업데이트
+        Log.d("DetailEditFragment", "Selected skills: ${selectedSkills.joinToString { it.displayName }}")
+        this.selectedSkills = selectedSkills.map { it.num }  // Skill 객체에서 num 값 추출
+        addChipsToGroup(fragmentDetailEditBinding.ChipGroupDetailEdit, selectedSkills)
     }
 
     fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
@@ -722,10 +728,10 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
         fragmentDetailEditBinding.textInputLayoutDetailEditSkill.editText?.setOnClickListener {
             val bottomSheet = SkillBottomSheetFragment().apply {
-                setOnSkillSelectedListener(this@DetailEditFragment)
+                setSelectedSkills(selectedSkillList.map { Skill.fromNum(it) }) // 이미 선택된 스킬 설정
+                setOnSkillSelectedListener(this@DetailEditFragment) // 리스너 설정
             }
             bottomSheet.show(childFragmentManager, bottomSheet.tag)
-//            bottomSheet.setSelectedSkills(currentStudyData?.studySkillList?.map { Skill.fromNum(it) } ?: emptyList())
         }
 
         // 프래그 먼트간 연결 설정
@@ -962,8 +968,6 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
             updateChipStyle(it, true)
         }
 
-        val selectedSkills = viewModel.studySkills.value.map { Skill.fromNum(it) }
-        addChipsToGroup(fragmentDetailEditBinding.ChipGroupDetailEdit, selectedSkills)
     }
 
     // 특정 텍스트를 가진 칩을 찾는 함수

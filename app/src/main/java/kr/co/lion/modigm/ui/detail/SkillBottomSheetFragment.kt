@@ -90,6 +90,24 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
             selectedSkills.clear()
             selectedSkills.addAll(skills)
             updateSelectedChipsUI()
+
+            // 초기 선택된 스킬을 반영하여 카테고리 및 서브 카테고리 칩 상태 설정
+            skills.forEach { skill ->
+                updateCategoryChipState(skill, true)
+                if (skill.category != Skill.Category.OTHER) {
+                    displaySubCategories(skill.category!!)
+                    updateSubCategoryChipState(skill)
+                }
+            }
+        }
+    }
+    fun updateSubCategoryChipState(skill: Skill) {
+        binding.subCategoryChipGroupSkill.children.forEach {
+            val chip = it as Chip
+            if (chip.text.toString() == skill.displayName) {
+                chip.isChecked = true
+                updateChipStyle(chip, true)
+            }
         }
     }
 
