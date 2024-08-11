@@ -8,6 +8,7 @@ import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 class SqlRemoteDetailDao {
@@ -117,6 +118,14 @@ class SqlRemoteDetailDao {
         }
     }
 
+    // 특정 스터디의 기술 스택을 조회하는 메소드
+    suspend fun getStudyTechStack(studyIdx: Int): List<Int> {
+        val query = "SELECT techIdx FROM tb_study_tech_stack WHERE studyIdx = ?"
+        return executeQuery(query, studyIdx) { resultSet ->
+            resultSet.getInt("techIdx")
+        }
+    }
+
     // studyState 값을 업데이트하는 메소드 추가
     suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
         try {
@@ -131,6 +140,89 @@ class SqlRemoteDetailDao {
         } catch (e: Exception) {
             Log.e(TAG, "Error updating studyState", e)
             return@withContext 0
+        }
+    }
+
+    // 데이터 업데이트 메소드
+    suspend fun updateStudy(studyData: SqlStudyData): Int = withContext(Dispatchers.IO) {
+        try {
+            getConnection().use { connection ->
+                val query = """
+                    UPDATE tb_study SET 
+                        studyTitle = ?, 
+                        studyContent = ?, 
+                        studyType = ?, 
+                        studyPeriod = ?, 
+                        studyOnOffline = ?, 
+                        studyPlace = ?, 
+                        studyDetailPlace = ?, 
+                        studyApplyMethod = ?, 
+                        studyCanApply = ?, 
+                        studyPic = ?, 
+                        studyMaxMember = ?, 
+                        studyState = ?, 
+                        userIdx = ? 
+                    WHERE studyIdx = ?
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setString(1, studyData.studyTitle)
+                    statement.setString(2, studyData.studyContent)
+                    statement.setString(3, studyData.studyType)
+                    statement.setString(4, studyData.studyPeriod)
+                    statement.setString(5, studyData.studyOnOffline)
+                    statement.setString(6, studyData.studyPlace)
+                    statement.setString(7, studyData.studyDetailPlace)
+                    statement.setString(8, studyData.studyApplyMethod)
+                    statement.setString(9, studyData.studyCanApply)
+                    statement.setString(10, studyData.studyPic)
+                    statement.setInt(11, studyData.studyMaxMember)
+                    statement.setBoolean(12, studyData.studyState)
+                    statement.setInt(13, studyData.userIdx)
+                    statement.setInt(14, studyData.studyIdx)
+                    return@withContext statement.executeUpdate()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating study data", e)
+            return@withContext 0
+        }
+    }
+
+    // 스터디 테이블에 tech stack 데이터를 삽입하는 메서드
+    suspend fun insertStudyTechStack(studyIdx: Int, techStack: List<Int>) {
+        val existingTechStack = getStudyTechStack(studyIdx).toSet()
+        val newTechStack = techStack.filter { it !in existingTechStack }
+
+        if (newTechStack.isNotEmpty()) {
+            val sql = "INSERT INTO tb_study_tech_stack (studyIdx, techIdx) VALUES (?, ?)"
+            val paramsList = newTechStack.map { arrayOf<Any>(studyIdx, it) }
+            executeBatchUpdate(sql, paramsList)
+        }
+    }
+
+    // 여러 개의 SQL 업데이트를 한 번에 실행하는 배치 업데이트 함수
+    private suspend fun executeBatchUpdate(sql: String, paramsList: List<Array<out Any>>) {
+        var preparedStatement: PreparedStatement? = null
+        try {
+            withContext(Dispatchers.IO) {
+                getConnection().use { connection ->
+                    preparedStatement = connection.prepareStatement(sql)
+                    paramsList.forEach { params ->
+                        params.forEachIndexed { index, value ->
+                            when (value) {
+                                is String -> preparedStatement?.setString(index + 1, value)
+                                is Int -> preparedStatement?.setInt(index + 1, value)
+                            }
+                        }
+                        preparedStatement?.addBatch()
+                    }
+                    preparedStatement?.executeBatch()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in executeBatchUpdate", e)
+        } finally {
+            preparedStatement?.close()
         }
     }
 
