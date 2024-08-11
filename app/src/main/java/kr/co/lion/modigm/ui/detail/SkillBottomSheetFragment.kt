@@ -91,20 +91,24 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
             selectedSkills.addAll(skills)
             updateSelectedChipsUI()
 
-            // 초기 선택된 스킬을 반영하여 카테고리 및 서브 카테고리 칩 상태 설정
+            // 선택된 스킬이 있는 카테고리의 칩을 선택하고 서브 카테고리 칩들을 모두 선택
             skills.forEach { skill ->
-                updateCategoryChipState(skill, true)
-                if (skill.category != Skill.Category.OTHER) {
-                    displaySubCategories(skill.category!!)
-                    updateSubCategoryChipState(skill)
+                val category = skill.category
+                if (category != null) {
+                    // 해당 카테고리 칩 선택
+                    updateCategoryChipState(skill, true)
+                    // 해당 카테고리의 서브 카테고리 칩들을 생성 및 선택
+                    displaySubCategories(category)
+                    // 서브 카테고리에서 해당 스킬 칩 선택
+                    selectSubCategoryChip(skill)
                 }
             }
         }
     }
-    fun updateSubCategoryChipState(skill: Skill) {
-        binding.subCategoryChipGroupSkill.children.forEach {
-            val chip = it as Chip
-            if (chip.text.toString() == skill.displayName) {
+    fun selectSubCategoryChip(skill: Skill) {
+        binding.subCategoryChipGroupSkill.children.forEach { view ->
+            val chip = view as Chip
+            if (chip.text == skill.displayName) {
                 chip.isChecked = true
                 updateChipStyle(chip, true)
             }
@@ -217,7 +221,8 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
                 isClickable = true
                 isCheckable = true
                 setTextAppearance(R.style.ChipTextStyle)
-                updateChipStyle(this, false)
+                updateChipStyle(this, selectedSkills.contains(skill)) // 선택 상태 반영
+                isChecked = selectedSkills.contains(skill)  // 이미 선택된 스킬인 경우 선택된 상태로 설정
             }
             chip.setOnCheckedChangeListener { _, isChecked ->
                 updateChipStyle(chip, isChecked)
@@ -262,11 +267,22 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     fun updateCategoryChipState(skill: Skill, isSelected: Boolean) {
-        binding.chipGroupSkill.children.forEach {
-            val chip = it as Chip
+//        binding.chipGroupSkill.children.forEach {
+//            val chip = it as Chip
+//            if (chip.text.toString() == getCategoryName(skill.category ?: Skill.Category.OTHER)) {
+//                chip.isChecked = isSelected
+//                updateChipStyle(chip, isSelected)
+//            }
+//        }
+        binding.chipGroupSkill.children.forEach { view ->
+            val chip = view as Chip
             if (chip.text.toString() == getCategoryName(skill.category ?: Skill.Category.OTHER)) {
                 chip.isChecked = isSelected
                 updateChipStyle(chip, isSelected)
+                if (isSelected) {
+                    // 해당 카테고리의 서브 카테고리 칩들을 생성
+                    displaySubCategories(skill.category!!)
+                }
             }
         }
     }
@@ -278,13 +294,23 @@ class SkillBottomSheetFragment : BottomSheetDialogFragment() {
         }
     }
 
+//    fun updateChipStyle(chip: Chip, isSelected: Boolean) {
+//        if (isSelected) {
+//            chip.setChipBackgroundColorResource(R.color.pointColor)
+//            chip.setTextColor(resources.getColor(R.color.white, null))
+//        } else {
+//            chip.setChipBackgroundColorResource(R.color.white)
+//            chip.setTextColor(resources.getColor(R.color.black, null))
+//        }
+//    }
+
     fun updateChipStyle(chip: Chip, isSelected: Boolean) {
         if (isSelected) {
-            chip.setChipBackgroundColorResource(R.color.pointColor)
-            chip.setTextColor(resources.getColor(R.color.white, null))
+            chip.setChipBackgroundColorResource(R.color.pointColor) // 선택된 상태의 배경색
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white)) // 선택된 상태의 텍스트 색상
         } else {
-            chip.setChipBackgroundColorResource(R.color.white)
-            chip.setTextColor(resources.getColor(R.color.black, null))
+            chip.setChipBackgroundColorResource(R.color.white) // 비선택 상태의 배경색
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.black)) // 비선택 상태의 텍스트 색상
         }
     }
 
