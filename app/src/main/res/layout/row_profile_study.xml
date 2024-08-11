@@ -23,6 +23,15 @@
             android:scaleType="centerCrop"
             app:srcCompat="@drawable/image_loading_gray" />
 
+        <ProgressBar
+            android:id="@+id/progressBarProfileStudyPic"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:progress="@integer/material_motion_duration_long_2"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/textGray"
+            android:backgroundTint="@color/buttonGray"/>
+
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
