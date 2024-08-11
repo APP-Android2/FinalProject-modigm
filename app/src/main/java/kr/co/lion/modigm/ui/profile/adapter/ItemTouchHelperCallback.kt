@@ -28,6 +28,7 @@ class ItemTouchHelperCallback(val listener: ItemTouchHelperListener) : ItemTouch
 
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
             // 아이템이 꾹 눌려 드래그 상태가 되었을 때 실행될 코드
+            // 햅틱 피드백
             val context = viewHolder?.itemView?.context
             val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val vibratorManager = context?.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -43,37 +44,13 @@ class ItemTouchHelperCallback(val listener: ItemTouchHelperListener) : ItemTouch
                     vibrator.vibrate(50)
                 }
 
-            viewHolder.itemView.setBackgroundColor(Color.LTGRAY) // 예를 들어 배경색을 변경
+            // 배경색을 변경
+            viewHolder.itemView.setBackgroundColor(Color.LTGRAY)
         }
     }
 
     // 드래그된 item을 이전 위치에서 새로운 위치로 옮길 때 호출
     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-        // 리스너의 onMove 메소드 호출
-//        val moved = listener.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
-//
-//        if (moved) {
-//            val context = viewHolder.itemView.context
-//            val vibrator = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-//                // VibratorManager를 통해 Vibrator를 가져옴
-//                val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-//                vibratorManager.defaultVibrator
-//            } else {
-//                // 기존의 방법으로 Vibrator를 가져옴
-//                @Suppress("DEPRECATION")
-//                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-//            }
-//
-//            // 진동 실행
-//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//                vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
-//            } else {
-//                vibrator.vibrate(50)
-//            }
-//        }
-//
-//        return moved
-
         // 리스너의 onMove 메소드 호출
         return listener.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
     }
