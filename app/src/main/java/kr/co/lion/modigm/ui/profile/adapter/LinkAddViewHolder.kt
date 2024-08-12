@@ -56,27 +56,6 @@ class LinkAddViewHolder(
             iconRowLinkAddDelete.setOnClickListener {
                 editProfileViewModel.removeLinkFromList(data)
             }
-
-            // 아이템을 길게 눌렀을 때 햅틱 피드백 추가
-            root.setOnLongClickListener {
-                val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                    vibratorManager.defaultVibrator
-                } else {
-                    @Suppress("DEPRECATION")
-                    context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    vibrator.vibrate(50)
-                }
-
-                root.setBackgroundColor(ContextCompat.getColor(context, R.color.dividerView))
-
-                true // true를 반환하면 long click 이벤트가 소비됩니다.
-            }
         }
     }
 
