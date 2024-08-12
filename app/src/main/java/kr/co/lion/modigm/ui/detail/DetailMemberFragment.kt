@@ -19,16 +19,6 @@ class DetailMemberFragment : VBBaseFragment<FragmentDetailMemberBinding>(Fragmen
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // 상품 idx
-        studyIdx = arguments?.getInt("studyIdx")!!
-
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

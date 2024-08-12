@@ -31,10 +31,9 @@ class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBindin
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         auth = FirebaseAuth.getInstance()
         currentUserId = auth.currentUser?.uid ?: ""
 
@@ -53,12 +52,6 @@ class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBindin
                 .addToBackStack(FragmentName.PROFILE.str)
                 .commit()
         }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
 

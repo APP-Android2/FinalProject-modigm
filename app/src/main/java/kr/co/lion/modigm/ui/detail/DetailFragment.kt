@@ -63,22 +63,14 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     private var currentStudyData: SqlStudyData? = null
     private var currentUserData: SqlUserData? = null
 
-    // 프래그먼트의 뷰가 생성될 때 호출
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
         userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
-        return binding.root
-    }
-
-    // 뷰가 생성된 직후 호출
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         viewModel.clearData() // ViewModel 데이터 초기화
 

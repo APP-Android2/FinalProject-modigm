@@ -30,10 +30,8 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
     private lateinit var auth: FirebaseAuth
     private lateinit var currentUserId: String
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
         currentUserId = auth.currentUser?.uid ?: ""
@@ -53,12 +51,6 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
                 .addToBackStack(FragmentName.PROFILE.str)
                 .commit()
         }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
 
