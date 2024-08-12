@@ -51,8 +51,4 @@ class SqlDetailRepository {
         sqlRemoteDetailDataSource.insertSkills(studyIdx, skills)
     }
 
-    // 리소스를 해제하는 메서드 추가
-    suspend fun close() {
-        sqlRemoteDetailDataSource.close()
-    }
 }

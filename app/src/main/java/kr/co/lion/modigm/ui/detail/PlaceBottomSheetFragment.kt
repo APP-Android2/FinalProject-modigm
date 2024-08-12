@@ -23,6 +23,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentPlaceBottomSheetBinding
 import kr.co.lion.modigm.ui.detail.adapter.PlaceSearchResultsAdapter
 import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.ui.VBBaseBottomSheetFragment
 
 data class SimplePlace(
     val id: String,
@@ -30,9 +31,8 @@ data class SimplePlace(
     val address: String
 )
 
-class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
+class PlaceBottomSheetFragment : VBBaseBottomSheetFragment<FragmentPlaceBottomSheetBinding>(FragmentPlaceBottomSheetBinding::inflate) {
 
-    private lateinit var binding: FragmentPlaceBottomSheetBinding
     private lateinit var placesClient: PlacesClient
 
     private var placeSelectedListener: OnPlaceSelectedListener? = null
@@ -41,7 +41,6 @@ class PlaceBottomSheetFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentPlaceBottomSheetBinding.inflate(inflater)
         return binding.root
     }
 

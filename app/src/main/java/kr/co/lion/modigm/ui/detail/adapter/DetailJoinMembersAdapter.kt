@@ -1,20 +1,14 @@
 package kr.co.lion.modigm.ui.detail.adapter
 
-import android.app.AlertDialog
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,13 +16,12 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
-import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 
 class DetailJoinMembersAdapter(
-    private val viewModel: DetailViewModel,
+    private val viewModel: SqlDetailViewModel,
     private val chatRoomViewModel: ChatRoomViewModel,
     private val currentUserId: String,
     private val studyIdx: Int,
@@ -95,7 +88,7 @@ class DetailJoinMembersAdapter(
                 .create()
 
             dialogBinding.btnYes.setOnClickListener {
-                viewModel.updateStudyUserList(member.userUid, studyIdx)
+//                viewModel.updateStudyUserList(member.userUid, studyIdx)
                 removeItem(position)
                 // 채팅방에 해당 사용자 제거 / chatMemberList 배열에 UID 제거
                 CoroutineScope(Dispatchers.Main).launch {

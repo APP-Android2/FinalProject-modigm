@@ -26,16 +26,17 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
 import kr.co.lion.modigm.db.write.RemoteWriteStudyDao
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.CustomIntroDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import java.io.File
 import kotlin.random.Random
 
-class WriteIntroFragment : Fragment() {
+class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWriteIntroBinding::inflate) {
 
-    lateinit var binding: FragmentWriteIntroBinding
     val viewModel: WriteViewModel by activityViewModels()
     val tabName = "intro"
 
@@ -66,8 +67,6 @@ class WriteIntroFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        binding = FragmentWriteIntroBinding.inflate(inflater, container, false)
 
         // RemoteWriteStudyDao 객체 생성
         remoteWriteStudyDao = RemoteWriteStudyDao()

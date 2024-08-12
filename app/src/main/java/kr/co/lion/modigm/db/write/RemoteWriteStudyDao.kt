@@ -23,6 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.db.HikariCPDataSource
 import java.io.File
 import java.nio.file.Paths
 import java.sql.Connection
@@ -35,53 +36,9 @@ class RemoteWriteStudyDao {
     private val TAG = "RemoteWriteStudyDao"
     private var context: Context? = null
 
-    // Coroutine 예외 처리
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.e(TAG, "Coroutine exception", throwable)
-    }
-
-    // CoroutineScope 설정
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job() + coroutineExceptionHandler)
-
     // Context 설정
     fun setContext(context: Context) {
         this.context = context
-    }
-
-    // HikariDataSource 초기화
-    private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
-        val hikariConfig = HikariConfig().apply {
-            jdbcUrl = BuildConfig.DB_URL
-            username = BuildConfig.DB_USER
-            password = BuildConfig.DB_PASSWORD
-            driverClassName = "com.mysql.jdbc.Driver"
-            maximumPoolSize = 10
-            minimumIdle = 5
-            connectionTimeout = 30000 // 30초
-            idleTimeout = 600000 // 10분
-            maxLifetime = 1800000 // 30분
-            validationTimeout = 5000 // 5초
-            leakDetectionThreshold = 0 // 비활성화
-        }
-        HikariDataSource(hikariConfig)
-    }
-
-    // DataSource 비동기 초기화를 위한 CompletableDeferred
-    private val dataSourceDeferred: CompletableDeferred<HikariDataSource> = CompletableDeferred()
-
-    init {
-        // CoroutineScope에서 DataSource 초기화
-        coroutineScope.launch {
-            dataSourceDeferred.complete(initDataSource())
-        }
-    }
-
-    // Connection 객체를 얻는 함수
-    private suspend fun getConnection(): Connection {
-        val dataSource: HikariDataSource = dataSourceDeferred.await()
-        return withContext(Dispatchers.IO) {
-            dataSource.connection
-        }
     }
 
     // 이미지 업로드 함수 (Amazon S3에 업로드)
@@ -190,7 +147,7 @@ class RemoteWriteStudyDao {
 
             // 데이터베이스에 연결하여 데이터 삽입
             withContext(Dispatchers.IO) {
-                getConnection().use { connection ->
+                HikariCPDataSource.getConnection().use { connection ->
                     preparedStatement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)
                     values.forEachIndexed { index, value ->
                         // 값의 타입에 따라 PreparedStatement 설정
@@ -239,7 +196,7 @@ class RemoteWriteStudyDao {
         var preparedStatement: PreparedStatement? = null
         try {
             withContext(Dispatchers.IO) {
-                getConnection().use { connection ->
+                HikariCPDataSource.getConnection().use { connection ->
                     preparedStatement = connection.prepareStatement(sql)
                     paramsList.forEach { params ->
                         params.forEachIndexed { index, value ->

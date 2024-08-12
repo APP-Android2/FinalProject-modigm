@@ -11,16 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
+import kr.co.lion.modigm.databinding.FragmentDetailBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class DetailApplyMemberFragment : Fragment() {
+class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBinding>(FragmentDetailApplyMemberBinding::inflate) {
 
-    lateinit var binding: FragmentDetailApplyMemberBinding
-    private val viewModel: DetailViewModel by activityViewModels()
+    private val viewModel: SqlDetailViewModel by activityViewModels()
     private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailApplyMembersAdapter
 
@@ -30,11 +31,8 @@ class DetailApplyMemberFragment : Fragment() {
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentDetailApplyMemberBinding.inflate(layoutInflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
         currentUserId = auth.currentUser?.uid ?: ""
@@ -55,27 +53,21 @@ class DetailApplyMemberFragment : Fragment() {
                 .commit()
         }
 
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
 
-        viewModel.applyMembers.observe(viewLifecycleOwner) { members ->
-            Log.d("DetailApplyMemberFragment", "Observed members: $members")
-            if (members.isEmpty()) {
-                binding.recyclerviewDetailApply.visibility = View.GONE
-                binding.blankLayoutDetail.visibility = View.VISIBLE
-            } else {
-                binding.recyclerviewDetailApply.visibility = View.VISIBLE
-                binding.blankLayoutDetail.visibility = View.GONE
-                adapter.submitList(members)
-            }
-        }
+//        viewModel.applyMembers.observe(viewLifecycleOwner) { members ->
+//            Log.d("DetailApplyMemberFragment", "Observed members: $members")
+//            if (members.isEmpty()) {
+//                binding.recyclerviewDetailApply.visibility = View.GONE
+//                binding.blankLayoutDetail.visibility = View.VISIBLE
+//            } else {
+//                binding.recyclerviewDetailApply.visibility = View.VISIBLE
+//                binding.blankLayoutDetail.visibility = View.GONE
+//                adapter.submitList(members)
+//            }
+//        }
 
-        viewModel.loadApplyMembers(studyIdx)
+//        viewModel.loadApplyMembers(studyIdx)
 
     }
 
