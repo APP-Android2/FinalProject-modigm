@@ -12,14 +12,14 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class DetailJoinMemberFragment : Fragment() {
 
     lateinit var binding: FragmentDetailJoinMemberBinding
-    private val viewModel: DetailViewModel by activityViewModels()
+    private val viewModel: SqlDetailViewModel by activityViewModels()
     private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailJoinMembersAdapter
 

@@ -2,7 +2,6 @@ package kr.co.lion.modigm.ui.detail.adapter
 
 import android.content.Context
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -11,19 +10,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowDetailApplyMemberBinding
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 
 class DetailApplyMembersAdapter(
-    private val viewModel: DetailViewModel,
+    private val viewModel: SqlDetailViewModel,
     private val chatRoomViewModel: ChatRoomViewModel,
     private val currentUserId: String,
     private val studyIdx: Int,
@@ -59,31 +54,31 @@ class DetailApplyMembersAdapter(
             // 승인 버튼
             binding.buttonDetailAccept.setOnClickListener {
 
-                viewModel.acceptUser(studyIdx, user.userUid) { success ->
-                    if (success) {
-                        val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
-                        val snackbarView = snackbar.view
-                        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                        val textSizeInPx = dpToPx(itemView.context, 16f)
-                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-                        snackbar.show()
-
-                        // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
-                        CoroutineScope(Dispatchers.Main).launch {
-                            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(studyIdx, user.userUid)
-                            coroutine1.join()
-                        }
-
-                        // 리스트에서 아이템 제거
-                        val position = adapterPosition
-                        if (position != RecyclerView.NO_POSITION) {
-                            removeItem(position)
-                        }
-
-                    } else {
-                        Log.d("Dialog", "Failed to accept user")
-                    }
-                }
+//                viewModel.acceptUser(studyIdx, user.userUid) { success ->
+//                    if (success) {
+//                        val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
+//                        val snackbarView = snackbar.view
+//                        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+//                        val textSizeInPx = dpToPx(itemView.context, 16f)
+//                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+//                        snackbar.show()
+//
+//                        // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(studyIdx, user.userUid)
+//                            coroutine1.join()
+//                        }
+//
+//                        // 리스트에서 아이템 제거
+//                        val position = adapterPosition
+//                        if (position != RecyclerView.NO_POSITION) {
+//                            removeItem(position)
+//                        }
+//
+//                    } else {
+//                        Log.d("Dialog", "Failed to accept user")
+//                    }
+//                }
             }
 
             // Firebase Storage에서 이미지 URL 가져오기
@@ -119,17 +114,17 @@ class DetailApplyMembersAdapter(
             dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
-                viewModel.removeUserFromApplyList(studyIdx, user.userUid) { success ->
-                    if (success) {
-                        Log.d("Dialog", "User removed from apply list")
-                        val position = adapterPosition
-                        if (position != RecyclerView.NO_POSITION) {
-                            removeItem(position)
-                        }
-                    } else {
-                        Log.d("Dialog", "Failed to remove user from apply list")
-                    }
-                }
+//                viewModel.removeUserFromApplyList(studyIdx, user.userUid) { success ->
+//                    if (success) {
+//                        Log.d("Dialog", "User removed from apply list")
+//                        val position = adapterPosition
+//                        if (position != RecyclerView.NO_POSITION) {
+//                            removeItem(position)
+//                        }
+//                    } else {
+//                        Log.d("Dialog", "Failed to remove user from apply list")
+//                    }
+//                }
                 dialog.dismiss()
             }
 
@@ -153,7 +148,7 @@ class DetailApplyMembersAdapter(
 
         // If the list is empty after removing the item, update LiveData
         if (newList.isEmpty()) {
-            viewModel.loadApplyMembers(studyIdx)
+//            viewModel.loadApplyMembers(studyIdx)
         }
     }
 

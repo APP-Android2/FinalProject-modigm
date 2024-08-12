@@ -13,14 +13,14 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class DetailApplyMemberFragment : Fragment() {
 
     lateinit var binding: FragmentDetailApplyMemberBinding
-    private val viewModel: DetailViewModel by activityViewModels()
+    private val viewModel: SqlDetailViewModel by activityViewModels()
     private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailApplyMembersAdapter
 
@@ -63,19 +63,19 @@ class DetailApplyMemberFragment : Fragment() {
 
         setupRecyclerView()
 
-        viewModel.applyMembers.observe(viewLifecycleOwner) { members ->
-            Log.d("DetailApplyMemberFragment", "Observed members: $members")
-            if (members.isEmpty()) {
-                binding.recyclerviewDetailApply.visibility = View.GONE
-                binding.blankLayoutDetail.visibility = View.VISIBLE
-            } else {
-                binding.recyclerviewDetailApply.visibility = View.VISIBLE
-                binding.blankLayoutDetail.visibility = View.GONE
-                adapter.submitList(members)
-            }
-        }
+//        viewModel.applyMembers.observe(viewLifecycleOwner) { members ->
+//            Log.d("DetailApplyMemberFragment", "Observed members: $members")
+//            if (members.isEmpty()) {
+//                binding.recyclerviewDetailApply.visibility = View.GONE
+//                binding.blankLayoutDetail.visibility = View.VISIBLE
+//            } else {
+//                binding.recyclerviewDetailApply.visibility = View.VISIBLE
+//                binding.blankLayoutDetail.visibility = View.GONE
+//                adapter.submitList(members)
+//            }
+//        }
 
-        viewModel.loadApplyMembers(studyIdx)
+//        viewModel.loadApplyMembers(studyIdx)
 
     }
 
