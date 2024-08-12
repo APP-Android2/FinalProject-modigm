@@ -133,7 +133,8 @@ class WriteViewModel : ViewModel() {
 
     // DB에 데이터 저장
     suspend fun saveDataToDB(): Int? {
-        val userIdx = prefs.getString("userIdx", "0")
+        val userIdx = prefs.getInt("currentUserIdx", 0)
+
         return try {
             // 스터디 테이블에 저장
             val studyData = SqlStudyData(
