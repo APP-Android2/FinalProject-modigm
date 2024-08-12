@@ -11,15 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
+import kr.co.lion.modigm.databinding.FragmentDetailBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class DetailApplyMemberFragment : Fragment() {
+class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBinding>(FragmentDetailApplyMemberBinding::inflate) {
 
-    lateinit var binding: FragmentDetailApplyMemberBinding
     private val viewModel: SqlDetailViewModel by activityViewModels()
     private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailApplyMembersAdapter
@@ -34,8 +35,6 @@ class DetailApplyMemberFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDetailApplyMemberBinding.inflate(layoutInflater)
-
         auth = FirebaseAuth.getInstance()
         currentUserId = auth.currentUser?.uid ?: ""
 

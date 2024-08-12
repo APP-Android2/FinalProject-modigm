@@ -23,16 +23,17 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWriteProceedBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.OnPlaceSelectedListener
 import kr.co.lion.modigm.ui.detail.PlaceBottomSheetFragment
 import kr.co.lion.modigm.ui.write.more.BottomSheetWriteProceedFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
-class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
+class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(FragmentWriteProceedBinding::inflate), OnPlaceSelectedListener {
 
-    lateinit var binding: FragmentWriteProceedBinding
     private val viewModel: WriteViewModel by activityViewModels()
     val tabName = "proceed"
 
@@ -47,9 +48,6 @@ class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-
-        binding = FragmentWriteProceedBinding.inflate(inflater, container, false)
 
         return binding.root
     }

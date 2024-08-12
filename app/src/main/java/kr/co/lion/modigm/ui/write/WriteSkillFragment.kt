@@ -15,15 +15,16 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWriteSkillBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.OnSkillSelectedListener
 import kr.co.lion.modigm.ui.detail.SkillBottomSheetFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.Skill
 
-class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
+class WriteSkillFragment : VBBaseFragment<FragmentWriteSkillBinding>(FragmentWriteSkillBinding::inflate), OnSkillSelectedListener {
 
-    private lateinit var binding: FragmentWriteSkillBinding
     private val viewModel: WriteViewModel by activityViewModels()
     private val tabName = "skill"
 
@@ -38,9 +39,6 @@ class WriteSkillFragment : Fragment(), OnSkillSelectedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-
-        binding = FragmentWriteSkillBinding.inflate(inflater, container, false)
 
         return binding.root
     }

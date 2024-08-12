@@ -18,23 +18,20 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
+import kr.co.lion.modigm.databinding.FragmentWriteFieldBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
 
-class WriteFragment : Fragment() {
+class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding::inflate) {
 
-    lateinit var binding: FragmentWriteBinding
     private val viewModel: WriteViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        binding = FragmentWriteBinding.inflate(inflater, container, false)
-
-
         return binding.root
     }
 
