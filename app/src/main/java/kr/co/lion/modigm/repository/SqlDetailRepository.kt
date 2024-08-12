@@ -41,6 +41,16 @@ class SqlDetailRepository {
         return sqlRemoteDetailDataSource.updateStudyState(studyIdx, newState)
     }
 
+    // 스터디 데이터를 업데이트하는 메소드
+    suspend fun updateStudy(studyData: SqlStudyData): Boolean {
+        return sqlRemoteDetailDataSource.updateStudy(studyData)
+    }
+
+    // 스킬 데이터를 삽입하는 메서드 추가
+    suspend fun insertSkills(studyIdx: Int, skills: List<Int>) {
+        sqlRemoteDetailDataSource.insertSkills(studyIdx, skills)
+    }
+
     // 리소스를 해제하는 메서드 추가
     suspend fun close() {
         sqlRemoteDetailDataSource.close()
