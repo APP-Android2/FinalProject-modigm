@@ -146,12 +146,4 @@ class SqlDetailViewModel: ViewModel() {
         _updateResult.value = null
     }
 
-
-    // ViewModel이 파괴될 때 호출되는 메서드
-    override fun onCleared() {
-        super.onCleared()
-        viewModelScope.launch {
-            sqlDetailRepository.close()
-        }
-    }
 }
