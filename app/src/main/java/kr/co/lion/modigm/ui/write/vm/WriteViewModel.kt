@@ -124,10 +124,13 @@ class WriteViewModel : ViewModel() {
 
     // 진행방식, 장소, 최대 정원의 유효성 검사
     fun validateProceedInput() {
-        val onOfflineValue = studyOnOffline.value ?: 0
-        val isValid = (onOfflineValue != 0) &&
-                ((studyMaxMember.value ?: 0) in 1..30) &&
-                (onOfflineValue == 1 || studyPlace.value?.isNotEmpty() == true) // 온라인이 아닌 경우 장소 유효성 검사
+        val onOfflineValue = studyOnOffline.value ?: ""
+        val isValid = when (onOfflineValue) {
+            "온라인" -> (studyMaxMember.value ?: 0) in 1..30 // "온라인"인 경우 장소 유효성 검사 생략
+            else -> {
+                (studyMaxMember.value ?: 0) in 1..30 && studyPlace.value?.isNotEmpty() == true
+            }
+        }
         validateProceed(isValid)
     }
 
