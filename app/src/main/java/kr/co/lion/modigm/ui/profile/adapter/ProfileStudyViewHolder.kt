@@ -1,15 +1,19 @@
 package kr.co.lion.modigm.ui.profile.adapter
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.util.Log
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomViewTarget
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowProfileStudyBinding
 import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.repository.StudyRepository
 
 class ProfileStudyViewHolder(
     private val context: Context,
@@ -19,28 +23,26 @@ class ProfileStudyViewHolder(
     // 구성요소 세팅
     fun bind(data: SqlStudyData, rowClickListener: (Int) -> Unit) {
         rowProfileStudyBinding.apply {
-            CoroutineScope(Dispatchers.Main).launch {
-                // 데이터베이스로부터 썸네일을 불러온다
-                // studyRepository.loadStudyThumbnail(context, data.studyPic, imageRowHostStudy)
-                // 스터디 제목
-                textViewRowHostStudyTitle.text = data.studyTitle
-                // 스터디 분류 아이콘
-                when (data.studyType) {
-                    "스터디" -> imageCategory.setImageResource(R.drawable.icon_closed_book_24px)
-                    "프로젝트" -> imageCategory.setImageResource(R.drawable.icon_code_box_24px)
-                    "공모전" -> imageCategory.setImageResource(R.drawable.icon_trophy_24px)
-                    else -> imageCategory.setImageResource(R.drawable.icon_closed_book_24px)
-                }
-                // 스터디 분류
-                textViewRowHostStudyCategory.text = data.studyType
-                // 스터디 진행 방식
-                textViewRowHostStudyLocation.text = data.studyOnOffline
-                // 모집 중 / 모집 완료
-                if (data.studyState) {
-                    textViewRowHostStudyMember.text = "모집중"
-                } else {
-                    textViewRowHostStudyMember.text = "모집완료"
-                }
+            // 썸네일
+            setStudyImage(data)
+            // 스터디 제목
+            textViewRowHostStudyTitle.text = data.studyTitle
+            // 스터디 분류 아이콘
+            when (data.studyType) {
+                "스터디" -> imageCategory.setImageResource(R.drawable.icon_closed_book_24px)
+                "프로젝트" -> imageCategory.setImageResource(R.drawable.icon_code_box_24px)
+                "공모전" -> imageCategory.setImageResource(R.drawable.icon_trophy_24px)
+                else -> imageCategory.setImageResource(R.drawable.icon_closed_book_24px)
+            }
+            // 스터디 분류
+            textViewRowHostStudyCategory.text = data.studyType
+            // 스터디 진행 방식
+            textViewRowHostStudyLocation.text = data.studyOnOffline
+            // 모집 중 / 모집 완료
+            if (data.studyState) {
+                textViewRowHostStudyMember.text = "모집중"
+            } else {
+                textViewRowHostStudyMember.text = "모집완료"
             }
 
             // 항목에 대한 설정
@@ -56,6 +58,60 @@ class ProfileStudyViewHolder(
                     rowClickListener.invoke(data.studyIdx)
                 }
             }
+        }
+    }
+
+    // 스터디 이미지 설정
+    private fun setStudyImage(data: SqlStudyData) {
+        Log.d("ProfileStudyViewHolder", "setStudyImage called with: ${data.studyPic}")
+
+        rowProfileStudyBinding.apply {
+            // 프로그래스바를 활성화하고 보이도록 설정
+            progressBarProfileStudyPic.visibility = View.VISIBLE
+            imageRowHostStudy.visibility = View.INVISIBLE
+
+            Log.d("ProfileStudyViewHolder", "1")
+
+            val requestOptions = RequestOptions()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
+                .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
+
+            Log.d("ProfileStudyViewHolder", "2")
+
+
+            Glide.with(itemView.context)
+                .load(data.studyPic)
+                .apply(requestOptions)
+                .into(object : CustomViewTarget<ImageView, Drawable>(imageRowHostStudy) {
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        // 로딩 실패 시
+                        Log.d("ProfileStudyViewHolder", "Glide onLoadFailed called with: ${data.studyPic}")
+//                        progressBarProfileStudyPic.visibility = View.GONE
+//                        imageRowHostStudy.visibility = View.VISIBLE
+                        imageRowHostStudy.setImageDrawable(errorDrawable)
+                    }
+
+                    override fun onResourceCleared(placeholder: Drawable?) {
+                        // 리소스가 클리어 될 때
+                        Log.d("ProfileStudyViewHolder", "Glide onResourceCleared called")
+                    }
+
+                    override fun onResourceReady(
+                        resource: Drawable,
+                        transition: com.bumptech.glide.request.transition.Transition<in Drawable>?
+                    ) {
+                        // 로딩 성공 시
+                        Log.d("ProfileStudyViewHolder", "Glide onResourceReady called with: ${data.studyPic}")
+                        progressBarProfileStudyPic.visibility = View.GONE
+                        imageRowHostStudy.visibility = View.VISIBLE
+                        imageRowHostStudy.setImageDrawable(resource)
+                    }
+                })
+
+            Log.d("ProfileStudyViewHolder", "3")
+
         }
     }
 }

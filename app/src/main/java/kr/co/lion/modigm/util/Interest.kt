@@ -7,7 +7,7 @@ enum class Interest(var str: String, var num: Int) {
     BACK_END("백엔드", 4),
     IOS("iOS", 5),
     AOS("Android", 6),
-    C_C_PLUS_PLUS("C, C++", 7),
+    C_C_PLUS_PLUS("C/C++", 7),
     PYTHON("Python", 8),
     HARDWARE("하드웨어", 9),
     MACHINE_LEARNING("머신러닝", 10),

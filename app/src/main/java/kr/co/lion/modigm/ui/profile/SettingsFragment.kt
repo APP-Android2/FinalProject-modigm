@@ -13,19 +13,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
-class SettingsFragment(private val profileFragment: ProfileFragment) : Fragment() {
-    lateinit var fragmentSettingsBinding: FragmentSettingsBinding
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentSettingsBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
-
-        return fragmentSettingsBinding.root
-    }
+class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,22 +42,20 @@ class SettingsFragment(private val profileFragment: ProfileFragment) : Fragment(
     }
 
     private fun setupToolbar() {
-        fragmentSettingsBinding.apply {
-            toolbarSettings.apply {
-                // title
-                title = "설정"
+        binding.toolbarSettings.apply {
+            // title
+            title = "설정"
 
-                // 뒤로 가기
-                setNavigationIcon(R.drawable.icon_arrow_back_24px)
-                setNavigationOnClickListener {
-                    requireActivity().supportFragmentManager.popBackStack()
-                }
+            // 뒤로 가기
+            setNavigationIcon(R.drawable.icon_arrow_back_24px)
+            setNavigationOnClickListener {
+                requireActivity().supportFragmentManager.popBackStack()
             }
         }
     }
 
     private fun setupButtons() {
-        fragmentSettingsBinding.apply {
+        binding.apply {
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
                 parentFragmentManager.beginTransaction()

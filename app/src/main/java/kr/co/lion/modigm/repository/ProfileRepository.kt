@@ -1,5 +1,7 @@
 package kr.co.lion.modigm.repository
 
+import android.content.Context
+import android.net.Uri
 import kr.co.lion.modigm.db.profile.RemoteProfileDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
@@ -31,4 +33,7 @@ class ProfileRepository {
 
     // 사용자 링크 목록 업데이트
     suspend fun updateUserLinkData(userIdx: Int, linkList: List<String>) = _remoteUserDataSource.updateUserLinkData(userIdx, linkList)
+
+    // 프로필 사진을 Amazon S3에 업로드
+    suspend fun uploadProfilePic(uri: Uri, context: Context): String = _remoteUserDataSource.uploadProfilePic(uri, context)
 }

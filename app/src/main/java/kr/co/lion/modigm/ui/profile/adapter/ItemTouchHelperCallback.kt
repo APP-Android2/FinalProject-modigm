@@ -1,5 +1,11 @@
 package kr.co.lion.modigm.ui.profile.adapter
 
+import android.content.Context
+import android.graphics.Color
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
@@ -15,6 +21,32 @@ class ItemTouchHelperCallback(val listener: ItemTouchHelperListener) : ItemTouch
         // 드래그 & 드랍의 기능만 수행할 것이면 makeMovementFlags(dragFlags, 0)를 반환
         // 스와이프 기능만 수행할 것이면 swipe(0, swipeFlags)를 반환
         return makeMovementFlags(dragFlags, 0)
+    }
+
+    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+        super.onSelectedChanged(viewHolder, actionState)
+
+        if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+            // 아이템이 꾹 눌려 드래그 상태가 되었을 때 실행될 코드
+            // 햅틱 피드백
+            val context = viewHolder?.itemView?.context
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager = context?.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorManager.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    vibrator.vibrate(50)
+                }
+
+            // 배경색을 변경
+            viewHolder.itemView.setBackgroundColor(Color.LTGRAY)
+        }
     }
 
     // 드래그된 item을 이전 위치에서 새로운 위치로 옮길 때 호출

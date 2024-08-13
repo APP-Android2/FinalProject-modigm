@@ -1,5 +1,7 @@
 package kr.co.lion.modigm.ui.profile.vm
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,13 +10,18 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
 
-    // 프로필 사진
-    private val _editProfilePic = MutableLiveData<String>()
-    val editProfilePic: MutableLiveData<String> = _editProfilePic
+    // 프로필 사진 Uri
+    private val _editProfilePicUri = MutableLiveData<Uri>()
+    val editProfilePicUri: MutableLiveData<Uri> = _editProfilePicUri
+
+    // 프로필 사진 Url
+    private val _editProfilePicUrl = MutableLiveData<String>()
+    val editProfilePicUrl: MutableLiveData<String> = _editProfilePicUrl
 
     // 사용자 이름
     private val _editProfileName = MutableLiveData<String>()
@@ -53,13 +60,13 @@ class EditProfileViewModel: ViewModel() {
 
     // 유저 기본 정보를 불러온다.
     fun loadUserData() = viewModelScope.launch {
-        val userIdx = 9689//ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        val userIdx = prefs.getInt("currentUserIdx")
 
         try {
             val response = profileRepository.loadUserData(userIdx)
 
             // 프로필 사진
-            _editProfilePic.value = response?.userProfilePic
+            _editProfilePicUrl.value = response?.userProfilePic
             // 사용자 이름
             _editProfileName.value = response?.userName
             // 이메일
@@ -79,7 +86,7 @@ class EditProfileViewModel: ViewModel() {
 
     // 유저의 자기소개 링크를 불러온다.
     fun loadUserLinkData() = viewModelScope.launch {
-        val userIdx = 9689//ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        val userIdx = prefs.getInt("currentUserIdx")
 
         try {
             _editProfileLinkList.value = profileRepository.loadUserLinkData(userIdx)
@@ -101,11 +108,15 @@ class EditProfileViewModel: ViewModel() {
         _editProfileLinkList.value = _editProfileLinkList.value?.filter { it != link }
     }
 
-    fun updateUserData(profileFragment: ProfileFragment) = viewModelScope.launch {
+    fun updateUserData(profileFragment: ProfileFragment, picChanged: Boolean, context: Context) = viewModelScope.launch {
+        if (picChanged) {
+            _editProfilePicUrl.value = profileRepository.uploadProfilePic(_editProfilePicUri.value!!, context)
+        }
+
         // 데이터를 객체에 담는다
         val user = SqlUserData(
-            userIdx = 9689,//ModigmApplication.prefs.getInt("currentUserData"),
-            userProfilePic = _editProfilePic.value!!,
+            userIdx = prefs.getInt("currentUserIdx"),
+            userProfilePic = _editProfilePicUrl.value!!,
             userIntro = _editProfileIntro.value!!,
             userInterests = _editProfileInterests.value!!
         )
@@ -118,7 +129,7 @@ class EditProfileViewModel: ViewModel() {
     }
 
     fun updateUserLinkData(profileFragment: ProfileFragment) = viewModelScope.launch {
-        val userIdx = 9689//ModigmApplication.prefs.getUserData("currentUserData")?.userIdx
+        val userIdx = prefs.getInt("currentUserIdx")
 
         // 데이터베이스 업데이트
         profileRepository.updateUserLinkData(userIdx, _editProfileLinkList.value!!)
