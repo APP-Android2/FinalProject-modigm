@@ -28,14 +28,15 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
+import kr.co.lion.modigm.databinding.FragmentProfileBinding
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.profile.adapter.ItemTouchHelperCallback
 import kr.co.lion.modigm.ui.profile.adapter.LinkAddAdapter
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Picture
 
-class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragment() {
-    lateinit var fragmentEditProfileBinding: FragmentEditProfileBinding
+class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseFragment<FragmentEditProfileBinding>(R.layout.fragment_edit_profile) {
     private val editProfileViewModel: EditProfileViewModel by activityViewModels()
 
     // 어댑터 선언
@@ -53,11 +54,10 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentEditProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_profile, container, false)
-        fragmentEditProfileBinding.editProfileViewModel = editProfileViewModel
-        fragmentEditProfileBinding.lifecycleOwner = this
+        binding.editProfileViewModel = editProfileViewModel
+        binding.lifecycleOwner = this
 
-        return fragmentEditProfileBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,7 +80,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     }
 
     private fun setupToolbar() {
-        fragmentEditProfileBinding.toolbarEditProfile.apply {
+        binding.toolbarEditProfile.apply {
             setNavigationOnClickListener {
                 requireActivity().supportFragmentManager.popBackStack()
             }
@@ -94,13 +94,13 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     }
 
     private fun setupButtonChangePic() {
-        fragmentEditProfileBinding.imageEditProfileChangePic.setOnClickListener {
+        binding.imageEditProfileChangePic.setOnClickListener {
             startAlbumLauncher()
         }
     }
 
     private fun setupButtonChangePhone() {
-        fragmentEditProfileBinding.buttonEditProfilePhone.setOnClickListener {
+        binding.buttonEditProfilePhone.setOnClickListener {
             // Fragment 교체
             requireActivity().supportFragmentManager.commit {
                 add(R.id.containerMain, ChangePhoneFragment())
@@ -119,19 +119,17 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
         // ItemTouchHelper의 생성자로 ItemTouchHelper.Callback 객체 셋팅
         val helper = ItemTouchHelper(itemTouchHelperCallback)
 
-        fragmentEditProfileBinding.apply {
-            recyclerViewEditProfileLink.apply {
-                adapter = linkAddAdapter
-                layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerViewEditProfileLink.apply {
+            adapter = linkAddAdapter
+            layoutManager = LinearLayoutManager(requireContext())
 
-                // RecyclerView에 ItemTouchHelper 연결
-                helper.attachToRecyclerView(this)
-            }
+            // RecyclerView에 ItemTouchHelper 연결
+            helper.attachToRecyclerView(this)
         }
     }
 
     private fun setupButtonLinkAdd() {
-        fragmentEditProfileBinding.buttonEditProfileLink.setOnClickListener {
+        binding.buttonEditProfileLink.setOnClickListener {
             // 리스트에 링크 추가
             editProfileViewModel.addLinkToList()
             // 링크 텍스트필드 비우기
@@ -140,13 +138,13 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
     }
 
     private fun setupButtonDone() {
-        fragmentEditProfileBinding.buttonEditProfileDone.setOnClickListener {
+        binding.buttonEditProfileDone.setOnClickListener {
             // 데이터베이스 업데이트
             editProfileViewModel.updateUserData(profileFragment, picChanged, requireContext())
             editProfileViewModel.updateUserLinkData(profileFragment)
 
             // 스낵바 띄우기
-            val snackbar = Snackbar.make(fragmentEditProfileBinding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
+            val snackbar = Snackbar.make(binding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
             snackbar.show()
 
             // 이전 프래그먼트로 돌아간다
@@ -194,7 +192,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                     // 크기를 줄인 이미지를 가져온다.
                     val bitmap3 = Picture.resizeBitmap(bitmap2, 1024)
 
-                    fragmentEditProfileBinding.imageProfilePic.setImageBitmap(bitmap3)
+                    binding.imageProfilePic.setImageBitmap(bitmap3)
                     editProfileViewModel.editProfilePicUri.value = newImageUri
                     picChanged = true
                 }
@@ -228,10 +226,10 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                 Glide.with(requireContext())
                     .load(image)
                     .apply(requestOptions)
-                    .into(object : CustomViewTarget<ImageView, Drawable>(fragmentEditProfileBinding.imageProfilePic) {
+                    .into(object : CustomViewTarget<ImageView, Drawable>(binding.imageProfilePic) {
                         override fun onLoadFailed(errorDrawable: Drawable?) {
                             // 로딩 실패 시 기본 이미지를 보여줌
-                            fragmentEditProfileBinding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                            binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
                         }
 
                         override fun onResourceCleared(placeholder: Drawable?) {
@@ -240,38 +238,38 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
 
                         override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
                             // 로딩 성공 시
-                            fragmentEditProfileBinding.imageProfilePic.setImageDrawable(resource)
+                            binding.imageProfilePic.setImageDrawable(resource)
                         }
                     })
             } else {
                 // Handle the case where the image string is null (e.g., show a default image)
-                fragmentEditProfileBinding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
             }
         }
 
         // 로그인 방식
         editProfileViewModel.editProfileProvider.observe(viewLifecycleOwner) { provider ->
             when (provider) {
-                "kakao" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "카카오로 로그인된 계정입니다."
-                "github" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "깃허브로 로그인된 계정입니다."
-                "email" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
-                "naver" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "네이버로 로그인된 계정입니다."
-                "google" -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "구글로 로그인된 계정입니다."
-                else -> fragmentEditProfileBinding.textFieldEditProfileEmail.helperText = "로그인 정보를 불러올 수 없습니다."
+                "kakao" -> binding.textFieldEditProfileEmail.helperText = "카카오로 로그인된 계정입니다."
+                "github" -> binding.textFieldEditProfileEmail.helperText = "깃허브로 로그인된 계정입니다."
+                "email" -> binding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
+                "naver" -> binding.textFieldEditProfileEmail.helperText = "네이버로 로그인된 계정입니다."
+                "google" -> binding.textFieldEditProfileEmail.helperText = "구글로 로그인된 계정입니다."
+                else -> binding.textFieldEditProfileEmail.helperText = "로그인 정보를 불러올 수 없습니다."
             }
         }
 
         // 관심 분야 chipGroup
         editProfileViewModel.editProfileInterests.observe(viewLifecycleOwner) { interests ->
             // 기존 칩들 제거
-            fragmentEditProfileBinding.chipGroupProfile.removeAllViews()
+            binding.chipGroupProfile.removeAllViews()
 
             val interestList = interests.split(",").map { it.trim() }
 
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
             for (interest in interestList) {
                 // 아이템 처리 코드
-                fragmentEditProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+                binding.chipGroupProfile.addView(Chip(context).apply {
                     text = interest
                     setTextAppearance(R.style.ChipTextStyle)
                     // 자동 padding 없애기
@@ -284,10 +282,10 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                     isCloseIconVisible = true
                     // X버튼 누르면 chip 없어지게 하기
                     setOnCloseIconClickListener {
-                        fragmentEditProfileBinding.chipGroupProfile.removeView(this)
+                        binding.chipGroupProfile.removeView(this)
 
                         // 선택된 칩들 텍스트를 콤마로 연결한 문자열 생성
-                        val remainingChips = fragmentEditProfileBinding.chipGroupProfile.children
+                        val remainingChips = binding.chipGroupProfile.children
                             .filterIsInstance<Chip>()
                             .map { it.text.toString() }
                             .filter { it != "+" } // '+' 버튼 제외
@@ -299,7 +297,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment) : Fragme
                 })
             }
             // 마지막 칩은 칩을 추가하는 버튼으로 사용
-            fragmentEditProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+            binding.chipGroupProfile.addView(Chip(context).apply {
                 // chip 텍스트 설정
                 text = "+"
 
