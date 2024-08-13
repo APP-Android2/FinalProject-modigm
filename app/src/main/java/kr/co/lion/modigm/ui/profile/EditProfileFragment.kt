@@ -54,6 +54,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
     )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
         binding.editProfileViewModel = editProfileViewModel
         binding.lifecycleOwner = this
 
