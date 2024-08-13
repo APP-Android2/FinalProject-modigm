@@ -13,37 +13,31 @@ import androidx.fragment.app.commit
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileWebBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.util.FragmentName
 
 
-class ProfileWebFragment : Fragment() {
-    lateinit var fragmentProfileWebBinding: FragmentProfileWebBinding
-    lateinit var mainActivity: MainActivity
+class ProfileWebFragment : VBBaseFragment<FragmentProfileWebBinding>(FragmentProfileWebBinding::inflate) {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentProfileWebBinding = FragmentProfileWebBinding.inflate(inflater,container,false)
-        mainActivity = activity as MainActivity
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initToolbar()
         initWebView()
-
-        return fragmentProfileWebBinding.root
     }
 
     private fun initToolbar() {
-        fragmentProfileWebBinding.apply {
-            toolbarProfileWeb.apply {
-                // 툴바 메뉴
-                inflateMenu(R.menu.menu_profile_web)
-                setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        R.id.menu_item_profile_web_finish -> {
-                            // 이전 프래그먼트로 돌아간다
-                            requireActivity().supportFragmentManager.popBackStack()
-                        }
+        binding.toolbarProfileWeb.apply {
+            // 툴바 메뉴
+            inflateMenu(R.menu.menu_profile_web)
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.menu_item_profile_web_finish -> {
+                        // 이전 프래그먼트로 돌아간다
+                        requireActivity().supportFragmentManager.popBackStack()
                     }
-                    true
                 }
+                true
             }
         }
     }
@@ -51,7 +45,7 @@ class ProfileWebFragment : Fragment() {
     fun initWebView() {
         val link = arguments?.getString("link")
 
-        val webView = fragmentProfileWebBinding.profileWebView // FragmentProfileWebBinding을 통해 webView에 접근
+        val webView = binding.profileWebView // FragmentProfileWebBinding을 통해 webView에 접근
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val url = request.url.toString()
