@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.ui.profile.ProfileFragment
-import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
@@ -60,7 +60,7 @@ class EditProfileViewModel: ViewModel() {
 
     // 유저 기본 정보를 불러온다.
     fun loadUserData() = viewModelScope.launch {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
+        val userIdx = prefs.getInt("currentUserIdx")
 
         try {
             val response = profileRepository.loadUserData(userIdx)
@@ -86,7 +86,7 @@ class EditProfileViewModel: ViewModel() {
 
     // 유저의 자기소개 링크를 불러온다.
     fun loadUserLinkData() = viewModelScope.launch {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
+        val userIdx = prefs.getInt("currentUserIdx")
 
         try {
             _editProfileLinkList.value = profileRepository.loadUserLinkData(userIdx)
@@ -115,7 +115,7 @@ class EditProfileViewModel: ViewModel() {
 
         // 데이터를 객체에 담는다
         val user = SqlUserData(
-            userIdx = ModigmApplication.prefs.getInt("currentUserIdx"),
+            userIdx = prefs.getInt("currentUserIdx"),
             userProfilePic = _editProfilePicUrl.value!!,
             userIntro = _editProfileIntro.value!!,
             userInterests = _editProfileInterests.value!!
@@ -129,7 +129,7 @@ class EditProfileViewModel: ViewModel() {
     }
 
     fun updateUserLinkData(profileFragment: ProfileFragment) = viewModelScope.launch {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
+        val userIdx = prefs.getInt("currentUserIdx")
 
         // 데이터베이스 업데이트
         profileRepository.updateUserLinkData(userIdx, _editProfileLinkList.value!!)
