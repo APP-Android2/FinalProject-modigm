@@ -205,18 +205,6 @@ class LoginViewModel : ViewModel() {
     }
 
     /**
-     * 로그아웃
-     */
-    fun authLogout() {
-        val result = loginRepository.authLogout()
-        result.onSuccess {
-            Log.d(tag, "로그아웃 성공.")
-        }.onFailure { e ->
-            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
-        }
-    }
-
-    /**
      * 뷰모델 데이터를 초기화하는 함수
      */
     fun clearData() {

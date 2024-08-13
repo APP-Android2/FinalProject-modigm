@@ -372,14 +372,14 @@ class RemoteLoginDataSource {
      * @param newPassword 새로운 비밀번호
      * @return Result<Boolean> 비밀번호 변경 성공 여부를 반환
      */
-    fun updatePassword(newPassword: String): Result<Boolean> {
+    suspend fun updatePassword(newPassword: String): Result<Boolean> {
         return runCatching {
             val user = auth.currentUser ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
-            user.updatePassword(newPassword).addOnSuccessListener {
-                Log.d(tag, "비밀번호 변경 성공")
-                auth.signOut()
-                Log.d(tag, "로그아웃 성공")
-            }
+
+            // 비밀번호 변경
+            user.updatePassword(newPassword).await()
+            Log.d(tag, "비밀번호 변경 성공")
+
             true
         }.onFailure { e ->
             Log.e(tag, "비밀번호 변경 중 오류 발생", e)
@@ -394,10 +394,13 @@ class RemoteLoginDataSource {
      */
     suspend fun checkPassword(password: String): Result<String> {
         return runCatching {
+            // 현재 로그인한 사용자 가져오기
             val currentUser = auth.currentUser ?: throw IllegalStateException("로그인한 사용자가 없습니다.")
+            // 비밀번호 재인증
             val credential = currentUser.email?.let { EmailAuthProvider.getCredential(it, password) } ?: throw IllegalStateException("로그인한 사용자가 없습니다.")
             currentUser.reauthenticate(credential).await()
             Log.d(tag, "재인증 성공")
+            // 현재 로그인한 사용자의 전화번호 가져오기
             currentUser.phoneNumber ?: throw IllegalStateException("로그인한 사용자의 전화번호가 없습니다.")
         }.onFailure { e ->
             Log.e(tag, "재인증 중 오류 발생", e)
@@ -408,11 +411,14 @@ class RemoteLoginDataSource {
     // 카카오 재인증
     suspend fun reAuthenticateWithKakao(context: Activity): Result<String> {
         return runCatching {
+            // 카카오 재인증 토큰 획득
             val token = if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
                 loginWithKakaoTalk(context)
             } else {
                 loginWithKakaoAccount(context)
             }
+
+            // 획득한 토큰으로 재인증
             handleKakaoReAuthentication(token).getOrThrow()
             val user = auth.currentUser ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             user.phoneNumber ?: throw IllegalStateException("로그인한 사용자의 전화번호가 없습니다.")
@@ -425,8 +431,11 @@ class RemoteLoginDataSource {
     private suspend fun handleKakaoReAuthentication(token: OAuthToken?): Result<Boolean> {
         return runCatching {
             if (token != null) {
+                // 카카오 커스텀 토큰 획득
                 val customToken = getKakaoCustomToken(token.accessToken).getOrThrow()
+                // 카카오 재인증
                 val authResult = auth.signInWithCustomToken(customToken).await()
+                // 로그인한 사용자 가져오기
                 authResult.user ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
                 Log.d(tag, "카카오 재인증 성공.")
                 true
@@ -446,10 +455,12 @@ class RemoteLoginDataSource {
      */
     suspend fun reAuthenticateWithGithub(context: Activity): Result<String> {
         return runCatching {
+            // 깃허브 제공자 생성
             val provider = OAuthProvider.newBuilder("github.com")
-            val result = auth.currentUser?.startActivityForReauthenticateWithProvider(context, provider.build())?.await()
-            result?.user ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
+            // 깃허브 재인증
+            auth.currentUser?.startActivityForReauthenticateWithProvider(context, provider.build())?.await()
             Log.d(tag, "깃허브 재인증 성공.")
+            // 현재 로그인한 사용자의 전화번호 가져오기
             val user = auth.currentUser ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             user.phoneNumber ?: throw IllegalStateException("로그인한 사용자의 전화번호가 없습니다.")
         }.onFailure { e ->
@@ -460,27 +471,42 @@ class RemoteLoginDataSource {
 
     /**
      * 유저 전화번호 변경
+     * @param userIdx 사용자 인덱스
+     * @param currentUserPhone 현재 전화번호
+     * @param newUserPhone 새로운 전화번호
      * @param verificationId 인증 ID
      * @param authCode 사용자 입력 인증 코드
+     * @return Result<Boolean> 전화번호 변경 성공 여부를 반환
      */
-    suspend fun updatePhone(userIdx: Int, currentUserPhone:String, newUserPhone: String, verificationId: String, authCode: String): Result<Boolean> {
+    suspend fun updatePhone(
+        userIdx: Int,
+        currentUserPhone: String,
+        newUserPhone: String,
+        verificationId: String,
+        authCode: String
+    ): Result<Boolean> {
         return runCatching {
             // 로그인한 사용자 가져오기
             val user = auth.currentUser ?: throw IllegalStateException("로그인한 사용자가 없습니다.")
+
             // 인증번호 확인
             val phoneCredential = PhoneAuthProvider.getCredential(verificationId, authCode)
+
             // 전화번호 변경
             user.updatePhoneNumber(phoneCredential).await()
+            Log.d(tag, "전화번호 변경 성공")
+
             // 전화번호 변경 성공 시 데이터베이스 전화번호 업데이트
             dao.updatePhoneByUserIdx(userIdx, newUserPhone).getOrThrow()
             true
         }.onFailure { e ->
-            // 전화번호 변경 실패 시 원래 전화번호로 변경
+            // 전화번호 변경 실패 시 원래 전화번호로 복구
             dao.updatePhoneByUserIdx(userIdx, currentUserPhone)
             Log.e(tag, "전화번호 변경 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
     }
+
 
     /**
      * 로그아웃
