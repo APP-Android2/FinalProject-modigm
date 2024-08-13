@@ -23,16 +23,17 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWriteProceedBinding
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.OnPlaceSelectedListener
 import kr.co.lion.modigm.ui.detail.PlaceBottomSheetFragment
 import kr.co.lion.modigm.ui.write.more.BottomSheetWriteProceedFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
-class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
+class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(FragmentWriteProceedBinding::inflate), OnPlaceSelectedListener {
 
-    lateinit var binding: FragmentWriteProceedBinding
     private val viewModel: WriteViewModel by activityViewModels()
     val tabName = "proceed"
 
@@ -47,9 +48,6 @@ class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-
-        binding = FragmentWriteProceedBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -130,9 +128,10 @@ class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
                 updateChipStyles(binding.chipGroupWriteType, view.id)
 
                 onOffline = view.tag as Int
-                viewModel.studyOnOffline.value = onOffline.toString()
+//                viewModel.studyOnOffline.value = onOffline.toString()
+                viewModel.studyOnOffline.value = if (onOffline == 1) "온라인" else "오프라인" // "온라인"이나 "오프라인"으로 설정
 
-                if (onOffline == 2) { // "온라인"이 선택된 경우
+                if (onOffline == 1) { // "온라인"이 선택된 경우
                     val locationText = ""
                     binding.textFieldWriteProceedLocation.setText(locationText)
                     viewModel.studyPlace.value = locationText
@@ -313,16 +312,17 @@ class WriteProceedFragment : Fragment(), OnPlaceSelectedListener {
 
     fun validateAnswer() {
         viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
-            if (onOffline == null) {
-                Toast.makeText(requireContext(), "진행방식을 입력해주세요", Toast.LENGTH_SHORT).show()
+            if (onOffline == "온라인") {
+                binding.textFieldWriteProceedLocation.error = null // "온라인"일 경우 장소 오류를 초기화
+                return@observe
             }
-        }
 
-        viewModel.studyPlace.observe(viewLifecycleOwner) { place ->
-            if (onOffline != 1 && place.isEmpty()) { // "온라인"이 아닌 경우에만 장소 유효성 검사
-                binding.textFieldWriteProceedLocation.error = "스터디 할 장소를 입력해주세요"
-            } else {
-                binding.textFieldWriteProceedLocation.error = null
+            viewModel.studyPlace.observe(viewLifecycleOwner) { place ->
+                if (onOffline != "온라인" && place.isEmpty()) {
+                    binding.textFieldWriteProceedLocation.error = "스터디 할 장소를 입력해주세요"
+                } else {
+                    binding.textFieldWriteProceedLocation.error = null
+                }
             }
         }
 

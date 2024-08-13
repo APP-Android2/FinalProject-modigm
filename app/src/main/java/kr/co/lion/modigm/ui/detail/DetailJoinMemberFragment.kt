@@ -9,17 +9,18 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 
-class DetailJoinMemberFragment : Fragment() {
+class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>(FragmentDetailJoinMemberBinding::inflate) {
 
-    lateinit var binding: FragmentDetailJoinMemberBinding
-    private val viewModel: DetailViewModel by activityViewModels()
+    private val viewModel: SqlDetailViewModel by activityViewModels()
     private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailJoinMembersAdapter
 
@@ -29,11 +30,8 @@ class DetailJoinMemberFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var currentUserId: String
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentDetailJoinMemberBinding.inflate(layoutInflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
         currentUserId = auth.currentUser?.uid ?: ""
@@ -53,12 +51,6 @@ class DetailJoinMemberFragment : Fragment() {
                 .addToBackStack(FragmentName.PROFILE.str)
                 .commit()
         }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
 

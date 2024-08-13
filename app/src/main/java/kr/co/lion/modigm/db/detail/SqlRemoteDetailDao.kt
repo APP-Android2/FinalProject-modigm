@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.*
 import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import java.sql.Connection
@@ -14,49 +15,11 @@ import java.sql.ResultSet
 class SqlRemoteDetailDao {
     private val TAG = "SqlRemoteDetailDao"
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.e(TAG, "Coroutine exception", throwable)
-    }
-
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job() + coroutineExceptionHandler)
-    private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
-        val hikariConfig: HikariConfig = HikariConfig().apply {
-            jdbcUrl = BuildConfig.DB_URL
-            username = BuildConfig.DB_USER
-            password = BuildConfig.DB_PASSWORD
-            driverClassName = "com.mysql.jdbc.Driver"
-            maximumPoolSize = 10
-            minimumIdle = 10
-            connectionTimeout = 30000 // 30초
-            idleTimeout = 600000 // 10분
-            maxLifetime = 1800000 // 30분
-            validationTimeout = 5000 // 5초
-            leakDetectionThreshold = 0 // 비활성화
-        }
-        HikariDataSource(hikariConfig)
-    }
-
-    private val dataSourceDeferred: CompletableDeferred<HikariDataSource> = CompletableDeferred()
-
-    init {
-        coroutineScope.launch {
-            dataSourceDeferred.complete(initDataSource())
-        }
-    }
-
-    // 데이터베이스 연결을 생성하는 메소드
-    private suspend fun getConnection(): Connection {
-        val dataSource: HikariDataSource = dataSourceDeferred.await()
-        return withContext(Dispatchers.IO) {
-            dataSource.connection
-        }
-    }
-
     // 쿼리를 실행하고 결과를 처리하는 공통 메소드
     suspend fun <T> executeQuery(query: String, vararg params: Any, block: (ResultSet) -> T?): List<T> = withContext(Dispatchers.IO) {
         try {
             val results = mutableListOf<T>() // 결과를 저장할 리스트
-            getConnection().use { connection -> // 데이터베이스 연결을 가져와 사용
+            HikariCPDataSource.getConnection().use { connection -> // 데이터베이스 연결을 가져와 사용
                 Log.d(TAG, "Executing query: $query with params: ${params.joinToString()}") // 쿼리 실행 전 로그
                 connection.prepareStatement(query).use { statement -> // 쿼리 준비
                     // 쿼리 매개변수 설정
@@ -129,7 +92,7 @@ class SqlRemoteDetailDao {
     // studyState 값을 업데이트하는 메소드 추가
     suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = "UPDATE tb_study SET studyState = ? WHERE studyIdx = ?"
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, newState)
@@ -146,7 +109,7 @@ class SqlRemoteDetailDao {
     // 데이터 업데이트 메소드
     suspend fun updateStudy(studyData: SqlStudyData): Int = withContext(Dispatchers.IO) {
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     UPDATE tb_study SET 
                         studyTitle = ?, 
@@ -205,7 +168,7 @@ class SqlRemoteDetailDao {
         var preparedStatement: PreparedStatement? = null
         try {
             withContext(Dispatchers.IO) {
-                getConnection().use { connection ->
+                HikariCPDataSource.getConnection().use { connection ->
                     preparedStatement = connection.prepareStatement(sql)
                     paramsList.forEach { params ->
                         params.forEachIndexed { index, value ->
@@ -226,15 +189,15 @@ class SqlRemoteDetailDao {
         }
     }
 
-    suspend fun close() {
-        try {
-            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
-            if (dataSourceDeferred.isCompleted) {
-                dataSourceDeferred.await().close()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error closing data source", e)
-        }
-    }
+//    suspend fun close() {
+//        try {
+//            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
+//            if (dataSourceDeferred.isCompleted) {
+//                dataSourceDeferred.await().close()
+//            }
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Error closing data source", e)
+//        }
+//    }
 
 }

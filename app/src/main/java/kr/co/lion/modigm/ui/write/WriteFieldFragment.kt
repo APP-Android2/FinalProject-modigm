@@ -13,19 +13,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.card.MaterialCardView
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentDetailMemberBinding
 import kr.co.lion.modigm.databinding.FragmentWriteFieldBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
-class WriteFieldFragment : Fragment() {
+class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWriteFieldBinding::inflate) {
 
-    lateinit var binding: FragmentWriteFieldBinding
     private val viewModel: WriteViewModel by activityViewModels()
     private var selectedCardView: MaterialCardView? = null // 선택된 카드뷰를 기억하기 위한 변수
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        binding = FragmentWriteFieldBinding.inflate(layoutInflater)
-
 
         return binding.root
     }
