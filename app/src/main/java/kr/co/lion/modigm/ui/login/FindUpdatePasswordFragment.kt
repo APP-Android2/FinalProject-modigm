@@ -9,14 +9,14 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.FragmentUpdatePasswordBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.login.vm.UpdatePasswordViewModel
+import kr.co.lion.modigm.ui.login.vm.FindPasswordViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 import java.util.regex.Pattern
 
-class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(FragmentUpdatePasswordBinding::inflate) {
+class FindUpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(FragmentUpdatePasswordBinding::inflate) {
 
-    private val viewModel: UpdatePasswordViewModel by viewModels()
+    private val viewModel: FindPasswordViewModel by viewModels()
 
     // --------------------------------- LC START ---------------------------------
 
@@ -38,27 +38,22 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
     // 초기 뷰 세팅
     private fun initView() {
         with(binding) {
-
             // 실시간 텍스트 변경 감지 설정
             textInputEditUpdatePassword.addTextChangedListener(inputWatcher)
             textInputEditUpdatePasswordConfirm.addTextChangedListener(inputWatcher)
-
             // 툴바
             with(toolbarResetPw) {
                 // 뒤로가기 버튼 클릭 시
                 setNavigationOnClickListener {
-
                     // 취소 다이얼로그
                     showCancelDialog()
                 }
             }
-
             // 다음 버튼
             with(buttonFindPwResetOK) {
                 isEnabled = false // 버튼을 처음에 비활성화
                 setOnClickListener {
                     // 유효성 검사
-
                     if(!validateInput()){
                         return@setOnClickListener
                     }
@@ -73,7 +68,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
     // 유효성 검사 및 버튼 활성화/비활성화 업데이트
     private val inputWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             with(binding) {
                 buttonFindPwResetOK.isEnabled =
@@ -81,7 +75,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
             }
 
         }
-
         override fun afterTextChanged(p0: Editable?) {}
     }
 
@@ -93,7 +86,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
                 textInputEditUpdatePassword.requestFocus()
                 textInputLayoutUpdatePassword.shake()
                 return false
-
             } else {
                 if (!Pattern.matches(
                         "^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&.])[A-Za-z[0-9]$@$!%*#?&.]{8,20}$",
@@ -110,7 +102,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
             }
             return true
         }
-
     }
 
     private fun observeViewModel(){
@@ -122,7 +113,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
                     textInputEditUpdatePassword.requestFocus()
                     textInputLayoutUpdatePassword.shake()
                 }
-
             }
             viewModel.newPasswordConfirmError.observe(viewLifecycleOwner) { error ->
                 if (error != null) {
@@ -130,7 +120,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
                     textInputEditUpdatePasswordConfirm.requestFocus()
                     textInputLayoutUpdatePasswordConfirm.shake()
                 }
-
             }
 
             // 비밀번호 변경 완료 여부
@@ -157,7 +146,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
 
     // 뒤로가기 다이얼로그 표시
     private fun showCancelDialog() {
-
         val dialog = CustomCancelDialog(requireContext())
         dialog.setTitle("뒤로가기")
         dialog.setPositiveButton("예") {
@@ -165,7 +153,6 @@ class UpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(Fra
                 viewModel.authLogout()
                 parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
             }
-
         }
         dialog.setNegativeButton("아니오") {
 

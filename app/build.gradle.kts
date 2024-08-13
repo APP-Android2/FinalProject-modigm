@@ -131,7 +131,10 @@ dependencies {
     // hikari
     implementation("com.zaxxer:HikariCP:2.7.9")
 
-    //aws s3
+    // aws s3
     implementation("com.amazonaws:aws-android-sdk-s3:2.22.0")
     implementation("com.amazonaws:aws-android-sdk-core:2.22.0")
+
+    // libphonenumber (국가별 전화번호 변환 대응)
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.42")
 }

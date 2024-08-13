@@ -9,9 +9,9 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.repository.LoginRepository
 
-class UpdatePasswordViewModel: ViewModel() {
+class FindPasswordViewModel: ViewModel() {
 
-    private val tag by lazy { UpdatePasswordViewModel::class.simpleName }
+    private val tag by lazy { FindPasswordViewModel::class.simpleName }
     private val loginRepository by lazy { LoginRepository() }
 
     // 이메일 에러
