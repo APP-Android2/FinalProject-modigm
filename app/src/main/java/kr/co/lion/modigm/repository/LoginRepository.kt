@@ -119,9 +119,9 @@ class LoginRepository {
      * @param authCode 사용자가 입력한 인증 코드
      * @return Result<String> 이메일을 반환
      */
-    suspend fun getEmailByInputCode(verificationId: String, authCode: String): Result<String> {
+    suspend fun getEmailByAuthCode(verificationId: String, authCode: String): Result<String> {
         return runCatching {
-            loginDataSource.getEmailByInputCode(verificationId, authCode).getOrThrow()
+            loginDataSource.getEmailByAuthCode(verificationId, authCode).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<String>(e)
@@ -153,6 +153,54 @@ class LoginRepository {
             loginDataSource.updatePassword(newPassword).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "비밀번호 변경 중 오류 발생: ${e.message}", e)
+            Result.failure<Boolean>(e)
+        }
+    }
+
+    /**
+     * 유저 비밀번호 재인증
+     */
+    suspend fun checkPassword(userPassword: String): Result<String> {
+        return runCatching {
+            loginDataSource.checkPassword(userPassword).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "비밀번호 재인증 중 오류 발생: ${e.message}", e)
+            Result.failure<String>(e)
+        }
+    }
+
+    /**
+     * 카카오 재인증
+     */
+    suspend fun reAuthenticateWithKakao(context: Activity): Result<String> {
+        return runCatching {
+            loginDataSource.reAuthenticateWithKakao(context).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "카카오 재인증 중 오류 발생: ${e.message}", e)
+            Result.failure<String>(e)
+        }
+    }
+
+    /**
+     * 깃허브 재인증
+     */
+    suspend fun reAuthenticateWithGithub(context: Activity): Result<String> {
+        return runCatching {
+            loginDataSource.reAuthenticateWithGithub(context).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "깃허브 재인증 중 오류 발생: ${e.message}", e)
+            Result.failure<String>(e)
+        }
+    }
+
+    /**
+     * 전화번호 변경
+     */
+    suspend fun updatePhone(userIdx: Int, currentUserPhone:String, newUserPhone:String, verificationId: String, authCode: String): Result<Boolean> {
+        return runCatching {
+            loginDataSource.updatePhone(userIdx, currentUserPhone, newUserPhone, verificationId, authCode).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "전화번호 변경 중 오류 발생: ${e.message}", e)
             Result.failure<Boolean>(e)
         }
     }

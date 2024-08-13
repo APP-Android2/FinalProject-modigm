@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -28,12 +26,13 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
-import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.profile.adapter.ItemTouchHelperCallback
 import kr.co.lion.modigm.ui.profile.adapter.LinkAddAdapter
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.Picture
 
 class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseFragment<FragmentEditProfileBinding>(R.layout.fragment_edit_profile) {
@@ -101,11 +100,33 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
     }
 
     private fun setupButtonChangePhone() {
-        binding.buttonEditProfilePhone.setOnClickListener {
-            // Fragment 교체
-            requireActivity().supportFragmentManager.commit {
-                add(R.id.containerMain, ChangePhoneFragment())
-                addToBackStack(FragmentName.CHANGE_PHONE.str)
+        // 바인딩
+        with(binding) {
+            // 전화번호 변경 버튼
+            with(buttonEditProfilePhone) {
+                // 로그인 방식
+                val currentUserProvider = prefs.getString("currentUserProvider")
+
+                // 버튼 클릭 시
+                setOnClickListener {
+                    // 로그인 방식에 따라 다른 화면으로 이동
+                    when (currentUserProvider) {
+                        // 이메일 로그인인 경우
+                        JoinType.EMAIL.provider -> {
+                            requireActivity().supportFragmentManager.commit {
+                                add(R.id.containerMain, ChangePhoneEmailFragment())
+                                addToBackStack(FragmentName.CHANGE_PHONE_EMAIL.str)
+                            }
+                        }
+                        // 소셜 로그인인 경우
+                        else -> {
+                            requireActivity().supportFragmentManager.commit {
+                                add(R.id.containerMain, ChangePhoneSocialFragment())
+                                addToBackStack(FragmentName.CHANGE_PHONE_SOCIAL.str)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

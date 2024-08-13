@@ -45,7 +45,7 @@ class FindEmailAuthFragment :
         with(binding) {
 
             // 실시간 텍스트 변경 감지 설정
-            binding.textInputEditFindPassCode.addTextChangedListener(inputWatcher)
+            textInputEditFindAuthCode.addTextChangedListener(inputWatcher)
 
             // 툴바
             with(toolbarFindEmailAuth) {
@@ -68,7 +68,7 @@ class FindEmailAuthFragment :
                         return@setOnClickListener
                     }
                     // 인증번호 확인
-                    val authCode = textInputEditFindPassCode.text.toString()
+                    val authCode = textInputEditFindAuthCode.text.toString()
                     viewModel.checkCodeAndFindEmail(verificationId, authCode)
                 }
             }
@@ -78,10 +78,10 @@ class FindEmailAuthFragment :
     // 유효성 검사
     private fun checkInput(): Boolean {
         with(binding) {
-            if (textInputEditFindPassCode.text.isNullOrEmpty()) {
-                textInputLayoutFindPassCode.error = "인증번호를 입력해주세요."
-                textInputEditFindPassCode.requestFocus()
-                textInputLayoutFindPassCode.shake()
+            if (textInputEditFindAuthCode.text.isNullOrEmpty()) {
+                textInputLayoutFindAuthCode.error = "인증번호를 입력해주세요."
+                textInputEditFindAuthCode.requestFocus()
+                textInputLayoutFindAuthCode.shake()
                 return false
             }
             return true
@@ -94,9 +94,9 @@ class FindEmailAuthFragment :
             // 유효성 검사
             viewModel.authCodeInputError.observe(viewLifecycleOwner) { error ->
                 if (error != null) {
-                    textInputLayoutFindPassCode.error = error.message
-                    textInputEditFindPassCode.requestFocus()
-                    textInputLayoutFindPassCode.shake()
+                    textInputLayoutFindAuthCode.error = error.message
+                    textInputEditFindAuthCode.requestFocus()
+                    textInputLayoutFindAuthCode.shake()
                 }
             }
             // 인증번호 확인해서 메일 찾았는지 여부
@@ -110,6 +110,19 @@ class FindEmailAuthFragment :
         }
     }
 
+    // 유효성 검사 및 버튼 활성화/비활성화 업데이트
+    private val inputWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            with(binding){
+                buttonFindEmailAuthOK.isEnabled =
+                    !textInputEditFindAuthCode.text.isNullOrEmpty()
+            }
+        }
+        override fun afterTextChanged(p0: Editable?) { }
+    }
+
     // 이메일 다이얼로그 표시
     private fun showFindEmailDialog(email: String) {
         val dialog = CustomFindEmailDialog(requireContext())
@@ -119,19 +132,6 @@ class FindEmailAuthFragment :
             parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
         }
         dialog.show()
-    }
-
-    // 유효성 검사 및 버튼 활성화/비활성화 업데이트
-    private val inputWatcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            with(binding){
-                buttonFindEmailAuthOK.isEnabled =
-                    !textInputEditFindPassCode.text.isNullOrEmpty()
-            }
-        }
-        override fun afterTextChanged(p0: Editable?) { }
     }
 
     // 뒤로가기 다이얼로그 표시

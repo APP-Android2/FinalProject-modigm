@@ -38,8 +38,11 @@ enum class FragmentName (var str: String){
     PROFILE_STUDY("ProfileStudyFragment"),
     EDIT_PROFILE("EditProfileFragment"),
     SETTINGS("SettingsFragment"),
-    CHANGE_PW("ChangePwFragment"),
-    CHANGE_PHONE("ChangePhoneFragment"),
+    CHANGE_PASSWORD_EMAIL("ChangePasswordEmailFragment"),
+    CHANGE_PASSWORD_AUTH("ChangePasswordAuthFragment"),
+    CHANGE_PHONE_EMAIL("ChangePhoneEmailFragment"),
+    CHANGE_PHONE_SOCIAL("ChangePhoneSocialFragment"),
+    CHANGE_PHONE_AUTH("ChangePhoneAuthFragment"),
 
     // 스터디
     STUDY("StudyFragment"),

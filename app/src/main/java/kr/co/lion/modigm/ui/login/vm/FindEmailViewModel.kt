@@ -99,7 +99,7 @@ class FindEmailViewModel : ViewModel() {
     fun checkCodeAndFindEmail(verificationId: String, authCode: String) {
         Log.d(tag, "checkCodeAndFindEmail 호출됨. verificationId: $verificationId, inputCode: $authCode")
         viewModelScope.launch {
-            val result = loginRepository.getEmailByInputCode(verificationId, authCode)
+            val result = loginRepository.getEmailByAuthCode(verificationId, authCode)
             result.onSuccess { email ->
                 Log.d(tag, "인증번호 확인 성공. email: $email")
                 _emailResult.postValue(email)
