@@ -13,19 +13,13 @@ import com.google.android.material.chip.Chip
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentInterestBottomSheetBinding
 import kr.co.lion.modigm.databinding.FragmentSkillBottomSheetBinding
+import kr.co.lion.modigm.ui.VBBaseBottomSheetFragment
 import kr.co.lion.modigm.ui.detail.OnSkillSelectedListener
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.Interest
 
-class InterestBottomSheetFragment: BottomSheetDialogFragment() {
-    private lateinit var fragmentInterestBottomSheetBinding: FragmentInterestBottomSheetBinding
+class InterestBottomSheetFragment: VBBaseBottomSheetFragment<FragmentInterestBottomSheetBinding>(FragmentInterestBottomSheetBinding::inflate) {
     private val editProfileViewModel: EditProfileViewModel by activityViewModels()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentInterestBottomSheetBinding = FragmentInterestBottomSheetBinding.inflate(inflater)
-
-        return fragmentInterestBottomSheetBinding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,14 +36,14 @@ class InterestBottomSheetFragment: BottomSheetDialogFragment() {
         }
 
         // 오른쪽 위 아이콘 클릭 시 BottomSheet 닫기
-        fragmentInterestBottomSheetBinding.iconInterestClose.setOnClickListener {
+        binding.iconInterestClose.setOnClickListener {
             dismiss()
         }
     }
 
     fun setupChips(interests: String) {
         // 기존 칩들 제거
-        fragmentInterestBottomSheetBinding.chipGroupInterest.removeAllViews()
+        binding.chipGroupInterest.removeAllViews()
 
         val interestList = interests.split(",").map { it.trim() }
 
@@ -77,7 +71,7 @@ class InterestBottomSheetFragment: BottomSheetDialogFragment() {
                     updateChipList()
                 }
             }
-            fragmentInterestBottomSheetBinding.chipGroupInterest.addView(chip)
+            binding.chipGroupInterest.addView(chip)
         }
     }
 
@@ -92,7 +86,7 @@ class InterestBottomSheetFragment: BottomSheetDialogFragment() {
     }
 
     private fun updateChipList() {
-        val selectedChips = fragmentInterestBottomSheetBinding.chipGroupInterest.children
+        val selectedChips = binding.chipGroupInterest.children
             .filterIsInstance<Chip>()
             .filter { it.isChecked }
             .map { it.text.toString() }
