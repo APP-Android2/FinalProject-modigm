@@ -25,11 +25,6 @@ class ChangePasswordEmailFragment : VBBaseFragment<FragmentChangePasswordEmailBi
         observeViewModel()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-//        viewModel.cancelTimer()
-    }
-
     // --------------------------------- LC END ---------------------------------
 
     // 초기 뷰 세팅
@@ -68,8 +63,8 @@ class ChangePasswordEmailFragment : VBBaseFragment<FragmentChangePasswordEmailBi
     private fun observeViewModel() {
         with(binding){
             // 완료 여부
-            viewModel.isCurrentPasswordComplete.observe(viewLifecycleOwner) { isComplete ->
-                if (isComplete) {
+            viewModel.isCurrentPasswordComplete.observe(viewLifecycleOwner) { isCurrentPasswordComplete ->
+                if (isCurrentPasswordComplete) {
                     moveToNext()
                 }
             }
