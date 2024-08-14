@@ -13,7 +13,6 @@ class JoinViewPagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment) {
 
     fun addFragments(fragments: ArrayList<Fragment>) {
         fragmentList = fragments
-        notifyDataSetChanged()
     }
 
 }

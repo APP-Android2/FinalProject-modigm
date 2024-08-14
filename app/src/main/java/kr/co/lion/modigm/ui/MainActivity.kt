@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ import kr.co.lion.modigm.databinding.ActivityMainBinding
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.login.LoginFragment
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     // 바인딩

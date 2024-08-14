@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -133,6 +134,10 @@ dependencies {
     implementation("com.amazonaws:aws-android-sdk-s3:2.22.0")
     implementation("com.amazonaws:aws-android-sdk-core:2.22.0")
 
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
+    
     // libphonenumber (국가별 전화번호 변환 대응)
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.42")
 }
