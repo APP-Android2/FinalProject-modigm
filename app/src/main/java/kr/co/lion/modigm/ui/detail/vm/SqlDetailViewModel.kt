@@ -32,11 +32,14 @@ class SqlDetailViewModel: ViewModel() {
     private val _studyTechList = MutableStateFlow<List<Int>>(emptyList())
     val studyTechList: StateFlow<List<Int>> get() = _studyTechList
 
-    private val _updateResult = MutableSharedFlow<Boolean>()
-    val updateResult: SharedFlow<Boolean> = _updateResult
+    private val _updateResult = MutableStateFlow<Boolean?>(null)
+    val updateResult: StateFlow<Boolean?> get() = _updateResult
 
     private val _studyPic = MutableStateFlow<String?>(null)
     val studyPic: StateFlow<String?> = _studyPic
+
+    private val _studySkills = MutableStateFlow<List<Int>>(emptyList())
+    val studySkills: StateFlow<List<Int>> get() = _studySkills
 
     fun clearData() {
         _studyData.value = null
@@ -124,11 +127,23 @@ class SqlDetailViewModel: ViewModel() {
         }
     }
 
-    // ViewModel이 파괴될 때 호출되는 메서드
-    override fun onCleared() {
-        super.onCleared()
+    // 스터디 데이터를 업데이트하는 함수
+    fun updateStudyData(studyData: SqlStudyData) {
         viewModelScope.launch {
-            sqlDetailRepository.close()
+            val result = sqlDetailRepository.updateStudy(studyData)
+            _updateResult.value = result
         }
     }
+
+    fun insertSkills(studyIdx: Int, skills: List<Int>) {
+        viewModelScope.launch {
+            sqlDetailRepository.insertSkills(studyIdx, skills)
+        }
+    }
+
+    // 업데이트 결과 초기화 함수
+    fun clearUpdateResult() {
+        _updateResult.value = null
+    }
+
 }

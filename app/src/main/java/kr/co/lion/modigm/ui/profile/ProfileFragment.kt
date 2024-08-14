@@ -1,36 +1,34 @@
 package kr.co.lion.modigm.ui.profile
 
-import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import android.widget.ImageView
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomViewTarget
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
-import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
-class ProfileFragment: Fragment() {
-    lateinit var fragmentProfileBinding: FragmentProfileBinding
+class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_profile) {
     private val profileViewModel: ProfileViewModel by viewModels()
-    private val chatRoomViewModel: ChatRoomViewModel by viewModels()
 
     // onCreateView에서 초기화
     var userIdx: Int? = null
@@ -113,16 +111,15 @@ class ProfileFragment: Fragment() {
     )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentProfileBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile, container, false)
-
+        super.onCreateView(inflater, container, savedInstanceState)
         // Bind ViewModel and lifecycle owner
-        fragmentProfileBinding.profileViewModel = profileViewModel
-        fragmentProfileBinding.lifecycleOwner = this
+        binding.profileViewModel = profileViewModel
+        binding.lifecycleOwner = this
 
-        userIdx = 9689//arguments?.getInt("userIdx")
-        myProfile = userIdx == ModigmApplication.prefs.getInt("currentUserIdx")
+        userIdx = arguments?.getInt("userIdx")
+        myProfile = userIdx == prefs.getInt("currentUserIdx")
 
-        return fragmentProfileBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -147,50 +144,48 @@ class ProfileFragment: Fragment() {
     }
 
     private fun setupToolbar() {
-        fragmentProfileBinding.apply {
-            toolbarProfile.apply {
-                // title
-                title = "프로필"
+        binding.toolbarProfile.apply {
+            // title
+            title = "프로필"
 
-                // 툴바 메뉴
-                inflateMenu(R.menu.menu_profile)
-                setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        R.id.menu_item_profile_setting -> {
-                            requireActivity().supportFragmentManager.commit {
-                                setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                                add(R.id.containerMain, SettingsFragment(this@ProfileFragment))
-                                addToBackStack(FragmentName.SETTINGS.str)
-                            }
-                        }
-
-                        R.id.menu_item_profile_more -> {
-                            // TODO("신고하기 기능")
+            // 툴바 메뉴
+            inflateMenu(R.menu.menu_profile)
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.menu_item_profile_setting -> {
+                        requireActivity().supportFragmentManager.commit {
+                            setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                            add(R.id.containerMain, SettingsFragment(this@ProfileFragment))
+                            addToBackStack(FragmentName.SETTINGS.str)
                         }
                     }
-                    true
-                }
 
-                // 모든 메뉴를 보이지 않는 상태로 둔다.
-                // 사용자 정보를 가져온 다음 메뉴를 노출 시킨다.
-                menu.findItem(R.id.menu_item_profile_setting).isVisible = false
-                menu.findItem(R.id.menu_item_profile_more).isVisible = false
-
-                // 본인의 프로필일 때: 설정 아이콘
-                if (myProfile) {
-                    // 설정 아이콘 표시
-                    menu.findItem(R.id.menu_item_profile_setting).isVisible = true
-                } else {
-                    // 타인의 프로필일 때: 뒤로 가기, 더보기 아이콘
-                    // 뒤로 가기
-                    setNavigationIcon(R.drawable.icon_arrow_back_24px)
-                    setNavigationOnClickListener {
-                        parentFragmentManager.popBackStack()
+                    R.id.menu_item_profile_more -> {
+                        // TODO("신고하기 기능")
                     }
-
-                    // 더보기 아이콘 표시
-                    menu.findItem(R.id.menu_item_profile_more).isVisible = true
                 }
+                true
+            }
+
+            // 모든 메뉴를 보이지 않는 상태로 둔다.
+            // 사용자 정보를 가져온 다음 메뉴를 노출 시킨다.
+            menu.findItem(R.id.menu_item_profile_setting).isVisible = false
+            menu.findItem(R.id.menu_item_profile_more).isVisible = false
+
+            // 본인의 프로필일 때: 설정 아이콘
+            if (myProfile) {
+                // 설정 아이콘 표시
+                menu.findItem(R.id.menu_item_profile_setting).isVisible = true
+            } else {
+                // 타인의 프로필일 때: 뒤로 가기, 더보기 아이콘
+                // 뒤로 가기
+                setNavigationIcon(R.drawable.icon_arrow_back_24px)
+                setNavigationOnClickListener {
+                    parentFragmentManager.popBackStack()
+                }
+
+                // 더보기 아이콘 표시
+                menu.findItem(R.id.menu_item_profile_more).isVisible = true
             }
         }
     }
@@ -237,45 +232,39 @@ class ProfileFragment: Fragment() {
 
     private fun setupRecyclerViewLink() {
         // 리사이클러뷰 구성
-        fragmentProfileBinding.apply {
-            recyclerVIewProfileLink.apply {
-                // 리사이클러뷰 어댑터
-                adapter = linkAdapter
+        binding.recyclerVIewProfileLink.apply {
+            // 리사이클러뷰 어댑터
+            adapter = linkAdapter
 
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
-            }
+            // 리사이클러뷰 레이아웃
+            layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
         }
     }
 
     private fun setupRecyclerViewPartStudy() {
         // 리사이클러뷰 구성
-        fragmentProfileBinding.apply {
-            recyclerViewProfilePartStudy.apply {
-                // 리사이클러뷰 어댑터
-                adapter = partStudyAdapter
+        binding.recyclerViewProfilePartStudy.apply {
+            // 리사이클러뷰 어댑터
+            adapter = partStudyAdapter
 
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(requireContext())
-            }
+            // 리사이클러뷰 레이아웃
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
     private fun setupRecyclerViewHostStudy() {
         // 리사이클러뷰 구성
-        fragmentProfileBinding.apply {
-            recyclerViewProfileHostStudy.apply {
-                // 리사이클러뷰 어댑터
-                adapter = hostStudyAdapter
+        binding.recyclerViewProfileHostStudy.apply {
+            // 리사이클러뷰 어댑터
+            adapter = hostStudyAdapter
 
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(requireContext())
-            }
+            // 리사이클러뷰 레이아웃
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
     private fun setupIconMoreStudy() {
-        fragmentProfileBinding.apply {
+        binding.apply {
             layoutMoreProfileHostStudy.setOnClickListener {
                 // bundle 에 필요한 정보를 담는다
                 val bundle = Bundle()
@@ -315,28 +304,45 @@ class ProfileFragment: Fragment() {
         // 프로필 사진
         profileViewModel.profileUserImage.observe(viewLifecycleOwner) { image ->
             if (image.isNotEmpty()) {
-                val imageBytes = Base64.decode(image, Base64.DEFAULT) // Base64 문자열을 바이트 배열로 디코딩
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size) // 바이트 배열을 비트맵으로 디코딩
-                Glide.with(requireContext()) // Glide를 사용하여 이미지를 로드
-                    .load(bitmap)
-                    .into(fragmentProfileBinding.imageProfilePic)
+                val requestOptions = RequestOptions()
+                    .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
+                    .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
+
+                Glide.with(requireContext())
+                    .load(image)
+                    .apply(requestOptions)
+                    .into(object : CustomViewTarget<ImageView, Drawable>(binding.imageProfilePic) {
+                        override fun onLoadFailed(errorDrawable: Drawable?) {
+                            // 로딩 실패 시 기본 이미지를 보여줌
+                            binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                        }
+
+                        override fun onResourceCleared(placeholder: Drawable?) {
+                            // 리소스가 클리어 될 때
+                        }
+
+                        override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
+                            // 로딩 성공 시
+                            binding.imageProfilePic.setImageDrawable(resource)
+                        }
+                    })
             } else {
                 // Handle the case where the image string is null (e.g., show a default image)
-                fragmentProfileBinding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
             }
         }
 
         // 관심 분야 chipGroup
         profileViewModel.profileInterests.observe(viewLifecycleOwner) { interests ->
             // 기존 칩들 제거
-            fragmentProfileBinding.chipGroupProfile.removeAllViews()
+            binding.chipGroupProfile.removeAllViews()
 
             val interestList = interests.split(",").map { it.trim() }
 
             // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
             for (interest in interestList) {
                 // 아이템 처리 코드
-                fragmentProfileBinding.chipGroupProfile.addView(Chip(context).apply {
+                binding.chipGroupProfile.addView(Chip(context).apply {
                     text = interest
                     setTextAppearance(R.style.ChipTextStyle)
                     // 자동 padding 없애기
@@ -354,9 +360,9 @@ class ProfileFragment: Fragment() {
             linkAdapter.updateData(profileLinkList)
 
             if (profileLinkList.isEmpty()) {
-                fragmentProfileBinding.textView4.visibility = View.GONE
+                binding.textView4.visibility = View.GONE
             } else {
-                fragmentProfileBinding.textView4.visibility = View.VISIBLE
+                binding.textView4.visibility = View.VISIBLE
             }
         }
 
@@ -366,16 +372,16 @@ class ProfileFragment: Fragment() {
 
             // 데이터 유무에 따른 뷰 가시성 설정
             if (profileHostStudyList.isEmpty()) {
-                fragmentProfileBinding.layoutListProfileHostStudy.visibility = View.GONE
-                fragmentProfileBinding.layoutBlankProfileHostStudy.visibility = View.VISIBLE
+                binding.layoutListProfileHostStudy.visibility = View.GONE
+                binding.layoutBlankProfileHostStudy.visibility = View.VISIBLE
             } else {
-                fragmentProfileBinding.layoutListProfileHostStudy.visibility = View.VISIBLE
-                fragmentProfileBinding.layoutBlankProfileHostStudy.visibility = View.GONE
+                binding.layoutListProfileHostStudy.visibility = View.VISIBLE
+                binding.layoutBlankProfileHostStudy.visibility = View.GONE
             }
 
             // 2개 이하이면 더보기 아이콘 표시 안함
             if (profileHostStudyList.size < 3) {
-                fragmentProfileBinding.layoutMoreProfileHostStudy.visibility = View.GONE
+                binding.layoutMoreProfileHostStudy.visibility = View.GONE
             }
         }
 
@@ -385,16 +391,16 @@ class ProfileFragment: Fragment() {
 
             // 데이터 유무에 따른 뷰 가시성 설정
             if (profilePartStudyList.isEmpty()) {
-                fragmentProfileBinding.layoutListProfilePartStudy.visibility = View.GONE
-                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.VISIBLE
+                binding.layoutListProfilePartStudy.visibility = View.GONE
+                binding.layoutBlankProfilePartStudy.visibility = View.VISIBLE
             } else {
-                fragmentProfileBinding.layoutListProfilePartStudy.visibility = View.VISIBLE
-                fragmentProfileBinding.layoutBlankProfilePartStudy.visibility = View.GONE
+                binding.layoutListProfilePartStudy.visibility = View.VISIBLE
+                binding.layoutBlankProfilePartStudy.visibility = View.GONE
             }
 
             // 2개 이하이면 더보기 아이콘 표시 안함
             if (profilePartStudyList.size < 3) {
-                fragmentProfileBinding.layoutMoreProfilePartStudy.visibility = View.GONE
+                binding.layoutMoreProfilePartStudy.visibility = View.GONE
             }
         }
     }

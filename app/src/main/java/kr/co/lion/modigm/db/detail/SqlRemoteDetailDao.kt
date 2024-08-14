@@ -5,57 +5,21 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.*
 import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 class SqlRemoteDetailDao {
     private val TAG = "SqlRemoteDetailDao"
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.e(TAG, "Coroutine exception", throwable)
-    }
-
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job() + coroutineExceptionHandler)
-    private suspend fun initDataSource(): HikariDataSource = withContext(Dispatchers.IO) {
-        val hikariConfig: HikariConfig = HikariConfig().apply {
-            jdbcUrl = BuildConfig.DB_URL
-            username = BuildConfig.DB_USER
-            password = BuildConfig.DB_PASSWORD
-            driverClassName = "com.mysql.jdbc.Driver"
-            maximumPoolSize = 10
-            minimumIdle = 10
-            connectionTimeout = 30000 // 30초
-            idleTimeout = 600000 // 10분
-            maxLifetime = 1800000 // 30분
-            validationTimeout = 5000 // 5초
-            leakDetectionThreshold = 0 // 비활성화
-        }
-        HikariDataSource(hikariConfig)
-    }
-
-    private val dataSourceDeferred: CompletableDeferred<HikariDataSource> = CompletableDeferred()
-
-    init {
-        coroutineScope.launch {
-            dataSourceDeferred.complete(initDataSource())
-        }
-    }
-
-    // 데이터베이스 연결을 생성하는 메소드
-    private suspend fun getConnection(): Connection {
-        val dataSource: HikariDataSource = dataSourceDeferred.await()
-        return withContext(Dispatchers.IO) {
-            dataSource.connection
-        }
-    }
-
     // 쿼리를 실행하고 결과를 처리하는 공통 메소드
     suspend fun <T> executeQuery(query: String, vararg params: Any, block: (ResultSet) -> T?): List<T> = withContext(Dispatchers.IO) {
         try {
             val results = mutableListOf<T>() // 결과를 저장할 리스트
-            getConnection().use { connection -> // 데이터베이스 연결을 가져와 사용
+            HikariCPDataSource.getConnection().use { connection -> // 데이터베이스 연결을 가져와 사용
                 Log.d(TAG, "Executing query: $query with params: ${params.joinToString()}") // 쿼리 실행 전 로그
                 connection.prepareStatement(query).use { statement -> // 쿼리 준비
                     // 쿼리 매개변수 설정
@@ -117,10 +81,18 @@ class SqlRemoteDetailDao {
         }
     }
 
+    // 특정 스터디의 기술 스택을 조회하는 메소드
+    suspend fun getStudyTechStack(studyIdx: Int): List<Int> {
+        val query = "SELECT techIdx FROM tb_study_tech_stack WHERE studyIdx = ?"
+        return executeQuery(query, studyIdx) { resultSet ->
+            resultSet.getInt("techIdx")
+        }
+    }
+
     // studyState 값을 업데이트하는 메소드 추가
     suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
         try {
-            getConnection().use { connection ->
+            HikariCPDataSource.getConnection().use { connection ->
                 val query = "UPDATE tb_study SET studyState = ? WHERE studyIdx = ?"
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, newState)
@@ -134,15 +106,98 @@ class SqlRemoteDetailDao {
         }
     }
 
-    suspend fun close() {
+    // 데이터 업데이트 메소드
+    suspend fun updateStudy(studyData: SqlStudyData): Int = withContext(Dispatchers.IO) {
         try {
-            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
-            if (dataSourceDeferred.isCompleted) {
-                dataSourceDeferred.await().close()
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = """
+                    UPDATE tb_study SET 
+                        studyTitle = ?, 
+                        studyContent = ?, 
+                        studyType = ?, 
+                        studyPeriod = ?, 
+                        studyOnOffline = ?, 
+                        studyPlace = ?, 
+                        studyDetailPlace = ?, 
+                        studyApplyMethod = ?, 
+                        studyCanApply = ?, 
+                        studyPic = ?, 
+                        studyMaxMember = ?, 
+                        studyState = ?, 
+                        userIdx = ? 
+                    WHERE studyIdx = ?
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setString(1, studyData.studyTitle)
+                    statement.setString(2, studyData.studyContent)
+                    statement.setString(3, studyData.studyType)
+                    statement.setString(4, studyData.studyPeriod)
+                    statement.setString(5, studyData.studyOnOffline)
+                    statement.setString(6, studyData.studyPlace)
+                    statement.setString(7, studyData.studyDetailPlace)
+                    statement.setString(8, studyData.studyApplyMethod)
+                    statement.setString(9, studyData.studyCanApply)
+                    statement.setString(10, studyData.studyPic)
+                    statement.setInt(11, studyData.studyMaxMember)
+                    statement.setBoolean(12, studyData.studyState)
+                    statement.setInt(13, studyData.userIdx)
+                    statement.setInt(14, studyData.studyIdx)
+                    return@withContext statement.executeUpdate()
+                }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error closing data source", e)
+            Log.e(TAG, "Error updating study data", e)
+            return@withContext 0
         }
     }
+
+    // 스터디 테이블에 tech stack 데이터를 삽입하는 메서드
+    suspend fun insertStudyTechStack(studyIdx: Int, techStack: List<Int>) {
+        val existingTechStack = getStudyTechStack(studyIdx).toSet()
+        val newTechStack = techStack.filter { it !in existingTechStack }
+
+        if (newTechStack.isNotEmpty()) {
+            val sql = "INSERT INTO tb_study_tech_stack (studyIdx, techIdx) VALUES (?, ?)"
+            val paramsList = newTechStack.map { arrayOf<Any>(studyIdx, it) }
+            executeBatchUpdate(sql, paramsList)
+        }
+    }
+
+    // 여러 개의 SQL 업데이트를 한 번에 실행하는 배치 업데이트 함수
+    private suspend fun executeBatchUpdate(sql: String, paramsList: List<Array<out Any>>) {
+        var preparedStatement: PreparedStatement? = null
+        try {
+            withContext(Dispatchers.IO) {
+                HikariCPDataSource.getConnection().use { connection ->
+                    preparedStatement = connection.prepareStatement(sql)
+                    paramsList.forEach { params ->
+                        params.forEachIndexed { index, value ->
+                            when (value) {
+                                is String -> preparedStatement?.setString(index + 1, value)
+                                is Int -> preparedStatement?.setInt(index + 1, value)
+                            }
+                        }
+                        preparedStatement?.addBatch()
+                    }
+                    preparedStatement?.executeBatch()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in executeBatchUpdate", e)
+        } finally {
+            preparedStatement?.close()
+        }
+    }
+
+//    suspend fun close() {
+//        try {
+//            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
+//            if (dataSourceDeferred.isCompleted) {
+//                dataSourceDeferred.await().close()
+//            }
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Error closing data source", e)
+//        }
+//    }
 
 }

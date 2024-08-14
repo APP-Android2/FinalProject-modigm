@@ -9,13 +9,13 @@ import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindPasswordBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.login.vm.UpdatePasswordViewModel
+import kr.co.lion.modigm.ui.login.vm.FindPasswordViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 
 class FindPasswordFragment : VBBaseFragment<FragmentFindPasswordBinding>(FragmentFindPasswordBinding::inflate) {
 
-    private val viewModel: UpdatePasswordViewModel by viewModels()
+    private val viewModel: FindPasswordViewModel by viewModels()
 
     // --------------------------------- LC START ---------------------------------
 

@@ -10,13 +10,13 @@ import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFindPasswordAuthBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.login.vm.UpdatePasswordViewModel
+import kr.co.lion.modigm.ui.login.vm.FindPasswordViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 
 class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>(FragmentFindPasswordAuthBinding::inflate) {
 
-    private val viewModel: UpdatePasswordViewModel by viewModels()
+    private val viewModel: FindPasswordViewModel by viewModels()
 
     private val verificationId by lazy {
         arguments?.getString("verificationId") ?: ""
@@ -38,10 +38,10 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
         with(binding) {
 
             // 실시간 텍스트 변경 감지 설정
-            textInputEditFindPwPassCode.addTextChangedListener(inputWatcher)
+            textInputEditFindPasswordAuthCode.addTextChangedListener(inputWatcher)
 
             // 툴바
-            with(toolbarFindPwAuth) {
+            with(toolbarFindPasswordAuth) {
                 // 뒤로가기 버튼 클릭 시
                 setNavigationOnClickListener {
 
@@ -51,16 +51,16 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
             }
 
             // 인증 버튼
-            with(buttonFindPwAuthOK) {
+            with(buttonFindPasswordAuthOK) {
                 isEnabled = false // 버튼을 처음에 비활성화
                 setOnClickListener {
                     // 유효성 검사
-                    if (!checkPassCode()) {
+                    if (!checkAuthCode()) {
                         return@setOnClickListener
                     }
 
                     // 인증 번호 확인
-                    val authCode = textInputEditFindPwPassCode.text.toString()
+                    val authCode = textInputEditFindPasswordAuthCode.text.toString()
                     Log.d("FindPwAuthFragment", "인증 버튼 클릭됨. authCode: $authCode")
                     viewModel.checkByAuthCode(verificationId, authCode)
                 }
@@ -78,9 +78,9 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
             // 유효성 검사
             viewModel.authCodeError.observe(viewLifecycleOwner) { error ->
                 if (error != null) {
-                    textInputLayoutFindPwPassCode.error = error.message
-                    textInputEditFindPwPassCode.requestFocus()
-                    textInputLayoutFindPwPassCode.shake()
+                    textInputLayoutFindPasswordAuthCode.error = error.message
+                    textInputEditFindPasswordAuthCode.requestFocus()
+                    textInputLayoutFindPasswordAuthCode.shake()
                 }
 
             }
@@ -94,8 +94,8 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             with(binding) {
-                buttonFindPwAuthOK.isEnabled =
-                    !textInputEditFindPwPassCode.text.isNullOrEmpty()
+                buttonFindPasswordAuthOK.isEnabled =
+                    !textInputEditFindPasswordAuthCode.text.isNullOrEmpty()
             }
 
         }
@@ -104,12 +104,12 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
     }
 
     // 유효성 검사
-    private fun checkPassCode(): Boolean {
+    private fun checkAuthCode(): Boolean {
         with(binding) {
-            if (textInputEditFindPwPassCode.text.isNullOrEmpty()) {
-                textInputLayoutFindPwPassCode.error = "인증번호를 입력해주세요."
-                textInputEditFindPwPassCode.requestFocus()
-                textInputLayoutFindPwPassCode.shake()
+            if (textInputEditFindPasswordAuthCode.text.isNullOrEmpty()) {
+                textInputLayoutFindPasswordAuthCode.error = "인증번호를 입력해주세요."
+                textInputEditFindPasswordAuthCode.requestFocus()
+                textInputLayoutFindPasswordAuthCode.shake()
                 return false
             }
             return true
@@ -121,7 +121,7 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
         // 완료 여부는 초기화해서 popStackBack으로 돌아와도 문제 없게
         viewModel.isCompleteTo(false)
         // 다음 화면에 verficationId를 전달하여 번호 인증에 사용
-        val fragment = UpdatePasswordFragment().apply {
+        val fragment = FindUpdatePasswordFragment().apply {
             arguments = Bundle().apply {
                 putString("verificationId", viewModel.verificationId.value)
             }

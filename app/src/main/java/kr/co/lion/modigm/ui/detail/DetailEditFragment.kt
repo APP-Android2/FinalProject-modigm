@@ -32,29 +32,30 @@ import androidx.core.content.FileProvider
 import androidx.core.view.children
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailEditBinding
-import kr.co.lion.modigm.model.StudyData
-import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
+import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.ui.VBBaseFragment
+import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.util.Skill
 import java.io.File
 
 
-class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedListener {
+class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDetailEditBinding::inflate), OnSkillSelectedListener, OnPlaceSelectedListener {
 
-    lateinit var fragmentDetailEditBinding: FragmentDetailEditBinding
+//    lateinit var fragmentDetailEditBinding: FragmentDetailEditBinding
 
-    private val viewModel: DetailViewModel by activityViewModels()
+    private val viewModel: SqlDetailViewModel by activityViewModels()
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var uid: String
+//    private lateinit var auth: FirebaseAuth
+//    private lateinit var uid: String
 
     // 선택된 장소 이름
     private var selectedPlaceName: String = ""
@@ -80,10 +81,13 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     )
 
     // 현재 스터디 데이터
-    private var currentStudyData: StudyData? = null
+    private var currentStudyData: SqlStudyData? = null
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
+
+    // 최소 인원 수를 저장할 변수
+    private var minMembers: Int = 1
 
     private var selectedSkillList: MutableList<Int> = mutableListOf()
 
@@ -91,26 +95,23 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        fragmentDetailEditBinding = FragmentDetailEditBinding.inflate(inflater, container, false)
-
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
 
-        auth = FirebaseAuth.getInstance()
-        uid = auth.currentUser?.uid.toString()
+//        auth = FirebaseAuth.getInstance()
+//        uid = auth.currentUser?.uid.toString()
 
         // 카메라 및 앨범 런처 설정
         initData()
 
-        return fragmentDetailEditBinding.root
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // ViewModel에서 데이터 요청
-        viewModel.selectContentData(studyIdx) // ViewModel을 통해 데이터 요청
+        viewModel.getStudy(studyIdx) // ViewModel을 통해 데이터 요청
 
         observeViewModel() // ViewModel 관찰
 
@@ -122,6 +123,9 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
         // 백 스택 로그 출력
         logFragmentBackStack(parentFragmentManager)
+
+        // 스킬 데이터를 로드
+        viewModel.getTechIdxByStudyIdx(studyIdx)
 
         // 입력값 검증 로직 메서드 호출
 //        setupMemberInputWatcher()
@@ -146,54 +150,78 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     }
 
     fun observeViewModel() {
+        // studyData 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.studyData.collect { data ->
+                data?.let {
+                    currentStudyData = it // 여기서 데이터를 업데이트합니다.
+                    Log.d("DetailEditFragment", "Received study data: $it")
+                    updateUIIfReady() // UI 업데이트 체크
+//                    preselectChips() // 칩 선택 사전 설정
 
-        viewModel.contentData.observe(viewLifecycleOwner) { data ->
-            data?.let {
-                currentStudyData = it // 여기서 데이터를 업데이트합니다.
-                updateUIIfReady() // UI 업데이트 체크
-                preselectChips() // 칩 선택 사전 설정
+                    if (it.studyPic.isNotEmpty()) {
+                        viewModel.getStudyPic(it.studyIdx) // 파일 이름을 사용하여 스터디 이미지 로드
+                    }
 
-                if (it.studyPic.isNotEmpty()) {
-                    viewModel.loadStudyPic(it.studyPic) // 파일 이름을 사용하여 스터디 이미지 로드
-                }
-
-                setupMemberInputWatcher() // 최소 인원 수를 반영하여 TextWatcher 설정
-            }
-        }
-        viewModel.updateResult.observe(viewLifecycleOwner) { isSuccess ->
-            isSuccess?.let{
-                val message = if (it) "정보가 업데이트되었습니다." else "업데이트 실패"
-                val snackbar = Snackbar.make(fragmentDetailEditBinding.root, message, Snackbar.LENGTH_LONG)
-
-                // 스낵바의 텍스트 뷰 찾기
-                val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-
-                // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
-                val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
-                snackbar.show()
-
-                if (it) {
-                    viewModel.updateResult.value = null
-                    parentFragmentManager.popBackStack()
+                    setupMemberInputWatcher() // 최소 인원 수를 반영하여 TextWatcher 설정
                 }
             }
-
         }
 
-        // 스터디 커버 이미지
-        viewModel.imageUri.observe(viewLifecycleOwner) { uri ->
-            safeContext()?.let { context ->
-                fragmentDetailEditBinding.cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
+        // updateResult 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.updateResult.collect { isSuccess ->
+                isSuccess?.let {
+                    val message = if (it) "정보가 업데이트되었습니다." else "업데이트 실패"
+                    val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
 
-                Glide.with(context)
-                    .load(uri)
-                    .error(R.drawable.icon_error_24px) // 에러 발생시 보여줄 이미지
-                    .into(fragmentDetailEditBinding.imageViewCoverImageSelect)
+                    // 스낵바의 텍스트 뷰 찾기
+                    val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+
+                    // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
+                    val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+                    snackbar.show()
+
+                    if (it) {
+                        viewModel.clearUpdateResult()
+                        parentFragmentManager.popBackStack()
+                    }
+                }
             }
         }
 
+        // studyPic 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.studyPic.collect { uri ->
+                safeContext()?.let { context ->
+                    binding.cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
+
+                    Glide.with(context)
+                        .load(uri)
+                        .error(R.drawable.icon_error_24px) // 에러 발생시 보여줄 이미지
+                        .into(binding.imageViewCoverImageSelect)
+                }
+            }
+        }
+
+        // 최소 인원 수 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.memberCount.collect { count ->
+                minMembers = count
+                Log.d("DetailEditFragment", "Minimum members: $minMembers")
+            }
+        }
+
+        // 스킬 데이터 관찰
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.studyTechList.collect { techList ->
+                Log.d("DetailEditFragment", "Received techList from ViewModel: $techList")
+                val skills = techList.map { Skill.fromNum(it) }  // techIdx를 Skill 객체로 변환
+                addChipsToGroup(binding.ChipGroupDetailEdit, skills)
+            }
+        }
     }
 
     // UI 업데이트가 준비되었는지 확인
@@ -205,8 +233,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     }
 
     // 실제로 UI 업데이트 수행
-    fun updateUI(data: StudyData) {
-        with(fragmentDetailEditBinding) {
+    fun updateUI(data: SqlStudyData) {
+        with(binding) {
             // 제목
             editTextDetailEditTitle.setText(data.studyTitle)
 
@@ -220,7 +248,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
     // 인원수 입력 설정
     fun setupMemberInputWatcher() {
-        fragmentDetailEditBinding.editTextDetailEditMember.addTextChangedListener(object :
+        binding.editTextDetailEditMember.addTextChangedListener(object :
             TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // 변경 전에 호출됩니다.
@@ -231,8 +259,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 if (s != null && s.startsWith("0") && s.length > 1) {
                     // 입력된 값이 "0"으로 시작하고 길이가 1 초과인 경우, "0"을 제거합니다.
                     val correctString = s.toString().substring(1)
-                    fragmentDetailEditBinding.editTextDetailEditMember.setText(correctString)
-                    fragmentDetailEditBinding.editTextDetailEditMember.setSelection(correctString.length) // 커서를 수정된 텍스트의 끝으로 이동
+                    binding.editTextDetailEditMember.setText(correctString)
+                    binding.editTextDetailEditMember.setSelection(correctString.length) // 커서를 수정된 텍스트의 끝으로 이동
                 }
             }
 
@@ -241,22 +269,22 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 s?.toString()?.let {
                     if(it.isEmpty()){
                         // 사용자가 모든 텍스트를 지웠을 경우 "0"을 자동으로 입력
-                        fragmentDetailEditBinding.editTextDetailEditMember.setText("0")
-                        fragmentDetailEditBinding.editTextDetailEditMember.setSelection(fragmentDetailEditBinding.editTextDetailEditMember.text.toString().length) // 커서를 텍스트 끝으로 이동
+                        binding.editTextDetailEditMember.setText("0")
+                        binding.editTextDetailEditMember.setSelection(binding.editTextDetailEditMember.text.toString().length) // 커서를 텍스트 끝으로 이동
                     }else{
                         val num = it.toIntOrNull()
                         num?.let { value ->
                             if (value > 30) {
-                                fragmentDetailEditBinding.editTextDetailEditMember.setText("30")
+                                binding.editTextDetailEditMember.setText("30")
                             }
                         }
                     }
                 }
-                fragmentDetailEditBinding.editTextDetailEditMember.setSelection(fragmentDetailEditBinding.editTextDetailEditMember.text.toString().length) // 커서를 끝으로 이동
+                binding.editTextDetailEditMember.setSelection(binding.editTextDetailEditMember.text.toString().length) // 커서를 끝으로 이동
             }
         })
 
-        fragmentDetailEditBinding.editTextDetailEditMember.setOnEditorActionListener { v, actionId, event ->
+        binding.editTextDetailEditMember.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 // 포커스 해제
                 v.clearFocus()
@@ -298,8 +326,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                     // 크기를 조정한 이미지를 구한다.
                     val bitmap3 = resizeBitmap(bitmap2, 1024)
 
-                    fragmentDetailEditBinding.cardViewCoverImageSelect.visibility = View.VISIBLE
-                    fragmentDetailEditBinding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
+                    binding.cardViewCoverImageSelect.visibility = View.VISIBLE
+                    binding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
                 }
 
             }
@@ -333,8 +361,8 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                         val bitmap2 = rotateBitmap(it, degree.toFloat())
                         val bitmap3 = resizeBitmap(bitmap2, 1024)
 
-                        fragmentDetailEditBinding.cardViewCoverImageSelect.visibility = View.VISIBLE
-                        fragmentDetailEditBinding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
+                        binding.cardViewCoverImageSelect.visibility = View.VISIBLE
+                        binding.imageViewCoverImageSelect.setImageBitmap(bitmap3)
                     }
                 }
             }
@@ -491,12 +519,12 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         selectedPlaceName = placeName
         selectedDetailPlaceName = detailPlaceName
         val locationText  = "$selectedPlaceName\n$selectedDetailPlaceName"
-        fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(locationText )
+        binding.editTextDetailEditTitleLocation.setText(locationText )
     }
 
     // 툴바 설정
     fun settingToolbar() {
-        fragmentDetailEditBinding.apply {
+        binding.apply {
             toolBarDetailEdit.apply {
                 title="게시글 수정"
                 //네비게이션
@@ -511,42 +539,48 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     // 칩 그룹 설정
     fun setupChipGroups() {
         // 초기화 전에 기존 칩을 모두 제거하여 ID 충돌 방지
-        fragmentDetailEditBinding.chipGroupDetailEditType.removeAllViews()
-        fragmentDetailEditBinding.chipGroupDetailEditPlace.removeAllViews()
-        fragmentDetailEditBinding.chipGroupDetailEditApply.removeAllViews()
+        binding.chipGroupDetailEditType.removeAllViews()
+        binding.chipGroupDetailEditPlace.removeAllViews()
+        binding.chipGroupDetailEditApply.removeAllViews()
 
+        Log.d("DetailEditFragment", "Setting up study type chips")
         setupChipGroup(
-            fragmentDetailEditBinding.chipGroupDetailEditType,
+            binding.chipGroupDetailEditType,
             listOf("스터디", "공모전", "프로젝트"),
-            mapOf("스터디" to 1, "프로젝트" to 2, "공모전" to 3) // tag 값을 지정
+            mapOf("스터디" to "스터디", "프로젝트" to "프로젝트", "공모전" to "공모전") // tag 값을 지정
         )
 
+        Log.d("DetailEditFragment", "Setting up on/offline chips")
         setupChipGroup(
-            fragmentDetailEditBinding.chipGroupDetailEditPlace,
+            binding.chipGroupDetailEditPlace,
             listOf("오프라인", "온라인", "온·오프 혼합"),
-            mapOf("온라인" to 1, "오프라인" to 2, "온·오프 혼합" to 3) // tag 값을 지정
+            mapOf("온라인" to "온라인", "오프라인" to "오프라인", "온·오프 혼합" to "온·오프 혼합") // tag 값을 지정
         )
 
+        Log.d("DetailEditFragment", "Setting up apply method chips")
         setupChipGroup(
-            fragmentDetailEditBinding.chipGroupDetailEditApply,
+            binding.chipGroupDetailEditApply,
             listOf("신청제", "선착순"),
-            mapOf("신청제" to 1, "선착순" to 2) // tag 값을 지정
+            mapOf("신청제" to "신청제", "선착순" to "선착순") // tag 값을 지정
         )
 
         // 장소선택 가시성 설정
         setPlaceSelectionListener()
+
+        // 칩이 생성되고 추가된 후에 preselectChips 호출
+        preselectChips()
     }
 
     // 장소 선택에 따른 UI 가시성 조절
     fun setPlaceSelectionListener() {
         // 반복하며 칩에 클릭 리스너 설정
-        fragmentDetailEditBinding.chipGroupDetailEditPlace.children.forEach { view ->
+        binding.chipGroupDetailEditPlace.children.forEach { view ->
             (view as Chip).setOnClickListener {
                 Log.d("SelectedChip", "Selected chip: ${view.text}")
                 // 칩 클릭시 가시성 업데이트 함수 호출
                 updatePlaceVisibility(view)
                 // 칩 스타일 업데이트
-                updateChipStyles(fragmentDetailEditBinding.chipGroupDetailEditPlace, view.id)
+                updateChipStyles(binding.chipGroupDetailEditPlace, view.id)
 
             }
         }
@@ -556,9 +590,9 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     fun updatePlaceVisibility(chip: Chip) {
         when (chip.text.toString()) {
             // '온라인'이 선택된 경우 장소 선택 입력 필드 숨김
-            "온라인" -> fragmentDetailEditBinding.textInputLayoutDetailEditPlace.visibility = View.GONE
+            "온라인" -> binding.textInputLayoutDetailEditPlace.visibility = View.GONE
             else -> {
-                fragmentDetailEditBinding.textInputLayoutDetailEditPlace.visibility = View.VISIBLE
+                binding.textInputLayoutDetailEditPlace.visibility = View.VISIBLE
 
                 // currentStudyData에서 studyPlace와 studyDetailPlace 데이터를 가져와 합친다음 editTextDetailEditTitleLocation에 값을 넣기
                 val placeName = currentStudyData?.studyPlace
@@ -566,7 +600,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 selectedPlaceName = placeName.toString()
                 selectedDetailPlaceName = detailPlaceName.toString()
                 val test = "$placeName\n$detailPlaceName"
-                fragmentDetailEditBinding.editTextDetailEditTitleLocation.setText(test)
+                binding.editTextDetailEditTitleLocation.setText(test)
             }
         }
     }
@@ -584,7 +618,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     }
 
     // 각 그룹에 칩 추가
-    fun setupChipGroup(chipGroup: ChipGroup, chipNames: List<String>, chipTags: Map<String, Int>? = null) {
+    fun setupChipGroup(chipGroup: ChipGroup, chipNames: List<String>, chipTags: Map<String, String>? = null) {
         chipGroup.isSingleSelection = true  // Single selection 모드 활성화
         chipGroup.removeAllViews()  // 중복 생성을 방지하기 위해 기존 뷰를 제거
 
@@ -600,6 +634,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
                 setTextAppearance(R.style.ChipTextStyle)
                 tag = chipTags?.get(name) ?: index + 1
             }
+            Log.d("DetailEditFragment", "Adding chip: $name with tag: ${chip.tag}")
             // 칩을 칩그룹에 추가
             chipGroup.addView(chip)
             setupChipListener(chip, chipGroup)
@@ -629,7 +664,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         }
     }
 
-     // 칩 스타일 업데이트
+    // 칩 스타일 업데이트
     fun updateChipStyle(chip: Chip, isSelected: Boolean) {
         val context = chip.context
         val backgroundColor = if (isSelected) ContextCompat.getColor(
@@ -643,20 +678,16 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
         chip.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
         chip.setTextColor(textColor)
+
+        Log.d("DetailEditFragment", "Chip style updated for chip '${chip.text}': isSelected = $isSelected")
     }
 
     override fun onSkillSelected(selectedSkills: List<Skill>) {
 
-        val selectedSkillNums = selectedSkills.map { it.num }  // Skill 객체에서 num 값 추출
-        val selectedSkillObjects = selectedSkills  // 원본 Skill 리스트를 저장
-
-        this.selectedSkills = selectedSkillNums  // selectedSkills를 num 리스트로 설정
-
-        selectedSkillNums.forEach { num ->
-            Log.d("DetailEditFragment", "Selected skill number: $num")
-        }
-
-        addChipsToGroup(fragmentDetailEditBinding.ChipGroupDetailEdit, selectedSkillObjects)
+        // 새로운 스킬 목록으로 칩그룹 업데이트
+        Log.d("DetailEditFragment", "Selected skills: ${selectedSkills.joinToString { it.displayName }}")
+        this.selectedSkills = selectedSkills.map { it.num }  // Skill 객체에서 num 값 추출
+        addChipsToGroup(binding.ChipGroupDetailEdit, selectedSkills)
     }
 
     fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
@@ -690,16 +721,16 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
     fun setupBottomSheet() {
 
-        fragmentDetailEditBinding.textInputLayoutDetailEditSkill.editText?.setOnClickListener {
+        binding.textInputLayoutDetailEditSkill.editText?.setOnClickListener {
             val bottomSheet = SkillBottomSheetFragment().apply {
-                setOnSkillSelectedListener(this@DetailEditFragment)
+                setSelectedSkills(selectedSkillList.map { Skill.fromNum(it) }) // 이미 선택된 스킬 설정
+                setOnSkillSelectedListener(this@DetailEditFragment) // 리스너 설정
             }
             bottomSheet.show(childFragmentManager, bottomSheet.tag)
-            bottomSheet.setSelectedSkills(currentStudyData?.studySkillList?.map { Skill.fromNum(it) } ?: emptyList())
         }
 
         // 프래그 먼트간 연결 설정
-        fragmentDetailEditBinding.textInputLayoutDetailEditPlace.editText?.setOnClickListener {
+        binding.textInputLayoutDetailEditPlace.editText?.setOnClickListener {
             val bottomSheet = PlaceBottomSheetFragment().apply {
                 setOnPlaceSelectedListener(this@DetailEditFragment)
             }
@@ -718,7 +749,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     }
 
     fun setupButton() {
-        fragmentDetailEditBinding.buttonDetailEditDone.setOnClickListener {
+        binding.buttonDetailEditDone.setOnClickListener {
             if (validateInputs()) {
 //                uploadImageAndSaveData()
                 if (contentUri != null) {
@@ -734,39 +765,39 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
         }
 
         // 작성 예시보기 text클릭
-        fragmentDetailEditBinding.textviewDetailIntroEx.setOnClickListener {
+        binding.textviewDetailIntroEx.setOnClickListener {
             val dialog = CustomIntroDialog(requireContext())
             dialog.show()
         }
 
         // 커버 이미지 추가
-        fragmentDetailEditBinding.imageViewDetailCover.setOnClickListener {
+        binding.imageViewDetailCover.setOnClickListener {
             showPopupWindow(it)
         }
     }
 
-    fun getSelectedStudyType(): Int {
-        val chipGroup = fragmentDetailEditBinding.chipGroupDetailEditType
+    fun getSelectedStudyType(): String {
+        val chipGroup = binding.chipGroupDetailEditType
         val selectedChipId = chipGroup.checkedChipId
-        val selectedChip = fragmentDetailEditBinding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment","chipGroupDetailEditType = ${selectedChip.tag}")
-        return selectedChip?.tag as? Int ?: 0 // 기본값 0
+        val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
+        Log.d("DetailEditFragment", "chipGroupDetailEditType = ${selectedChip.tag}")
+        return selectedChip?.tag as? String ?: ""
     }
 
-    fun getSelectedStudyOnOffline(): Int {
-        val chipGroup = fragmentDetailEditBinding.chipGroupDetailEditPlace
+    fun getSelectedStudyOnOffline(): String {
+        val chipGroup = binding.chipGroupDetailEditPlace
         val selectedChipId = chipGroup.checkedChipId
-        val selectedChip = fragmentDetailEditBinding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment","chipGroupDetailEditPlace = ${selectedChip.tag}")
-        return selectedChip?.tag as? Int ?: 1 // 기본값 0
+        val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
+        Log.d("DetailEditFragment", "chipGroupDetailEditPlace = ${selectedChip.tag}")
+        return selectedChip?.tag as? String ?: ""
     }
 
-    fun getSelectedStudyApplyMethod(): Int {
-        val chipGroup = fragmentDetailEditBinding.chipGroupDetailEditApply
+    fun getSelectedStudyApplyMethod(): String {
+        val chipGroup = binding.chipGroupDetailEditApply
         val selectedChipId = chipGroup.checkedChipId
-        val selectedChip = fragmentDetailEditBinding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment","chipGroupDetailEditApply = ${selectedChip.tag}")
-        return selectedChip?.tag as? Int ?: 1 // 기본값 0
+        val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
+        Log.d("DetailEditFragment", "chipGroupDetailEditApply = ${selectedChip.tag}")
+        return selectedChip?.tag as? String ?: ""
     }
 
     fun uploadImageAndSaveData() {
@@ -794,7 +825,7 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
     fun saveData(imageFileName: String) {
         if (!validateInputs()) {
-            Snackbar.make(fragmentDetailEditBinding.root, "입력이 유효하지 않습니다.", Snackbar.LENGTH_SHORT)
+            Snackbar.make(binding.root, "입력이 유효하지 않습니다.", Snackbar.LENGTH_SHORT)
                 .show()
             return
         }
@@ -805,38 +836,33 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 //        val studySkills = if (selectedSkills.isNotEmpty()) selectedSkills else currentStudyData?.studySkillList ?: listOf()
 
         // EditText로부터 텍스트를 가져와 줄바꿈 문자를 \n으로 변환
-        val studyContent = fragmentDetailEditBinding.editTextDetailEditContext.text.toString().replace(System.getProperty("line.separator"), "\\n")
+        val studyContent = binding.editTextDetailEditContext.text.toString().replace(System.getProperty("line.separator"), "\\n")
 
-        val placeName = if (studyOnOffline == 1) "" else selectedPlaceName
-        val detailPlaceName = if (studyOnOffline == 1) "" else selectedDetailPlaceName
+        val placeName = if (studyOnOffline == "온라인") "" else selectedPlaceName
+        val detailPlaceName = if (studyOnOffline == "온라인") "" else selectedDetailPlaceName
 
-        val updatedStudyData = StudyData(
+        val updatedStudyData = SqlStudyData(
             studyIdx = studyIdx,
-            studyTitle = fragmentDetailEditBinding.editTextDetailEditTitle.text.toString(),
+            studyTitle = binding.editTextDetailEditTitle.text.toString(),
             studyContent = studyContent,
             studyType = studyType,
-            studyPeriod = currentStudyData?.studyPeriod!!.toInt(),
+            studyPeriod = currentStudyData?.studyPeriod ?: "",
             studyOnOffline = studyOnOffline,
             studyPlace = placeName,
             studyDetailPlace = detailPlaceName,
             studyApplyMethod = studyApplyMethod,
-            studySkillList = selectedSkillList,
-            studyCanApply = currentStudyData?.studyCanApply ?: true,
+            studyCanApply = currentStudyData?.studyCanApply ?: "",
             studyPic = imageFileName,
-            studyMaxMember = fragmentDetailEditBinding.editTextDetailEditMember.text.toString().toInt(),
-            studyUidList = currentStudyData?.studyUidList ?: listOf(),
-            chatIdx = currentStudyData?.chatIdx!!.toInt(),
-            studyState = currentStudyData?.studyState?: true,
-            studyWriteUid = currentStudyData?.studyWriteUid.toString(),
-            studyApplyList= currentStudyData?.studyApplyList?: listOf(),
-            studyLikeState = currentStudyData?.studyLikeState ?: false
-
+            studyMaxMember = binding.editTextDetailEditMember.text.toString().toInt(),
+            studyState = currentStudyData?.studyState ?: true,
+            userIdx = currentStudyData?.userIdx ?: -1
         )
 
-        viewModel.updateStudyDataByStudyIdx(studyIdx, updatedStudyData)
+        viewModel.updateStudyData(updatedStudyData)
+        viewModel.insertSkills(studyIdx, selectedSkillList)
         Log.d("DetailEditFragment", "Updating study data: $updatedStudyData")
 
-}
+    }
 
 
     // 스낵바 글시 크기 설정을 위해 dp를 px로 변환
@@ -846,14 +872,14 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
     // 입력 유효성 검사
     fun validateInputs(): Boolean {
-        val title = fragmentDetailEditBinding.editTextDetailEditTitle.text.toString()
-        val description = fragmentDetailEditBinding.editTextDetailEditContext.text.toString()
+        val title = binding.editTextDetailEditTitle.text.toString()
+        val description = binding.editTextDetailEditContext.text.toString()
 
-        val memberInput = fragmentDetailEditBinding.editTextDetailEditMember.text.toString()
+        val memberInput = binding.editTextDetailEditMember.text.toString()
         val memberCount = memberInput.toIntOrNull() ?: 0
 
         // 최소 인원 수 설정
-        val minMembers = currentStudyData?.studyUidList?.size.toString().toInt()
+//        val minMembers = currentStudyData?.studyUidList?.size.toString().toInt()
 
 
         val studyOnOffline = getSelectedStudyOnOffline()  // 현재 온라인/오프라인 상태 가져오기
@@ -863,36 +889,36 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
         // 제목이 비어있거나 너무 짧은 경우 검사
         if (title.isEmpty() || title.length < 8) {
-            fragmentDetailEditBinding.textInputLayoutDetailEditTitle.error = "제목은 최소 8자 이상이어야 합니다."
+            binding.textInputLayoutDetailEditTitle.error = "제목은 최소 8자 이상이어야 합니다."
             return false
         } else {
-            fragmentDetailEditBinding.textInputLayoutDetailEditTitle.error = null
+            binding.textInputLayoutDetailEditTitle.error = null
         }
 
         // 소개글이 비어있거나 너무 짧은 경우 검사
         if (description.isEmpty() || description.length < 10) {
-            fragmentDetailEditBinding.textInputLayoutDetailEditContext.error =
+            binding.textInputLayoutDetailEditContext.error =
                 "소개글은 최소 10자 이상이어야 합니다."
             return false
         } else {
-            fragmentDetailEditBinding.textInputLayoutDetailEditContext.error = null
+            binding.textInputLayoutDetailEditContext.error = null
         }
 
         // 온라인이 아닌 경우 위치 유효성 검사
-        if (studyOnOffline != 1) {
+        if (studyOnOffline != "온라인") {
             if (placeName.isEmpty() || detailPlaceName.isEmpty()) {
-                fragmentDetailEditBinding.editTextDetailEditTitleLocation.error = "장소와 상세 장소를 입력해야 합니다."
+                binding.editTextDetailEditTitleLocation.error = "장소와 상세 장소를 입력해야 합니다."
                 return false
             } else {
-                fragmentDetailEditBinding.editTextDetailEditTitleLocation.error = null
+                binding.editTextDetailEditTitleLocation.error = null
             }
         }
         // 인원수가 최소 인원보다 작은 경우 검사
         if (memberCount < minMembers) {
-            fragmentDetailEditBinding.textInputLayoutDetailEditMember.error = "최소 인원은 $minMembers 명 이상이어야 합니다."
+            binding.textInputLayoutDetailEditMember.error = "최소 인원은 $minMembers 명 이상이어야 합니다."
             return false
         } else {
-            fragmentDetailEditBinding.textInputLayoutDetailEditMember.error = null
+            binding.textInputLayoutDetailEditMember.error = null
         }
 
 
@@ -903,24 +929,24 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
     fun preselectChips() {
         // 스터디 타입 칩 선택
         val studyTypeText = when (currentStudyData?.studyType) {
-            1 -> "스터디"
-            2 -> "프로젝트"
-            3 -> "공모전"
+            "스터디" -> "스터디"
+            "프로젝트" -> "프로젝트"
+            "공모전" -> "공모전"
             else -> ""
         }
-        findChipByText(fragmentDetailEditBinding.chipGroupDetailEditType, studyTypeText)?.let {
+        findChipByText(binding.chipGroupDetailEditType, studyTypeText)?.let {
             it.isChecked = true
             updateChipStyle(it, true)
         }
 
         // 온오프라인 타입 칩 선택
         val onOfflineText = when (currentStudyData?.studyOnOffline) {
-            1 -> "온라인"
-            2 -> "오프라인"
-            3 -> "온·오프 혼합"
+            "온라인" -> "온라인"
+            "오프라인" -> "오프라인"
+            "온·오프 혼합" -> "온·오프 혼합"
             else -> ""
         }
-        findChipByText(fragmentDetailEditBinding.chipGroupDetailEditPlace, onOfflineText)?.let {
+        findChipByText(binding.chipGroupDetailEditPlace, onOfflineText)?.let {
             it.isChecked = true
             updateChipStyle(it, true)
             updatePlaceVisibility(it) // UI 가시성 설정
@@ -928,22 +954,23 @@ class DetailEditFragment : Fragment(), OnSkillSelectedListener, OnPlaceSelectedL
 
         // 신청 방법 칩 선택
         val applyMethodText = when (currentStudyData?.studyApplyMethod) {
-            1 -> "신청제"
-            2 -> "선착순"
+            "신청제" -> "신청제"
+            "선착순" -> "선착순"
             else -> ""
         }
-        findChipByText(fragmentDetailEditBinding.chipGroupDetailEditApply, applyMethodText)?.let {
+        findChipByText(binding.chipGroupDetailEditApply, applyMethodText)?.let {
             it.isChecked = true
             updateChipStyle(it, true)
         }
-        val selectedSkills = currentStudyData?.studySkillList?.map { Skill.fromNum(it) } ?: emptyList()
-        addChipsToGroup(fragmentDetailEditBinding.ChipGroupDetailEdit, selectedSkills)
+
     }
 
     // 특정 텍스트를 가진 칩을 찾는 함수
     fun findChipByText(chipGroup: ChipGroup, text: String): Chip? {
         // 해당 텍스트를 가진 첫 번째 칩 반환, 없으면 null 반환
-        return chipGroup.children.firstOrNull { (it as Chip).text == text } as? Chip
+        val chip = chipGroup.children.firstOrNull { (it as Chip).text == text } as? Chip
+        Log.d("DetailEditFragment", "Found chip for text '$text': ${chip?.text}")
+        return chip
     }
 
 }

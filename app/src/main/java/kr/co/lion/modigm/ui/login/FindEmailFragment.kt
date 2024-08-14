@@ -205,13 +205,13 @@ class FindEmailFragment :
         // 완료 여부는 초기화해서 popStackBack으로 돌아와도 문제 없게
         viewModel.isCompleteTo(false)
         // 다음 화면에 verficationId를 전달하여 번호 인증에 사용
-        val fragment = FindEmailAuthFragment().apply {
+        val findEmailAuthFragment = FindEmailAuthFragment().apply {
             arguments = Bundle().apply {
                 putString("verificationId", viewModel.verificationId.value)
             }
         }
         parentFragmentManager.commit {
-            replace(R.id.containerMain, fragment)
+            replace(R.id.containerMain, findEmailAuthFragment)
             addToBackStack(FragmentName.FIND_EMAIL_AUTH.str)
         }
     }

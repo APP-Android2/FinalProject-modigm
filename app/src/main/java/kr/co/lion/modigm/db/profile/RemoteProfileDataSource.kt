@@ -1,5 +1,7 @@
 package kr.co.lion.modigm.db.profile
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
@@ -47,6 +49,17 @@ class RemoteProfileDataSource {
             dao.updateUserLinkData(userIdx, linkList)
         } catch (error: Exception) {
             Log.e("RemoteProfileDataSource", "updateUserListData(): $error")
+        }
+    }
+
+    // 프로필 사진을 Amazon S3에 업로드
+    suspend fun uploadProfilePic(uri: Uri, context: Context): String {
+        try {
+            val filePath = dao.uploadProfilePic(uri, context)
+            return filePath
+        } catch (error: Exception) {
+            Log.e("RemoteProfileDataSource", "uploadProfilePic(): $error")
+            return ""
         }
     }
 

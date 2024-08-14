@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.repository.LoginRepository
+import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class LoginViewModel : ViewModel() {
@@ -29,6 +30,10 @@ class LoginViewModel : ViewModel() {
     // 이메일 로그인 결과를 담는 LiveData
     private val _emailLoginResult = MutableLiveData<Boolean>()
     val emailLoginResult: LiveData<Boolean> = _emailLoginResult
+
+    // 이메일 자동로그인 결과를 담는 LiveData
+    private val _emailAutoLoginResult = MutableLiveData<Boolean>()
+    val emailAutoLoginResult: LiveData<Boolean> = _emailAutoLoginResult
 
 
     // 깃허브 회원가입 결과를 담는 LiveData
@@ -104,7 +109,7 @@ class LoginViewModel : ViewModel() {
             result.onSuccess {
                 setAutoLogin(autoLogin)
                 if (autoLogin) {
-                    setCurrentUserProvider("email")
+                    setCurrentUserProvider(JoinType.EMAIL.provider)
                 }
                 setCurrentUserIdx(it)
                 _emailLoginResult.postValue(true)
@@ -129,12 +134,13 @@ class LoginViewModel : ViewModel() {
                     _githubJoinResult.postValue(true)
                 } else {
                     setAutoLogin(true)
-                    setCurrentUserProvider("github")
+                    setCurrentUserProvider(JoinType.GITHUB.provider)
                     setCurrentUserIdx(it)
                     _githubLoginResult.postValue(true)
                 }
 
             }.onFailure { e ->
+                clearCurrentUser()
                 _githubLoginResult.postValue(false)
                 _githubLoginError.postValue(e)
             }
@@ -154,12 +160,13 @@ class LoginViewModel : ViewModel() {
                     _kakaoJoinResult.postValue(true)
                 } else {
                     setAutoLogin(true)
-                    setCurrentUserProvider("kakao")
+                    setCurrentUserProvider(JoinType.KAKAO.provider)
                     setCurrentUserIdx(it)
                     _kakaoLoginResult.postValue(true)
                 }
 
             }.onFailure { e ->
+                clearCurrentUser()
                 _kakaoLoginResult.postValue(false)
                 _kakaoLoginError.postValue(e)
             }
@@ -171,30 +178,31 @@ class LoginViewModel : ViewModel() {
      */
     fun tryAutoLogin() {
         // 자동 로그인이 활성화 되어 있다면
+        Log.d(tag, "tryAutoLogin 호출됨.")
         if(getAutoLogin()) {
             viewModelScope.launch {
                 val userIdx = getCurrentUserIdx()
                 val result = loginRepository.autoLogin(userIdx)
                 result.onSuccess {
+                    // 자동 로그인 성공
+                    Log.d(tag, "자동 로그인 성공. ${getCurrentUserProvider()}")
                     when (getCurrentUserProvider()) {
-                        "github" -> _githubLoginResult.postValue(true)
-                        "kakao"  -> _kakaoLoginResult.postValue(true)
-                        "email"  -> _emailLoginResult.postValue(true)
+                        JoinType.GITHUB.provider -> _githubLoginResult.postValue(true)
+                        JoinType.KAKAO.provider  -> _kakaoLoginResult.postValue(true)
+                        JoinType.EMAIL.provider  -> _emailAutoLoginResult.postValue(true)
                     }
                 }.onFailure { e ->
+                    // 자동 로그인 실패
+                    Log.e(tag, "자동 로그인 실패. 오류: ${e.message}", e)
                     when (getCurrentUserProvider()) {
-                        "github" -> _githubLoginResult.postValue(false)
-                        "kakao"  -> _kakaoLoginResult.postValue(false)
-                        "email"  -> _emailLoginResult.postValue(false)
+                        JoinType.GITHUB.provider -> _githubLoginResult.postValue(false)
+                        JoinType.KAKAO.provider  -> _kakaoLoginResult.postValue(false)
+                        JoinType.EMAIL.provider  -> _emailAutoLoginResult.postValue(false)
                     }
                 }
             }
         }
     }
-
-
-
-
 
     /**
      * 로그아웃

@@ -12,14 +12,15 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.DialogWritePeriodFragmentBinding
+import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWritePeriodBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.write.adapter.OptionSpinnerAdapter
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
 
-class WritePeriodFragment : Fragment() {
+class WritePeriodFragment : VBBaseFragment<FragmentWritePeriodBinding>(FragmentWritePeriodBinding::inflate) {
 
-    lateinit var binding: FragmentWritePeriodBinding
     private val viewModel: WriteViewModel by activityViewModels()
     val tabName = "period"
 
@@ -32,7 +33,6 @@ class WritePeriodFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentWritePeriodBinding.inflate(inflater)
 
         return binding.root
     }

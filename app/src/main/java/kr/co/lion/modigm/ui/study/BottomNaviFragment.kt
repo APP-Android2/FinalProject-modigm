@@ -5,15 +5,18 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
+import kr.co.lion.modigm.ui.study.vm.BottomNaviViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
+import kotlin.system.exitProcess
 
 class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate) {
 
@@ -21,34 +24,32 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         JoinType.getType(arguments?.getString("joinType")?:"")
     }
 
-    // 로그인 상태를 저장하는 변수
-    private var isSnackBarShown = false
+    private val viewModel: BottomNaviViewModel by viewModels()
 
     // --------------------------------- LC START ---------------------------------
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // 이전 상태에서 isSnackBarShown 값 복원
-        isSnackBarShown = savedInstanceState?.getBoolean("isSnackBarShown") ?: false
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        // 현재 isSnackBarShown 상태 저장
-        outState.putBoolean("isSnackBarShown", isSnackBarShown)
+        // 현재 ViewModel의 isSnackBarShown 상태 저장
+        outState.putBoolean("isSnackBarShown", viewModel.isSnackBarShown.value ?: false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // savedInstanceState에서 isSnackBarShown 값 복원
+        savedInstanceState?.getBoolean("isSnackBarShown")?.let {
+            viewModel.setSnackBarShown(it)
+        }
 
         initView()
         // 프리퍼런스 전체 확인 로그 (필터 입력: SharedPreferencesLog)
         prefs.logAllPreferences()
 
         // 다시 이 화면으로 돌아왔을 때 로그인 스낵바를 띄우지 않기
-        if (!isSnackBarShown) {
+        if (viewModel.isSnackBarShown.value == false) {
             showLoginSnackBar()
-            isSnackBarShown = true
+            viewModel.setSnackBarShown(true)
         }
 
         backButton()
@@ -61,13 +62,13 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         if(joinType != null){
             when(joinType) {
                 JoinType.EMAIL -> {
-                    requireActivity().showLoginSnackBar("이메일 로그인 성공", R.drawable.email_login_logo)
+                    requireActivity().showLoginSnackBar("이메일 로그인 성공", JoinType.EMAIL.icon)
                 }
                 JoinType.KAKAO -> {
-                    requireActivity().showLoginSnackBar("카카오 로그인 성공", R.drawable.kakaotalk_sharing_btn_small)
+                    requireActivity().showLoginSnackBar("카카오 로그인 성공", JoinType.KAKAO.icon)
                 }
                 JoinType.GITHUB -> {
-                    requireActivity().showLoginSnackBar("깃허브 로그인 성공", R.drawable.icon_github_logo)
+                    requireActivity().showLoginSnackBar("깃허브 로그인 성공", JoinType.GITHUB.icon)
                 }
                 else -> {
                     return
@@ -148,7 +149,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 R.id.bottomNaviMy -> {
                     val profileFragment = ProfileFragment().apply {
                         arguments = Bundle().apply {
-                            putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
+                            putInt("userIdx", prefs.getInt("currentUserIdx"))
                         }
                     }
                     childFragmentManager.commit {
@@ -181,7 +182,8 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 } else {
                     // 백버튼을 두 번 눌렀을 때 앱 종료
                     if (doubleBackToExitPressedOnce) {
-                        requireActivity().finish()
+                        requireActivity().finishAffinity()
+                        exitProcess(0) // 앱 프로세스를 완전히 종료
                     } else {
                         doubleBackToExitPressedOnce = true
                         // Snackbar를 표시하여 사용자에게 알림

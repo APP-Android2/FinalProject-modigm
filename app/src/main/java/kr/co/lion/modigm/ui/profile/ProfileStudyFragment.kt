@@ -16,14 +16,14 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.databinding.FragmentProfileStudyBinding
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileStudyViewModel
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class ProfileStudyFragment : Fragment() {
-    lateinit var fragmentProfileStudyBinding: FragmentProfileStudyBinding
+class ProfileStudyFragment : DBBaseFragment<FragmentProfileStudyBinding>(R.layout.fragment_profile_study) {
     private val profileStudyViewModel: ProfileStudyViewModel by viewModels()
 
     val studyAdapter: ProfileStudyAdapter = ProfileStudyAdapter(
@@ -51,13 +51,11 @@ class ProfileStudyFragment : Fragment() {
     )
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        fragmentProfileStudyBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile_study, container, false)
+        super.onCreateView(inflater, container, savedInstanceState)
+        binding.profileStudyViewModel = profileStudyViewModel
+        binding.lifecycleOwner = this
 
-        // Bind ViewModel and lifecycle owner
-        fragmentProfileStudyBinding.profileStudyViewModel = profileStudyViewModel
-        fragmentProfileStudyBinding.lifecycleOwner = this
-
-        return fragmentProfileStudyBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,16 +71,14 @@ class ProfileStudyFragment : Fragment() {
     }
 
     private fun setupToolbar() {
-        fragmentProfileStudyBinding.apply {
-            toolbarProfileStudy.apply {
-                // title
-                title = "스터디 목록"
+        binding.toolbarProfileStudy.apply {
+            // title
+            title = "스터디 목록"
 
-                // 뒤로 가기
-                setNavigationIcon(R.drawable.icon_arrow_back_24px)
-                setNavigationOnClickListener {
-                    requireActivity().supportFragmentManager.popBackStack()
-                }
+            // 뒤로 가기
+            setNavigationIcon(R.drawable.icon_arrow_back_24px)
+            setNavigationOnClickListener {
+                requireActivity().supportFragmentManager.popBackStack()
             }
         }
     }
@@ -103,14 +99,12 @@ class ProfileStudyFragment : Fragment() {
 
     private fun setupRecyclerView() {
         // 리사이클러뷰 구성
-        fragmentProfileStudyBinding.apply {
-            recyclerViewProfileStudy.apply {
-                // 리사이클러뷰 어댑터
-                adapter = studyAdapter
+        binding.recyclerViewProfileStudy.apply {
+            // 리사이클러뷰 어댑터
+            adapter = studyAdapter
 
-                // 리사이클러뷰 레이아웃
-                layoutManager = LinearLayoutManager(requireContext())
-            }
+            // 리사이클러뷰 레이아웃
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
