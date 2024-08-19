@@ -273,6 +273,38 @@ class SqlRemoteDetailDao {
         }
     }
 
+    // 사용자를 tb_study_member에 추가하는 메서드
+    suspend fun addUserToStudyMember(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "INSERT INTO tb_study_member (studyIdx, userIdx) VALUES (?, ?)"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding user to study member", e)
+            return@withContext false
+        }
+    }
 
+    // 사용자를 tb_study_request에서 삭제하는 메서드
+    suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "DELETE FROM tb_study_request WHERE studyIdx = ? AND userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error removing user from study request", e)
+            return@withContext false
+        }
+    }
 
 }

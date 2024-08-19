@@ -73,4 +73,16 @@ class SqlDetailRepository {
         return sqlRemoteDetailDataSource.getStudyRequestMembers(studyIdx)
     }
 
+    suspend fun acceptUser(studyIdx: Int, userIdx: Int): Boolean {
+        val added = sqlRemoteDetailDataSource.addUserToStudyMember(studyIdx, userIdx)
+        if (added) {
+            return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
+        }
+        return false
+    }
+
+    // 특정 사용자를 tb_study_request에서 삭제하는 메소드
+    suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
+    }
 }

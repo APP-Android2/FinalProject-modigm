@@ -53,6 +53,12 @@ class SqlDetailViewModel: ViewModel() {
     private val _studyRequestMembers = MutableStateFlow<List<SqlUserData>>(emptyList())
     val studyRequestMembers: StateFlow<List<SqlUserData>> = _studyRequestMembers
 
+    private val _acceptUserResult = MutableSharedFlow<Boolean>()
+    val acceptUserResult: SharedFlow<Boolean> = _acceptUserResult
+
+    private val _removeUserFromApplyResult = MutableSharedFlow<Boolean>()
+    val removeUserFromApplyResult: SharedFlow<Boolean> = _removeUserFromApplyResult
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
@@ -204,6 +210,35 @@ class SqlDetailViewModel: ViewModel() {
         viewModelScope.launch {
             val members = sqlDetailRepository.getStudyRequestMembers(studyIdx)
             _studyRequestMembers.value = members
+        }
+    }
+
+    fun acceptUser(studyIdx: Int, userIdx: Int) {
+        viewModelScope.launch {
+            val result = sqlDetailRepository.acceptUser(studyIdx, userIdx)
+            _acceptUserResult.emit(result)
+//            // 신청자 리스트를 다시 로드
+//            fetchStudyRequestMembers(studyIdx)
+
+            if (result) {
+                // 신청자 리스트를 다시 로드
+                fetchStudyRequestMembers(studyIdx)
+                // 스터디 멤버 리스트도 갱신
+                fetchMembersInfo(studyIdx)
+            }
+        }
+    }
+
+    // 특정 사용자를 스터디 요청에서 삭제하는 메소드
+    fun removeUserFromApplyList(studyIdx: Int, userIdx: Int) {
+        viewModelScope.launch {
+            val result = sqlDetailRepository.removeUserFromStudyRequest(studyIdx, userIdx)
+            _removeUserFromApplyResult.emit(result)
+
+            if (result) {
+                // 신청자 리스트를 다시 로드
+                fetchStudyRequestMembers(studyIdx)
+            }
         }
     }
 
