@@ -22,6 +22,9 @@ class DetailMemberFragment : VBBaseFragment<FragmentDetailMemberBinding>(Fragmen
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 전달된 studyIdx 값을 저장
+        studyIdx = arguments?.getInt("studyIdx") ?: 0
+
         setupViewPagerAndTabs()
         setupToolbar()
 
