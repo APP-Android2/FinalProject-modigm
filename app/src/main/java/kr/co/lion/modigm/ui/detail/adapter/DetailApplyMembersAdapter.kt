@@ -13,17 +13,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowDetailApplyMemberBinding
+import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 
 class DetailApplyMembersAdapter(
     private val viewModel: SqlDetailViewModel,
-    private val chatRoomViewModel: ChatRoomViewModel,
-    private val currentUserId: String,
+    private val currentUserId: Int,
     private val studyIdx: Int,
-    private val onItemClicked: (UserData) -> Unit
-) : ListAdapter<UserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+    private val onItemClicked: (SqlUserData) -> Unit
+) : ListAdapter<SqlUserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = RowDetailApplyMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -37,7 +37,7 @@ class DetailApplyMembersAdapter(
 
     inner class MemberViewHolder(private val binding: RowDetailApplyMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(user: UserData) {
+        fun bind(user: SqlUserData) {
 
             itemView.setOnClickListener {
                 onItemClicked(user)
@@ -81,18 +81,6 @@ class DetailApplyMembersAdapter(
 //                }
             }
 
-            // Firebase Storage에서 이미지 URL 가져오기
-            val storageReference =
-                FirebaseStorage.getInstance().reference.child("userProfile/${user.userProfilePic}")
-            storageReference.downloadUrl.addOnSuccessListener { uri ->
-                Glide.with(itemView.context)
-                    .load(uri)
-                    .error(R.drawable.icon_error_24px) // 로드 실패 시 표시할 이미지
-                    .into(binding.imageViewDetailApplyMember) // ImageView에 이미지 로드
-            }.addOnFailureListener {
-                // 에러 처리
-            }
-
         }
 
         // 스낵바 글시 크기 설정을 위해 dp를 px로 변환
@@ -103,7 +91,7 @@ class DetailApplyMembersAdapter(
 
 
         // custom dialog
-        fun showRefuseDialog(user: UserData) {
+        fun showRefuseDialog(user: SqlUserData) {
             val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.custom_dialog, null)
             val dialog = MaterialAlertDialogBuilder(itemView.context, R.style.dialogColor)
                 .setTitle("거절 확인")
@@ -152,12 +140,12 @@ class DetailApplyMembersAdapter(
         }
     }
 
-    class UserDiffCallback : DiffUtil.ItemCallback<UserData>() {
-        override fun areItemsTheSame(oldItem: UserData, newItem: UserData): Boolean {
+    class UserDiffCallback : DiffUtil.ItemCallback<SqlUserData>() {
+        override fun areItemsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
             return oldItem.userUid == newItem.userUid
         }
 
-        override fun areContentsTheSame(oldItem: UserData, newItem: UserData): Boolean {
+        override fun areContentsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
             return oldItem == newItem
         }
     }
