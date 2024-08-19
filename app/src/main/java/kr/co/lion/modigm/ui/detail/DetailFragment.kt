@@ -72,7 +72,13 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
 
+        // 기본 이미지로 초기화
+        binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+
         viewModel.clearData() // ViewModel 데이터 초기화
+
+        // 초기 데이터 로드
+        viewModel.fetchUserProfile(userIdx)
 
         // 앱바 스크롤
         setupAppBarScrollListener()
@@ -87,7 +93,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         fetchDataAndUpdateUI()
 
         userprofile()
+
         observeViewModel()
+
     }
 
     fun fetchDataAndUpdateUI() {
@@ -97,6 +105,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             val membersDeferred = async { viewModel.countMembersByStudyIdx(studyIdx) }
             val techDeferred = async { viewModel.getTechIdxByStudyIdx(studyIdx) }
             val imageDeferred = async { loadImage() }
+//            val userImageDeferred = async { loadUserImage() } // 사용자 이미지 로드
 
             // 모든 데이터 로드 완료까지 대기
             awaitAll(dataDeferred, membersDeferred, techDeferred, imageDeferred)
@@ -167,15 +176,21 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // 글 작성자 정보
         lifecycleScope.launch {
             viewModel.userData.collect { user ->
-                user?.let {
-                    currentUserData = it
-                    updateUIIfReady()
-                    // 유저 이름 설정
-                    binding.textViewDetailUserName.text = it.userName
-                    Log.d("DetailFragment", "User name: ${it.userName}")
+                if (user != null) {
+                    // 데이터가 있을 경우 UI 업데이트
+                    binding.textViewDetailUserName.text = user.userName
+                    loadUserImage(user.userProfilePic)
+                } else {
+                    // 데이터가 없을 경우 기본 설정
+                    binding.textViewDetailUserName.text = "알수없는 사용자"
+                    Glide.with(this@DetailFragment)
+                        .load(R.drawable.icon_account_circle)
+                        .into(binding.imageViewDetailUserPic)
+                    Log.e("DetailFragment", "No user data available")
                 }
             }
         }
+
 
         // 스터디 스킬
         lifecycleScope.launch {
@@ -194,16 +209,30 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 }
             }
         }
-//
-//        // 유저 프로필 이미지
-//        viewModel.userImageUri.observe(viewLifecycleOwner) { uri ->
-//            Glide.with(this)
-//                .load(uri)
-//                .error(R.drawable.icon_account_circle) // 에러 발생시 보여줄 이미지
-//                .into(binding.imageViewDetailUserPic)
-//        }
 
     }
+
+    private fun loadUserImage(imageUrl: String?) {
+        if (!imageUrl.isNullOrEmpty()) {
+            // 사용자 프로필 이미지가 있을 경우
+            Glide.with(this)
+                .load(imageUrl)
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.image_loading_gray)
+                        .error(R.drawable.icon_account_circle)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                )
+                .into(binding.imageViewDetailUserPic)
+        } else {
+            // 이미지 URL이 없거나 비어있을 경우 기본 이미지 설정
+            binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+            binding.imageViewDetailUserPic.invalidate()
+            binding.imageViewDetailUserPic.requestLayout()
+        }
+    }
+
     fun userprofile(){
         binding.imageViewDetailUserPic.setOnClickListener {
             val profileFragment = ProfileFragment().apply {
@@ -573,13 +602,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     private fun handleNonOwnerButtonClick(view: View) {
         val method = currentStudyData?.studyApplyMethod
         Log.d("DetailFragment", "Button clicked, method: $method")
-
-//        if (method == 1) {
-//            viewModel.applyToStudy(studyIdx, uid)
-//            showSnackbar(view, "신청이 완료되었습니다")
-//        } else {
-//            Log.d("DetailFragment", "Changed button text for join study")
-//        }
 
         if (method != null && currentStudyData?.userIdx != userIdx) {
             Log.d("DetailFragment", "Button clicked, method: $method")

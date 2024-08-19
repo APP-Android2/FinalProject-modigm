@@ -3,6 +3,7 @@ package kr.co.lion.modigm.ui.detail.vm
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -139,18 +140,38 @@ class SqlDetailViewModel: ViewModel() {
     }
 
     // 특정 userIdx에 대한 사용자 데이터를 가져오는 메소드
+//    fun getUserById(userIdx: Int) {
+//        viewModelScope.launch {
+//            try {
+//                sqlDetailRepository.getUserById(userIdx).collect { user ->
+//                    _userData.value = user
+//                    Log.d("DetailViewModel", "Fetched user data: $user")
+//                }
+//            } catch (throwable: Throwable) {
+//                Log.e("DetailViewModel", "Error fetching user data", throwable)
+//            }
+//        }
+//    }
+
     fun getUserById(userIdx: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            _userData.value = null  // 데이터 로드 전에 null로 초기화
             try {
                 sqlDetailRepository.getUserById(userIdx).collect { user ->
-                    _userData.value = user
-                    Log.d("DetailViewModel", "Fetched user data: $user")
+                    if (user != null) {
+                        _userData.value = user
+                        Log.d("DetailViewModel", "User data fetched successfully: $user")
+                    } else {
+                        Log.e("DetailViewModel", "No user data found for userIdx: $userIdx")
+                    }
                 }
             } catch (throwable: Throwable) {
                 Log.e("DetailViewModel", "Error fetching user data", throwable)
             }
         }
     }
+
+
 
     fun getTechIdxByStudyIdx(studyIdx: Int) {
         viewModelScope.launch {
@@ -241,5 +262,19 @@ class SqlDetailViewModel: ViewModel() {
             }
         }
     }
+
+    fun fetchUserProfile(userIdx: Int) {
+        viewModelScope.launch {
+            try {
+                sqlDetailRepository.getUserById(userIdx).collect { user ->
+                    _userData.value = user
+                    // 다른 필요한 데이터 로드 로직을 여기서 추가로 처리
+                }
+            } catch (throwable: Throwable) {
+                Log.e("DetailViewModel", "Error fetching user profile", throwable)
+            }
+        }
+    }
+
 
 }
