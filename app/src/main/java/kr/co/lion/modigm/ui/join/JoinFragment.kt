@@ -100,21 +100,24 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-        // 전화번호 중복 계정 화면으로 넘어가는 경우 제외
-        if(viewModel.joinCompleted.value == false
-            && viewModel.isPhoneAlreadyRegistered.value == false){
-            viewModel.deleteCurrentUser()
-            viewModelStep1.reset()
-            viewModelStep2.reset()
-            viewModelStep3.reset()
-            viewModel.reset()
-        }
+
         // 전화번호 중복 계정 화면으로 넘어가는 경우는
         // 전부 리셋하지 않고 isPhoneAlreadyRegistered값만 false로 변경
         if(viewModel.isPhoneAlreadyRegistered.value == true){
             viewModel.setIsPhoneAlreadyRegistered(false)
+            return
         }
+
+        // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
+        if(viewModel.joinCompleted.value == false){
+            viewModel.deleteCurrentUser()
+        }
+
+        // 뷰모델 값 리셋
+        viewModelStep1.reset()
+        viewModelStep2.reset()
+        viewModelStep3.reset()
+        viewModel.reset()
     }
 
     private fun settingToolBar(){
@@ -143,14 +146,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-            if(!viewModel.joinCompleted.value){
-                viewModel.deleteCurrentUser()
-                // 각 step 뷰모델에 저장된 값들도 초기화
-                viewModelStep1.reset()
-                viewModelStep2.reset()
-                viewModelStep3.reset()
-            }
             parentFragmentManager.beginTransaction()
                 .replace(R.id.containerMain, LoginFragment())
                 .commit()
@@ -174,9 +169,9 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             JoinType.EMAIL -> {
                 viewPagerAdapter.addFragments(
                     arrayListOf(
-                        JoinStep1Fragment() as Fragment,
-                        JoinStep2Fragment() as Fragment,
-                        JoinStep3Fragment() as Fragment
+                        JoinStep1Fragment(),
+                        JoinStep2Fragment(),
+                        JoinStep3Fragment()
                     )
                 )
             }
@@ -184,8 +179,8 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             else -> {
                 viewPagerAdapter.addFragments(
                     arrayListOf(
-                        JoinStep2Fragment() as Fragment,
-                        JoinStep3Fragment() as Fragment
+                        JoinStep2Fragment(),
+                        JoinStep3Fragment()
                     )
                 )
             }
@@ -420,11 +415,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                             .commit()
                     }
                 }
-
-                viewModelStep1.reset()
-                viewModelStep2.reset()
-                viewModelStep3.reset()
-                viewModel.reset()
             }
         }
     }
