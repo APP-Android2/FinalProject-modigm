@@ -43,7 +43,7 @@ class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBindin
         adapter = DetailApplyMembersAdapter(viewModel,currentUserId, studyIdx) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
-                    putString("uid", user.userUid)
+                    putInt("userIdx", user.userIdx)
                 }
             }
 

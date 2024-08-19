@@ -49,7 +49,7 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
         adapter = DetailJoinMembersAdapter(viewModel, currentUserId, studyIdx) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
-                    putString("uid", user.userUid)
+                    putInt("userIdx", user.userIdx)
                 }
             }
 
