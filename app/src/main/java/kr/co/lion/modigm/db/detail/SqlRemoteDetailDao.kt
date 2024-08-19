@@ -247,4 +247,32 @@ class SqlRemoteDetailDao {
             return@withContext false
         }
     }
+
+    // 특정 studyIdx에 해당하는 신청자 정보를 tb_study_request 에서 가져오는 메소드
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> = withContext(Dispatchers.IO) {
+        try {
+            val members = mutableListOf<SqlUserData>()
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = """
+                    SELECT u.* FROM tb_study_request sr
+                    JOIN tb_user u ON sr.userIdx = u.userIdx
+                    WHERE sr.studyIdx = ?
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    val resultSet = statement.executeQuery()
+                    while (resultSet.next()) {
+                        members.add(SqlUserData.getUserData(resultSet))
+                    }
+                }
+            }
+            return@withContext members
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching study request members", e)
+            return@withContext emptyList<SqlUserData>()
+        }
+    }
+
+
+
 }

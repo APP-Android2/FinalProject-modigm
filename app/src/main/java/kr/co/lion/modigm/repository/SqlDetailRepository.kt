@@ -69,4 +69,8 @@ class SqlDetailRepository {
         return sqlRemoteDetailDataSource.addUserToStudyRequest(studyIdx, userIdx)
     }
 
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> {
+        return sqlRemoteDetailDataSource.getStudyRequestMembers(studyIdx)
+    }
+
 }

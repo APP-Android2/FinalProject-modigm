@@ -50,6 +50,9 @@ class SqlDetailViewModel: ViewModel() {
     private val _addUserResult = MutableSharedFlow<Boolean>()
     val addUserResult: SharedFlow<Boolean> = _addUserResult
 
+    private val _studyRequestMembers = MutableStateFlow<List<SqlUserData>>(emptyList())
+    val studyRequestMembers: StateFlow<List<SqlUserData>> = _studyRequestMembers
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
@@ -194,6 +197,13 @@ class SqlDetailViewModel: ViewModel() {
                 sqlDetailRepository.addUserToStudyRequest(studyIdx, userIdx)
             }
             _addUserResult.emit(result)
+        }
+    }
+
+    fun fetchStudyRequestMembers(studyIdx: Int) {
+        viewModelScope.launch {
+            val members = sqlDetailRepository.getStudyRequestMembers(studyIdx)
+            _studyRequestMembers.value = members
         }
     }
 
