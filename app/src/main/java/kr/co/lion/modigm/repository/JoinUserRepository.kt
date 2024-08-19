@@ -2,10 +2,13 @@ package kr.co.lion.modigm.repository
 
 import kr.co.lion.modigm.db.join.RemoteJoinUserDataSource
 import kr.co.lion.modigm.model.SqlUserData
+import javax.inject.Inject
 
-class JoinUserRepository {
 
-    private val _joinUserDataSource = RemoteJoinUserDataSource()
+class JoinUserRepository @Inject constructor(
+    private val _joinUserDataSource: RemoteJoinUserDataSource
+) {
+
     // 회원가입
     suspend fun insetUserData(userInfoData: SqlUserData): Result<Int>
         = _joinUserDataSource.insetUserData(userInfoData)
