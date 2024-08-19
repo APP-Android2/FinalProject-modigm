@@ -1,13 +1,18 @@
 package kr.co.lion.modigm.ui.detail
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
@@ -17,29 +22,31 @@ import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 
+//참여중인 멤버
 class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>(FragmentDetailJoinMemberBinding::inflate) {
 
     private val viewModel: SqlDetailViewModel by activityViewModels()
-    private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailJoinMembersAdapter
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
-    var studyIdx = 0
-
-    private lateinit var auth: FirebaseAuth
-    private lateinit var currentUserId: String
+//    var studyIdx = 0
+    var currentUserId = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        auth = FirebaseAuth.getInstance()
-        currentUserId = auth.currentUser?.uid ?: ""
+        // 전달받은 studyIdx 값
+        val studyIdx = arguments?.getInt("studyIdx") ?: 0
+        Log.d("DetailJoinMemberFragment", "Received studyIdx: $studyIdx")
 
-        // 상품 idx
-        studyIdx = arguments?.getInt("studyIdx")!!
+        if (studyIdx == 0) {
+            Log.e("DetailJoinMemberFragment", "Invalid studyIdx: $studyIdx")
+            return  // studyIdx가 0이면 더 이상 진행하지 않도록 한다
+        }
 
-        adapter = DetailJoinMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx) { user ->
+        adapter = DetailJoinMembersAdapter(viewModel, currentUserId, studyIdx) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putString("uid", user.userUid)
@@ -54,17 +61,17 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
 
         setupRecyclerView()
 
-//        viewModel.studyUids.observe(viewLifecycleOwner) { uids ->
-//            viewModel.loadUserDetails(uids)
-//        }
-//
-//        viewModel.userDetails.observe(viewLifecycleOwner) { userDetails ->
-//            userDetails?.let {
-//                adapter.submitList(it)
-//            }
-//        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.studyMembers.collect { members ->
+                    Log.d("DetailJoinMembersAdapter", "Members list size: ${members.size}")
+                    adapter.submitList(members)
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
 
-//        viewModel.loadStudyUids(studyIdx)
+        viewModel.fetchMembersInfo(studyIdx)
 
     }
 
