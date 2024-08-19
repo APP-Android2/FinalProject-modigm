@@ -7,8 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailApplyMemberBinding
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
@@ -18,15 +22,12 @@ import kr.co.lion.modigm.ui.detail.adapter.DetailApplyMembersAdapter
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.ModigmApplication
 
 class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBinding>(FragmentDetailApplyMemberBinding::inflate) {
 
     private val viewModel: SqlDetailViewModel by activityViewModels()
-    private val chatRoomViewModel: ChatRoomViewModel by activityViewModels()
     private lateinit var adapter: DetailApplyMembersAdapter
-
-    private lateinit var auth: FirebaseAuth
-    private lateinit var currentUserId: String
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
@@ -34,13 +35,12 @@ class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBindin
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        auth = FirebaseAuth.getInstance()
-        currentUserId = auth.currentUser?.uid ?: ""
+        // 전달받은 studyIdx 값
+        val studyIdx = arguments?.getInt("studyIdx") ?: 0
 
-        // 상품 idx
-        studyIdx = arguments?.getInt("studyIdx")!!
+        var currentUserId = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
-        adapter = DetailApplyMembersAdapter(viewModel, chatRoomViewModel, currentUserId, studyIdx) { user ->
+        adapter = DetailApplyMembersAdapter(viewModel,currentUserId, studyIdx) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putString("uid", user.userUid)
@@ -55,19 +55,24 @@ class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBindin
 
         setupRecyclerView()
 
-//        viewModel.applyMembers.observe(viewLifecycleOwner) { members ->
-//            Log.d("DetailApplyMemberFragment", "Observed members: $members")
-//            if (members.isEmpty()) {
-//                binding.recyclerviewDetailApply.visibility = View.GONE
-//                binding.blankLayoutDetail.visibility = View.VISIBLE
-//            } else {
-//                binding.recyclerviewDetailApply.visibility = View.VISIBLE
-//                binding.blankLayoutDetail.visibility = View.GONE
-//                adapter.submitList(members)
-//            }
-//        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.studyRequestMembers.collect { members ->
+                    Log.d("DetailApplyMemberFragment", "Members list size: ${members.size}")
+                    if (members.isEmpty()) {
+                        binding.recyclerviewDetailApply.visibility = View.GONE
+                        binding.blankLayoutDetail.visibility = View.VISIBLE
+                    } else {
+                        binding.recyclerviewDetailApply.visibility = View.VISIBLE
+                        binding.blankLayoutDetail.visibility = View.GONE
+                        adapter.submitList(members)
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
 
-//        viewModel.loadApplyMembers(studyIdx)
+        viewModel.fetchStudyRequestMembers(studyIdx)
 
     }
 
