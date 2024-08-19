@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
@@ -51,6 +53,9 @@ class DetailJoinMembersAdapter(
             binding.textViewDetailJoinMemberName.text = user.userName
             binding.textViewDetailJoinMemberIntro.text = user.userIntro
 
+            // 사용자 프로필 이미지를 로드
+            loadUserImage(user.userProfilePic)
+
             Log.d("DetailAdapter", "name: ${user.userName}, intro:${user.userIntro}")
 
             currentUserId = ModigmApplication.prefs.getInt("currentUserIdx", 0)
@@ -66,6 +71,24 @@ class DetailJoinMembersAdapter(
                 binding.textViewDetailJoinKick.setOnClickListener {
                     showKickDialog(user, studyIdx) // 강퇴 다이얼로그 표시
                 }
+            }
+        }
+
+        private fun loadUserImage(imageUrl: String?) {
+            if (imageUrl != null) {
+                Glide.with(itemView.context)
+                    .load(imageUrl)
+                    .apply(
+                        RequestOptions()
+                            .placeholder(R.drawable.image_loading_gray)
+                            .error(R.drawable.icon_account_circle)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                    )
+                    .into(binding.imageViewDetailJoinMember)
+            } else {
+                // 이미지 URL이 없을 때 기본 이미지 설정
+                binding.imageViewDetailJoinMember.setImageResource(R.drawable.icon_account_circle)
             }
         }
 
