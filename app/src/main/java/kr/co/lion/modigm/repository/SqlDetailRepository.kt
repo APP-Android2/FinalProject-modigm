@@ -26,6 +26,11 @@ class SqlDetailRepository {
         emit(sqlRemoteDetailDataSource.getStudyPicByStudyIdx(studyIdx))
     }.flowOn(Dispatchers.IO)
 
+    // 특정 studyIdx에 해당하는 userIdx 리스트를 가져오는 메소드
+    suspend fun getUserIdsByStudyIdx(studyIdx: Int): List<Int> {
+        return sqlRemoteDetailDataSource.getUserIdsByStudyIdx(studyIdx)
+    }
+
     // 특정 userIdx에 해당하는 사용자 데이터를 가져오는 메소드
     fun getUserById(userIdx: Int): Flow<SqlUserData?> = flow {
         emit(sqlRemoteDetailDataSource.getUserById(userIdx))
@@ -49,6 +54,11 @@ class SqlDetailRepository {
     // 스킬 데이터를 삽입하는 메서드 추가
     suspend fun insertSkills(studyIdx: Int, skills: List<Int>) {
         sqlRemoteDetailDataSource.insertSkills(studyIdx, skills)
+    }
+
+    // 특정 studyIdx와 userIdx에 해당하는 사용자를 스터디에서 삭제하는 메소드
+    suspend fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.removeUserFromStudy(studyIdx, userIdx)
     }
 
 }

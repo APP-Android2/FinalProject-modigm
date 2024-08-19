@@ -57,6 +57,14 @@ class SqlRemoteDetailDao {
         }
     }
 
+    // 특정 studyIdx에 해당하는 userIdx 리스트를 가져오는 메소드
+    suspend fun getUserIdsByStudyIdx(studyIdx: Int): List<Int> {
+        val query = "SELECT userIdx FROM tb_study_member WHERE studyIdx = ?"
+        return executeQuery(query, studyIdx) { resultSet ->
+            resultSet.getInt("userIdx")
+        }
+    }
+
     // 특정 사용자의 모든 좋아요 정보를 가져오는 메소드
     suspend fun getAllFavorites(userIdx: Int): List<Pair<Int, Boolean>> {
         val query = "SELECT studyIdx, IF(favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite FROM tb_favorite WHERE userIdx = ?" // 쿼리문
@@ -189,15 +197,20 @@ class SqlRemoteDetailDao {
         }
     }
 
-//    suspend fun close() {
-//        try {
-//            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
-//            if (dataSourceDeferred.isCompleted) {
-//                dataSourceDeferred.await().close()
-//            }
-//        } catch (e: Exception) {
-//            Log.e(TAG, "Error closing data source", e)
-//        }
-//    }
-
+    // 특정 studyIdx와 userIdx에 해당하는 사용자를 tb_study_member 테이블에서 삭제하는 메소드
+    suspend fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "DELETE FROM tb_study_member WHERE studyIdx = ? AND userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error removing user from study", e)
+            return@withContext false
+        }
+    }
 }

@@ -41,12 +41,19 @@ class SqlDetailViewModel: ViewModel() {
     private val _studySkills = MutableStateFlow<List<Int>>(emptyList())
     val studySkills: StateFlow<List<Int>> get() = _studySkills
 
+    private val _studyMembers = MutableStateFlow<List<SqlUserData>>(emptyList())
+    val studyMembers: StateFlow<List<SqlUserData>> = _studyMembers
+
+    private val _removeUserResult = MutableSharedFlow<Boolean>()
+    val removeUserResult: SharedFlow<Boolean> = _removeUserResult
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
         _userData.value = null
         _studyTechList.value = emptyList()
         _studyPic.value = null
+        _studyMembers.value = emptyList()
     }
 
     // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
@@ -75,19 +82,41 @@ class SqlDetailViewModel: ViewModel() {
             }
         }
     }
+    fun fetchMembersInfo(studyIdx: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // studyIdx에 해당하는 userIdx 리스트 가져오기
+                val userIds = sqlDetailRepository.getUserIdsByStudyIdx(studyIdx)
+                Log.d("SqlDetailViewModel", "Fetched user IDs: $userIds")
 
-    // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
-//    fun getStudyPic(studyIdx: Int) {
-//        viewModelScope.launch {
-//            try {
-//                sqlDetailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
-//                    _studyPic.value = pic
-//                }
-//            } catch (throwable: Throwable) {
-//                Log.e("DetailViewModel", "Error fetching study pic", throwable)
-//            }
-//        }
-//    }
+                if (userIds.isEmpty()) {
+                    Log.d("SqlDetailViewModel", "No user IDs found for studyIdx: $studyIdx")
+                    return@launch
+                }
+
+                // 해당 userIdx들에 해당하는 사용자 정보 가져오기
+                val users = mutableListOf<SqlUserData>()
+
+                userIds.forEach { userIdx ->
+                    sqlDetailRepository.getUserById(userIdx).collect { user ->
+                        user?.let {
+                            users.add(it)
+                            Log.d("SqlDetailViewModel", "Fetched user data: $user")
+                        }
+                    }
+                }
+
+                // 결과를 MutableStateFlow에 할당
+                _studyMembers.value = users
+                Log.d("SqlDetailViewModel", "Final user list size: ${users.size}")
+
+            } catch (throwable: Throwable) {
+                Log.e("SqlDetailViewModel", "Error fetching members info", throwable)
+            }
+        }
+    }
+
+
     // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
     fun getStudyPic(studyIdx: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -144,6 +173,14 @@ class SqlDetailViewModel: ViewModel() {
     // 업데이트 결과 초기화 함수
     fun clearUpdateResult() {
         _updateResult.value = null
+    }
+
+    // 특정 사용자를 스터디에서 삭제하는 메소드
+    fun removeUserFromStudy(studyIdx: Int, userIdx: Int) {
+        viewModelScope.launch {
+            val result = sqlDetailRepository.removeUserFromStudy(studyIdx, userIdx)
+            _removeUserResult.emit(result)
+        }
     }
 
 }
