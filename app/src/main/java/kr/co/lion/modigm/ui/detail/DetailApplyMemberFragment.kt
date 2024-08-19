@@ -72,6 +72,18 @@ class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBindin
             }
         }
 
+        // 승인 결과 처리
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.acceptUserResult.collect { success ->
+                if (success) {
+                    Log.d("DetailApplyMemberFragment", "User approved successfully")
+                    // UI를 갱신하거나 필요한 작업 수행
+                } else {
+                    Log.d("DetailApplyMemberFragment", "User approval failed")
+                }
+            }
+        }
+
         viewModel.fetchStudyRequestMembers(studyIdx)
 
     }

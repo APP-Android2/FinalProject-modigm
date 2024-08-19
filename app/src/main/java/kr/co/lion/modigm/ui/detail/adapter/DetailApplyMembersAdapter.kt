@@ -53,32 +53,7 @@ class DetailApplyMembersAdapter(
 
             // 승인 버튼
             binding.buttonDetailAccept.setOnClickListener {
-
-//                viewModel.acceptUser(studyIdx, user.userUid) { success ->
-//                    if (success) {
-//                        val snackbar = Snackbar.make(itemView, "${user.userName}님의 신청이 승인되었습니다", Snackbar.LENGTH_LONG)
-//                        val snackbarView = snackbar.view
-//                        val textView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-//                        val textSizeInPx = dpToPx(itemView.context, 16f)
-//                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-//                        snackbar.show()
-//
-//                        // 채팅방에 사용자 추가 / chatMemberList 배열에 UID 추가
-//                        CoroutineScope(Dispatchers.Main).launch {
-//                            val coroutine1 = chatRoomViewModel.addUserToChatMemberList(studyIdx, user.userUid)
-//                            coroutine1.join()
-//                        }
-//
-//                        // 리스트에서 아이템 제거
-//                        val position = adapterPosition
-//                        if (position != RecyclerView.NO_POSITION) {
-//                            removeItem(position)
-//                        }
-//
-//                    } else {
-//                        Log.d("Dialog", "Failed to accept user")
-//                    }
-//                }
+                viewModel.acceptUser(studyIdx, user.userIdx)
             }
 
         }
@@ -87,8 +62,6 @@ class DetailApplyMembersAdapter(
         fun dpToPx(context: Context, dp: Float): Float {
             return dp * context.resources.displayMetrics.density
         }
-
-
 
         // custom dialog
         fun showRefuseDialog(user: SqlUserData) {
@@ -102,17 +75,7 @@ class DetailApplyMembersAdapter(
             dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
-//                viewModel.removeUserFromApplyList(studyIdx, user.userUid) { success ->
-//                    if (success) {
-//                        Log.d("Dialog", "User removed from apply list")
-//                        val position = adapterPosition
-//                        if (position != RecyclerView.NO_POSITION) {
-//                            removeItem(position)
-//                        }
-//                    } else {
-//                        Log.d("Dialog", "Failed to remove user from apply list")
-//                    }
-//                }
+                viewModel.removeUserFromApplyList(studyIdx, user.userIdx)
                 dialog.dismiss()
             }
 
@@ -123,20 +86,6 @@ class DetailApplyMembersAdapter(
             }
 
             dialog.show()
-        }
-    }
-
-    fun removeItem(position: Int) {
-        // 현재 리스트에서 해당 아이템을 제거
-        val newList = currentList.toMutableList().apply {
-            removeAt(position)
-        }
-        submitList(newList)  // 변경된 리스트를 다시 제출
-        notifyItemRemoved(position)  // 특정 위치의 아이템 제거 알림
-
-        // If the list is empty after removing the item, update LiveData
-        if (newList.isEmpty()) {
-//            viewModel.loadApplyMembers(studyIdx)
         }
     }
 
