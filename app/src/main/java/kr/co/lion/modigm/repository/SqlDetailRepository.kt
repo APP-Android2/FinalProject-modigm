@@ -61,4 +61,12 @@ class SqlDetailRepository {
         return sqlRemoteDetailDataSource.removeUserFromStudy(studyIdx, userIdx)
     }
 
+    suspend fun addUserToStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.addUserToStudy(studyIdx, userIdx)
+    }
+
+    suspend fun addUserToStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.addUserToStudyRequest(studyIdx, userIdx)
+    }
+
 }

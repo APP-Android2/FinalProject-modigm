@@ -129,4 +129,12 @@ class SqlRemoteDetailDataSource {
         }
     }
 
+    suspend fun addUserToStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return studyDao.addUserToStudy(studyIdx, userIdx)
+    }
+
+    suspend fun addUserToStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
+        return studyDao.addUserToStudyRequest(studyIdx, userIdx)
+    }
+
 }

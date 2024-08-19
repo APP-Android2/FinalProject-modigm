@@ -47,6 +47,9 @@ class SqlDetailViewModel: ViewModel() {
     private val _removeUserResult = MutableSharedFlow<Boolean>()
     val removeUserResult: SharedFlow<Boolean> = _removeUserResult
 
+    private val _addUserResult = MutableSharedFlow<Boolean>()
+    val addUserResult: SharedFlow<Boolean> = _addUserResult
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
@@ -180,6 +183,17 @@ class SqlDetailViewModel: ViewModel() {
         viewModelScope.launch {
             val result = sqlDetailRepository.removeUserFromStudy(studyIdx, userIdx)
             _removeUserResult.emit(result)
+        }
+    }
+
+    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String) {
+        viewModelScope.launch {
+            val result = if (applyMethod == "선착순") {
+                sqlDetailRepository.addUserToStudy(studyIdx, userIdx)
+            } else {
+                sqlDetailRepository.addUserToStudyRequest(studyIdx, userIdx)
+            }
+            _addUserResult.emit(result)
         }
     }
 

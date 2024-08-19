@@ -213,4 +213,38 @@ class SqlRemoteDetailDao {
             return@withContext false
         }
     }
+
+    // tb_study_member 테이블에 데이터 삽입
+    suspend fun addUserToStudy(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "INSERT INTO tb_study_member (studyIdx, userIdx) VALUES (?, ?)"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding user to study", e)
+            return@withContext false
+        }
+    }
+
+    // tb_study_request 테이블에 데이터 삽입
+    suspend fun addUserToStudyRequest(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "INSERT INTO tb_study_request (studyIdx, userIdx) VALUES (?, ?)"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding user to study request", e)
+            return@withContext false
+        }
+    }
 }

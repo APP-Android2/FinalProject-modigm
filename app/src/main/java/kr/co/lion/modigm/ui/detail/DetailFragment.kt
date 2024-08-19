@@ -144,16 +144,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
 
     fun observeViewModel() {
-
-//        // 스터디 데이터
-//        lifecycleScope.launch {
-//            viewModel.studyData.collect { data ->
-//                data?.let {
-//                    currentStudyData = it
-//                    updateUI(it)
-//                }
-//            }
-//        }
         // 스터디 데이터
         lifecycleScope.launch {
             viewModel.studyData.collect { data ->
@@ -191,6 +181,17 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         lifecycleScope.launch {
             viewModel.studyTechList.collect { techList ->
                 updateTechChips(techList)
+            }
+        }
+
+        //addUserResult를 관찰하여 UI를 업데이트
+        lifecycleScope.launch {
+            viewModel.addUserResult.collect { success ->
+                if (success) {
+                    showSnackbar(requireView(), "성공적으로 신청되었습니다.")
+                } else {
+                    showSnackbar(requireView(), "신청에 실패하였습니다.")
+                }
             }
         }
 //
@@ -579,6 +580,13 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 //        } else {
 //            Log.d("DetailFragment", "Changed button text for join study")
 //        }
+
+        if (method != null && currentStudyData?.userIdx != userIdx) {
+            Log.d("DetailFragment", "Button clicked, method: $method")
+            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, method)
+        } else {
+            Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+        }
     }
 
     private fun showSnackbar(view: View, message: String) {
