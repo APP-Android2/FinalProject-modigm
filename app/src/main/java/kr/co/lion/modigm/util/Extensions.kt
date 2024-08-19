@@ -1,6 +1,9 @@
 package kr.co.lion.modigm.util
 
+import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.animation.TimeInterpolator
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
@@ -15,6 +18,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -22,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -150,3 +155,39 @@ fun String.toNationalPhoneNumber(): String {
     return phoneNumberUtil.format(toNationalNum, PhoneNumberUtil.PhoneNumberFormat.NATIONAL)
 }
 
+
+// 뷰페이저 페이지 이동 애니메이션 속도 지정 함수
+fun ViewPager2.setCurrentItemWithDuration(
+    item: Int,
+    duration: Long,
+    interpolator: TimeInterpolator = AccelerateDecelerateInterpolator(),
+    pagePxWidth: Int = width // Default value taken from getWidth() from ViewPager2 view
+) {
+    val pxToDrag: Int = pagePxWidth * (item - currentItem)
+    val animator = ValueAnimator.ofInt(0, pxToDrag)
+    var previousValue = 0
+    animator.addUpdateListener { valueAnimator ->
+        val currentValue = valueAnimator.animatedValue as Int
+        val currentPxToDrag = (currentValue - previousValue).toFloat()
+        fakeDragBy(-currentPxToDrag)
+        previousValue = currentValue
+    }
+    animator.addListener(object : Animator.AnimatorListener {
+        override fun onAnimationStart(animation: Animator) {
+            beginFakeDrag()
+        }
+
+        override fun onAnimationEnd(animation: Animator) {
+            endFakeDrag()
+        }
+
+        override fun onAnimationCancel(animation: Animator) {
+        }
+
+        override fun onAnimationRepeat(animation: Animator) {
+        }
+    })
+    animator.interpolator = interpolator
+    animator.duration = duration
+    animator.start()
+}

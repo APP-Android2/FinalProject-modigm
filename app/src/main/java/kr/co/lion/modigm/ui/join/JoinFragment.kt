@@ -1,5 +1,8 @@
 package kr.co.lion.modigm.ui.join
 
+import android.animation.Animator
+import android.animation.TimeInterpolator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
@@ -39,6 +43,7 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.collectWhenStarted
 import kr.co.lion.modigm.util.hideSoftInput
+import kr.co.lion.modigm.util.setCurrentItemWithDuration
 
 @AndroidEntryPoint
 class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
@@ -267,7 +272,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             }
             hideLoading()
             // 다음 화면으로 이동
-            binding.viewPagerJoin.currentItem += 1
+            binding.viewPagerJoin.setCurrentItemWithDuration(1, 300)
         }
     }
 
@@ -286,7 +291,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             if(viewModel.phoneVerification.value==true){
                 // 전화번호를 변경하지 않은 경우에 넘어갈 수 있음
                 if(viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
-                    binding.viewPagerJoin.currentItem += 1
+                    binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
                     return@launch
                 }
             }
@@ -368,7 +373,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             if(isVerified){
                 // 인증이 되었으면 다음으로 이동
                 viewModelStep2.cancelTimer()
-                binding.viewPagerJoin.currentItem += 1
+                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
             }
         }
 
