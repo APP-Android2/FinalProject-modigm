@@ -5,12 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep1Binding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
+import kr.co.lion.modigm.util.collectWhenStarted
 
 class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.fragment_join_step1) {
 
@@ -31,34 +30,24 @@ class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.frag
 
     // 에러 메시지 설정
     private fun settingTextInputLayoutError(){
-        lifecycleScope.launch {
-            joinStep1ViewModel.emailValidation.collect{
-                if(it.isNotEmpty()){
-                    binding.textInputLayoutJoinUserEmail.error = it
-                }
+
+        // 이메일 에러
+        collectWhenStarted(joinStep1ViewModel.emailValidation) {
+            if(it.isNotEmpty()){
+                binding.textInputLayoutJoinUserEmail.error = it
             }
         }
 
-        lifecycleScope.launch {
-            joinStep1ViewModel.pwValidation.collect{
-                if(it.isNotEmpty()){
-                    binding.textInputLayoutJoinUserPassword.error = it
-                }
+        // 비밀번호 에러
+        collectWhenStarted(joinStep1ViewModel.pwValidation) {
+            if(it.isNotEmpty()){
+                binding.textInputLayoutJoinUserPassword.error = it
             }
         }
 
-        lifecycleScope.launch {
-            joinStep1ViewModel.pwValidation.collect{
-                if(it.isNotEmpty()){
-                    binding.textInputLayoutJoinUserPassword.error = it
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            joinStep1ViewModel.pwCheckValidation.collect{
-                binding.textInputLayoutJoinUserPasswordCheck.error = it
-            }
+        // 비밀번호 확인 에러
+        collectWhenStarted(joinStep1ViewModel.pwCheckValidation) {
+            binding.textInputLayoutJoinUserPasswordCheck.error = it
         }
     }
 
