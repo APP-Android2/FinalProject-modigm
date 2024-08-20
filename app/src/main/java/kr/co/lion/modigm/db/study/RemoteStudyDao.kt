@@ -6,9 +6,9 @@ import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 
-class StudyDao {
+class RemoteStudyDao {
 
-    private val tag by lazy { StudyDao::class.simpleName }
+    private val tag by lazy { RemoteStudyDao::class.simpleName }
 
     /**
      * 모든 스터디와 스터디 멤버 데이터 조회 (좋아요 여부 포함)

@@ -7,8 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.StudyData
-import kr.co.lion.modigm.repository.StudyListRepository
+import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class StudyViewModel : ViewModel() {
@@ -18,7 +17,7 @@ class StudyViewModel : ViewModel() {
 
     private val tag by lazy { StudyViewModel::class.simpleName }
 
-    private val studyListRepository by lazy { StudyListRepository() }
+    private val studyRepository by lazy { StudyRepository() }
 
 
 
@@ -68,7 +67,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getAllStudyData() {
         viewModelScope.launch {
-            val result = studyListRepository.getAllStudyData(getCurrentUserIdx())
+            val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
             }.onFailure {
@@ -83,7 +82,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getMyStudyData() {
         viewModelScope.launch {
-            val result = studyListRepository.getMyStudyData(getCurrentUserIdx())
+            val result = studyRepository.getMyStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _myStudyData.postValue(it)
             }.onFailure { e ->
@@ -98,7 +97,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getFavoriteStudyData() {
         viewModelScope.launch {
-            val result = studyListRepository.getFavoriteStudyData(getCurrentUserIdx())
+            val result = studyRepository.getFavoriteStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _favoritedStudyData.postValue(it)
             }.onFailure { e ->
@@ -117,9 +116,9 @@ class StudyViewModel : ViewModel() {
         viewModelScope.launch {
             // 좋아요 상태 변경
             val result = if (currentState) {
-                studyListRepository.removeFavorite(getCurrentUserIdx(), studyIdx)
+                studyRepository.removeFavorite(getCurrentUserIdx(), studyIdx)
             } else {
-                studyListRepository.addFavorite(getCurrentUserIdx(), studyIdx)
+                studyRepository.addFavorite(getCurrentUserIdx(), studyIdx)
             }
 
             // 결과에 따른 UI 업데이트
@@ -153,13 +152,13 @@ class StudyViewModel : ViewModel() {
     // 필터 데이터
     private val filterData = mutableMapOf<String, String>()
 
-    // 필터링된 스터디 목록 (전체)
-    private val _filteredStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
-    val filteredStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredStudyList
-
-    // 필터링된 스터디 목록 (내 스터디)
-    private val _filteredMyStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
-    val filteredMyStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredMyStudyList
+//    // 필터링된 스터디 목록 (전체)
+//    private val _filteredStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
+//    val filteredStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredStudyList
+//
+//    // 필터링된 스터디 목록 (내 스터디)
+//    private val _filteredMyStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
+//    val filteredMyStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredMyStudyList
 
     /**
      * 필터 데이터 업데이트
