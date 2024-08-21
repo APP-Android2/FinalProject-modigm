@@ -20,13 +20,11 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.R
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import kr.co.lion.modigm.databinding.CustomSnackbarWithIconBinding
 import kr.co.lion.modigm.databinding.CustomSnackbarWithoutIconBinding
@@ -134,12 +132,9 @@ fun View.shake() {
 }
 
 // StateFlow값 collect하는 확장함수
-fun <T> LifecycleOwner.collectWhenStarted(flow: Flow<T>, firstTimeDelay: Long = 0L, action: suspend (value: T) -> Unit) {
+fun <T> LifecycleOwner.collectWhenStarted(flow: Flow<T>, action: suspend (value: T) -> Unit) {
     lifecycleScope.launch {
-        delay(firstTimeDelay)
-        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            flow.collect(action)
-        }
+        flow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect(action)
     }
 }
 
