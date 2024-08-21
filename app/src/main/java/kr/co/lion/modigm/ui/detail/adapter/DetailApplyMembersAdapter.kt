@@ -12,12 +12,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.storage.FirebaseStorage
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowDetailApplyMemberBinding
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
 
 class DetailApplyMembersAdapter(
