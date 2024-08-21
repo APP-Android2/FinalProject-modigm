@@ -30,6 +30,11 @@ class SqlRemoteDetailDataSource {
         }
     }
 
+    // 특정 studyIdx에 해당하는 userIdx 리스트를 가져오는 메소드
+    suspend fun getUserIdsByStudyIdx(studyIdx: Int): List<Int> {
+        return studyDao.getUserIdsByStudyIdx(studyIdx)
+    }
+
     // studyIdx에 해당하는 studyPic을 반환하는 메소드
     suspend fun getStudyPicByStudyIdx(studyIdx: Int): String? {
         return try {
@@ -112,6 +117,36 @@ class SqlRemoteDetailDataSource {
         } catch (e: Exception) {
             Log.e(TAG, "Error inserting skills", e)
         }
+    }
+
+    // 스터디에서 특정 사용자를 삭제하는 메소드
+    suspend fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return try {
+            studyDao.removeUserFromStudy(studyIdx, userIdx)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error removing user from study", e)
+            false
+        }
+    }
+
+    suspend fun addUserToStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return studyDao.addUserToStudy(studyIdx, userIdx)
+    }
+
+    suspend fun addUserToStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
+        return studyDao.addUserToStudyRequest(studyIdx, userIdx)
+    }
+
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> {
+        return studyDao.getStudyRequestMembers(studyIdx)
+    }
+
+    suspend fun addUserToStudyMember(studyIdx: Int, userIdx: Int): Boolean {
+        return studyDao.addUserToStudyMember(studyIdx, userIdx)
+    }
+
+    suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
+        return studyDao.removeUserFromStudyRequest(studyIdx, userIdx)
     }
 
 }

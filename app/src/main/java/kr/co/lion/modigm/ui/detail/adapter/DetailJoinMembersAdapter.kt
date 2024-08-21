@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
@@ -16,17 +18,18 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
+import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.chat.vm.ChatRoomViewModel
 import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
+import kr.co.lion.modigm.util.ModigmApplication
 
 class DetailJoinMembersAdapter(
     private val viewModel: SqlDetailViewModel,
-    private val chatRoomViewModel: ChatRoomViewModel,
-    private val currentUserId: String,
+    private var currentUserId: Int,
     private val studyIdx: Int,
-    private val onItemClicked: (UserData) -> Unit
-) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+    private val onItemClicked: (SqlUserData) -> Unit
+) : ListAdapter<SqlUserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -41,7 +44,7 @@ class DetailJoinMembersAdapter(
 
     inner class MemberViewHolder(private val binding: RowDetailJoinMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(user: UserData) {
+        fun bind(user: SqlUserData) {
 
             itemView.setOnClickListener {
                 onItemClicked(user)
@@ -50,9 +53,15 @@ class DetailJoinMembersAdapter(
             binding.textViewDetailJoinMemberName.text = user.userName
             binding.textViewDetailJoinMemberIntro.text = user.userIntro
 
+            // 사용자 프로필 이미지를 로드
+            loadUserImage(user.userProfilePic)
+
             Log.d("DetailAdapter", "name: ${user.userName}, intro:${user.userIntro}")
 
-            if (user.userUid == currentUserId) {
+            currentUserId = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+
+            // 글 작성자(즉 현재 로그인된 사용자 currentUserId)와 참여자의 아이디가 같을 경우
+            if (user.userIdx == currentUserId) {
                 binding.textViewDetailJoinKick.text = "스터디장"
                 binding.textViewDetailJoinKick.setTextColor(Color.BLACK) // 글씨 색상을 검은색으로 설정
                 binding.textViewDetailJoinKick.isClickable = false // 클릭 비활성화
@@ -63,23 +72,29 @@ class DetailJoinMembersAdapter(
                     showKickDialog(user, studyIdx) // 강퇴 다이얼로그 표시
                 }
             }
+        }
 
-            // Firebase Storage에서 이미지 URL 가져오기
-            val storageReference =
-                FirebaseStorage.getInstance().reference.child("userProfile/${user.userProfilePic}")
-            storageReference.downloadUrl.addOnSuccessListener { uri ->
+        private fun loadUserImage(imageUrl: String?) {
+            if (imageUrl != null) {
                 Glide.with(itemView.context)
-                    .load(uri)
-                    .error(R.drawable.icon_error_24px) // 로드 실패 시 표시할 이미지
-                    .into(binding.imageViewDetailJoinMember) // ImageView에 이미지 로드
-            }.addOnFailureListener {
-                // 에러 처리
+                    .load(imageUrl)
+                    .apply(
+                        RequestOptions()
+                            .placeholder(R.drawable.image_loading_gray)
+                            .error(R.drawable.icon_account_circle)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                    )
+                    .into(binding.imageViewDetailJoinMember)
+            } else {
+                // 이미지 URL이 없을 때 기본 이미지 설정
+                binding.imageViewDetailJoinMember.setImageResource(R.drawable.icon_account_circle)
             }
         }
 
 
         // custom dialog
-        fun showKickDialog(member: UserData, studyIdx: Int) {
+        fun showKickDialog(member: SqlUserData, studyIdx: Int) {
             val dialogBinding = CustomDialogBinding.inflate(LayoutInflater.from(itemView.context))
             val dialog =MaterialAlertDialogBuilder(itemView.context,R.style.dialogColor)
                 .setTitle("내보내기 확인")
@@ -88,13 +103,8 @@ class DetailJoinMembersAdapter(
                 .create()
 
             dialogBinding.btnYes.setOnClickListener {
-//                viewModel.updateStudyUserList(member.userUid, studyIdx)
-                removeItem(position)
-                // 채팅방에 해당 사용자 제거 / chatMemberList 배열에 UID 제거
-                CoroutineScope(Dispatchers.Main).launch {
-                    val coroutine1 = chatRoomViewModel.removeUserFromChatMemberList(studyIdx, member.userUid)
-                    coroutine1.join()
-                }
+                viewModel.removeUserFromStudy(studyIdx, member.userIdx)  // 스터디에서 사용자 삭제 호출
+                removeItem(adapterPosition)
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
                 dialog.dismiss()
@@ -120,12 +130,12 @@ class DetailJoinMembersAdapter(
 
     }
 
-        class UserDiffCallback : DiffUtil.ItemCallback<UserData>() {
-            override fun areItemsTheSame(oldItem: UserData, newItem: UserData): Boolean {
+        class UserDiffCallback : DiffUtil.ItemCallback<SqlUserData>() {
+            override fun areItemsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
                 return oldItem.userUid == newItem.userUid
             }
 
-            override fun areContentsTheSame(oldItem: UserData, newItem: UserData): Boolean {
+            override fun areContentsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
                 return oldItem == newItem
             }
         }

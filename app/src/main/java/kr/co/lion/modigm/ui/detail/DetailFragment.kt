@@ -17,7 +17,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -68,11 +71,17 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         super.onViewCreated(view, savedInstanceState)
 
         // 상품 idx
-        studyIdx = arguments?.getInt("studyIdx")!!
+        studyIdx = arguments?.getInt("studyIdx") ?: 0
 
-        userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
+        userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+
+        // 기본 이미지로 초기화
+        binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
 
         viewModel.clearData() // ViewModel 데이터 초기화
+
+        // 초기 데이터 로드
+        viewModel.fetchUserProfile(userIdx)
 
         // 앱바 스크롤
         setupAppBarScrollListener()
@@ -87,7 +96,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         fetchDataAndUpdateUI()
 
         userprofile()
+
         observeViewModel()
+
     }
 
     fun fetchDataAndUpdateUI() {
@@ -118,20 +129,22 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     }
     private suspend fun loadImage() {
         viewModel.studyPic.collect { imageUrl ->
-            imageUrl?.let {
-                withContext(Dispatchers.Main) {
-                    Glide.with(this@DetailFragment)
-                        .load(it)
-                        .apply(
-                            RequestOptions()
-                                .format(DecodeFormat.PREFER_RGB_565)
-                                .placeholder(R.drawable.image_loading_gray)
-                                .error(R.drawable.icon_error_24px)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .override(800, 600)
-                        )
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(binding.imageViewDetailCover)
+            if (isViewActive()) {
+                imageUrl?.let {
+                    withContext(Dispatchers.Main) {
+                        Glide.with(this@DetailFragment)
+                            .load(it)
+                            .apply(
+                                RequestOptions()
+                                    .format(DecodeFormat.PREFER_RGB_565)
+                                    .placeholder(R.drawable.image_loading_gray)
+                                    .error(R.drawable.icon_error_24px)
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .override(800, 600)
+                            )
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .into(binding.imageViewDetailCover)
+                    }
                 }
             }
         }
@@ -142,21 +155,10 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         fetchDataAndUpdateUI()
     }
 
-
-    fun observeViewModel() {
-
-//        // 스터디 데이터
-//        lifecycleScope.launch {
-//            viewModel.studyData.collect { data ->
-//                data?.let {
-//                    currentStudyData = it
-//                    updateUI(it)
-//                }
-//            }
-//        }
+    private fun observeViewModel() {
         // 스터디 데이터
         lifecycleScope.launch {
-            viewModel.studyData.collect { data ->
+            viewModel.studyData.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { data ->
                 data?.let {
                     currentStudyData = it
                     // 스터디 데이터를 수신한 후 사용자 데이터를 요청
@@ -168,7 +170,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         // 스터디 멤버 수
         lifecycleScope.launch {
-            viewModel.memberCount.collect { count ->
+            viewModel.memberCount.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { count ->
                 Log.d("DetailFragment", "Member count: $count")
                 binding.textViewDetailMember.text = count.toString()
             }
@@ -176,33 +178,67 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         // 글 작성자 정보
         lifecycleScope.launch {
-            viewModel.userData.collect { user ->
-                user?.let {
-                    currentUserData = it
-                    updateUIIfReady()
-                    // 유저 이름 설정
-                    binding.textViewDetailUserName.text = it.userName
-                    Log.d("DetailFragment", "User name: ${it.userName}")
+            viewModel.userData.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { user ->
+                if (user != null) {
+                    // 데이터가 있을 경우 UI 업데이트
+                    binding.textViewDetailUserName.text = user.userName
+                    loadUserImage(user.userProfilePic)
+                } else {
+                    // 데이터가 없을 경우 기본 설정
+                    binding.textViewDetailUserName.text = "알수없는 사용자"
+                    Glide.with(this@DetailFragment)
+                        .load(R.drawable.icon_account_circle)
+                        .into(binding.imageViewDetailUserPic)
+                    Log.e("DetailFragment", "No user data available")
                 }
             }
         }
 
         // 스터디 스킬
         lifecycleScope.launch {
-            viewModel.studyTechList.collect { techList ->
+            viewModel.studyTechList.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { techList ->
                 updateTechChips(techList)
             }
         }
-//
-//        // 유저 프로필 이미지
-//        viewModel.userImageUri.observe(viewLifecycleOwner) { uri ->
-//            Glide.with(this)
-//                .load(uri)
-//                .error(R.drawable.icon_account_circle) // 에러 발생시 보여줄 이미지
-//                .into(binding.imageViewDetailUserPic)
-//        }
+
+        //addUserResult를 관찰하여 UI를 업데이트
+        lifecycleScope.launch {
+            viewModel.addUserResult.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { success ->
+                if (success) {
+                    showSnackbar(requireView(), "성공적으로 신청되었습니다.")
+                } else {
+                    showSnackbar(requireView(), "신청에 실패하였습니다.")
+                }
+            }
+        }
 
     }
+
+    private fun loadUserImage(imageUrl: String?) {
+        if (isViewActive()) {
+            if (!imageUrl.isNullOrEmpty()) {
+                Glide.with(this)
+                    .load(imageUrl)
+                    .apply(
+                        RequestOptions()
+                            .placeholder(R.drawable.image_loading_gray)
+                            .error(R.drawable.icon_account_circle)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                    )
+                    .into(binding.imageViewDetailUserPic)
+            } else {
+                binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+                binding.imageViewDetailUserPic.invalidate()
+                binding.imageViewDetailUserPic.requestLayout()
+            }
+        }
+    }
+
+    private fun isViewActive(): Boolean {
+        return view != null && isAdded && viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+    }
+
     fun userprofile(){
         binding.imageViewDetailUserPic.setOnClickListener {
             val profileFragment = ProfileFragment().apply {
@@ -573,12 +609,12 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         val method = currentStudyData?.studyApplyMethod
         Log.d("DetailFragment", "Button clicked, method: $method")
 
-//        if (method == 1) {
-//            viewModel.applyToStudy(studyIdx, uid)
-//            showSnackbar(view, "신청이 완료되었습니다")
-//        } else {
-//            Log.d("DetailFragment", "Changed button text for join study")
-//        }
+        if (method != null && currentStudyData?.userIdx != userIdx) {
+            Log.d("DetailFragment", "Button clicked, method: $method")
+            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, method)
+        } else {
+            Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+        }
     }
 
     private fun showSnackbar(view: View, message: String) {
