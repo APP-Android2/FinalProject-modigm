@@ -49,20 +49,5 @@
                 android:layout_height="match_parent"
                 android:padding="8dp" />
         </LinearLayout>
-
-
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-            android:id="@+id/fabStudyWrite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="90dp"
-            android:backgroundTint="@color/pointColor"
-            android:src="@drawable/icon_edit_24px"
-            app:fabSize="normal"
-            app:tint="@color/white"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

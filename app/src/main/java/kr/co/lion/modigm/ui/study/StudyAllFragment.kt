@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.study
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -14,7 +15,6 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
-import kr.co.lion.modigm.ui.write.WriteFragment
 import kr.co.lion.modigm.util.FragmentName
 
 class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAllBinding::inflate) {
@@ -50,7 +50,20 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         )
     }
 
+    // 스크롤 리스너 인터페이스
+    private var scrollListener: OnRecyclerViewScrollListener? = null
+
     // --------------------------------- LC START ---------------------------------
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // 스크롤 리스너 인터페이스를 구현한 부모 프래그먼트(StudyFragment)에 연결
+        if (parentFragment is OnRecyclerViewScrollListener) {
+            scrollListener = parentFragment as OnRecyclerViewScrollListener
+        } else {
+            throw RuntimeException("$context or parentFragment must implement OnRecyclerViewScrollListener")
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -73,6 +86,11 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
         viewModel.clearData() // ViewModel 데이터 초기화
 
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        scrollListener = null
     }
 
     // --------------------------------- LC END ---------------------------------
@@ -99,6 +117,8 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                 }
             }
 
+
+
             // 리사이클러뷰
             with(recyclerViewStudyAll) {
                 // 리사이클러뷰 어답터
@@ -107,16 +127,22 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(requireActivity())
 
-                // 스크롤 리스너 추가
+                // 리사이클러뷰 스크롤 리스너
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+                    // 리사이클러뷰 스크롤 시 호출되는 메서드
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (dy > 0 && fabStudyWrite.isShown) {
-                            fabStudyWrite.hide()
-                        } else if (dy < 0 && !binding.fabStudyWrite.isShown) {
-                            fabStudyWrite.show()
-                        }
+                        super.onScrolled(recyclerView, dx, dy)
+                        scrollListener?.onRecyclerViewScrolled(dy)
+                    }
+
+                    // 리사이클러뷰 스크롤 상태 변경 시 호출되는 메서드
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        super.onScrollStateChanged(recyclerView, newState)
+                        scrollListener?.onRecyclerViewScrollStateChanged(newState)
                     }
                 })
+
             }
 
             // 검색바 클릭 시
@@ -131,15 +157,6 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                         )
                         add(R.id.containerMain, StudySearchFragment())
                         addToBackStack(FragmentName.STUDY_SEARCH.str)
-                    }
-                }
-            }
-            // FAB 설정
-            with(fabStudyWrite) {
-                setOnClickListener {
-                    requireActivity().supportFragmentManager.commit {
-                        replace(R.id.containerMain, WriteFragment())
-                        addToBackStack(FragmentName.WRITE.str)
                     }
                 }
             }
