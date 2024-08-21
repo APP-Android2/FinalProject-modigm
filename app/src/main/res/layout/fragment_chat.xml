@@ -1,73 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    android:transitionGroup="true"
+    tools:context=".ui.chat.ChatFragment">
 
-    <LinearLayout
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textViewChat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#FFFFFF"
-        android:orientation="vertical"
-        android:transitionGroup="true"
-        tools:context=".ui.chat.ChatFragment">
+        android:text="채팅 없지롱"
+        android:gravity="center"/>
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarChat"
-            style="@style/CustomToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme"
-            app:menu="@menu/menu_chat_toolbar"
-            app:titleTextAppearance="@style/toolbarText" />
-
-        <LinearLayout
-            android:id="@+id/viewPagerContainer"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabsChat"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
-                app:tabIndicatorColor="?attr/colorPrimary"
-                app:tabIndicatorFullWidth="true"
-                app:tabRippleColor="#CCCCCC"
-                app:tabSelectedTextColor="?attr/colorPrimary"
-                app:tabTextAppearance="@style/tab_text"
-                app:tabTextColor="@color/textGray">
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/main_home_tab_recommand"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="참여 중" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/main_home_tab_stylist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1:1" />
-            </com.google.android.material.tabs.TabLayout>
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/viewPager_chat"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <!-- 검색 결과를 표시할 RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewChatSearchResults"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-</layout>
+</LinearLayout>
