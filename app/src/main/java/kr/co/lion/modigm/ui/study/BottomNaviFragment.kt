@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -59,6 +58,9 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         super.onSaveInstanceState(outState)
         // 현재 ViewModel의 isSnackBarShown 상태 저장
         outState.putBoolean("isSnackBarShown", viewModel.isSnackBarShown.value ?: false)
+
+        // 현재 선택된 아이템 인덱스 상태 저장
+        outState.putInt("currentNavItemIndex", currentNavItemIndex)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,6 +69,17 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         // savedInstanceState에서 isSnackBarShown 값 복원
         savedInstanceState?.getBoolean("isSnackBarShown")?.let {
             viewModel.setSnackBarShown(it)
+        }
+
+        // savedInstanceState에서 currentNavItemIndex 값 복원
+        savedInstanceState?.getInt("currentNavItemIndex")?.let {
+            currentNavItemIndex = it
+            binding.bottomNavigationView.selectedItemId = when (currentNavItemIndex) {
+                1 -> R.id.bottomNaviHeart
+                2 -> R.id.bottomNaviChat
+                3 -> R.id.bottomNaviMy
+                else -> R.id.bottomNaviStudy
+            }
         }
 
         initView()
@@ -110,6 +123,8 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
     // 현재 보여지고 있는 프래그먼트를 기억하기 위한 변수
     private var activeFragment: Fragment? = null
 
+    private var currentNavItemIndex = 0
+
     // 뷰 초기화 함수
     private fun initView() {
 
@@ -145,9 +160,6 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 }
             }
 
-            // 바텀 네비게이션 설정
-            val currentNavItemIndex = hashMapOf("index" to 0)
-
             // 바텀 네비게이션 아이템 선택 리스너 설정
             bottomNavigationView.setOnItemSelectedListener { item ->
 
@@ -156,23 +168,23 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                     R.id.bottomNaviHeart -> 1
                     R.id.bottomNaviChat -> 2
                     R.id.bottomNaviMy -> 3
-                    else -> currentNavItemIndex["index"]!!
+                    else -> currentNavItemIndex
                 }
 
                 // 현재 선택된 아이템과 동일하면 아무 동작도 하지 않음
-                if (newNavItemIndex == currentNavItemIndex["index"]) {
+                if (newNavItemIndex == currentNavItemIndex) {
                     return@setOnItemSelectedListener true
                 }
 
                 // 애니메이션 방향 설정
                 val enterAnim =
-                    if (newNavItemIndex > currentNavItemIndex["index"]!!) {
+                    if (newNavItemIndex > currentNavItemIndex) {
                         R.anim.slide_in_right
                     } else {
                         R.anim.slide_in_left
                     }
                 val exitAnim =
-                    if (newNavItemIndex > currentNavItemIndex["index"]!!) {
+                    if (newNavItemIndex > currentNavItemIndex) {
                         R.anim.slide_out_left
                     } else {
                         R.anim.slide_out_right
@@ -201,14 +213,15 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                     activeFragment = fragment
                 }
 
-                currentNavItemIndex["index"] = newNavItemIndex
+                // 선택된 아이템 인덱스 업데이트
+                currentNavItemIndex = newNavItemIndex
                 true
             }
         }
 
     }
 
-    // 백버튼 동작 설정 함수
+    // 백버튼 종료 동작
     private fun backButton() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -216,27 +229,16 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 private var doubleBackToExitPressedOnce = false
 
                 override fun handleOnBackPressed() {
-                    val currentFragment =
-                        childFragmentManager.findFragmentById(R.id.containerBottomNavi)
-                    if (currentFragment !is StudyFragment) {
-                        // 항상 StudyFragment로 이동
-                        childFragmentManager.commit {
-                            setReorderingAllowed(true)
-                            add<StudyFragment>(R.id.containerBottomNavi)
-                        }
-                        binding.bottomNavigationView.selectedItemId = R.id.bottomNaviStudy
+                    // 백버튼을 두 번 눌렀을 때 앱 종료
+                    if (doubleBackToExitPressedOnce) {
+                        requireActivity().finishAffinity()
+                        exitProcess(0) // 앱 프로세스를 완전히 종료
                     } else {
-                        // 백버튼을 두 번 눌렀을 때 앱 종료
-                        if (doubleBackToExitPressedOnce) {
-                            requireActivity().finishAffinity()
-                            exitProcess(0) // 앱 프로세스를 완전히 종료
-                        } else {
-                            doubleBackToExitPressedOnce = true
-                            // Snackbar를 표시하여 사용자에게 알림
-                            requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
-                            // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
-                            view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-                        }
+                        doubleBackToExitPressedOnce = true
+                        // Snackbar를 표시하여 사용자에게 알림
+                        requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
+                        // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
+                        view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
                     }
                 }
             })
