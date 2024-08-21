@@ -108,9 +108,7 @@ class LoginViewModel : ViewModel() {
             val result = loginRepository.emailLogin(email, password)
             result.onSuccess {
                 setAutoLogin(autoLogin)
-                if (autoLogin) {
-                    setCurrentUserProvider(JoinType.EMAIL.provider)
-                }
+                setCurrentUserProvider(JoinType.EMAIL.provider)
                 setCurrentUserIdx(it)
                 _emailLoginResult.postValue(true)
             }.onFailure { e ->
