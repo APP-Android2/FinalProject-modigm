@@ -63,22 +63,22 @@ class EditProfileViewModel: ViewModel() {
         val userIdx = prefs.getInt("currentUserIdx")
 
         try {
-            val response = profileRepository.loadUserData(userIdx)
-
-            // 프로필 사진
-            _editProfilePicUrl.value = response?.userProfilePic
-            // 사용자 이름
-            _editProfileName.value = response?.userName
-            // 이메일
-            _editProfileEmail.value = response?.userEmail
-            // 로그인 방법
-            _editProfileProvider.value = response?.userProvider
-            // 전화번호
-            _editProfilePhone.value = response?.userPhone
-            // 자기소개
-            _editProfileIntro.value = response?.userIntro
-            // 관심분야 리스트
-            _editProfileInterests.value = response?.userInterests
+            val response = profileRepository.loadUserData(userIdx).collect { user ->
+                // 프로필 사진
+                _editProfilePicUrl.value = user?.userProfilePic
+                // 사용자 이름
+                _editProfileName.value = user?.userName
+                // 이메일
+                _editProfileEmail.value = user?.userEmail
+                // 로그인 방법
+                _editProfileProvider.value = user?.userProvider
+                // 전화번호
+                _editProfilePhone.value = user?.userPhone
+                // 자기소개
+                _editProfileIntro.value = user?.userIntro
+                // 관심분야 리스트
+                _editProfileInterests.value = user?.userInterests
+            }
         } catch (e: Exception) {
             Log.e("EditProfileViewModel", "loadUserData(): ${e.message}")
         }
@@ -89,7 +89,7 @@ class EditProfileViewModel: ViewModel() {
         val userIdx = prefs.getInt("currentUserIdx")
 
         try {
-            _editProfileLinkList.value = profileRepository.loadUserLinkData(userIdx)
+            //_editProfileLinkList.value = profileRepository.loadUserLinkData(userIdx)
         } catch (e: Exception) {
             Log.e("EditProfileViewModel", "loadUserLinkListData(): ${e.message}")
         }
@@ -110,7 +110,9 @@ class EditProfileViewModel: ViewModel() {
 
     fun updateUserData(profileFragment: ProfileFragment, picChanged: Boolean, context: Context) = viewModelScope.launch {
         if (picChanged) {
-            _editProfilePicUrl.value = profileRepository.uploadProfilePic(_editProfilePicUri.value!!, context)
+            profileRepository.uploadProfilePic(_editProfilePicUri.value!!, context).collect { profileUrl ->
+                _editProfilePicUrl.value = profileUrl
+            }
         }
 
         // 데이터를 객체에 담는다
