@@ -39,21 +39,14 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // Kakao SDK 초기화
         KakaoSdk.init(requireContext(), BuildConfig.KAKAO_NATIVE_APP_KEY)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // 초기 뷰 설정
         initView()
-        // Glide를 사용하여 이미지에 블러 효과 적용
-        Glide.with(this)
-            .load(R.drawable.background_login2)
-            .transform(CenterCrop(), BlurTransformation(5, 3))
-            .into(binding.imageViewLoginBackground)
 
-        // 자동 로그인 확인
-        val autoLogin = prefs.getBoolean("autoLogin")
-        if(autoLogin){
-            viewModel.tryAutoLogin()
-        }
+        // 자동 로그인
+        autoLogin()
 
         // ViewModel의 데이터 변경 관찰
         observeViewModel()
@@ -74,6 +67,12 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
      */
     private fun initView() {
         with(binding){
+            // Glide를 사용하여 이미지에 블러 효과 적용
+            Glide.with(this@LoginFragment)
+                .load(R.drawable.background_login2)
+                .transform(CenterCrop(), BlurTransformation(5, 3))
+                .into(imageViewLoginBackground)
+
             // 스크롤 가능할 때
             showScrollArrow()
             // 카카오 로그인 버튼 클릭 리스너 설정
@@ -94,6 +93,17 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                     addToBackStack(FragmentName.OTHER_LOGIN.str)
                 }
             }
+        }
+    }
+
+    /**
+     * 자동 로그인
+     */
+    private fun autoLogin() {
+        // 자동 로그인 확인
+        val autoLogin = prefs.getBoolean("autoLogin")
+        if(autoLogin){
+            viewModel.tryAutoLogin()
         }
     }
 
@@ -199,13 +209,21 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     // 오류 다이얼로그 표시
     private fun showLoginErrorDialog(message: String) {
+        // 다이얼로그 생성
         val dialog = CustomLoginErrorDialog(requireContext())
-        dialog.setTitle("오류")
-        dialog.setMessage(message)
-        dialog.setPositiveButton("확인") {
-            dialog.dismiss()
+        with(dialog){
+            // 다이얼로그 제목
+            setTitle("오류")
+            // 다이얼로그 메시지
+            setMessage(message)
+            // 확인 버튼
+            setPositiveButton("확인") {
+                // 확인 버튼 클릭 시 다이얼로그 닫기
+                dismiss()
+            }
+            // 다이얼로그 표시
+            show()
         }
-        dialog.show()
     }
 
     /**
