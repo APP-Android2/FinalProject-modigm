@@ -57,11 +57,10 @@ class ChangePasswordViewModel : ViewModel() {
      * @param userPassword 사용자의 비밀번호
      */
     fun checkPassword(userPassword: String) {
-        Log.d(tag, "checkPassword 호출됨. userPassword: $userPassword")
+        Log.d(tag, "checkPassword 호출됨")
         viewModelScope.launch {
             val result = loginRepository.checkPassword(userPassword)
             result.onSuccess { currentUserPhone ->
-                Log.d(tag, "currentUserPhone: $currentUserPhone")
                 _currentUserPhone.postValue(currentUserPhone.toNationalPhoneNumber())
                 Log.d(tag, "비밀번호 확인 성공.")
                 _isCurrentPasswordComplete.postValue(true)
@@ -77,7 +76,7 @@ class ChangePasswordViewModel : ViewModel() {
      * @param newPassword 변경할 비밀번호
      */
     fun updatePassword(newPassword: String) {
-        Log.d(tag, "updatePassword 호출됨. newPassword: $newPassword")
+        Log.d(tag, "updatePassword 호출됨")
         viewModelScope.launch {
             val result = loginRepository.updatePassword(newPassword)
             result.onSuccess {
@@ -87,5 +86,14 @@ class ChangePasswordViewModel : ViewModel() {
                 Log.e(tag, "비밀번호 변경 실패. 오류: ${e.message}", e)
             }
         }
+    }
+
+    fun clearData(){
+        _isComplete.postValue(false)
+        _passwordInputError.postValue(null)
+        _newPasswordInputError.postValue(null)
+        _newPasswordConfirmInputError.postValue(null)
+        _isCurrentPasswordComplete.postValue(false)
+        _currentUserPhone.postValue("")
     }
 }

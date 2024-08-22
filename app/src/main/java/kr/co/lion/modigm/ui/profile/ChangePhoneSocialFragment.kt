@@ -9,7 +9,6 @@ import kr.co.lion.modigm.databinding.FragmentChangePhoneSocialBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.profile.vm.ChangePhoneViewModel
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBinding>(FragmentChangePhoneSocialBinding::inflate) {
 
@@ -26,7 +25,7 @@ class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBindin
         // 뷰모델 관찰
         observeViewModel()
         // 소셜 로그인 재인증
-        viewModel.socialLoginReAuthenticate(requireActivity(), getCurrentUserProvider())
+        viewModel.socialLoginReAuthenticate(requireActivity())
 
     }
 
@@ -50,7 +49,7 @@ class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBindin
                 isEnabled = false // 버튼을 처음에 비활성화
                 setOnClickListener {
                     // 소셜 로그인 다시 인증
-                    viewModel.socialLoginReAuthenticate(requireActivity(), getCurrentUserProvider())
+                    viewModel.socialLoginReAuthenticate(requireActivity())
                     progressBarChangePhoneSocial.visibility = View.VISIBLE
                     isEnabled = false
                 }
@@ -83,8 +82,6 @@ class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBindin
         }
     }
 
-
-
     // 전화번호 변경 인증 화면으로 이동
     private fun moveToNext() {
         // 완료 여부는 초기화해서 popStackBack으로 돌아와도 문제 없게
@@ -101,10 +98,5 @@ class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBindin
             replace(R.id.containerMain, changePhoneAuthFragment)
             addToBackStack(FragmentName.CHANGE_PHONE_AUTH.str)
         }
-    }
-
-    // 현재 사용자의 소셜 로그인 제공자 가져오기
-    private fun getCurrentUserProvider():String{
-        return prefs.getString("currentUserProvider")
     }
 }

@@ -91,6 +91,22 @@ class ChangePhoneViewModel : ViewModel() {
         }
     }
 
+
+    /**
+     * getCurrentUserIdx 값을 가져오는 메서드
+     */
+    private fun getCurrentUserIdx(): Int {
+        return prefs.getInt("currentUserIdx")
+    }
+
+    /**
+     * getCurrentUserProvider 값을 가져오는 메서드
+     */
+    private fun getCurrentUserProvider(): String {
+        return prefs.getString("currentUserProvider")
+    }
+
+
     /**
      * 이메일 로그인 유저의 비밀번호를 확인하는 메서드
      * @param userPassword 사용자의 비밀번호
@@ -113,10 +129,10 @@ class ChangePhoneViewModel : ViewModel() {
     }
 
     // 소셜 로그인 유저가 제공한 이메일로 인증하는 메서드
-    fun socialLoginReAuthenticate(context: Activity, currentUserProvider: String) {
+    fun socialLoginReAuthenticate(context: Activity) {
         Log.d(tag, "socialLoginReAuthenticate 호출됨.")
         viewModelScope.launch {
-            val result = when (currentUserProvider) {
+            val result = when (getCurrentUserProvider()) {
                 JoinType.KAKAO.provider -> {
                     loginRepository.reAuthenticateWithKakao(context)
                 }
@@ -171,8 +187,7 @@ class ChangePhoneViewModel : ViewModel() {
     fun updatePhone(currentUserPhone: String, newUserPhone: String, verificationId: String, authCode: String) {
         Log.d(tag, "checkCode 호출됨. authCode: $authCode")
         viewModelScope.launch {
-            val userIdx = prefs.getInt("currentUserIdx")
-            val resultDataSource = loginRepository.updatePhone(userIdx, currentUserPhone, newUserPhone, verificationId, authCode)
+            val resultDataSource = loginRepository.updatePhone(getCurrentUserIdx(), currentUserPhone, newUserPhone, verificationId, authCode)
             resultDataSource.onSuccess {
                 Log.d(tag, "전화번호 변경 성공.")
                 _isComplete.postValue(true)
@@ -180,14 +195,6 @@ class ChangePhoneViewModel : ViewModel() {
                 Log.e(tag, "전화번호 변경 실패. 오류: ${e.message}", e)
                 _authCodeInputError.postValue(e)
             }
-        }
-    }
-    fun authLogout(){
-        val result = loginRepository.authLogout()
-        result.onSuccess {
-            Log.d(tag, "로그아웃 성공.")
-        }.onFailure { e ->
-            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
         }
     }
 

@@ -1,13 +1,8 @@
 package kr.co.lion.modigm.ui.profile
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -92,21 +87,15 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
             layoutSettingsLogout.setOnClickListener {
                 // SharedPreferences 초기화
                 prefs.clearAllPrefs()
+                prefs.setBoolean("autoLogin", false)
                 // 로그아웃 처리
                 Firebase.auth.signOut()
-                // Backstack 모두 제거하고 로그인 화면으로 돌아간다
-                clearBackStack()
+                // 로그인 화면으로 돌아간다
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.containerMain, LoginFragment())
                     .addToBackStack(null)
                     .commit()
             }
         }
-    }
-
-    // Backstack 의 모든 fragment 제거
-    private fun clearBackStack() {
-        val fragmentManager: FragmentManager = requireActivity().supportFragmentManager
-        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 }

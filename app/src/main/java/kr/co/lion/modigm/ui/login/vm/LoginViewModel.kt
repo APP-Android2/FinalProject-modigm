@@ -108,9 +108,7 @@ class LoginViewModel : ViewModel() {
             val result = loginRepository.emailLogin(email, password)
             result.onSuccess {
                 setAutoLogin(autoLogin)
-                if (autoLogin) {
-                    setCurrentUserProvider(JoinType.EMAIL.provider)
-                }
+                setCurrentUserProvider(JoinType.EMAIL.provider)
                 setCurrentUserIdx(it)
                 _emailLoginResult.postValue(true)
             }.onFailure { e ->
@@ -201,18 +199,6 @@ class LoginViewModel : ViewModel() {
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * 로그아웃
-     */
-    fun authLogout() {
-        val result = loginRepository.authLogout()
-        result.onSuccess {
-            Log.d(tag, "로그아웃 성공.")
-        }.onFailure { e ->
-            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
         }
     }
 
