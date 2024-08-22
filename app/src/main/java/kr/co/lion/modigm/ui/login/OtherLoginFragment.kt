@@ -69,6 +69,8 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
                     return@setOnClickListener
                 }
                 requireActivity().hideSoftInput()
+
+                showLoginLoading()
                 val email = textInputEditOtherEmail.text.toString()
                 val password = textInputEditOtherPassword.text.toString()
                 val autoLogin = checkBoxOtherAutoLogin.isChecked
@@ -108,24 +110,17 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
         // 이메일 로그인 데이터 관찰
         viewModel.emailLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
+                hideLoginLoading()
                 Log.i("LoginFragment", "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
                 navigateToBottomNaviFragment(joinType)
             }
         }
         // 이메일 로그인 실패 시 에러 처리
-        viewModel.emailDialogError.observe(viewLifecycleOwner) { error ->
+        viewModel.emailLoginError.observe(viewLifecycleOwner) { error ->
             if (error != null) {
+                hideLoginLoading()
                 showErrorDialog(error)
-            }
-        }
-        viewModel.emailInputError.observe(viewLifecycleOwner) { error ->
-            with(binding) {
-                if (error != null) {
-                    textInputLayoutOtherEmail.error = error.message
-                    textInputEditOtherEmail.requestFocus()
-                    textInputLayoutOtherEmail.shake()
-                }
             }
         }
     }
@@ -169,13 +164,22 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
 
     // 오류 다이얼로그 표시
     private fun showLoginErrorDialog(message: String) {
+        // 다이얼로그 생성
         val dialog = CustomLoginErrorDialog(requireContext())
-        dialog.setTitle("오류")
-        dialog.setMessage(message)
-        dialog.setPositiveButton("확인") {
-            dialog.dismiss()
+        with(dialog){
+            // 다이얼로그 제목
+            setTitle("오류")
+            // 다이얼로그 메시지
+            setMessage(message)
+            // 확인 버튼
+            setPositiveButton("확인") {
+                // 확인 버튼 클릭 시 다이얼로그 닫기
+                dismiss()
+            }
+            // 다이얼로그 표시
+            show()
         }
-        dialog.show()
+
     }
 
     // 유효성 검사
@@ -263,5 +267,22 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
             }
         }
         override fun afterTextChanged(p0: Editable?) { }
+    }
+
+    // 로딩 화면 표시
+    private fun showLoginLoading() {
+        with(binding){
+            viewLoginLoadingBackground.visibility = View.VISIBLE
+            cardViewLoginLoading.visibility = View.VISIBLE
+            progressBarLoginLoading.visibility = View.VISIBLE
+        }
+    }
+    // 로딩 화면 숨김
+    private fun hideLoginLoading() {
+        with(binding){
+            progressBarLoginLoading.visibility = View.GONE
+            cardViewLoginLoading.visibility = View.GONE
+            viewLoginLoadingBackground.visibility = View.GONE
+        }
     }
 }

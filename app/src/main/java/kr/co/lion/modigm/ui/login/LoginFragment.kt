@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.kakao.sdk.common.KakaoSdk
 import jp.wasabeef.glide.transformations.BlurTransformation
+import jp.wasabeef.glide.transformations.ColorFilterTransformation
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
@@ -67,21 +68,24 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
      */
     private fun initView() {
         with(binding){
+
             // Glide를 사용하여 이미지에 블러 효과 적용
             Glide.with(this@LoginFragment)
                 .load(R.drawable.background_login2)
-                .transform(CenterCrop(), BlurTransformation(5, 3))
+                .transform(CenterCrop(), BlurTransformation(5, 3), ColorFilterTransformation(0x60000000))
                 .into(imageViewLoginBackground)
 
-            // 스크롤 가능할 때
+            // 스크롤 가능할 때 화살표 표시
             showScrollArrow()
             // 카카오 로그인 버튼 클릭 리스너 설정
             imageButtonLoginKakao.setOnClickListener {
+                showLoginLoading()
                 Log.i(tag, "카카오 로그인 버튼 클릭됨")
                 viewModel.loginKakao(requireContext())
             }
             // 깃허브 로그인 버튼 클릭 리스너 설정
             imageButtonLoginGithub.setOnClickListener {
+                showLoginLoading()
                 Log.i(tag, "깃허브 로그인 버튼 클릭됨")
                 viewModel.githubLogin(requireActivity())
             }
@@ -103,6 +107,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 자동 로그인 확인
         val autoLogin = prefs.getBoolean("autoLogin")
         if(autoLogin){
+            showLoginLoading()
             viewModel.tryAutoLogin()
         }
     }
@@ -114,6 +119,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 카카오 로그인 데이터 관찰
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
+                hideLoginLoading()
                 Log.i(tag, "카카오 로그인 성공")
                 val joinType = JoinType.KAKAO
                 navigateToBottomNaviFragment(joinType)
@@ -122,6 +128,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 깃허브 로그인 데이터 관찰
         viewModel.githubLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
+                hideLoginLoading()
                 Log.i(tag, "깃허브 로그인 성공")
                 val joinType = JoinType.GITHUB
                 navigateToBottomNaviFragment(joinType)
@@ -130,6 +137,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 카카오 회원가입 데이터 관찰
         viewModel.kakaoJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
+                hideLoginLoading()
                 Log.i(tag, "카카오 회원가입으로 이동")
                 val joinType = JoinType.KAKAO
                 navigateToJoinFragment(joinType)
@@ -138,14 +146,17 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 깃허브 회원가입 데이터 관찰
         viewModel.githubJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
+                hideLoginLoading()
                 Log.i(tag, "깃허브 회원가입으로 이동")
                 val joinType = JoinType.GITHUB
+
                 navigateToJoinFragment(joinType)
             }
         }
         // 이메일 자동로그인 데이터 관찰
         viewModel.emailAutoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
+                hideLoginLoading()
                 Log.i("LoginFragment", "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
                 navigateToBottomNaviFragment(joinType)
@@ -154,12 +165,14 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         // 카카오 로그인 실패 시 에러 처리
         viewModel.kakaoLoginError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
+                hideLoginLoading()
                 showLoginErrorDialog(e)
             }
         }
         // 깃허브 로그인 실패 시 에러 처리
         viewModel.githubLoginError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
+                hideLoginLoading()
                 showLoginErrorDialog(e)
             }
         }
@@ -288,5 +301,22 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 }
             }
         })
+    }
+
+    // 로딩 화면 표시
+    private fun showLoginLoading() {
+        with(binding){
+            viewLoginLoadingBackground.visibility = View.VISIBLE
+            cardViewLoginLoading.visibility = View.VISIBLE
+            progressBarLoginLoading.visibility = View.VISIBLE
+        }
+    }
+    // 로딩 화면 숨기기
+    private fun hideLoginLoading() {
+        with(binding){
+            progressBarLoginLoading.visibility = View.GONE
+            cardViewLoginLoading.visibility = View.GONE
+            viewLoginLoadingBackground.visibility = View.GONE
+        }
     }
 }

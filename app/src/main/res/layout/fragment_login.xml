@@ -17,12 +17,6 @@
             android:scaleType="centerCrop"
             android:src="@drawable/background_login2" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#60000000" />
-
-
         <!-- ScrollView로 LinearLayout을 감쌈 -->
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scrollViewLogin"
@@ -136,6 +130,31 @@
             android:layout_gravity="center|bottom"
             app:tint="@color/white"
             android:background="@color/clearColor"/>
+
+        <View
+            android:id="@+id/viewLoginLoadingBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#60000000"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewLoginLoading"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:backgroundTint="@color/white"
+            android:layout_gravity="center"
+            android:visibility="gone">
+            <ProgressBar
+                android:id="@+id/progressBarLoginLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/buttonGray"
+                android:visibility="gone"/>
+        </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
