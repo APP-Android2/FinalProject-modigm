@@ -57,8 +57,8 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
         with(binding){
 
             // 실시간 텍스트 변경 감지 설정
-            binding.textInputEditOtherEmail.addTextChangedListener(inputWatcher)
-            binding.textInputEditOtherPassword.addTextChangedListener(inputWatcher)
+            textInputEditOtherEmail.addTextChangedListener(inputWatcher)
+            textInputEditOtherPassword.addTextChangedListener(inputWatcher)
 
             // 로그인 버튼 초기값을 비활성화 상태로 설정
             buttonOtherLogin.isEnabled = false
