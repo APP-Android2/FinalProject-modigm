@@ -527,7 +527,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             .create()
 
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            viewModel.updateStudyState(studyIdx, 2)  // studyState 값을 2로 업데이트
+            viewModel.updateStudyState(studyIdx, false)  // studyState 값을 false로 업데이트
             // 예 버튼 로직
             Log.d("Dialog", "확인을 선택했습니다.")
             dialog.dismiss()

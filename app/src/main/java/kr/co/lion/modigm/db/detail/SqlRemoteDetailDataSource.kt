@@ -91,7 +91,7 @@ class SqlRemoteDetailDataSource {
     }
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Boolean {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Boolean {
         return try {
             studyDao.updateStudyState(studyIdx, newState) > 0
         } catch (e: Exception) {

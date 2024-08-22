@@ -98,12 +98,12 @@ class SqlRemoteDetailDao {
     }
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Int = withContext(Dispatchers.IO) {
         try {
             HikariCPDataSource.getConnection().use { connection ->
                 val query = "UPDATE tb_study SET studyState = ? WHERE studyIdx = ?"
                 connection.prepareStatement(query).use { statement ->
-                    statement.setInt(1, newState)
+                    statement.setInt(1, if (newState) 1 else 0)
                     statement.setInt(2, studyIdx)
                     return@withContext statement.executeUpdate()
                 }

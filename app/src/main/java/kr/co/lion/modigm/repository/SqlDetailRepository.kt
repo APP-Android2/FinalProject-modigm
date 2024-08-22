@@ -42,7 +42,7 @@ class SqlDetailRepository {
     }.flowOn(Dispatchers.IO)
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Boolean {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Boolean {
         return sqlRemoteDetailDataSource.updateStudyState(studyIdx, newState)
     }
 

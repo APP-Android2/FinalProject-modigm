@@ -171,7 +171,7 @@ class SqlDetailViewModel: ViewModel() {
     }
 
     // studyState 값을 업데이트하는 메소드 추가
-    fun updateStudyState(studyIdx: Int, newState: Int) {
+    fun updateStudyState(studyIdx: Int, newState: Boolean) {
         viewModelScope.launch {
             val result = sqlDetailRepository.updateStudyState(studyIdx, newState)
             _updateResult.emit(result)
