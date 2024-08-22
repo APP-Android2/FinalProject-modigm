@@ -6,9 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.repository.WriteStudyRepository
-import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
-import kr.co.lion.modigm.util.PreferenceUtil
 
 
 class WriteViewModel : ViewModel() {
