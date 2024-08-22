@@ -44,11 +44,12 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
     // 스크롤 상태 변경 시 동작
     override fun onRecyclerViewScrollStateChanged(newState: Int) {
         if (newState == RecyclerView.SCROLL_STATE_IDLE && !isFabVisible) {
-            // 스크롤이 멈췄을 때 0.5초 후에 FAB 보이기
             view?.postDelayed({
-                binding.fabStudyWrite.show()
-                isFabVisible = true
-            }, 800)
+                if (isAdded && view != null) {
+                    binding.fabStudyWrite.show()
+                    isFabVisible = true
+                }
+            }, 600)
         }
     }
 
