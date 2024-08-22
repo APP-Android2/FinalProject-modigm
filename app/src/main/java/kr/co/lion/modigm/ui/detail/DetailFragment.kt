@@ -99,6 +99,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         observeViewModel()
 
+        // 초기 좋아요 상태 확인
+        viewModel.checkIfLiked(userIdx, studyIdx)
+
     }
 
     fun fetchDataAndUpdateUI() {
@@ -113,19 +116,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             awaitAll(dataDeferred, membersDeferred, techDeferred, imageDeferred)
         }
 
-
-        // 좋아요 토글 및 상태
-//        lifecycleScope.launch {
-//            viewModel.isLiked.collect { isLiked ->
-//                if (isLiked) {
-//                    binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
-//                    binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
-//                } else {
-//                    binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
-//                    binding.buttonDetailLike.setColorFilter(ContextCompat.getColor(requireContext(), R.color.pointColor))
-//                }
-//            }
-//        }
     }
     private suspend fun loadImage() {
         viewModel.studyPic.collect { imageUrl ->
@@ -212,6 +202,22 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             }
         }
 
+        lifecycleScope.launch {
+            viewModel.isLiked.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { isLiked ->
+                updateLikeButton(isLiked)
+            }
+        }
+
+    }
+
+    private fun updateLikeButton(isLiked: Boolean) {
+        if (isLiked) {
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
+            binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
+        } else {
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
+            binding.buttonDetailLike.setColorFilter(ContextCompat.getColor(requireContext(), R.color.pointColor))
+        }
     }
 
     private fun loadUserImage(imageUrl: String?) {
@@ -306,9 +312,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             // 스터디 인원(총인원)
             textViewDetailMemberTotal.text = data.studyMaxMember.toString()
 
-            // 스터디 인원 (참가 인원)
-//            textViewDetailMember.text = data.studyUidList.size.toString()
-
 
             // 스터디 방식(온라인 / 오프라인 / 온오프 -> 온라인 제외하고는 주소 이름으로 사용)
             val studyOnOffline = when (data.studyOnOffline) {
@@ -338,7 +341,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
             // 모집 상태에 따라 textViewDetailState의 텍스트 설정
             if (data.studyCanApply == "모집중") {
-//                Log.d("DetailFragment", "User Profile Pic URL: ${data.studyCanApply}")
                 // 모집중 상태
                 textViewDetailState.text = "모집중"
                 setupStatePopup()
@@ -414,7 +416,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     // 좋아요 버튼 설정
     fun setupLikeButtonListener() {
         binding.buttonDetailLike.setOnClickListener {
-//            viewModel.toggleLike(uid, studyIdx)
+            viewModel.toggleFavoriteStatus(userIdx, studyIdx)
         }
     }
 
@@ -581,11 +583,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                     0
                 )
             }
-        }
-
-        binding.buttonDetailApply.setOnClickListener {
-            Log.d("DetailFragment", "채팅방 이동1")
-//            moveChatRoom()
         }
     }
 
