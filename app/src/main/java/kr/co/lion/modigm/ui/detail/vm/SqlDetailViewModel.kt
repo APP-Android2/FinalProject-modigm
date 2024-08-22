@@ -287,4 +287,24 @@ class SqlDetailViewModel: ViewModel() {
             }
         }
     }
+
+    // studyCanApply 값을 업데이트하는 메소드
+    fun updateStudyCanApplyInBackground(studyIdx: Int, canApply: Boolean) {
+        viewModelScope.launch {
+            try {
+                val newState = if (canApply) "모집중" else "모집완료"
+                val result = sqlDetailRepository.updateStudyCanApplyField(studyIdx, newState)
+                if (result) {
+                    // DB 업데이트 성공 시, 별도의 UI 갱신을 하지 않음
+                    Log.d("SqlDetailViewModel", "Study state updated successfully.")
+                } else {
+                    // 실패 시, 사용자에게 오류를 알리거나, 로그를 남기거나, 상태 복구 등의 처리
+                    Log.e("SqlDetailViewModel", "Failed to update study state.")
+                }
+            } catch (e: Exception) {
+                Log.e("SqlDetailViewModel", "Error updating studyCanApply", e)
+            }
+        }
+    }
+
 }

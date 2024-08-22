@@ -85,4 +85,8 @@ class SqlDetailRepository {
     suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
         return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
     }
+
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Boolean {
+        return sqlRemoteDetailDataSource.updateStudyCanApplyField(studyIdx, newState)
+    }
 }

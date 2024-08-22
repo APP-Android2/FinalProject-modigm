@@ -307,4 +307,20 @@ class SqlRemoteDetailDao {
         }
     }
 
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Int = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "UPDATE tb_study SET studyCanApply = ? WHERE studyIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setString(1, newState)
+                    statement.setInt(2, studyIdx)
+                    return@withContext statement.executeUpdate()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating studyCanApply field", e)
+            return@withContext 0
+        }
+    }
+
 }

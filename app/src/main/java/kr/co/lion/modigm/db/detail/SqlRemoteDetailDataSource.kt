@@ -149,4 +149,13 @@ class SqlRemoteDetailDataSource {
         return studyDao.removeUserFromStudyRequest(studyIdx, userIdx)
     }
 
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Boolean {
+        return try {
+            studyDao.updateStudyCanApplyField(studyIdx, newState) > 0
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource Error", "Error updateStudyCanApplyField: ${e.message}")
+            false
+        }
+    }
+
 }

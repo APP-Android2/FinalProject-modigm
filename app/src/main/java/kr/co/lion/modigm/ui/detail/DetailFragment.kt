@@ -21,6 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.transition.TransitionManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -548,6 +549,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         if (currentStudyData?.userIdx == userIdx) {
             setupOwnerView(textViewState)
+            // 버튼 클릭 비활성화
+            binding.buttonDetailApply.isEnabled = false
         } else {
             setupNonOwnerView(textViewState)
         }
@@ -562,6 +565,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         )
 
         textViewState.isEnabled = true
+        binding.buttonDetailApply.isEnabled = false
+        binding.buttonDetailApply.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pointColor))
 
         textViewState.setOnClickListener { view ->
             Log.d("DetailFragment", "TextViewState clicked for owner")
@@ -585,7 +590,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             }
         }
     }
-
     private fun setupNonOwnerView(textViewState: TextView) {
         textViewState.isEnabled = false
         textViewState.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
@@ -668,13 +672,16 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // 팝업 메뉴 아이템의 클릭 리스너 설정
         popupView.findViewById<TextView>(R.id.textViewDetailState1).setOnClickListener {
             binding.textViewDetailState.text = (it as TextView).text
-//            viewModel.updateStudyCanApplyByStudyIdx(studyIdx, true)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+            // "모집중" 상태로 업데이트
+            viewModel.updateStudyCanApplyInBackground(studyIdx, true)
         }
         popupView.findViewById<TextView>(R.id.textViewDetailState2).setOnClickListener {
             binding.textViewDetailState.text = (it as TextView).text
-//            viewModel.updateStudyCanApplyByStudyIdx(studyIdx, false)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+            // "모집완료" 상태로 업데이트
+            viewModel.updateStudyCanApplyInBackground(studyIdx, false)
         }
     }
+
 }
