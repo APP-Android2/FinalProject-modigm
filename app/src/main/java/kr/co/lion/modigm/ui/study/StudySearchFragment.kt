@@ -53,6 +53,7 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
 
         initView()
         observeViewModel()
+        viewModel.getAllStudyData()
     }
 
     override fun onDestroyView() {
@@ -84,16 +85,13 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     query?.let {
-                        studySearchAdapter.filter(it)
+                        studySearchAdapter.search(it)
                     }
-                    return false
+                    return true
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
-                    newText?.let {
-                        studySearchAdapter.filter(it)
-                    }
-                    return true
+                    return false
                 }
             })
         }

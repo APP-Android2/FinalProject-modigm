@@ -15,7 +15,7 @@ class StudySearchAdapter(
     private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.Adapter<StudyViewHolder>() {
 
-    private var filteredList: List<Triple<SqlStudyData, Int, Boolean>> = studyList
+    private var searchList: List<Triple<SqlStudyData, Int, Boolean>> = studyList
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): StudyViewHolder {
         val binding: RowStudyBinding =
@@ -28,23 +28,23 @@ class StudySearchAdapter(
     }
 
     override fun getItemCount(): Int {
-        return filteredList.size
+        return searchList.size
     }
 
     override fun onBindViewHolder(holder: StudyViewHolder, position: Int) {
-        holder.bind(filteredList[position])
+        holder.bind(searchList[position])
     }
 
     // 데이터 필터링
     @SuppressLint("NotifyDataSetChanged")
-    fun filter(query: String) {
-        filteredList = if (query.isEmpty()) {
+    fun search(query: String) {
+        searchList = if (query.isEmpty()) {
             emptyList() // 검색어가 빈 문자열일 때 빈 리스트로 설정
         } else {
             studyList.filter { it.first.studyTitle.contains(query, ignoreCase = true) }
         }
         notifyDataSetChanged()
-        Log.d("update adapter", filteredList.toString())
+        Log.d("update adapter", searchList.toString())
     }
 
 
@@ -54,16 +54,5 @@ class StudySearchAdapter(
         studyList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())
-    }
-
-    fun updateItem(studyIdx: Int, isLiked: Boolean) {
-        val index = studyList.indexOfFirst { it.first.studyIdx == studyIdx }
-        if (index != -1) {
-            val item = studyList[index]
-            studyList = studyList.toMutableList().apply {
-                set(index, Triple(item.first, item.second, isLiked))
-            }
-            notifyItemChanged(index)
-        }
     }
 }

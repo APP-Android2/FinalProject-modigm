@@ -1,18 +1,10 @@
 package kr.co.lion.modigm.ui.write
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.Toast
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.DialogWritePeriodFragmentBinding
-import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWritePeriodBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.write.adapter.OptionSpinnerAdapter
@@ -28,14 +20,6 @@ class WritePeriodFragment : VBBaseFragment<FragmentWritePeriodBinding>(FragmentW
 
     // 선택된 기간에 해당하는 숫자를 저장하는 배열
     val periodTags = listOf("0", "1개월 이하", "2개월 이하", "3개월 이하","4개월 이하", "5개월 이하", "6개월 미만", "6개월 이상")
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
