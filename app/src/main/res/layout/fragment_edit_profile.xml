@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="editProfileViewModel"
             type="kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel" />
@@ -74,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="20dp"
-                    android:text="@={editProfileViewModel.editProfileName}"
+                    android:text="@{editProfileViewModel.editProfileName}"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
