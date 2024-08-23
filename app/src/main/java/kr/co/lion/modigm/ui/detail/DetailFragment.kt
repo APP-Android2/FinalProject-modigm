@@ -21,6 +21,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.transition.TransitionManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -99,6 +100,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         observeViewModel()
 
+        // 초기 좋아요 상태 확인
+        viewModel.checkIfLiked(userIdx, studyIdx)
+
     }
 
     fun fetchDataAndUpdateUI() {
@@ -113,19 +117,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             awaitAll(dataDeferred, membersDeferred, techDeferred, imageDeferred)
         }
 
-
-        // 좋아요 토글 및 상태
-//        lifecycleScope.launch {
-//            viewModel.isLiked.collect { isLiked ->
-//                if (isLiked) {
-//                    binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
-//                    binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
-//                } else {
-//                    binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
-//                    binding.buttonDetailLike.setColorFilter(ContextCompat.getColor(requireContext(), R.color.pointColor))
-//                }
-//            }
-//        }
     }
     private suspend fun loadImage() {
         viewModel.studyPic.collect { imageUrl ->
@@ -212,6 +203,22 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             }
         }
 
+        lifecycleScope.launch {
+            viewModel.isLiked.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { isLiked ->
+                updateLikeButton(isLiked)
+            }
+        }
+
+    }
+
+    private fun updateLikeButton(isLiked: Boolean) {
+        if (isLiked) {
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
+            binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
+        } else {
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
+            binding.buttonDetailLike.setColorFilter(ContextCompat.getColor(requireContext(), R.color.pointColor))
+        }
     }
 
     private fun loadUserImage(imageUrl: String?) {
@@ -306,9 +313,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             // 스터디 인원(총인원)
             textViewDetailMemberTotal.text = data.studyMaxMember.toString()
 
-            // 스터디 인원 (참가 인원)
-//            textViewDetailMember.text = data.studyUidList.size.toString()
-
 
             // 스터디 방식(온라인 / 오프라인 / 온오프 -> 온라인 제외하고는 주소 이름으로 사용)
             val studyOnOffline = when (data.studyOnOffline) {
@@ -338,7 +342,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
             // 모집 상태에 따라 textViewDetailState의 텍스트 설정
             if (data.studyCanApply == "모집중") {
-//                Log.d("DetailFragment", "User Profile Pic URL: ${data.studyCanApply}")
                 // 모집중 상태
                 textViewDetailState.text = "모집중"
                 setupStatePopup()
@@ -414,7 +417,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     // 좋아요 버튼 설정
     fun setupLikeButtonListener() {
         binding.buttonDetailLike.setOnClickListener {
-//            viewModel.toggleLike(uid, studyIdx)
+            viewModel.toggleFavoriteStatus(userIdx, studyIdx)
         }
     }
 
@@ -525,7 +528,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             .create()
 
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            viewModel.updateStudyState(studyIdx, 2)  // studyState 값을 2로 업데이트
+            viewModel.updateStudyState(studyIdx, false)  // studyState 값을 false로 업데이트
             // 예 버튼 로직
             Log.d("Dialog", "확인을 선택했습니다.")
             dialog.dismiss()
@@ -546,6 +549,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         if (currentStudyData?.userIdx == userIdx) {
             setupOwnerView(textViewState)
+            // 버튼 클릭 비활성화
+            binding.buttonDetailApply.isEnabled = false
         } else {
             setupNonOwnerView(textViewState)
         }
@@ -560,6 +565,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         )
 
         textViewState.isEnabled = true
+        binding.buttonDetailApply.isEnabled = false
+        binding.buttonDetailApply.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pointColor))
 
         textViewState.setOnClickListener { view ->
             Log.d("DetailFragment", "TextViewState clicked for owner")
@@ -582,13 +589,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 )
             }
         }
-
-        binding.buttonDetailApply.setOnClickListener {
-            Log.d("DetailFragment", "채팅방 이동1")
-//            moveChatRoom()
-        }
     }
-
     private fun setupNonOwnerView(textViewState: TextView) {
         textViewState.isEnabled = false
         textViewState.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
@@ -671,13 +672,16 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // 팝업 메뉴 아이템의 클릭 리스너 설정
         popupView.findViewById<TextView>(R.id.textViewDetailState1).setOnClickListener {
             binding.textViewDetailState.text = (it as TextView).text
-//            viewModel.updateStudyCanApplyByStudyIdx(studyIdx, true)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+            // "모집중" 상태로 업데이트
+            viewModel.updateStudyCanApplyInBackground(studyIdx, true)
         }
         popupView.findViewById<TextView>(R.id.textViewDetailState2).setOnClickListener {
             binding.textViewDetailState.text = (it as TextView).text
-//            viewModel.updateStudyCanApplyByStudyIdx(studyIdx, false)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+            // "모집완료" 상태로 업데이트
+            viewModel.updateStudyCanApplyInBackground(studyIdx, false)
         }
     }
+
 }

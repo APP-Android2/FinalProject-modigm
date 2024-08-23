@@ -42,7 +42,7 @@ class SqlDetailRepository {
     }.flowOn(Dispatchers.IO)
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Boolean {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Boolean {
         return sqlRemoteDetailDataSource.updateStudyState(studyIdx, newState)
     }
 
@@ -84,5 +84,9 @@ class SqlDetailRepository {
     // 특정 사용자를 tb_study_request에서 삭제하는 메소드
     suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
         return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
+    }
+
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Boolean {
+        return sqlRemoteDetailDataSource.updateStudyCanApplyField(studyIdx, newState)
     }
 }

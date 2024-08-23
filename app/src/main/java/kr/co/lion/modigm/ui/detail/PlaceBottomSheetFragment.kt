@@ -37,13 +37,6 @@ class PlaceBottomSheetFragment : VBBaseBottomSheetFragment<FragmentPlaceBottomSh
 
     private var placeSelectedListener: OnPlaceSelectedListener? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
