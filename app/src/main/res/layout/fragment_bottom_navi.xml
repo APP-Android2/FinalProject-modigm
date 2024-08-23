@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:transitionGroup="true"
-    tools:context=".ui.study.BottomNaviFragment">
+    tools:context=".ui.study.BottomNaviFragment"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,4 +45,17 @@
             app:labelVisibilityMode="labeled"
             app:menu="@menu/menu_study_bottom_navi" />
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabStudyWrite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="90dp"
+        android:backgroundTint="@color/pointColor"
+        android:src="@drawable/icon_edit_24px"
+        app:fabSize="normal"
+        app:tint="@color/white"
+        />
 </FrameLayout>

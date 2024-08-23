@@ -27,6 +27,11 @@ class ChangePasswordAuthFragment : VBBaseFragment<FragmentChangePasswordAuthBind
         observeViewModel()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.clearData()
+    }
+
     private fun initView(){
         with(binding){
             // 실시간 텍스트 변경 감지 설정

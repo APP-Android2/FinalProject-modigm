@@ -1,19 +1,11 @@
 package kr.co.lion.modigm.ui.write
 
-import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.card.MaterialCardView
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentDetailMemberBinding
 import kr.co.lion.modigm.databinding.FragmentWriteFieldBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
@@ -22,11 +14,6 @@ class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWri
 
     private val viewModel: WriteViewModel by activityViewModels()
     private var selectedCardView: MaterialCardView? = null // 선택된 카드뷰를 기억하기 위한 변수
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

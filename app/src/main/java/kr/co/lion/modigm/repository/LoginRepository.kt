@@ -148,7 +148,7 @@ class LoginRepository {
      * @param newPassword 새로운 비밀번호
      * @return Result<Boolean> 비밀번호 변경 성공 여부를 반환
      */
-    fun updatePassword(newPassword: String): Result<Boolean> {
+    suspend fun updatePassword(newPassword: String): Result<Boolean> {
         return runCatching {
             loginDataSource.updatePassword(newPassword).getOrThrow()
         }.onFailure { e ->

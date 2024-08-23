@@ -91,7 +91,7 @@ class SqlRemoteDetailDataSource {
     }
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Boolean {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Boolean {
         return try {
             studyDao.updateStudyState(studyIdx, newState) > 0
         } catch (e: Exception) {
@@ -147,6 +147,15 @@ class SqlRemoteDetailDataSource {
 
     suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
         return studyDao.removeUserFromStudyRequest(studyIdx, userIdx)
+    }
+
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Boolean {
+        return try {
+            studyDao.updateStudyCanApplyField(studyIdx, newState) > 0
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource Error", "Error updateStudyCanApplyField: ${e.message}")
+            false
+        }
     }
 
 }

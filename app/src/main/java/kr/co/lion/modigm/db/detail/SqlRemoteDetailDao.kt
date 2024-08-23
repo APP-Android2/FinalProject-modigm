@@ -98,12 +98,12 @@ class SqlRemoteDetailDao {
     }
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Int = withContext(Dispatchers.IO) {
         try {
             HikariCPDataSource.getConnection().use { connection ->
                 val query = "UPDATE tb_study SET studyState = ? WHERE studyIdx = ?"
                 connection.prepareStatement(query).use { statement ->
-                    statement.setInt(1, newState)
+                    statement.setInt(1, if (newState) 1 else 0)
                     statement.setInt(2, studyIdx)
                     return@withContext statement.executeUpdate()
                 }
@@ -304,6 +304,22 @@ class SqlRemoteDetailDao {
         } catch (e: Exception) {
             Log.e(TAG, "Error removing user from study request", e)
             return@withContext false
+        }
+    }
+
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Int = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "UPDATE tb_study SET studyCanApply = ? WHERE studyIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setString(1, newState)
+                    statement.setInt(2, studyIdx)
+                    return@withContext statement.executeUpdate()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating studyCanApply field", e)
+            return@withContext 0
         }
     }
 

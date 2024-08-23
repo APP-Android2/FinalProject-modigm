@@ -58,4 +58,13 @@ class PreferenceUtil(context: Context) {
             Log.d("SharedPreferencesLog", "$key: $value")
         }
     }
+
+    fun getAllPrefs(): String {
+        val allPrefs = prefs.all
+        val stringBuilder = StringBuilder()
+        for ((key, value) in allPrefs) {
+            stringBuilder.append("$key: $value")
+        }
+        return stringBuilder.toString()
+    }
 }

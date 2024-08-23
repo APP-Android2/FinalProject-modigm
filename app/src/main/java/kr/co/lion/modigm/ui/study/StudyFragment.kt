@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.study
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.commit
@@ -9,9 +10,23 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 
-class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding::inflate) {
+class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding::inflate), OnRecyclerViewScrollListener {
+
+    private var scrollListener: OnRecyclerViewScrollListener? = null
 
     // --------------------------------- LC START ---------------------------------
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // 부모 프래그먼트(BottomNaviFragment)와 인터페이스 연결
+        if (parentFragment is OnRecyclerViewScrollListener) {
+            scrollListener = parentFragment as OnRecyclerViewScrollListener
+        } else if (context is OnRecyclerViewScrollListener) {
+            scrollListener = context
+        } else {
+            throw RuntimeException("$context or parentFragment must implement OnRecyclerViewScrollListener")
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -28,6 +43,14 @@ class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding:
     }
 
     // --------------------------------- LC END ---------------------------------
+
+    override fun onRecyclerViewScrolled(dy: Int) {
+        scrollListener?.onRecyclerViewScrolled(dy)
+    }
+
+    override fun onRecyclerViewScrollStateChanged(newState: Int) {
+        scrollListener?.onRecyclerViewScrollStateChanged(newState)
+    }
 
     private fun initView() {
         // 바인딩

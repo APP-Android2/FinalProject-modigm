@@ -41,8 +41,6 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
         ScrollViewSkillSelectVisibility()
         binding.imageViewSkillBottomSheetClose.setOnClickListener { dismiss() }
 
-//        // 초기 선택된 스킬 설정
-//        setSelectedSkills(initialSkills)
         // 초기 선택된 스킬을 바인딩이 완료된 후에 처리
         applySelectedSkills()
     }
@@ -76,28 +74,6 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
     fun setOnSkillSelectedListener(listener: OnSkillSelectedListener) {
         skillSelectedListener = listener
     }
-
-//    fun setSelectedSkills(skills: List<Skill>) {
-//        initialSkills = skills
-//        if (::binding.isInitialized) {
-//            selectedSkills.clear()
-//            selectedSkills.addAll(skills)
-//            updateSelectedChipsUI()
-//
-//            // 선택된 스킬이 있는 카테고리의 칩을 선택하고 서브 카테고리 칩들을 모두 선택
-//            skills.forEach { skill ->
-//                val category = skill.category
-//                if (category != null) {
-//                    // 해당 카테고리 칩 선택
-//                    updateCategoryChipState(skill, true)
-//                    // 해당 카테고리의 서브 카테고리 칩들을 생성 및 선택
-//                    displaySubCategories(category)
-//                    // 서브 카테고리에서 해당 스킬 칩 선택
-//                    selectSubCategoryChip(skill)
-//                }
-//            }
-//        }
-//    }
 
     fun setSelectedSkills(skills: List<Skill>) {
         initialSkills = skills
@@ -282,13 +258,6 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
     }
 
     fun updateCategoryChipState(skill: Skill, isSelected: Boolean) {
-//        binding.chipGroupSkill.children.forEach {
-//            val chip = it as Chip
-//            if (chip.text.toString() == getCategoryName(skill.category ?: Skill.Category.OTHER)) {
-//                chip.isChecked = isSelected
-//                updateChipStyle(chip, isSelected)
-//            }
-//        }
         binding.chipGroupSkill.children.forEach { view ->
             val chip = view as Chip
             if (chip.text.toString() == getCategoryName(skill.category ?: Skill.Category.OTHER)) {
@@ -308,16 +277,6 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
             dismiss()
         }
     }
-
-//    fun updateChipStyle(chip: Chip, isSelected: Boolean) {
-//        if (isSelected) {
-//            chip.setChipBackgroundColorResource(R.color.pointColor)
-//            chip.setTextColor(resources.getColor(R.color.white, null))
-//        } else {
-//            chip.setChipBackgroundColorResource(R.color.white)
-//            chip.setTextColor(resources.getColor(R.color.black, null))
-//        }
-//    }
 
     fun updateChipStyle(chip: Chip, isSelected: Boolean) {
         if (isSelected) {
