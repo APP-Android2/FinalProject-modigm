@@ -188,6 +188,8 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             viewPagerJoin.orientation = ViewPager2.ORIENTATION_HORIZONTAL
             // 터치로 스크롤 막기
             viewPagerJoin.isUserInputEnabled = false
+            // 현재 인덱스 기준으로 프래그먼트 생성,소멸 기준수
+            viewPagerJoin.offscreenPageLimit = 2
 
             // 프로그래스바 설정
             progressBarJoin.max = 100
