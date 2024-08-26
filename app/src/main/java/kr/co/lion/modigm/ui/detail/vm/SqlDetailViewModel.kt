@@ -13,12 +13,12 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.SqlDetailRepository
-import kr.co.lion.modigm.repository.StudyListRepository
+import kr.co.lion.modigm.repository.StudyRepository
 
 class SqlDetailViewModel: ViewModel() {
 
     private val sqlDetailRepository = SqlDetailRepository()
-    private val studyListRepository = StudyListRepository()
+    private val studyRepository = StudyRepository()
 
     private val _studyData = MutableStateFlow<SqlStudyData?>(null)
     val studyData: StateFlow<SqlStudyData?> = _studyData
@@ -266,7 +266,7 @@ class SqlDetailViewModel: ViewModel() {
     // 좋아요 상태 확인 메소드
     fun checkIfLiked(userIdx: Int, studyIdx: Int) {
         viewModelScope.launch {
-            val result = studyListRepository.getFavoriteStudyData(userIdx).getOrNull()?.any { it.first.studyIdx == studyIdx } ?: false
+            val result = studyRepository.getFavoriteStudyData(userIdx).getOrNull()?.any { it.first.studyIdx == studyIdx } ?: false
             _isLiked.value = result
         }
     }
@@ -275,12 +275,12 @@ class SqlDetailViewModel: ViewModel() {
     fun toggleFavoriteStatus(userIdx: Int, studyIdx: Int) {
         viewModelScope.launch {
             if (_isLiked.value) {
-                val result = studyListRepository.removeFavorite(userIdx, studyIdx).getOrNull()
+                val result = studyRepository.removeFavorite(userIdx, studyIdx).getOrNull()
                 if (result == true) {
                     _isLiked.value = false
                 }
             } else {
-                val result = studyListRepository.addFavorite(userIdx, studyIdx).getOrNull()
+                val result = studyRepository.addFavorite(userIdx, studyIdx).getOrNull()
                 if (result == true) {
                     _isLiked.value = true
                 }
