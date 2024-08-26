@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 확대된 이미지 -->
+    <ImageView
+        android:id="@+id/imageViewZoomed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:contentDescription="이미지" />
+
+    <!-- 둥근 닫기 버튼 -->
+    <ImageButton
+        android:id="@+id/imageViewClose"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="10dp"
+        android:background="@drawable/style_round_border"
+        android:src="@drawable/icon_close_24"
+        android:contentDescription="닫기"
+        android:backgroundTint="@android:color/darker_gray"
+        android:elevation="4dp" />
+
+</FrameLayout>
