@@ -17,7 +17,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.transition.TransitionManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -68,11 +72,17 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         super.onViewCreated(view, savedInstanceState)
 
         // 상품 idx
-        studyIdx = arguments?.getInt("studyIdx")!!
+        studyIdx = arguments?.getInt("studyIdx") ?: 0
 
-        userIdx = ModigmApplication.prefs.getInt("currentUserIdx")
+        userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+
+        // 기본 이미지로 초기화
+        binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
 
         viewModel.clearData() // ViewModel 데이터 초기화
+
+        // 초기 데이터 로드
+        viewModel.fetchUserProfile(userIdx)
 
         // 앱바 스크롤
         setupAppBarScrollListener()
@@ -87,7 +97,12 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         fetchDataAndUpdateUI()
 
         userprofile()
+
         observeViewModel()
+
+        // 초기 좋아요 상태 확인
+        viewModel.checkIfLiked(userIdx, studyIdx)
+
     }
 
     fun fetchDataAndUpdateUI() {
@@ -102,36 +117,25 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             awaitAll(dataDeferred, membersDeferred, techDeferred, imageDeferred)
         }
 
-
-        // 좋아요 토글 및 상태
-//        lifecycleScope.launch {
-//            viewModel.isLiked.collect { isLiked ->
-//                if (isLiked) {
-//                    binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
-//                    binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
-//                } else {
-//                    binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
-//                    binding.buttonDetailLike.setColorFilter(ContextCompat.getColor(requireContext(), R.color.pointColor))
-//                }
-//            }
-//        }
     }
     private suspend fun loadImage() {
         viewModel.studyPic.collect { imageUrl ->
-            imageUrl?.let {
-                withContext(Dispatchers.Main) {
-                    Glide.with(this@DetailFragment)
-                        .load(it)
-                        .apply(
-                            RequestOptions()
-                                .format(DecodeFormat.PREFER_RGB_565)
-                                .placeholder(R.drawable.image_loading_gray)
-                                .error(R.drawable.icon_error_24px)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .override(800, 600)
-                        )
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(binding.imageViewDetailCover)
+            if (isViewActive()) {
+                imageUrl?.let {
+                    withContext(Dispatchers.Main) {
+                        Glide.with(this@DetailFragment)
+                            .load(it)
+                            .apply(
+                                RequestOptions()
+                                    .format(DecodeFormat.PREFER_RGB_565)
+                                    .placeholder(R.drawable.image_loading_gray)
+                                    .error(R.drawable.icon_error_24px)
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .override(800, 600)
+                            )
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .into(binding.imageViewDetailCover)
+                    }
                 }
             }
         }
@@ -142,21 +146,10 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         fetchDataAndUpdateUI()
     }
 
-
-    fun observeViewModel() {
-
-//        // 스터디 데이터
-//        lifecycleScope.launch {
-//            viewModel.studyData.collect { data ->
-//                data?.let {
-//                    currentStudyData = it
-//                    updateUI(it)
-//                }
-//            }
-//        }
+    private fun observeViewModel() {
         // 스터디 데이터
         lifecycleScope.launch {
-            viewModel.studyData.collect { data ->
+            viewModel.studyData.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { data ->
                 data?.let {
                     currentStudyData = it
                     // 스터디 데이터를 수신한 후 사용자 데이터를 요청
@@ -168,7 +161,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         // 스터디 멤버 수
         lifecycleScope.launch {
-            viewModel.memberCount.collect { count ->
+            viewModel.memberCount.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { count ->
                 Log.d("DetailFragment", "Member count: $count")
                 binding.textViewDetailMember.text = count.toString()
             }
@@ -176,33 +169,83 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         // 글 작성자 정보
         lifecycleScope.launch {
-            viewModel.userData.collect { user ->
-                user?.let {
-                    currentUserData = it
-                    updateUIIfReady()
-                    // 유저 이름 설정
-                    binding.textViewDetailUserName.text = it.userName
-                    Log.d("DetailFragment", "User name: ${it.userName}")
+            viewModel.userData.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { user ->
+                if (user != null) {
+                    // 데이터가 있을 경우 UI 업데이트
+                    binding.textViewDetailUserName.text = user.userName
+                    loadUserImage(user.userProfilePic)
+                } else {
+                    // 데이터가 없을 경우 기본 설정
+                    binding.textViewDetailUserName.text = "알수없는 사용자"
+                    Glide.with(this@DetailFragment)
+                        .load(R.drawable.icon_account_circle)
+                        .into(binding.imageViewDetailUserPic)
+                    Log.e("DetailFragment", "No user data available")
                 }
             }
         }
 
         // 스터디 스킬
         lifecycleScope.launch {
-            viewModel.studyTechList.collect { techList ->
+            viewModel.studyTechList.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { techList ->
                 updateTechChips(techList)
             }
         }
-//
-//        // 유저 프로필 이미지
-//        viewModel.userImageUri.observe(viewLifecycleOwner) { uri ->
-//            Glide.with(this)
-//                .load(uri)
-//                .error(R.drawable.icon_account_circle) // 에러 발생시 보여줄 이미지
-//                .into(binding.imageViewDetailUserPic)
-//        }
+
+        //addUserResult를 관찰하여 UI를 업데이트
+        lifecycleScope.launch {
+            viewModel.addUserResult.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { success ->
+                if (success) {
+                    showSnackbar(requireView(), "성공적으로 신청되었습니다.")
+                } else {
+                    showSnackbar(requireView(), "신청에 실패하였습니다.")
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.isLiked.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { isLiked ->
+                updateLikeButton(isLiked)
+            }
+        }
 
     }
+
+    private fun updateLikeButton(isLiked: Boolean) {
+        if (isLiked) {
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
+            binding.buttonDetailLike.setColorFilter(Color.parseColor("#D73333"))
+        } else {
+            binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_24px)
+            binding.buttonDetailLike.setColorFilter(ContextCompat.getColor(requireContext(), R.color.pointColor))
+        }
+    }
+
+    private fun loadUserImage(imageUrl: String?) {
+        if (isViewActive()) {
+            if (!imageUrl.isNullOrEmpty()) {
+                Glide.with(this)
+                    .load(imageUrl)
+                    .apply(
+                        RequestOptions()
+                            .placeholder(R.drawable.image_loading_gray)
+                            .error(R.drawable.icon_account_circle)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .skipMemoryCache(true)
+                    )
+                    .into(binding.imageViewDetailUserPic)
+            } else {
+                binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+                binding.imageViewDetailUserPic.invalidate()
+                binding.imageViewDetailUserPic.requestLayout()
+            }
+        }
+    }
+
+    private fun isViewActive(): Boolean {
+        return view != null && isAdded && viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+    }
+
     fun userprofile(){
         binding.imageViewDetailUserPic.setOnClickListener {
             val profileFragment = ProfileFragment().apply {
@@ -270,9 +313,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             // 스터디 인원(총인원)
             textViewDetailMemberTotal.text = data.studyMaxMember.toString()
 
-            // 스터디 인원 (참가 인원)
-//            textViewDetailMember.text = data.studyUidList.size.toString()
-
 
             // 스터디 방식(온라인 / 오프라인 / 온오프 -> 온라인 제외하고는 주소 이름으로 사용)
             val studyOnOffline = when (data.studyOnOffline) {
@@ -302,7 +342,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
             // 모집 상태에 따라 textViewDetailState의 텍스트 설정
             if (data.studyCanApply == "모집중") {
-//                Log.d("DetailFragment", "User Profile Pic URL: ${data.studyCanApply}")
                 // 모집중 상태
                 textViewDetailState.text = "모집중"
                 setupStatePopup()
@@ -378,7 +417,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     // 좋아요 버튼 설정
     fun setupLikeButtonListener() {
         binding.buttonDetailLike.setOnClickListener {
-//            viewModel.toggleLike(uid, studyIdx)
+            viewModel.toggleFavoriteStatus(userIdx, studyIdx)
         }
     }
 
@@ -489,7 +528,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             .create()
 
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
-            viewModel.updateStudyState(studyIdx, 2)  // studyState 값을 2로 업데이트
+            viewModel.updateStudyState(studyIdx, false)  // studyState 값을 false로 업데이트
             // 예 버튼 로직
             Log.d("Dialog", "확인을 선택했습니다.")
             dialog.dismiss()
@@ -510,6 +549,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         if (currentStudyData?.userIdx == userIdx) {
             setupOwnerView(textViewState)
+            // 버튼 클릭 비활성화
+            binding.buttonDetailApply.isEnabled = false
         } else {
             setupNonOwnerView(textViewState)
         }
@@ -524,6 +565,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         )
 
         textViewState.isEnabled = true
+        binding.buttonDetailApply.isEnabled = false
+        binding.buttonDetailApply.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.pointColor))
 
         textViewState.setOnClickListener { view ->
             Log.d("DetailFragment", "TextViewState clicked for owner")
@@ -546,13 +589,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 )
             }
         }
-
-        binding.buttonDetailApply.setOnClickListener {
-            Log.d("DetailFragment", "채팅방 이동1")
-//            moveChatRoom()
-        }
     }
-
     private fun setupNonOwnerView(textViewState: TextView) {
         textViewState.isEnabled = false
         textViewState.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
@@ -573,12 +610,12 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         val method = currentStudyData?.studyApplyMethod
         Log.d("DetailFragment", "Button clicked, method: $method")
 
-//        if (method == 1) {
-//            viewModel.applyToStudy(studyIdx, uid)
-//            showSnackbar(view, "신청이 완료되었습니다")
-//        } else {
-//            Log.d("DetailFragment", "Changed button text for join study")
-//        }
+        if (method != null && currentStudyData?.userIdx != userIdx) {
+            Log.d("DetailFragment", "Button clicked, method: $method")
+            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, method)
+        } else {
+            Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+        }
     }
 
     private fun showSnackbar(view: View, message: String) {
@@ -635,13 +672,16 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // 팝업 메뉴 아이템의 클릭 리스너 설정
         popupView.findViewById<TextView>(R.id.textViewDetailState1).setOnClickListener {
             binding.textViewDetailState.text = (it as TextView).text
-//            viewModel.updateStudyCanApplyByStudyIdx(studyIdx, true)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+            // "모집중" 상태로 업데이트
+            viewModel.updateStudyCanApplyInBackground(studyIdx, true)
         }
         popupView.findViewById<TextView>(R.id.textViewDetailState2).setOnClickListener {
             binding.textViewDetailState.text = (it as TextView).text
-//            viewModel.updateStudyCanApplyByStudyIdx(studyIdx, false)  // 모집중 상태로 업데이트
             popupWindow.dismiss()
+            // "모집완료" 상태로 업데이트
+            viewModel.updateStudyCanApplyInBackground(studyIdx, false)
         }
     }
+
 }

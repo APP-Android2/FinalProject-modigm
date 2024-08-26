@@ -1,126 +1,82 @@
 package kr.co.lion.modigm.repository
 
-import android.content.Context
-import android.net.Uri
-import android.view.View
-import android.widget.ImageView
+import android.util.Log
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
-import kr.co.lion.modigm.model.StudyData
-import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.model.SqlStudyData
 
-class StudyRepository {
-    private val remoteStudyDataSource = RemoteStudyDataSource()
+class StudyRepository() {
 
-    // 전체 스터디 목록을 가져온다.
-    suspend fun getStudyAllData() = remoteStudyDataSource.getStudyAllData()
+    private val tag by lazy { StudyRepository::class.simpleName }
 
-    // 전체 스터디 목록 중 모집중인 스터디만 가져온다.
-    suspend fun getStudyStateTrueData() = remoteStudyDataSource.getStudyStateTrueData()
+    private val remoteStudyDataSource by lazy { RemoteStudyDataSource() }
 
-    // 내 스터디 목록을 가져온다. (홈화면 내 스터디 접근 시)
-    suspend fun getStudyMyData(currentUserUid:String) = remoteStudyDataSource.getStudyMyData(currentUserUid)
-
-    suspend fun loadStudyThumbnail(context: Context, imageFileName: String, imageView: ImageView) =
-        remoteStudyDataSource.loadStudyThumbnail(context, imageFileName, imageView)
-
-    // 사용자가 참여한 스터디 목록을 가져온다. (프로필 화면)
-    suspend fun loadStudyPartDataByUid(uid: String) = remoteStudyDataSource.loadStudyPartData(uid)
-
-    // 사용자가 진행한 스터디 목록을 가져온다. (프로필 화면)
-    suspend fun loadStudyHostDataByUid(uid: String) = remoteStudyDataSource.loadStudyHostData(uid)
-
-    // 스터디 정보 가져오기
-    suspend fun selectContentData(studyIdx:Int) = remoteStudyDataSource.selectContentData(studyIdx)
-
-    // uid를 사용해서 사용자 정보 가져오기
-    suspend fun loadUserDetailsByUid(uid: String): UserData? {
-        return remoteStudyDataSource.loadUserDetailsByUid(uid)
-    }
-
-    suspend fun updateStudyCanApplyByStudyIdx(studyIdx: Int, canApply: Boolean) = remoteStudyDataSource.updateStudyCanApplyByStudyIdx(studyIdx, canApply)
-
-    // 스터디 데이터 업데이트
-    suspend fun updateStudyDataByStudyIdx(studyIdx: Int, updatedStudyData: Map<String, Any>) =
-        remoteStudyDataSource.updateStudyDataByStudyIdx(studyIdx, updatedStudyData)
-
-
-    // 스터디 커버
-    suspend fun loadStudyPicUrl(studyPic: String): Result<Uri> {
-        return try {
-            val uri = remoteStudyDataSource.loadStudyPicUrl(studyPic)
-            if (uri != null) Result.success(uri) else Result.failure(Exception("Image not found"))
-        } catch (e: Exception) {
-            Result.failure(e)
+    /**
+     * 전체 스터디 목록을 가져오는 메소드 (좋아요 여부 포함)
+     * @param userIdx 사용자 인덱스
+     * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
+     */
+    suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+        return runCatching {
+            remoteStudyDataSource.getAllStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "전체 스터디 목록 조회 중 오류 발생: ${e.message}", e)
+            Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
         }
     }
 
-    // 유저 프로필
-    suspend fun loadUserPicUrl(userProfilePic: String): Result<Uri> {
-        return try {
-            val uri = remoteStudyDataSource.loadUserPicUrl(userProfilePic)
-            if (uri != null) Result.success(uri) else Result.failure(Exception("Image not found"))
-        } catch (e: Exception) {
-            Result.failure(e)
+    /**
+     * 내 스터디 목록을 가져오는 메소드 (좋아요 여부 포함)
+     * @param userIdx 사용자 인덱스
+     * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
+     */
+    suspend fun getMyStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+        return runCatching {
+            remoteStudyDataSource.getMyStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "내 스터디 목록 조회 중 오류 발생: ${e.message}", e)
         }
     }
 
-    suspend fun getStudyUidListByStudyIdx(studyIdx: Int): List<String>? {
-//        return remoteStudyDataSource.selectContentData(studyIdx)?.studyUidList
-        return null
-    }
-
-    suspend fun getUserDetailsByUid(uid: String): UserData? {
-        return remoteStudyDataSource.loadUserDetailsByUid(uid)
-    }
-
-    suspend fun updateStudyUserList(userUid: String, studyIdx: Int): Boolean {
-        return remoteStudyDataSource.updateStudyUserList(userUid, studyIdx)
-    }
-
-    suspend fun addLike(uid: String, studyIdx: Int) {
-        remoteStudyDataSource.addLike(uid, studyIdx)
-    }
-
-    suspend fun removeLike(uid: String, studyIdx: Int) {
-        remoteStudyDataSource.removeLike(uid, studyIdx)
-    }
-
-
-    // 특정 studyIdx에 대한 스터디 정보를 가져오고 studyState를 업데이트한다.
-    suspend fun updateStudyStateByStudyIdx(studyIdx: Int, newState: Boolean) {
-        remoteStudyDataSource.updateStudyStateByStudyIdx(studyIdx, newState)
-    }
-
-
-    // 스터디 정보 업로드
-    suspend fun uploadStudyData(studyData: StudyData) = remoteStudyDataSource.uploadStudyData(studyData)
-
-
-    suspend fun applyToStudy(studyIdx: Int, uid: String) {
-        remoteStudyDataSource.addToApplyList(studyIdx, uid)
-    }
-
-    suspend fun joinStudy(studyIdx: Int, uid: String) {
-        remoteStudyDataSource.addToStudyUidList(studyIdx, uid)
-    }
-
-    fun fetchStudyApplyMembers(studyIdx: Int, callback: (List<UserData>) -> Unit) {
-        remoteStudyDataSource.getStudyApplyList(studyIdx) { userIds ->
-            if (userIds.isNotEmpty()) {
-                remoteStudyDataSource.getUsersByIds(userIds) { users ->
-                    callback(users)
-                }
-            } else {
-                callback(emptyList())
-            }
+    /**
+     * 좋아요한 스터디 목록을 가져오는 메소드
+     * @param userIdx 사용자 인덱스
+     * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
+     */
+    suspend fun getFavoriteStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+        return runCatching {
+            remoteStudyDataSource.getFavoriteStudyData(userIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요한 스터디 목록 조회 중 오류 발생: ${e.message}", e)
         }
     }
 
-    fun removeUserFromStudyApplyList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
-        remoteStudyDataSource.removeUserFromStudyApplyList(studyIdx, userUid, callback)
+    /**
+     * 좋아요 추가 메소드
+     * @param userIdx 사용자 인덱스
+     * @param studyIdx 스터디 인덱스
+     * @return Result<Boolean> 좋아요 추가 성공 여부를 반환
+     */
+    suspend fun addFavorite(userIdx: Int, studyIdx: Int): Result<Boolean>{
+        return runCatching {
+            remoteStudyDataSource.addFavorite(userIdx, studyIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요 추가 중 오류 발생: ${e.message}", e)
+            Result.failure<Boolean>(e)
+        }
     }
 
-    fun addUserToStudyUidList(studyIdx: Int, userUid: String, callback: (Boolean) -> Unit) {
-        remoteStudyDataSource.addUserToStudyUidList(studyIdx, userUid, callback)
+    /**
+     * 좋아요 삭제 메소드
+     * @param userIdx 사용자 인덱스
+     * @param studyIdx 스터디 인덱스
+     * @return Result<Boolean> 좋아요 삭제 성공 여부를 반환
+     */
+    suspend fun removeFavorite(userIdx: Int, studyIdx: Int): Result<Boolean>{
+        return runCatching {
+            remoteStudyDataSource.removeFavorite(userIdx, studyIdx).getOrThrow()
+        }.onFailure { e ->
+            Log.e(tag, "좋아요 삭제 중 오류 발생: ${e.message}", e)
+            Result.failure<Boolean>(e)
+        }
     }
 }

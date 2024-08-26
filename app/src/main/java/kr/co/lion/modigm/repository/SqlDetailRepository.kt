@@ -26,6 +26,11 @@ class SqlDetailRepository {
         emit(sqlRemoteDetailDataSource.getStudyPicByStudyIdx(studyIdx))
     }.flowOn(Dispatchers.IO)
 
+    // 특정 studyIdx에 해당하는 userIdx 리스트를 가져오는 메소드
+    suspend fun getUserIdsByStudyIdx(studyIdx: Int): List<Int> {
+        return sqlRemoteDetailDataSource.getUserIdsByStudyIdx(studyIdx)
+    }
+
     // 특정 userIdx에 해당하는 사용자 데이터를 가져오는 메소드
     fun getUserById(userIdx: Int): Flow<SqlUserData?> = flow {
         emit(sqlRemoteDetailDataSource.getUserById(userIdx))
@@ -37,7 +42,7 @@ class SqlDetailRepository {
     }.flowOn(Dispatchers.IO)
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Boolean {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Boolean {
         return sqlRemoteDetailDataSource.updateStudyState(studyIdx, newState)
     }
 
@@ -51,4 +56,37 @@ class SqlDetailRepository {
         sqlRemoteDetailDataSource.insertSkills(studyIdx, skills)
     }
 
+    // 특정 studyIdx와 userIdx에 해당하는 사용자를 스터디에서 삭제하는 메소드
+    suspend fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.removeUserFromStudy(studyIdx, userIdx)
+    }
+
+    suspend fun addUserToStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.addUserToStudy(studyIdx, userIdx)
+    }
+
+    suspend fun addUserToStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.addUserToStudyRequest(studyIdx, userIdx)
+    }
+
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> {
+        return sqlRemoteDetailDataSource.getStudyRequestMembers(studyIdx)
+    }
+
+    suspend fun acceptUser(studyIdx: Int, userIdx: Int): Boolean {
+        val added = sqlRemoteDetailDataSource.addUserToStudyMember(studyIdx, userIdx)
+        if (added) {
+            return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
+        }
+        return false
+    }
+
+    // 특정 사용자를 tb_study_request에서 삭제하는 메소드
+    suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
+        return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
+    }
+
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Boolean {
+        return sqlRemoteDetailDataSource.updateStudyCanApplyField(studyIdx, newState)
+    }
 }

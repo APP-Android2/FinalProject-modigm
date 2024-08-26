@@ -21,12 +21,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
 import kr.co.lion.modigm.db.write.RemoteWriteStudyDao
 import kr.co.lion.modigm.ui.VBBaseFragment
@@ -63,21 +61,14 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     private lateinit var remoteWriteStudyDao: RemoteWriteStudyDao
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // RemoteWriteStudyDao 객체 생성
         remoteWriteStudyDao = RemoteWriteStudyDao()
 
         // 카메라 및 앨범 런처 설정
         initData()
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         setupButton() // 이미지 추가 버튼
 

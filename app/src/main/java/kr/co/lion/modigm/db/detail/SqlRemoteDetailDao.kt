@@ -57,6 +57,14 @@ class SqlRemoteDetailDao {
         }
     }
 
+    // 특정 studyIdx에 해당하는 userIdx 리스트를 가져오는 메소드
+    suspend fun getUserIdsByStudyIdx(studyIdx: Int): List<Int> {
+        val query = "SELECT userIdx FROM tb_study_member WHERE studyIdx = ?"
+        return executeQuery(query, studyIdx) { resultSet ->
+            resultSet.getInt("userIdx")
+        }
+    }
+
     // 특정 사용자의 모든 좋아요 정보를 가져오는 메소드
     suspend fun getAllFavorites(userIdx: Int): List<Pair<Int, Boolean>> {
         val query = "SELECT studyIdx, IF(favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite FROM tb_favorite WHERE userIdx = ?" // 쿼리문
@@ -90,12 +98,12 @@ class SqlRemoteDetailDao {
     }
 
     // studyState 값을 업데이트하는 메소드 추가
-    suspend fun updateStudyState(studyIdx: Int, newState: Int): Int = withContext(Dispatchers.IO) {
+    suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Int = withContext(Dispatchers.IO) {
         try {
             HikariCPDataSource.getConnection().use { connection ->
                 val query = "UPDATE tb_study SET studyState = ? WHERE studyIdx = ?"
                 connection.prepareStatement(query).use { statement ->
-                    statement.setInt(1, newState)
+                    statement.setInt(1, if (newState) 1 else 0)
                     statement.setInt(2, studyIdx)
                     return@withContext statement.executeUpdate()
                 }
@@ -189,15 +197,130 @@ class SqlRemoteDetailDao {
         }
     }
 
-//    suspend fun close() {
-//        try {
-//            coroutineScope.coroutineContext[Job]?.cancelAndJoin()
-//            if (dataSourceDeferred.isCompleted) {
-//                dataSourceDeferred.await().close()
-//            }
-//        } catch (e: Exception) {
-//            Log.e(TAG, "Error closing data source", e)
-//        }
-//    }
+    // 특정 studyIdx와 userIdx에 해당하는 사용자를 tb_study_member 테이블에서 삭제하는 메소드
+    suspend fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "DELETE FROM tb_study_member WHERE studyIdx = ? AND userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error removing user from study", e)
+            return@withContext false
+        }
+    }
+
+    // tb_study_member 테이블에 데이터 삽입
+    suspend fun addUserToStudy(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "INSERT INTO tb_study_member (studyIdx, userIdx) VALUES (?, ?)"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding user to study", e)
+            return@withContext false
+        }
+    }
+
+    // tb_study_request 테이블에 데이터 삽입
+    suspend fun addUserToStudyRequest(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "INSERT INTO tb_study_request (studyIdx, userIdx) VALUES (?, ?)"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding user to study request", e)
+            return@withContext false
+        }
+    }
+
+    // 특정 studyIdx에 해당하는 신청자 정보를 tb_study_request 에서 가져오는 메소드
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> = withContext(Dispatchers.IO) {
+        try {
+            val members = mutableListOf<SqlUserData>()
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = """
+                    SELECT u.* FROM tb_study_request sr
+                    JOIN tb_user u ON sr.userIdx = u.userIdx
+                    WHERE sr.studyIdx = ?
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    val resultSet = statement.executeQuery()
+                    while (resultSet.next()) {
+                        members.add(SqlUserData.getUserData(resultSet))
+                    }
+                }
+            }
+            return@withContext members
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching study request members", e)
+            return@withContext emptyList<SqlUserData>()
+        }
+    }
+
+    // 사용자를 tb_study_member에 추가하는 메서드
+    suspend fun addUserToStudyMember(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "INSERT INTO tb_study_member (studyIdx, userIdx) VALUES (?, ?)"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding user to study member", e)
+            return@withContext false
+        }
+    }
+
+    // 사용자를 tb_study_request에서 삭제하는 메서드
+    suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "DELETE FROM tb_study_request WHERE studyIdx = ? AND userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, studyIdx)
+                    statement.setInt(2, userIdx)
+                    return@withContext statement.executeUpdate() > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error removing user from study request", e)
+            return@withContext false
+        }
+    }
+
+    suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Int = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "UPDATE tb_study SET studyCanApply = ? WHERE studyIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setString(1, newState)
+                    statement.setInt(2, studyIdx)
+                    return@withContext statement.executeUpdate()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating studyCanApply field", e)
+            return@withContext 0
+        }
+    }
 
 }

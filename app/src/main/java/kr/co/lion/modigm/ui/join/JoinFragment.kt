@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.join
 
 import android.content.Context
+import android.graphics.Paint.Join
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -407,8 +408,13 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                     }
                     // SNS 계정인 경우에는 메인으로 넘어가기
                     else -> {
+                        val bottomNaviFragment = BottomNaviFragment().apply {
+                            arguments = Bundle().apply {
+                                putString("joinType", joinType?.provider)
+                            }
+                        }
                         parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, BottomNaviFragment())
+                            .replace(R.id.containerMain, bottomNaviFragment)
                             .commit()
                     }
                 }

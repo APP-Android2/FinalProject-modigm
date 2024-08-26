@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.study.StudyFragment"
-    android:transitionGroup="true">
+    android:transitionGroup="true"
+    android:background="@color/white">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
