@@ -15,10 +15,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowDetailApplyMemberBinding
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
 class DetailApplyMembersAdapter(
-    private val viewModel: SqlDetailViewModel,
+    private val viewModel: DetailViewModel,
     private val currentUserId: Int,
     private val studyIdx: Int,
     private val onItemClicked: (SqlUserData) -> Unit

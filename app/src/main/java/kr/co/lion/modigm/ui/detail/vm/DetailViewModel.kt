@@ -3,7 +3,6 @@ package kr.co.lion.modigm.ui.detail.vm
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,12 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.repository.SqlDetailRepository
+import kr.co.lion.modigm.repository.DetailRepository
 import kr.co.lion.modigm.repository.StudyRepository
 
-class SqlDetailViewModel: ViewModel() {
+class DetailViewModel: ViewModel() {
 
-    private val sqlDetailRepository = SqlDetailRepository()
+    private val detailRepository = DetailRepository()
     private val studyRepository = StudyRepository()
 
     private val _studyData = MutableStateFlow<SqlStudyData?>(null)
@@ -78,7 +77,7 @@ class SqlDetailViewModel: ViewModel() {
     fun getStudy(studyIdx: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                sqlDetailRepository.getStudyById(studyIdx).collect { data ->
+                detailRepository.getStudyById(studyIdx).collect { data ->
                     _studyData.value = data
                     data?.let { getStudyPic(it.studyIdx) } // 데이터 가져온 후 이미지 로드
                 }
@@ -92,7 +91,7 @@ class SqlDetailViewModel: ViewModel() {
     fun countMembersByStudyIdx(studyIdx: Int) {
         viewModelScope.launch {
             try {
-                sqlDetailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
+                detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
                     _memberCount.value = count
                 }
             } catch (throwable: Throwable) {
@@ -104,7 +103,7 @@ class SqlDetailViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // studyIdx에 해당하는 userIdx 리스트 가져오기
-                val userIds = sqlDetailRepository.getUserIdsByStudyIdx(studyIdx)
+                val userIds = detailRepository.getUserIdsByStudyIdx(studyIdx)
                 Log.d("SqlDetailViewModel", "Fetched user IDs: $userIds")
 
                 if (userIds.isEmpty()) {
@@ -116,7 +115,7 @@ class SqlDetailViewModel: ViewModel() {
                 val users = mutableListOf<SqlUserData>()
 
                 userIds.forEach { userIdx ->
-                    sqlDetailRepository.getUserById(userIdx).collect { user ->
+                    detailRepository.getUserById(userIdx).collect { user ->
                         user?.let {
                             users.add(it)
                             Log.d("SqlDetailViewModel", "Fetched user data: $user")
@@ -138,7 +137,7 @@ class SqlDetailViewModel: ViewModel() {
     // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
     fun getStudyPic(studyIdx: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            sqlDetailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
+            detailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
                 _studyPic.value = pic
             }
         }
@@ -148,7 +147,7 @@ class SqlDetailViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             _userData.value = null  // 데이터 로드 전에 null로 초기화
             try {
-                sqlDetailRepository.getUserById(userIdx).collect { user ->
+                detailRepository.getUserById(userIdx).collect { user ->
                     if (user != null) {
                         _userData.value = user
                         Log.d("DetailViewModel", "User data fetched successfully: $user")
@@ -164,7 +163,7 @@ class SqlDetailViewModel: ViewModel() {
 
     fun getTechIdxByStudyIdx(studyIdx: Int) {
         viewModelScope.launch {
-            sqlDetailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
+            detailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
                 _studyTechList.value = techList
             }
         }
@@ -173,7 +172,7 @@ class SqlDetailViewModel: ViewModel() {
     // studyState 값을 업데이트하는 메소드 추가
     fun updateStudyState(studyIdx: Int, newState: Boolean) {
         viewModelScope.launch {
-            val result = sqlDetailRepository.updateStudyState(studyIdx, newState)
+            val result = detailRepository.updateStudyState(studyIdx, newState)
             _updateResult.emit(result)
         }
     }
@@ -181,14 +180,14 @@ class SqlDetailViewModel: ViewModel() {
     // 스터디 데이터를 업데이트하는 함수
     fun updateStudyData(studyData: SqlStudyData) {
         viewModelScope.launch {
-            val result = sqlDetailRepository.updateStudy(studyData)
+            val result = detailRepository.updateStudy(studyData)
             _updateResult.value = result
         }
     }
 
     fun insertSkills(studyIdx: Int, skills: List<Int>) {
         viewModelScope.launch {
-            sqlDetailRepository.insertSkills(studyIdx, skills)
+            detailRepository.insertSkills(studyIdx, skills)
         }
     }
 
@@ -200,7 +199,7 @@ class SqlDetailViewModel: ViewModel() {
     // 특정 사용자를 스터디에서 삭제하는 메소드
     fun removeUserFromStudy(studyIdx: Int, userIdx: Int) {
         viewModelScope.launch {
-            val result = sqlDetailRepository.removeUserFromStudy(studyIdx, userIdx)
+            val result = detailRepository.removeUserFromStudy(studyIdx, userIdx)
             _removeUserResult.emit(result)
         }
     }
@@ -208,9 +207,9 @@ class SqlDetailViewModel: ViewModel() {
     fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String) {
         viewModelScope.launch {
             val result = if (applyMethod == "선착순") {
-                sqlDetailRepository.addUserToStudy(studyIdx, userIdx)
+                detailRepository.addUserToStudy(studyIdx, userIdx)
             } else {
-                sqlDetailRepository.addUserToStudyRequest(studyIdx, userIdx)
+                detailRepository.addUserToStudyRequest(studyIdx, userIdx)
             }
             _addUserResult.emit(result)
         }
@@ -218,14 +217,14 @@ class SqlDetailViewModel: ViewModel() {
 
     fun fetchStudyRequestMembers(studyIdx: Int) {
         viewModelScope.launch {
-            val members = sqlDetailRepository.getStudyRequestMembers(studyIdx)
+            val members = detailRepository.getStudyRequestMembers(studyIdx)
             _studyRequestMembers.value = members
         }
     }
 
     fun acceptUser(studyIdx: Int, userIdx: Int) {
         viewModelScope.launch {
-            val result = sqlDetailRepository.acceptUser(studyIdx, userIdx)
+            val result = detailRepository.acceptUser(studyIdx, userIdx)
             _acceptUserResult.emit(result)
 
             if (result) {
@@ -240,7 +239,7 @@ class SqlDetailViewModel: ViewModel() {
     // 특정 사용자를 스터디 요청에서 삭제하는 메소드
     fun removeUserFromApplyList(studyIdx: Int, userIdx: Int) {
         viewModelScope.launch {
-            val result = sqlDetailRepository.removeUserFromStudyRequest(studyIdx, userIdx)
+            val result = detailRepository.removeUserFromStudyRequest(studyIdx, userIdx)
             _removeUserFromApplyResult.emit(result)
 
             if (result) {
@@ -253,7 +252,7 @@ class SqlDetailViewModel: ViewModel() {
     fun fetchUserProfile(userIdx: Int) {
         viewModelScope.launch {
             try {
-                sqlDetailRepository.getUserById(userIdx).collect { user ->
+                detailRepository.getUserById(userIdx).collect { user ->
                     _userData.value = user
                     // 다른 필요한 데이터 로드 로직을 여기서 추가로 처리
                 }
@@ -293,7 +292,7 @@ class SqlDetailViewModel: ViewModel() {
         viewModelScope.launch {
             try {
                 val newState = if (canApply) "모집중" else "모집완료"
-                val result = sqlDetailRepository.updateStudyCanApplyField(studyIdx, newState)
+                val result = detailRepository.updateStudyCanApplyField(studyIdx, newState)
                 if (result) {
                     // DB 업데이트 성공 시, 별도의 UI 갱신을 하지 않음
                     Log.d("SqlDetailViewModel", "Study state updated successfully.")

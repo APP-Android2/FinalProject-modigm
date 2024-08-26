@@ -15,11 +15,11 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
 import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.ModigmApplication
 
 class DetailJoinMembersAdapter(
-    private val viewModel: SqlDetailViewModel,
+    private val viewModel: DetailViewModel,
     private var currentUserId: Int,
     private val studyIdx: Int,
     private val onItemClicked: (SqlUserData) -> Unit
