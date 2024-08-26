@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -103,7 +104,45 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // 초기 좋아요 상태 확인
         viewModel.checkIfLiked(userIdx, studyIdx)
 
+        // 이미지 클릭 리스너 설정
+        binding.imageViewDetailCover.setOnClickListener {
+            showImageZoomDialog()
+        }
+
     }
+
+    // 확대된 이미지를 보여주는 Dialog
+    private fun showImageZoomDialog() {
+        // Dialog 생성
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_detail_image_zoom, null)
+        val dialog = android.app.AlertDialog.Builder(requireContext()).create()
+        dialog.setView(dialogView)
+
+        // ImageView 참조
+        val imageViewZoomed = dialogView.findViewById<ImageView>(R.id.imageViewZoomed)
+        val imageViewClose = dialogView.findViewById<ImageView>(R.id.imageViewClose)
+
+        // 이미지를 Glide로 로드하여 ImageView에 설정
+        currentStudyData?.let { data ->
+            Glide.with(this)
+                .load(data.studyPic) // 확대할 이미지 URL
+                .apply(RequestOptions()
+                    .placeholder(R.drawable.image_loading_gray)
+                    .error(R.drawable.icon_error_24px)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .override(1600, 1200)) // 이미지 크기 조정 (선택 사항)
+                .into(imageViewZoomed)
+        }
+
+        // "X" 버튼 클릭 시 Dialog 닫기
+        imageViewClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Dialog를 보여줍니다.
+        dialog.show()
+    }
+
 
     fun fetchDataAndUpdateUI() {
         lifecycleScope.launch {
