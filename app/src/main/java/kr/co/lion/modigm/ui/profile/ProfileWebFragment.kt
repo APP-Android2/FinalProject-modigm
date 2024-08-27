@@ -88,6 +88,10 @@ class ProfileWebFragment : VBBaseFragment<FragmentProfileWebBinding>(FragmentPro
         }
 
         webView.settings.javaScriptEnabled = true
+
+        // 로컬 스토리지를 사용하는 페이지일 경우 domStorageEnabled을 true로 셋팅
+        webView.settings.domStorageEnabled = true
+
         webView.loadUrl(link!!)
     }
 }
