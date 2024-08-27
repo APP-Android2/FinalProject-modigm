@@ -199,30 +199,31 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
-    <View
-        android:id="@+id/viewLoginLoadingBackground"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutLoginLoadingBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#60000000"
+        android:background="#33000000"
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"
-        />
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardViewLoginLoading"
-        android:layout_width="200dp"
-        android:layout_height="150dp"
-        android:backgroundTint="@color/white"
-        android:layout_gravity="center"
-        android:visibility="gone">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" >
+
         <ProgressBar
             android:id="@+id/progressBarLoginLoading"
+            style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminateTint="@color/buttonGray"
-            android:visibility="gone"/>
-    </com.google.android.material.card.MaterialCardView>
+            android:indeterminateTint="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </FrameLayout>

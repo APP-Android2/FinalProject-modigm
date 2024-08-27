@@ -80,7 +80,7 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
             // 회원가입 버튼 클릭 시 회원가입 화면으로 이동
             buttonOtherJoin.setOnClickListener {
                 val joinType = JoinType.EMAIL
-                navigateToJoinFragment(joinType)
+                goToJoinFragment(joinType)
             }
 
             // 이메일 찾기 버튼 클릭 시
@@ -113,7 +113,7 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
                 hideLoginLoading()
                 Log.i("LoginFragment", "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
-                navigateToBottomNaviFragment(joinType)
+                goToBottomNaviFragment(joinType)
             }
         }
         // 이메일 로그인 실패 시 에러 처리
@@ -139,7 +139,7 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
     }
 
     // 회원가입 화면으로 이동하는 메소드
-    private fun navigateToJoinFragment(joinType: JoinType) {
+    private fun goToJoinFragment(joinType: JoinType) {
         Log.d("LoginFragment", "navigateToJoinFragment - joinType: ${joinType.provider}")
 
         val bundle = Bundle().apply {
@@ -151,7 +151,7 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
         }
     }
 
-    private fun navigateToBottomNaviFragment(joinType: JoinType) {
+    private fun goToBottomNaviFragment(joinType: JoinType) {
 
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
@@ -272,17 +272,13 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
     // 로딩 화면 표시
     private fun showLoginLoading() {
         with(binding){
-            viewLoginLoadingBackground.visibility = View.VISIBLE
-            cardViewLoginLoading.visibility = View.VISIBLE
-            progressBarLoginLoading.visibility = View.VISIBLE
+            layoutLoginLoadingBackground.visibility = View.VISIBLE
         }
     }
     // 로딩 화면 숨김
     private fun hideLoginLoading() {
         with(binding){
-            progressBarLoginLoading.visibility = View.GONE
-            cardViewLoginLoading.visibility = View.GONE
-            viewLoginLoadingBackground.visibility = View.GONE
+            layoutLoginLoadingBackground.visibility = View.GONE
         }
     }
 }

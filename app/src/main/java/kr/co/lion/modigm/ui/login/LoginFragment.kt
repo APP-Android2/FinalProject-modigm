@@ -122,7 +122,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 hideLoginLoading()
                 Log.i(tag, "카카오 로그인 성공")
                 val joinType = JoinType.KAKAO
-                navigateToBottomNaviFragment(joinType)
+                goToBottomNaviFragment(joinType)
             }
         }
         // 깃허브 로그인 데이터 관찰
@@ -131,7 +131,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 hideLoginLoading()
                 Log.i(tag, "깃허브 로그인 성공")
                 val joinType = JoinType.GITHUB
-                navigateToBottomNaviFragment(joinType)
+                goToBottomNaviFragment(joinType)
             }
         }
         // 카카오 회원가입 데이터 관찰
@@ -140,7 +140,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 hideLoginLoading()
                 Log.i(tag, "카카오 회원가입으로 이동")
                 val joinType = JoinType.KAKAO
-                navigateToJoinFragment(joinType)
+                goToJoinFragment(joinType)
             }
         }
         // 깃허브 회원가입 데이터 관찰
@@ -150,7 +150,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 Log.i(tag, "깃허브 회원가입으로 이동")
                 val joinType = JoinType.GITHUB
 
-                navigateToJoinFragment(joinType)
+                goToJoinFragment(joinType)
             }
         }
         // 이메일 자동로그인 데이터 관찰
@@ -159,7 +159,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 hideLoginLoading()
                 Log.i("LoginFragment", "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
-                navigateToBottomNaviFragment(joinType)
+                goToBottomNaviFragment(joinType)
             }
         }
         // 카카오 로그인 실패 시 에러 처리
@@ -195,7 +195,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
      * 회원가입 화면으로 이동하는 메서드
      * @param joinType 회원가입 타입
      */
-    private fun navigateToJoinFragment(joinType: JoinType) {
+    private fun goToJoinFragment(joinType: JoinType) {
         // 회원가입으로 넘겨줄 데이터
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
@@ -209,7 +209,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
     /**
      * BottomNaviFragment로 이동하는 메서드
      */
-    private fun navigateToBottomNaviFragment(joinType: JoinType) {
+    private fun goToBottomNaviFragment(joinType: JoinType) {
 
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
@@ -306,17 +306,13 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
     // 로딩 화면 표시
     private fun showLoginLoading() {
         with(binding){
-            viewLoginLoadingBackground.visibility = View.VISIBLE
-            cardViewLoginLoading.visibility = View.VISIBLE
-            progressBarLoginLoading.visibility = View.VISIBLE
+            layoutLoginLoadingBackground.visibility = View.VISIBLE
         }
     }
     // 로딩 화면 숨기기
     private fun hideLoginLoading() {
         with(binding){
-            progressBarLoginLoading.visibility = View.GONE
-            cardViewLoginLoading.visibility = View.GONE
-            viewLoginLoadingBackground.visibility = View.GONE
+            layoutLoginLoadingBackground.visibility = View.GONE
         }
     }
 }

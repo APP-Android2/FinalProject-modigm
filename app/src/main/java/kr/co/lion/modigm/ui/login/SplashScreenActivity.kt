@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import jp.wasabeef.glide.transformations.BlurTransformation
+import jp.wasabeef.glide.transformations.ColorFilterTransformation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
@@ -29,7 +30,7 @@ class SplashScreenActivity : AppCompatActivity() {
         // 로그인 배경 이미지 프리(미리)로드 하기
         Glide.with(this)
             .load(R.drawable.background_login2)
-            .transform(CenterCrop(), BlurTransformation(5, 3))
+            .transform(CenterCrop(), BlurTransformation(5, 3), ColorFilterTransformation(0x60000000))
             .preload()
 
         // 바인딩
