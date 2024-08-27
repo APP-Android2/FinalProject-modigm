@@ -13,7 +13,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailJoinMemberBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.adapter.DetailJoinMembersAdapter
-import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication
@@ -21,7 +21,7 @@ import kr.co.lion.modigm.util.ModigmApplication
 //참여중인 멤버
 class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>(FragmentDetailJoinMemberBinding::inflate) {
 
-    private val viewModel: SqlDetailViewModel by activityViewModels()
+    private val viewModel: DetailViewModel by activityViewModels()
     private lateinit var adapter: DetailJoinMembersAdapter
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)

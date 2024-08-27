@@ -4,89 +4,89 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kr.co.lion.modigm.db.detail.SqlRemoteDetailDataSource
+import kr.co.lion.modigm.db.detail.RemoteDetailDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 
-class SqlDetailRepository {
-    private val sqlRemoteDetailDataSource = SqlRemoteDetailDataSource()
+class DetailRepository {
+    private val remoteDetailDataSource = RemoteDetailDataSource()
 
     // 특정 studyIdx에 해당하는 스터디 데이터를 가져오는 메소드
     fun getStudyById(studyIdx: Int): Flow<SqlStudyData?> = flow {
-        emit(sqlRemoteDetailDataSource.getStudyById(studyIdx))
+        emit(remoteDetailDataSource.getStudyById(studyIdx))
     }.flowOn(Dispatchers.IO)
 
     // 특정 studyIdx에 해당하는 스터디 멤버 수를 가져오는 메소드
     fun countMembersByStudyIdx(studyIdx: Int): Flow<Int> = flow {
-        emit(sqlRemoteDetailDataSource.countMembersByStudyIdx(studyIdx))
+        emit(remoteDetailDataSource.countMembersByStudyIdx(studyIdx))
     }.flowOn(Dispatchers.IO)
 
     // 특정 studyIdx에 해당하는 스터디 이미지를 가져오는 메소드
     fun getStudyPicByStudyIdx(studyIdx: Int): Flow<String?> = flow {
-        emit(sqlRemoteDetailDataSource.getStudyPicByStudyIdx(studyIdx))
+        emit(remoteDetailDataSource.getStudyPicByStudyIdx(studyIdx))
     }.flowOn(Dispatchers.IO)
 
     // 특정 studyIdx에 해당하는 userIdx 리스트를 가져오는 메소드
     suspend fun getUserIdsByStudyIdx(studyIdx: Int): List<Int> {
-        return sqlRemoteDetailDataSource.getUserIdsByStudyIdx(studyIdx)
+        return remoteDetailDataSource.getUserIdsByStudyIdx(studyIdx)
     }
 
     // 특정 userIdx에 해당하는 사용자 데이터를 가져오는 메소드
     fun getUserById(userIdx: Int): Flow<SqlUserData?> = flow {
-        emit(sqlRemoteDetailDataSource.getUserById(userIdx))
+        emit(remoteDetailDataSource.getUserById(userIdx))
     }
 
     fun getTechIdxByStudyIdx(studyIdx: Int): Flow<List<Int>> = flow {
-        val techList = sqlRemoteDetailDataSource.getTechIdxByStudyIdx(studyIdx)
+        val techList = remoteDetailDataSource.getTechIdxByStudyIdx(studyIdx)
         emit(techList)
     }.flowOn(Dispatchers.IO)
 
     // studyState 값을 업데이트하는 메소드 추가
     suspend fun updateStudyState(studyIdx: Int, newState: Boolean): Boolean {
-        return sqlRemoteDetailDataSource.updateStudyState(studyIdx, newState)
+        return remoteDetailDataSource.updateStudyState(studyIdx, newState)
     }
 
     // 스터디 데이터를 업데이트하는 메소드
     suspend fun updateStudy(studyData: SqlStudyData): Boolean {
-        return sqlRemoteDetailDataSource.updateStudy(studyData)
+        return remoteDetailDataSource.updateStudy(studyData)
     }
 
     // 스킬 데이터를 삽입하는 메서드 추가
     suspend fun insertSkills(studyIdx: Int, skills: List<Int>) {
-        sqlRemoteDetailDataSource.insertSkills(studyIdx, skills)
+        remoteDetailDataSource.insertSkills(studyIdx, skills)
     }
 
     // 특정 studyIdx와 userIdx에 해당하는 사용자를 스터디에서 삭제하는 메소드
     suspend fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean {
-        return sqlRemoteDetailDataSource.removeUserFromStudy(studyIdx, userIdx)
+        return remoteDetailDataSource.removeUserFromStudy(studyIdx, userIdx)
     }
 
     suspend fun addUserToStudy(studyIdx: Int, userIdx: Int): Boolean {
-        return sqlRemoteDetailDataSource.addUserToStudy(studyIdx, userIdx)
+        return remoteDetailDataSource.addUserToStudy(studyIdx, userIdx)
     }
 
     suspend fun addUserToStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
-        return sqlRemoteDetailDataSource.addUserToStudyRequest(studyIdx, userIdx)
+        return remoteDetailDataSource.addUserToStudyRequest(studyIdx, userIdx)
     }
 
     suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> {
-        return sqlRemoteDetailDataSource.getStudyRequestMembers(studyIdx)
+        return remoteDetailDataSource.getStudyRequestMembers(studyIdx)
     }
 
     suspend fun acceptUser(studyIdx: Int, userIdx: Int): Boolean {
-        val added = sqlRemoteDetailDataSource.addUserToStudyMember(studyIdx, userIdx)
+        val added = remoteDetailDataSource.addUserToStudyMember(studyIdx, userIdx)
         if (added) {
-            return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
+            return remoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
         }
         return false
     }
 
     // 특정 사용자를 tb_study_request에서 삭제하는 메소드
     suspend fun removeUserFromStudyRequest(studyIdx: Int, userIdx: Int): Boolean {
-        return sqlRemoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
+        return remoteDetailDataSource.removeUserFromStudyRequest(studyIdx, userIdx)
     }
 
     suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Boolean {
-        return sqlRemoteDetailDataSource.updateStudyCanApplyField(studyIdx, newState)
+        return remoteDetailDataSource.updateStudyCanApplyField(studyIdx, newState)
     }
 }
