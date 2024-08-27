@@ -13,10 +13,12 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 import kr.co.lion.modigm.repository.SqlDetailRepository
+import kr.co.lion.modigm.repository.StudyListRepository
 
 class SqlDetailViewModel: ViewModel() {
 
     private val sqlDetailRepository = SqlDetailRepository()
+    private val studyListRepository = StudyListRepository()
 
     private val _studyData = MutableStateFlow<SqlStudyData?>(null)
     val studyData: StateFlow<SqlStudyData?> = _studyData
@@ -59,6 +61,9 @@ class SqlDetailViewModel: ViewModel() {
 
     private val _removeUserFromApplyResult = MutableSharedFlow<Boolean>()
     val removeUserFromApplyResult: SharedFlow<Boolean> = _removeUserFromApplyResult
+
+    private val _isLiked = MutableStateFlow(false)
+    val isLiked: StateFlow<Boolean> = _isLiked
 
     fun clearData() {
         _studyData.value = null
@@ -139,20 +144,6 @@ class SqlDetailViewModel: ViewModel() {
         }
     }
 
-    // 특정 userIdx에 대한 사용자 데이터를 가져오는 메소드
-//    fun getUserById(userIdx: Int) {
-//        viewModelScope.launch {
-//            try {
-//                sqlDetailRepository.getUserById(userIdx).collect { user ->
-//                    _userData.value = user
-//                    Log.d("DetailViewModel", "Fetched user data: $user")
-//                }
-//            } catch (throwable: Throwable) {
-//                Log.e("DetailViewModel", "Error fetching user data", throwable)
-//            }
-//        }
-//    }
-
     fun getUserById(userIdx: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             _userData.value = null  // 데이터 로드 전에 null로 초기화
@@ -171,8 +162,6 @@ class SqlDetailViewModel: ViewModel() {
         }
     }
 
-
-
     fun getTechIdxByStudyIdx(studyIdx: Int) {
         viewModelScope.launch {
             sqlDetailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
@@ -182,7 +171,7 @@ class SqlDetailViewModel: ViewModel() {
     }
 
     // studyState 값을 업데이트하는 메소드 추가
-    fun updateStudyState(studyIdx: Int, newState: Int) {
+    fun updateStudyState(studyIdx: Int, newState: Boolean) {
         viewModelScope.launch {
             val result = sqlDetailRepository.updateStudyState(studyIdx, newState)
             _updateResult.emit(result)
@@ -238,8 +227,6 @@ class SqlDetailViewModel: ViewModel() {
         viewModelScope.launch {
             val result = sqlDetailRepository.acceptUser(studyIdx, userIdx)
             _acceptUserResult.emit(result)
-//            // 신청자 리스트를 다시 로드
-//            fetchStudyRequestMembers(studyIdx)
 
             if (result) {
                 // 신청자 리스트를 다시 로드
@@ -276,5 +263,48 @@ class SqlDetailViewModel: ViewModel() {
         }
     }
 
+    // 좋아요 상태 확인 메소드
+    fun checkIfLiked(userIdx: Int, studyIdx: Int) {
+        viewModelScope.launch {
+            val result = studyListRepository.getFavoriteStudyData(userIdx).getOrNull()?.any { it.first.studyIdx == studyIdx } ?: false
+            _isLiked.value = result
+        }
+    }
+
+    // 좋아요 상태 토글 메소드
+    fun toggleFavoriteStatus(userIdx: Int, studyIdx: Int) {
+        viewModelScope.launch {
+            if (_isLiked.value) {
+                val result = studyListRepository.removeFavorite(userIdx, studyIdx).getOrNull()
+                if (result == true) {
+                    _isLiked.value = false
+                }
+            } else {
+                val result = studyListRepository.addFavorite(userIdx, studyIdx).getOrNull()
+                if (result == true) {
+                    _isLiked.value = true
+                }
+            }
+        }
+    }
+
+    // studyCanApply 값을 업데이트하는 메소드
+    fun updateStudyCanApplyInBackground(studyIdx: Int, canApply: Boolean) {
+        viewModelScope.launch {
+            try {
+                val newState = if (canApply) "모집중" else "모집완료"
+                val result = sqlDetailRepository.updateStudyCanApplyField(studyIdx, newState)
+                if (result) {
+                    // DB 업데이트 성공 시, 별도의 UI 갱신을 하지 않음
+                    Log.d("SqlDetailViewModel", "Study state updated successfully.")
+                } else {
+                    // 실패 시, 사용자에게 오류를 알리거나, 로그를 남기거나, 상태 복구 등의 처리
+                    Log.e("SqlDetailViewModel", "Failed to update study state.")
+                }
+            } catch (e: Exception) {
+                Log.e("SqlDetailViewModel", "Error updating studyCanApply", e)
+            }
+        }
+    }
 
 }

@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.join
 
 import android.content.Context
+import android.graphics.Paint.Join
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -10,20 +11,14 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinBinding
@@ -39,6 +34,7 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.collectWhenStarted
 import kr.co.lion.modigm.util.hideSoftInput
+import kr.co.lion.modigm.util.setCurrentItemWithDuration
 
 @AndroidEntryPoint
 class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
@@ -193,6 +189,8 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             viewPagerJoin.orientation = ViewPager2.ORIENTATION_HORIZONTAL
             // 터치로 스크롤 막기
             viewPagerJoin.isUserInputEnabled = false
+            // 현재 인덱스 기준으로 프래그먼트 생성,소멸 기준수
+            viewPagerJoin.offscreenPageLimit = 2
 
             // 프로그래스바 설정
             progressBarJoin.max = 100
@@ -267,7 +265,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             }
             hideLoading()
             // 다음 화면으로 이동
-            binding.viewPagerJoin.currentItem += 1
+            binding.viewPagerJoin.setCurrentItemWithDuration(1, 300)
         }
     }
 
@@ -286,7 +284,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             if(viewModel.phoneVerification.value==true){
                 // 전화번호를 변경하지 않은 경우에 넘어갈 수 있음
                 if(viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
-                    binding.viewPagerJoin.currentItem += 1
+                    binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
                     return@launch
                 }
             }
@@ -368,7 +366,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             if(isVerified){
                 // 인증이 되었으면 다음으로 이동
                 viewModelStep2.cancelTimer()
-                binding.viewPagerJoin.currentItem += 1
+                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
             }
         }
 
@@ -410,8 +408,13 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                     }
                     // SNS 계정인 경우에는 메인으로 넘어가기
                     else -> {
+                        val bottomNaviFragment = BottomNaviFragment().apply {
+                            arguments = Bundle().apply {
+                                putString("joinType", joinType?.provider)
+                            }
+                        }
                         parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, BottomNaviFragment())
+                            .replace(R.id.containerMain, bottomNaviFragment)
                             .commit()
                     }
                 }

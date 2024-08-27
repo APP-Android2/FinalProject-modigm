@@ -8,8 +8,12 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentInterestBottomSheetBinding
 import kr.co.lion.modigm.databinding.FragmentSkillBottomSheetBinding
@@ -30,22 +34,24 @@ class InterestBottomSheetFragment: VBBaseBottomSheetFragment<FragmentInterestBot
         // bottomSheet 배경 설정
         view.background = ContextCompat.getDrawable(requireContext(), R.drawable.style_bottom_sheet_background)
 
-        // 칩 구성
-        editProfileViewModel.editProfileInterests.observe(viewLifecycleOwner) { interests ->
-            setupChips(interests)
-        }
-
         // 오른쪽 위 아이콘 클릭 시 BottomSheet 닫기
         binding.iconInterestClose.setOnClickListener {
             dismiss()
         }
+
+        // 칩 구성
+        lifecycleScope.launch {
+            editProfileViewModel.editProfileInterests.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { interests ->
+                setupChips(interests)
+            }
+        }
     }
 
-    fun setupChips(interests: String) {
+    fun setupChips(interests: String?) {
         // 기존 칩들 제거
         binding.chipGroupInterest.removeAllViews()
 
-        val interestList = interests.split(",").map { it.trim() }
+        val interestList = interests?.split(",")?.map { it.trim() }
 
         // Enum 클래스의 모든 값을 가져와 Chip을 생성
         Interest.entries.forEach { interest ->
@@ -60,7 +66,9 @@ class InterestBottomSheetFragment: VBBaseBottomSheetFragment<FragmentInterestBot
                 // 선택 가능
                 isCheckable = true
                 // 리스트에 들어 있다면 선택된 것으로 표시
-                isChecked = interestList.contains(interest.str)
+                if (interestList != null) {
+                    isChecked = interestList.contains(interest.str)
+                }
                 // 선택된 칩은 파란색, 선택되지 않은 칩은 흰색
                 updateChipState(this, isChecked)
                 // 칩의 선택 상태 변경

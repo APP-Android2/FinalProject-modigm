@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -114,7 +116,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         super.onCreateView(inflater, container, savedInstanceState)
         // Bind ViewModel and lifecycle owner
         binding.profileViewModel = profileViewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = this.viewLifecycleOwner
 
         userIdx = arguments?.getInt("userIdx")
         myProfile = userIdx == prefs.getInt("currentUserIdx")
@@ -302,105 +304,130 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
     // 데이터 변경 관찰
     fun observeData() {
         // 프로필 사진
-        profileViewModel.profileUserImage.observe(viewLifecycleOwner) { image ->
-            if (image.isNotEmpty()) {
-                val requestOptions = RequestOptions()
-                    .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
-                    .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
+        lifecycleScope.launch {
+            profileViewModel.profileUserImage.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { image ->
+                Log.d("ProfileFragment", "Profile Image: $image")
+                if (!image.isNullOrEmpty()) {
+                    val requestOptions = RequestOptions()
+                        .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
+                        .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
 
-                Glide.with(requireContext())
-                    .load(image)
-                    .apply(requestOptions)
-                    .into(object : CustomViewTarget<ImageView, Drawable>(binding.imageProfilePic) {
-                        override fun onLoadFailed(errorDrawable: Drawable?) {
-                            // 로딩 실패 시 기본 이미지를 보여줌
-                            binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
-                        }
+                    Glide.with(requireContext())
+                        .load(image)
+                        .apply(requestOptions)
+                        .into(object : CustomViewTarget<ImageView, Drawable>(binding.imageProfilePic) {
+                            override fun onLoadFailed(errorDrawable: Drawable?) {
+                                // 로딩 실패 시 기본 이미지를 보여줌
+                                binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                            }
 
-                        override fun onResourceCleared(placeholder: Drawable?) {
-                            // 리소스가 클리어 될 때
-                        }
+                            override fun onResourceCleared(placeholder: Drawable?) {
+                                // 리소스가 클리어 될 때
+                            }
 
-                        override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
-                            // 로딩 성공 시
-                            binding.imageProfilePic.setImageDrawable(resource)
-                        }
-                    })
-            } else {
-                // Handle the case where the image string is null (e.g., show a default image)
-                binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                            override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
+                                // 로딩 성공 시
+                                binding.imageProfilePic.setImageDrawable(resource)
+                            }
+                        })
+                } else {
+                    // 등록되어 있는 이미지가 없을 때
+                    binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                }
             }
         }
 
         // 관심 분야 chipGroup
-        profileViewModel.profileInterests.observe(viewLifecycleOwner) { interests ->
-            // 기존 칩들 제거
-            binding.chipGroupProfile.removeAllViews()
+        lifecycleScope.launch {
+            profileViewModel.profileInterests.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { interests ->
+                Log.d("ProfileFragment", "Interests: $interests")
+                // 기존 칩들 제거
+                binding.chipGroupProfile.removeAllViews()
 
-            val interestList = interests.split(",").map { it.trim() }
+                val interestList = interests?.split(",")?.map { it.trim() }
 
-            // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
-            for (interest in interestList) {
-                // 아이템 처리 코드
-                binding.chipGroupProfile.addView(Chip(context).apply {
-                    text = interest
-                    setTextAppearance(R.style.ChipTextStyle)
-                    // 자동 padding 없애기
-                    setEnsureMinTouchTargetSize(false)
-                    // 배경 흰색으로 지정
-                    setChipBackgroundColorResource(android.R.color.white)
-                    // 클릭 불가
-                    isClickable = false
-                })
+                // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
+                if (interestList != null) {
+                    for (interest in interestList) {
+                        // 아이템 처리 코드
+                        binding.chipGroupProfile.addView(Chip(context).apply {
+                            text = interest
+                            setTextAppearance(R.style.ChipTextStyle)
+                            // 자동 padding 없애기
+                            setEnsureMinTouchTargetSize(false)
+                            // 배경 흰색으로 지정
+                            setChipBackgroundColorResource(android.R.color.white)
+                            // 클릭 불가
+                            isClickable = false
+                        })
+                    }
+                }
             }
         }
 
         // 링크 리스트
-        profileViewModel.profileLinkList.observe(viewLifecycleOwner) { profileLinkList ->
-            linkAdapter.updateData(profileLinkList)
+        lifecycleScope.launch {
+            profileViewModel.profileLinkList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profileLinkList ->
+                Log.d("ProfileFragment", "Profile Link List: $profileLinkList")
+                linkAdapter.updateData(profileLinkList)
 
-            if (profileLinkList.isEmpty()) {
-                binding.textView4.visibility = View.GONE
-            } else {
-                binding.textView4.visibility = View.VISIBLE
+                if (profileLinkList.isEmpty()) {
+                    binding.textView4.visibility = View.GONE
+                } else {
+                    binding.textView4.visibility = View.VISIBLE
+                }
             }
         }
 
         // 진행한 스터디 리스트
-        profileViewModel.profileHostStudyList.observe(viewLifecycleOwner) { profileHostStudyList ->
-            hostStudyAdapter.updateData(profileHostStudyList)
+        lifecycleScope.launch {
+            profileViewModel.profileHostStudyList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profileHostStudyList ->
+                Log.d("ProfileFragment", "Profile Host Study List: $profileHostStudyList")
+                if (profileHostStudyList != null) {
+                    hostStudyAdapter.updateData(profileHostStudyList)
+                }
 
-            // 데이터 유무에 따른 뷰 가시성 설정
-            if (profileHostStudyList.isEmpty()) {
-                binding.layoutListProfileHostStudy.visibility = View.GONE
-                binding.layoutBlankProfileHostStudy.visibility = View.VISIBLE
-            } else {
-                binding.layoutListProfileHostStudy.visibility = View.VISIBLE
-                binding.layoutBlankProfileHostStudy.visibility = View.GONE
-            }
+                // 데이터 유무에 따른 뷰 가시성 설정
+                if (profileHostStudyList.isNullOrEmpty()) {
+                    binding.layoutListProfileHostStudy.visibility = View.GONE
+                    binding.layoutBlankProfileHostStudy.visibility = View.VISIBLE
+                } else {
+                    binding.layoutListProfileHostStudy.visibility = View.VISIBLE
+                    binding.layoutBlankProfileHostStudy.visibility = View.GONE
+                }
 
-            // 2개 이하이면 더보기 아이콘 표시 안함
-            if (profileHostStudyList.size < 3) {
-                binding.layoutMoreProfileHostStudy.visibility = View.GONE
+                // 2개 이하이면 더보기 아이콘 표시 안함
+                if (profileHostStudyList != null) {
+                    if (profileHostStudyList.size < 3) {
+                        binding.layoutMoreProfileHostStudy.visibility = View.GONE
+                    }
+                }
             }
         }
 
         // 참여한 스터디 리스트
-        profileViewModel.profilePartStudyList.observe(viewLifecycleOwner) { profilePartStudyList ->
-            partStudyAdapter.updateData(profilePartStudyList)
+        lifecycleScope.launch {
+            profileViewModel.profilePartStudyList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profilePartStudyList ->
+                Log.d("ProfileFragment", "Profile Part Study List: $profilePartStudyList")
+                if (profilePartStudyList != null) {
+                    partStudyAdapter.updateData(profilePartStudyList)
+                }
 
-            // 데이터 유무에 따른 뷰 가시성 설정
-            if (profilePartStudyList.isEmpty()) {
-                binding.layoutListProfilePartStudy.visibility = View.GONE
-                binding.layoutBlankProfilePartStudy.visibility = View.VISIBLE
-            } else {
-                binding.layoutListProfilePartStudy.visibility = View.VISIBLE
-                binding.layoutBlankProfilePartStudy.visibility = View.GONE
-            }
+                // 데이터 유무에 따른 뷰 가시성 설정
+                if (profilePartStudyList.isNullOrEmpty()) {
+                    binding.layoutListProfilePartStudy.visibility = View.GONE
+                    binding.layoutBlankProfilePartStudy.visibility = View.VISIBLE
+                } else {
+                    binding.layoutListProfilePartStudy.visibility = View.VISIBLE
+                    binding.layoutBlankProfilePartStudy.visibility = View.GONE
+                }
 
-            // 2개 이하이면 더보기 아이콘 표시 안함
-            if (profilePartStudyList.size < 3) {
-                binding.layoutMoreProfilePartStudy.visibility = View.GONE
+                // 2개 이하이면 더보기 아이콘 표시 안함
+                if (profilePartStudyList != null) {
+                    if (profilePartStudyList.size < 3) {
+                        binding.layoutMoreProfilePartStudy.visibility = View.GONE
+                    }
+                }
             }
         }
     }
