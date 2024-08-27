@@ -18,9 +18,9 @@ class ProfileStudyViewModel: ViewModel() {
     // 사용자가 진행한 스터디 목록 (전체)
     fun loadHostStudyList(userIdx: Int) = viewModelScope.launch {
         try {
-            val response = profileRepository.loadHostStudyList(userIdx)
-
-            _profileStudyList.value = response
+            profileRepository.loadHostStudyList(userIdx).collect { studyList ->
+                _profileStudyList.value = studyList
+            }
         } catch (e: Exception) {
             Log.e("profilevm", "loadPartStudyList(): ${e.message}")
         }
@@ -29,9 +29,9 @@ class ProfileStudyViewModel: ViewModel() {
     // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (전체)
     fun loadPartStudyList(userIdx: Int) = viewModelScope.launch {
         try {
-            val response = profileRepository.loadPartStudyList(userIdx)
-
-            _profileStudyList.value = response
+            profileRepository.loadPartStudyList(userIdx).collect { studyList ->
+                _profileStudyList.value = studyList
+            }
         } catch (e: Exception) {
             Log.e("profilevm", "loadHostStudyList(): ${e.message}")
         }

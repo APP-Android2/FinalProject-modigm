@@ -17,6 +17,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -24,6 +27,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
@@ -236,110 +240,121 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
         albumLauncher.launch(albumIntent)
     }
 
+    // 데이터 변경 관찰
     fun observeData() {
-        // 데이터 변경 관찰
         // 프로필 사진
-        editProfileViewModel.editProfilePicUrl.observe(viewLifecycleOwner) { image ->
-            if (image.isNotEmpty()) {
-                val requestOptions = RequestOptions()
-                    .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
-                    .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
+        lifecycleScope.launch {
+            editProfileViewModel.editProfilePicUrl.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { image ->
+                if (!image.isNullOrEmpty()) {
+                    val requestOptions = RequestOptions()
+                        .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
+                        .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
 
-                Glide.with(requireContext())
-                    .load(image)
-                    .apply(requestOptions)
-                    .into(object : CustomViewTarget<ImageView, Drawable>(binding.imageProfilePic) {
-                        override fun onLoadFailed(errorDrawable: Drawable?) {
-                            // 로딩 실패 시 기본 이미지를 보여줌
-                            binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
-                        }
+                    Glide.with(requireContext())
+                        .load(image)
+                        .apply(requestOptions)
+                        .into(object : CustomViewTarget<ImageView, Drawable>(binding.imageProfilePic) {
+                            override fun onLoadFailed(errorDrawable: Drawable?) {
+                                // 로딩 실패 시 기본 이미지를 보여줌
+                                binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                            }
 
-                        override fun onResourceCleared(placeholder: Drawable?) {
-                            // 리소스가 클리어 될 때
-                        }
+                            override fun onResourceCleared(placeholder: Drawable?) {
+                                // 리소스가 클리어 될 때
+                            }
 
-                        override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
-                            // 로딩 성공 시
-                            binding.imageProfilePic.setImageDrawable(resource)
-                        }
-                    })
-            } else {
-                // Handle the case where the image string is null (e.g., show a default image)
-                binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                            override fun onResourceReady(resource: Drawable, transition: com.bumptech.glide.request.transition.Transition<in Drawable>?) {
+                                // 로딩 성공 시
+                                binding.imageProfilePic.setImageDrawable(resource)
+                            }
+                        })
+                } else {
+                    // Handle the case where the image string is null (e.g., show a default image)
+                    binding.imageProfilePic.setImageResource(R.drawable.image_default_profile)
+                }
             }
         }
 
         // 로그인 방식
-        editProfileViewModel.editProfileProvider.observe(viewLifecycleOwner) { provider ->
-            when (provider) {
-                "kakao" -> binding.textFieldEditProfileEmail.helperText = "카카오로 로그인된 계정입니다."
-                "github" -> binding.textFieldEditProfileEmail.helperText = "깃허브로 로그인된 계정입니다."
-                "email" -> binding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
-                "naver" -> binding.textFieldEditProfileEmail.helperText = "네이버로 로그인된 계정입니다."
-                "google" -> binding.textFieldEditProfileEmail.helperText = "구글로 로그인된 계정입니다."
-                else -> binding.textFieldEditProfileEmail.helperText = "로그인 정보를 불러올 수 없습니다."
+        lifecycleScope.launch {
+            editProfileViewModel.editProfileProvider.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { provider ->
+                when (provider) {
+                    "kakao" -> binding.textFieldEditProfileEmail.helperText = "카카오로 로그인된 계정입니다."
+                    "github" -> binding.textFieldEditProfileEmail.helperText = "깃허브로 로그인된 계정입니다."
+                    "email" -> binding.textFieldEditProfileEmail.helperText = "이메일로 로그인된 계정입니다."
+                    "naver" -> binding.textFieldEditProfileEmail.helperText = "네이버로 로그인된 계정입니다."
+                    "google" -> binding.textFieldEditProfileEmail.helperText = "구글로 로그인된 계정입니다."
+                    else -> binding.textFieldEditProfileEmail.helperText = "로그인 정보를 불러올 수 없습니다."
+                }
             }
         }
 
         // 관심 분야 chipGroup
-        editProfileViewModel.editProfileInterests.observe(viewLifecycleOwner) { interests ->
-            // 기존 칩들 제거
-            binding.chipGroupProfile.removeAllViews()
+        lifecycleScope.launch {
+            editProfileViewModel.editProfileInterests.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { interests ->
+                // 기존 칩들 제거
+                binding.chipGroupProfile.removeAllViews()
 
-            val interestList = interests.split(",").map { it.trim() }
+                val interestList = interests?.split(",")?.map { it.trim() }
 
-            // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
-            for (interest in interestList) {
-                // 아이템 처리 코드
+                // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
+                if (interestList != null) {
+                    for (interest in interestList) {
+                        // 아이템 처리 코드
+                        binding.chipGroupProfile.addView(Chip(context).apply {
+                            text = interest
+                            setTextAppearance(R.style.ChipTextStyle)
+                            // 자동 padding 없애기
+                            setEnsureMinTouchTargetSize(false)
+                            // 배경 흰색으로 지정
+                            setChipBackgroundColorResource(android.R.color.white)
+                            // 클릭 불가
+                            isClickable = false
+                            // chip에서 X 버튼 보이게 하기
+                            isCloseIconVisible = true
+                            // X버튼 누르면 chip 없어지게 하기
+                            setOnCloseIconClickListener {
+                                binding.chipGroupProfile.removeView(this)
+
+                                // 선택된 칩들 텍스트를 콤마로 연결한 문자열 생성
+                                val remainingChips = binding.chipGroupProfile.children
+                                    .filterIsInstance<Chip>()
+                                    .map { it.text.toString() }
+                                    .filter { it != "+" } // '+' 버튼 제외
+                                    .joinToString(",")
+
+                                // ViewModel의 interest 문자열 업데이트
+                                editProfileViewModel.editProfileInterests.value = remainingChips
+                            }
+                        })
+                    }
+                }
+                // 마지막 칩은 칩을 추가하는 버튼으로 사용
                 binding.chipGroupProfile.addView(Chip(context).apply {
-                    text = interest
+                    // chip 텍스트 설정
+                    text = "+"
+
                     setTextAppearance(R.style.ChipTextStyle)
+
                     // 자동 padding 없애기
                     setEnsureMinTouchTargetSize(false)
-                    // 배경 흰색으로 지정
-                    setChipBackgroundColorResource(android.R.color.white)
-                    // 클릭 불가
-                    isClickable = false
-                    // chip에서 X 버튼 보이게 하기
-                    isCloseIconVisible = true
-                    // X버튼 누르면 chip 없어지게 하기
-                    setOnCloseIconClickListener {
-                        binding.chipGroupProfile.removeView(this)
-
-                        // 선택된 칩들 텍스트를 콤마로 연결한 문자열 생성
-                        val remainingChips = binding.chipGroupProfile.children
-                            .filterIsInstance<Chip>()
-                            .map { it.text.toString() }
-                            .filter { it != "+" } // '+' 버튼 제외
-                            .joinToString(",")
-
-                        // ViewModel의 interest 문자열 업데이트
-                        editProfileViewModel.editProfileInterests.value = remainingChips
+                    // 배경 회색으로 지정
+                    setChipBackgroundColorResource(R.color.dividerView)
+                    // 클릭하면 바텀시트 올라옴
+                    setOnClickListener {
+                        val bottomSheet = InterestBottomSheetFragment()
+                        bottomSheet.show(childFragmentManager, bottomSheet.tag)
                     }
                 })
             }
-            // 마지막 칩은 칩을 추가하는 버튼으로 사용
-            binding.chipGroupProfile.addView(Chip(context).apply {
-                // chip 텍스트 설정
-                text = "+"
-
-                setTextAppearance(R.style.ChipTextStyle)
-
-                // 자동 padding 없애기
-                setEnsureMinTouchTargetSize(false)
-                // 배경 흰색으로 지정
-                setChipBackgroundColorResource(R.color.dividerView)
-                // 클릭하면 바텀시트 올라옴
-                setOnClickListener {
-                    val bottomSheet = InterestBottomSheetFragment()
-                    bottomSheet.show(childFragmentManager, bottomSheet.tag)
-                }
-            })
         }
 
+
         // 링크 리스트
-        editProfileViewModel.editProfileLinkList.observe(viewLifecycleOwner) { linkList ->
-            linkAddAdapter.updateData(linkList.toMutableList())
+        lifecycleScope.launch {
+            editProfileViewModel.editProfileLinkList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { linkList ->
+                linkAddAdapter.updateData(linkList.toMutableList())
+            }
         }
     }
 }
