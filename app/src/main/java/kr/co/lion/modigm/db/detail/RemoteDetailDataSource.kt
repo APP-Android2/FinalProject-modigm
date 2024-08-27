@@ -4,9 +4,9 @@ import android.util.Log
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
 
-class SqlRemoteDetailDataSource {
+class RemoteDetailDataSource {
     private val TAG = "SqlRemoteDetailDataSource"
-    private val studyDao = SqlRemoteDetailDao()
+    private val studyDao = RemoteDetailDao()
 
     // 특정 studyIdx에 해당하는 스터디 데이터를 가져오는 메소드
     suspend fun getStudyById(studyIdx: Int): SqlStudyData? {

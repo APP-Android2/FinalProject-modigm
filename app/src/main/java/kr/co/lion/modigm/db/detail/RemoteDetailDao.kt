@@ -1,18 +1,14 @@
 package kr.co.lion.modigm.db.detail
 
 import android.util.Log
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.*
-import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.model.SqlUserData
-import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class SqlRemoteDetailDao {
+class RemoteDetailDao {
     private val TAG = "SqlRemoteDetailDao"
 
     // 쿼리를 실행하고 결과를 처리하는 공통 메소드

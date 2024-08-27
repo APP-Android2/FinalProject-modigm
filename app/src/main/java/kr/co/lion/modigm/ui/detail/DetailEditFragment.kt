@@ -16,7 +16,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.util.TypedValue
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +42,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailEditBinding
 import kr.co.lion.modigm.model.SqlStudyData
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.detail.vm.SqlDetailViewModel
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.Skill
 import java.io.File
 
@@ -52,7 +51,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
 //    lateinit var fragmentDetailEditBinding: FragmentDetailEditBinding
 
-    private val viewModel: SqlDetailViewModel by activityViewModels()
+    private val viewModel: DetailViewModel by activityViewModels()
 
 //    private lateinit var auth: FirebaseAuth
 //    private lateinit var uid: String
