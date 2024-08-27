@@ -6,11 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
 import kr.co.lion.modigm.ui.DBBaseFragment
@@ -40,27 +36,20 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
 
     // 에러 메시지 설정
     private fun settingTextInputLayoutError(){
-        lifecycleScope.launch {
-            joinStep2ViewModel.nameValidation.collect{
-                if(it.isNotEmpty()){
-                    binding.textInputLayoutJoinUserName.error = it
-                }
-            }
+
+        // 이름 에러
+        collectWhenStarted(joinStep2ViewModel.nameValidation){
+            binding.textInputLayoutJoinUserName.error = it
         }
-        lifecycleScope.launch {
-            joinStep2ViewModel.phoneValidation.collect{
-                if(it.isNotEmpty()){
-                    binding.textInputLayoutJoinUserPhone.error = it
-                }
-            }
+
+        collectWhenStarted(joinStep2ViewModel.phoneValidation){
+            binding.textInputLayoutJoinUserPhone.error = it
         }
-        lifecycleScope.launch {
-            joinStep2ViewModel.inputSmsCodeValidation.collect{
-                if(it.isNotEmpty()){
-                    binding.textInputLayoutJoinPhoneAuth.error = it
-                }
-            }
+
+        collectWhenStarted(joinStep2ViewModel.inputSmsCodeValidation){
+            binding.textInputLayoutJoinPhoneAuth.error = it
         }
+
     }
 
     private fun settingTextInputUserPhone(){

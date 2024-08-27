@@ -33,16 +33,12 @@ class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.frag
 
         // 이메일 에러
         collectWhenStarted(joinStep1ViewModel.emailValidation) {
-            if(it.isNotEmpty()){
-                binding.textInputLayoutJoinUserEmail.error = it
-            }
+            binding.textInputLayoutJoinUserEmail.error = it
         }
 
         // 비밀번호 에러
         collectWhenStarted(joinStep1ViewModel.pwValidation) {
-            if(it.isNotEmpty()){
-                binding.textInputLayoutJoinUserPassword.error = it
-            }
+            binding.textInputLayoutJoinUserPassword.error = it
         }
 
         // 비밀번호 확인 에러
