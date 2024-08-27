@@ -2,7 +2,7 @@ package kr.co.lion.modigm.model
 
 import java.sql.ResultSet
 
-data class SqlUserData(
+data class UserData(
     val userIdx: Int = -1,              // 회원 고유번호
     val userUid: String = "",           // 회원 UID
     val userName: String = "",          // 이름
@@ -27,8 +27,8 @@ data class SqlUserData(
     }
 
     companion object {
-        fun getUserData(resultSet: ResultSet): SqlUserData {
-            return SqlUserData(
+        fun getUserData(resultSet: ResultSet): UserData {
+            return UserData(
                 resultSet.getInt("userIdx"),
                 resultSet.getString("userUid") ?: "",
                 resultSet.getString("userName") ?: "",

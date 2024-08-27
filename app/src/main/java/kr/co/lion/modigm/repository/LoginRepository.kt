@@ -6,7 +6,7 @@ import android.util.Log
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import kr.co.lion.modigm.db.login.RemoteLoginDataSource
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 
 class LoginRepository {
     private val tag by lazy { LoginRepository::class.simpleName }
@@ -75,12 +75,12 @@ class LoginRepository {
      * @param userPhone 사용자의 전화번호
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    suspend fun getUserDataByUserPhone(userPhone: String): Result<SqlUserData> {
+    suspend fun getUserDataByUserPhone(userPhone: String): Result<UserData> {
         return runCatching {
             loginDataSource.getUserDataByUserPhone(userPhone).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "전화번호로 유저 이름과 이메일 조회 중 오류 발생: ${e.message}", e)
-            Result.failure<SqlUserData>(e)
+            Result.failure<UserData>(e)
         }
     }
 
@@ -89,12 +89,12 @@ class LoginRepository {
      * @param userEmail 사용자의 이메일
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    suspend fun getUserDataByUserEmail(userEmail: String): Result<SqlUserData> {
+    suspend fun getUserDataByUserEmail(userEmail: String): Result<UserData> {
         return runCatching {
             loginDataSource.getUserDataByUserEmail(userEmail).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "이메일로 유저 이름과 전화번호 조회 중 오류 발생: ${e.message}", e)
-            Result.failure<SqlUserData>(e)
+            Result.failure<UserData>(e)
         }
     }
 

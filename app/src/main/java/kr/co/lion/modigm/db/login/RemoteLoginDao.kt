@@ -4,14 +4,14 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.HikariCPDataSource
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 import java.sql.SQLDataException
 
 class RemoteLoginDao {
 
     private val tag by lazy { RemoteLoginDao::class.simpleName }
 
-    suspend fun selectUserDataByUserIdx(userIdx: Int): Result<SqlUserData> =
+    suspend fun selectUserDataByUserIdx(userIdx: Int): Result<UserData> =
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
@@ -24,7 +24,7 @@ class RemoteLoginDao {
                         statement.setInt(1, userIdx)
                         statement.executeQuery().use { resultSet ->
                             if (resultSet.next()) {
-                                SqlUserData.getUserData(resultSet)
+                                UserData.getUserData(resultSet)
                             } else {
                                 throw SQLDataException("해당 유저를 찾을 수 없습니다.")
                             }
@@ -33,11 +33,11 @@ class RemoteLoginDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "userIdx로 유저 데이터 조회 중 오류 발생", e)
-                Result.failure<SqlUserData>(e)
+                Result.failure<UserData>(e)
             }
         }
 
-    suspend fun selectUserDataByUserUid(userUid: String): Result<SqlUserData> =
+    suspend fun selectUserDataByUserUid(userUid: String): Result<UserData> =
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
@@ -50,7 +50,7 @@ class RemoteLoginDao {
                         statement.setString(1, userUid)
                         statement.executeQuery().use { resultSet ->
                             if (resultSet.next()) {
-                                SqlUserData.getUserData(resultSet)
+                                UserData.getUserData(resultSet)
                             } else {
                                 throw SQLDataException("해당 유저를 찾을 수 없습니다.")
                             }
@@ -59,7 +59,7 @@ class RemoteLoginDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "userUid로 유저 데이터 조회 중 오류 발생", e)
-                Result.failure<SqlUserData>(e)
+                Result.failure<UserData>(e)
             }
         }
 
@@ -115,7 +115,7 @@ class RemoteLoginDao {
             }
         }
 
-    suspend fun selectUserDataByUserPhone(userPhone: String): Result<SqlUserData> =
+    suspend fun selectUserDataByUserPhone(userPhone: String): Result<UserData> =
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
@@ -128,7 +128,7 @@ class RemoteLoginDao {
                         statement.setString(1, userPhone)
                         statement.executeQuery().use { resultSet ->
                             if (resultSet.next()) {
-                                SqlUserData.getUserData(resultSet)
+                                UserData.getUserData(resultSet)
                             } else {
                                 throw SQLDataException("해당하는 전화번호를 찾을 수 없습니다.")
                             }
@@ -137,11 +137,11 @@ class RemoteLoginDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "userPhone로 유저 데이터 조회 중 오류 발생", e)
-                Result.failure<SqlUserData>(e)
+                Result.failure<UserData>(e)
             }
         }
 
-    suspend fun selectUserDataByUserEmail(userEmail: String): Result<SqlUserData> =
+    suspend fun selectUserDataByUserEmail(userEmail: String): Result<UserData> =
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
@@ -154,7 +154,7 @@ class RemoteLoginDao {
                         statement.setString(1, userEmail)
                         statement.executeQuery().use { resultSet ->
                             if (resultSet.next()) {
-                                SqlUserData.getUserData(resultSet)
+                                UserData.getUserData(resultSet)
                             } else {
                                 throw SQLDataException("해당 유저를 찾을 수 없습니다.")
                             }
@@ -163,7 +163,7 @@ class RemoteLoginDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "userEmail로 유저 데이터 조회 중 오류 발생", e)
-                Result.failure<SqlUserData>(e)
+                Result.failure<UserData>(e)
             }
         }
 

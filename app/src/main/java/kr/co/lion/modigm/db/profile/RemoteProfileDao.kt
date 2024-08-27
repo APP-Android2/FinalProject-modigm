@@ -22,9 +22,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.db.HikariCPDataSource
-import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.model.SqlUserLinkData
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.model.UserLinkData
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
@@ -45,9 +45,9 @@ class RemoteProfileDao {
     }
 
     // userIdx를 통해 사용자 정보를 가져오는 메서드
-    suspend fun loadUserDataByUserIdx(userIdx: Int): SqlUserData? = withContext(Dispatchers.IO)  {
+    suspend fun loadUserDataByUserIdx(userIdx: Int): UserData? = withContext(Dispatchers.IO)  {
         // 사용자 정보 객체를 담을 변수
-        var user: SqlUserData? = null
+        var user: UserData? = null
 
         try {
             HikariCPDataSource.getConnection().use { connection ->
@@ -60,7 +60,7 @@ class RemoteProfileDao {
                     val resultSet = statement.executeQuery()
                     if (resultSet.next()) {
                         // 결과를 NewUserData 객체에 매핑
-                        user = SqlUserData.getUserData(resultSet)
+                        user = UserData.getUserData(resultSet)
                     }
                 }
             }
@@ -75,7 +75,7 @@ class RemoteProfileDao {
 
     // userIdx를 통해 등록된 링크 목록을 가져오는 메서드
     suspend fun loadUserLinkDataByUserIdx(userIdx: Int): List<String> = withContext(Dispatchers.IO) {
-        val linkList = mutableListOf<SqlUserLinkData>()
+        val linkList = mutableListOf<UserLinkData>()
 
         try {
             HikariCPDataSource.getConnection().use { connection ->
@@ -87,7 +87,7 @@ class RemoteProfileDao {
                     statement.setInt(1, userIdx)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val link = SqlUserLinkData.getUserLinkData(resultSet)
+                        val link = UserLinkData.getUserLinkData(resultSet)
 
                         linkList.add(link)
                     }
@@ -103,7 +103,7 @@ class RemoteProfileDao {
     }
 
     // 사용자 정보를 수정하는 메서드
-    suspend fun updateUserData(user: SqlUserData) = withContext(Dispatchers.IO) {
+    suspend fun updateUserData(user: UserData) = withContext(Dispatchers.IO) {
         try {
             HikariCPDataSource.getConnection().use { connection ->
                 val query = """
@@ -244,8 +244,8 @@ class RemoteProfileDao {
     }
 
     // 사용자가 진행한 스터디 목록 (3개만)
-    suspend fun loadSmallHostStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
-        val studyList = mutableListOf<SqlStudyData>()
+    suspend fun loadSmallHostStudyList(userIdx: Int): List<StudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<StudyData>()
 
         try {
             HikariCPDataSource.getConnection().use { connection ->
@@ -261,7 +261,7 @@ class RemoteProfileDao {
                     statement.setBoolean(2, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val study = SqlStudyData.getStudyData(resultSet)
+                        val study = StudyData.getStudyData(resultSet)
 
                         studyList.add(study)
                     }
@@ -275,8 +275,8 @@ class RemoteProfileDao {
     }
 
     // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (3개만)
-    suspend fun loadSmallPartStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
-        val studyList = mutableListOf<SqlStudyData>()
+    suspend fun loadSmallPartStudyList(userIdx: Int): List<StudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<StudyData>()
 
         try {
             HikariCPDataSource.getConnection().use { connection ->
@@ -296,7 +296,7 @@ class RemoteProfileDao {
                     statement.setBoolean(3, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val study = SqlStudyData.getStudyData(resultSet)
+                        val study = StudyData.getStudyData(resultSet)
 
                         studyList.add(study)
                     }
@@ -310,8 +310,8 @@ class RemoteProfileDao {
     }
 
     // 사용자가 진행한 스터디 목록 (전체)
-    suspend fun loadHostStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
-        val studyList = mutableListOf<SqlStudyData>()
+    suspend fun loadHostStudyList(userIdx: Int): List<StudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<StudyData>()
 
         try {
             HikariCPDataSource.getConnection().use { connection ->
@@ -326,7 +326,7 @@ class RemoteProfileDao {
                     statement.setBoolean(2, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val study = SqlStudyData.getStudyData(resultSet)
+                        val study = StudyData.getStudyData(resultSet)
 
                         studyList.add(study)
                     }
@@ -340,8 +340,8 @@ class RemoteProfileDao {
     }
 
     // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (전체)
-    suspend fun loadPartStudyList(userIdx: Int): List<SqlStudyData> = withContext(Dispatchers.IO) {
-        val studyList = mutableListOf<SqlStudyData>()
+    suspend fun loadPartStudyList(userIdx: Int): List<StudyData> = withContext(Dispatchers.IO) {
+        val studyList = mutableListOf<StudyData>()
 
         try {
             HikariCPDataSource.getConnection().use { connection ->
@@ -360,7 +360,7 @@ class RemoteProfileDao {
                     statement.setBoolean(3, true)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        val study = SqlStudyData.getStudyData(resultSet)
+                        val study = StudyData.getStudyData(resultSet)
 
                         studyList.add(study)
                     }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.JoinUserRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import javax.inject.Inject
@@ -133,9 +133,9 @@ class JoinViewModel @Inject constructor(
     }
 
     // UserInfoData 객체 생성
-    private fun createUserInfoData(): SqlUserData {
+    private fun createUserInfoData(): UserData {
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
-        return SqlUserData(
+        return UserData(
             -1,
             _uid.value?:"",
             _userName.value,

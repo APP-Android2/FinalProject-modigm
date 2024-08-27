@@ -3,16 +3,15 @@ package kr.co.lion.modigm.db.profile
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserData
-import kr.co.lion.modigm.model.SqlUserLinkData
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
 
 class RemoteProfileDataSource {
     private val dao = RemoteProfileDao()
 
     // userIdx를 통해 사용자 정보를 가져오는 메서드
-    suspend fun loadUserDataByUserIdx(userIdx: Int): SqlUserData? {
-        var user: SqlUserData? = null
+    suspend fun loadUserDataByUserIdx(userIdx: Int): UserData? {
+        var user: UserData? = null
 
         try {
             user = dao.loadUserDataByUserIdx(userIdx)
@@ -35,7 +34,7 @@ class RemoteProfileDataSource {
     }
 
     // 사용자 정보를 수정
-    suspend fun updateUserData(user: SqlUserData) {
+    suspend fun updateUserData(user: UserData) {
         try {
             dao.updateUserData(user)
         } catch (error: Exception) {
@@ -64,7 +63,7 @@ class RemoteProfileDataSource {
     }
 
     // 사용자가 진행한 스터디 목록 (3개만)
-    suspend fun loadSmallHostStudyList(userIdx: Int): List<SqlStudyData> {
+    suspend fun loadSmallHostStudyList(userIdx: Int): List<StudyData> {
         try {
             val studyList = dao.loadSmallHostStudyList(userIdx)
             return studyList
@@ -75,7 +74,7 @@ class RemoteProfileDataSource {
     }
 
     // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (3개만)
-    suspend fun loadSmallPartStudyList(userIdx: Int): List<SqlStudyData> {
+    suspend fun loadSmallPartStudyList(userIdx: Int): List<StudyData> {
         try {
             val studyList = dao.loadSmallPartStudyList(userIdx)
             return studyList
@@ -86,7 +85,7 @@ class RemoteProfileDataSource {
     }
 
     // 사용자가 진행한 스터디 목록 (전체)
-    suspend fun loadHostStudyList(userIdx: Int): List<SqlStudyData> {
+    suspend fun loadHostStudyList(userIdx: Int): List<StudyData> {
         try {
             val studyList = dao.loadHostStudyList(userIdx)
             return studyList
@@ -97,7 +96,7 @@ class RemoteProfileDataSource {
     }
 
     // 사용자가 진행하지 않고 단순 참여한 스터디 목록 (전체)
-    suspend fun loadPartStudyList(userIdx: Int): List<SqlStudyData> {
+    suspend fun loadPartStudyList(userIdx: Int): List<StudyData> {
         try {
             val studyList = dao.loadPartStudyList(userIdx)
             return studyList

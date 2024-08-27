@@ -1,16 +1,11 @@
 package kr.co.lion.modigm.ui.profile.adapter
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.telephony.PhoneNumberUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowLinkBinding
-import kr.co.lion.modigm.model.SqlUserLinkData
-import java.util.Locale
 
 class LinkAdapter(
     private var linkList: List<String>,

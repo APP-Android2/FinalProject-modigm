@@ -11,7 +11,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowStudyBinding
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 
 class StudyViewHolder(
     private val binding: RowStudyBinding,
@@ -19,7 +19,7 @@ class StudyViewHolder(
     private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(studyData: Triple<SqlStudyData, Int, Boolean>) {
+    fun bind(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
             setupRootView(studyData)
             // 스터디 이미지 설정
@@ -41,7 +41,7 @@ class StudyViewHolder(
         }
     }
 
-    private fun setupRootView(studyData: Triple<SqlStudyData, Int, Boolean>) {
+    private fun setupRootView(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
             with(root){
                 layoutParams = ViewGroup.LayoutParams(
@@ -56,7 +56,7 @@ class StudyViewHolder(
     }
 
     // 스터디 이미지 설정
-    private fun setStudyImage(studyData: Triple<SqlStudyData, Int, Boolean>) {
+    private fun setStudyImage(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
             // 프로그래스바를 활성화하고 보이도록 설정
             progressBarStudyPic.visibility = View.VISIBLE
@@ -127,14 +127,14 @@ class StudyViewHolder(
         }
     }
 
-    private fun setStudyMembers(studyData: Triple<SqlStudyData, Int, Boolean>) {
+    private fun setStudyMembers(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
             textViewStudyMaxMember.text = studyData.first.studyMaxMember.toString()
             textViewStudyCurrentMember.text = studyData.second.toString()
         }
     }
 
-    private fun setFavoriteButton(studyData: Triple<SqlStudyData, Int, Boolean>) {
+    private fun setFavoriteButton(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding.imageViewStudyFavorite) {
             if (studyData.third) {
                 setImageResource(R.drawable.icon_favorite_full_24px)

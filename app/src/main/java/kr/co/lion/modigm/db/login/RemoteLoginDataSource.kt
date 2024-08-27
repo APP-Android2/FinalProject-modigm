@@ -14,7 +14,7 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -201,12 +201,12 @@ class RemoteLoginDataSource {
      * @param userIdx 사용자 인덱스
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    suspend fun getUserDataByUserIdx(userIdx: Int): Result<SqlUserData> {
+    suspend fun getUserDataByUserIdx(userIdx: Int): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserIdx(userIdx).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "userIdx로 유저 데이터 조회 중 오류 발생", e)
-            Result.failure<SqlUserData>(e)
+            Result.failure<UserData>(e)
         }
     }
 
@@ -229,12 +229,12 @@ class RemoteLoginDataSource {
      * @param userUid 사용자 UID
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    suspend fun getUserDataByUserUid(userUid: String): Result<SqlUserData> {
+    suspend fun getUserDataByUserUid(userUid: String): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserUid(userUid).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "userUid로 유저 데이터 조회 중 오류 발생", e)
-            Result.failure<SqlUserData>(e)
+            Result.failure<UserData>(e)
         }
     }
 
@@ -257,12 +257,12 @@ class RemoteLoginDataSource {
      * @param userPhone 사용자 전화번호
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    suspend fun getUserDataByUserPhone(userPhone: String): Result<SqlUserData> {
+    suspend fun getUserDataByUserPhone(userPhone: String): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserPhone(userPhone).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "전화번호로 유저 데이터 조회 중 오류 발생", e)
-            Result.failure<SqlUserData>(e)
+            Result.failure<UserData>(e)
         }
     }
 
@@ -271,12 +271,12 @@ class RemoteLoginDataSource {
      * @param userEmail 사용자 이메일
      * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
      */
-    suspend fun getUserDataByUserEmail(userEmail: String): Result<SqlUserData> {
+    suspend fun getUserDataByUserEmail(userEmail: String): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserEmail(userEmail).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "이메일로 유저 데이터 조회 중 오류 발생", e)
-            Result.failure<SqlUserData>(e)
+            Result.failure<UserData>(e)
         }
     }
 

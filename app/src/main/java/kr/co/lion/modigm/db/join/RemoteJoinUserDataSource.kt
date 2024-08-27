@@ -1,6 +1,6 @@
 package kr.co.lion.modigm.db.join
 
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 import javax.inject.Inject
 
 class RemoteJoinUserDataSource @Inject constructor(
@@ -8,7 +8,7 @@ class RemoteJoinUserDataSource @Inject constructor(
 ) {
 
     //사용자 정보 저장
-    suspend fun insetUserData(userInfoData: SqlUserData): Result<Int>
+    suspend fun insetUserData(userInfoData: UserData): Result<Int>
         = dao.insertUserData(userInfoData.toMap())
 
     // 해당 전화 번호의 계정이 있는지 확인 (중복 확인)

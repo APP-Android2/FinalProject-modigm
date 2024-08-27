@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowStudyBinding
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 
 class StudyAdapter(
     // 스터디 리스트
-    private var studyList: List<Triple<SqlStudyData, Int, Boolean>>,
+    private var studyList: List<Triple<StudyData, Int, Boolean>>,
     // 항목 1개 클릭 리스너
     private val rowClickListener: (Int) -> Unit,
     private val favoriteClickListener: (Int, Boolean) -> Unit,
@@ -40,7 +40,7 @@ class StudyAdapter(
 
     // 목록 새로고침
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<Triple<SqlStudyData, Int, Boolean>>) {
+    fun updateData(list: List<Triple<StudyData, Int, Boolean>>) {
         studyList = list
         notifyDataSetChanged()
         Log.d("StudyAdapter", "updateData: ${list.size} 개의 데이터로 업데이트")

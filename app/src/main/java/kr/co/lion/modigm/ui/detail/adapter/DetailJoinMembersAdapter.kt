@@ -14,7 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.RowDetailJoinMemberBinding
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.ModigmApplication
 
@@ -22,8 +22,8 @@ class DetailJoinMembersAdapter(
     private val viewModel: DetailViewModel,
     private var currentUserId: Int,
     private val studyIdx: Int,
-    private val onItemClicked: (SqlUserData) -> Unit
-) : ListAdapter<SqlUserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+    private val onItemClicked: (UserData) -> Unit
+) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -38,7 +38,7 @@ class DetailJoinMembersAdapter(
 
     inner class MemberViewHolder(private val binding: RowDetailJoinMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(user: SqlUserData) {
+        fun bind(user: UserData) {
 
             itemView.setOnClickListener {
                 onItemClicked(user)
@@ -88,7 +88,7 @@ class DetailJoinMembersAdapter(
 
 
         // custom dialog
-        fun showKickDialog(member: SqlUserData, studyIdx: Int) {
+        fun showKickDialog(member: UserData, studyIdx: Int) {
             val dialogBinding = CustomDialogBinding.inflate(LayoutInflater.from(itemView.context))
             val dialog =MaterialAlertDialogBuilder(itemView.context,R.style.dialogColor)
                 .setTitle("내보내기 확인")
@@ -124,12 +124,12 @@ class DetailJoinMembersAdapter(
 
     }
 
-        class UserDiffCallback : DiffUtil.ItemCallback<SqlUserData>() {
-            override fun areItemsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
+        class UserDiffCallback : DiffUtil.ItemCallback<UserData>() {
+            override fun areItemsTheSame(oldItem: UserData, newItem: UserData): Boolean {
                 return oldItem.userUid == newItem.userUid
             }
 
-            override fun areContentsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
+            override fun areContentsTheSame(oldItem: UserData, newItem: UserData): Boolean {
                 return oldItem == newItem
             }
         }

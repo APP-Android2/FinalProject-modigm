@@ -4,14 +4,13 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 
 class RemoteWriteStudyDataSource {
 
     // 사용자 정보를 저장한다.
-    suspend fun uploadStudyData(userIdx: Int, study: SqlStudyData, studyTechStack: List<Int>, studyPicUrl: String?): Int? {
+    suspend fun uploadStudyData(userIdx: Int, study: StudyData, studyTechStack: List<Int>, studyPicUrl: String?): Int? {
         return try {
             val dao = RemoteWriteStudyDao()
             withContext(Dispatchers.IO) {

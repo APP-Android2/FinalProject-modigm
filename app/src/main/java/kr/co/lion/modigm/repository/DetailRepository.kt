@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kr.co.lion.modigm.db.detail.RemoteDetailDataSource
-import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
 
 class DetailRepository {
     private val remoteDetailDataSource = RemoteDetailDataSource()
 
     // 특정 studyIdx에 해당하는 스터디 데이터를 가져오는 메소드
-    fun getStudyById(studyIdx: Int): Flow<SqlStudyData?> = flow {
+    fun getStudyById(studyIdx: Int): Flow<StudyData?> = flow {
         emit(remoteDetailDataSource.getStudyById(studyIdx))
     }.flowOn(Dispatchers.IO)
 
@@ -32,7 +32,7 @@ class DetailRepository {
     }
 
     // 특정 userIdx에 해당하는 사용자 데이터를 가져오는 메소드
-    fun getUserById(userIdx: Int): Flow<SqlUserData?> = flow {
+    fun getUserById(userIdx: Int): Flow<UserData?> = flow {
         emit(remoteDetailDataSource.getUserById(userIdx))
     }
 
@@ -47,7 +47,7 @@ class DetailRepository {
     }
 
     // 스터디 데이터를 업데이트하는 메소드
-    suspend fun updateStudy(studyData: SqlStudyData): Boolean {
+    suspend fun updateStudy(studyData: StudyData): Boolean {
         return remoteDetailDataSource.updateStudy(studyData)
     }
 
@@ -69,7 +69,7 @@ class DetailRepository {
         return remoteDetailDataSource.addUserToStudyRequest(studyIdx, userIdx)
     }
 
-    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> {
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<UserData> {
         return remoteDetailDataSource.getStudyRequestMembers(studyIdx)
     }
 

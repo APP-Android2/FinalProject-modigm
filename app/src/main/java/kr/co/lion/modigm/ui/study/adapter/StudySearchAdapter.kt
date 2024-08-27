@@ -6,16 +6,16 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.databinding.RowStudyBinding
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 
 class StudySearchAdapter(
-    private var studyList: List<Triple<SqlStudyData, Int, Boolean>>,
+    private var studyList: List<Triple<StudyData, Int, Boolean>>,
     // 항목 1개 클릭 리스너
     private val rowClickListener: (Int) -> Unit,
     private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.Adapter<StudyViewHolder>() {
 
-    private var searchList: List<Triple<SqlStudyData, Int, Boolean>> = studyList
+    private var searchList: List<Triple<StudyData, Int, Boolean>> = studyList
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): StudyViewHolder {
         val binding: RowStudyBinding =
@@ -50,7 +50,7 @@ class StudySearchAdapter(
 
     // 목록 새로고침
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: List<Triple<SqlStudyData, Int, Boolean>>) {
+    fun updateData(list: List<Triple<StudyData, Int, Boolean>>) {
         studyList = list
         notifyDataSetChanged()
         Log.d("update adapter", list.toString())
