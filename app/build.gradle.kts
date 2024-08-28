@@ -140,4 +140,7 @@ dependencies {
     
     // libphonenumber (국가별 전화번호 변환 대응)
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.42")
+
+    // 리사이클러뷰 스와이프 새로고침
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }

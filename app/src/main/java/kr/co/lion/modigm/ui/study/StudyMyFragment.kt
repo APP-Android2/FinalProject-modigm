@@ -131,7 +131,13 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
                 }
             }
 
-
+            // 쓸어내려 새로고침 기능
+            with(swipeRefreshLayoutStudyMy){
+                setOnRefreshListener {
+                    viewModel.getMyStudyData()
+                    isRefreshing = false
+                }
+            }
         }
     }
 

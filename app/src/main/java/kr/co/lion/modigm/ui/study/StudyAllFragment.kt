@@ -160,6 +160,14 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                     }
                 }
             }
+
+            // 쓸어내려 새로고침 기능
+            with(swipeRefreshLayoutStudyAll){
+                setOnRefreshListener {
+                    viewModel.getAllStudyData()
+                    isRefreshing = false
+                }
+            }
         }
     }
 
