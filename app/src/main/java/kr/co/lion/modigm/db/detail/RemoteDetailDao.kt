@@ -3,8 +3,8 @@ package kr.co.lion.modigm.db.detail
 import android.util.Log
 import kotlinx.coroutines.*
 import kr.co.lion.modigm.db.HikariCPDataSource
-import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
@@ -38,10 +38,10 @@ class RemoteDetailDao {
     }
 
     // 스터디 데이터를 모두 가져오는 메소드
-    suspend fun getAllStudies(): List<SqlStudyData> {
+    suspend fun getAllStudies(): List<StudyData> {
         val query = "SELECT * FROM tb_study" // 쿼리문
         return executeQuery(query) { resultSet ->
-            SqlStudyData.getStudyData(resultSet) // 결과셋에서 스터디 데이터를 가져오는 메소드 호출
+            StudyData.getStudyData(resultSet) // 결과셋에서 스터디 데이터를 가져오는 메소드 호출
         }
     }
 
@@ -70,10 +70,10 @@ class RemoteDetailDao {
     }
 
     // 모든 사용자 데이터를 가져오는 메소드
-    suspend fun getAllUsers(): List<SqlUserData> {
+    suspend fun getAllUsers(): List<UserData> {
         val query = "SELECT * FROM tb_user" // 쿼리문
         return executeQuery(query) { resultSet ->
-            SqlUserData.getUserData(resultSet) // 결과셋에서 사용자 데이터를 가져오는 메소드 호출
+            UserData.getUserData(resultSet) // 결과셋에서 사용자 데이터를 가져오는 메소드 호출
         }
     }
 
@@ -111,7 +111,7 @@ class RemoteDetailDao {
     }
 
     // 데이터 업데이트 메소드
-    suspend fun updateStudy(studyData: SqlStudyData): Int = withContext(Dispatchers.IO) {
+    suspend fun updateStudy(studyData: StudyData): Int = withContext(Dispatchers.IO) {
         try {
             HikariCPDataSource.getConnection().use { connection ->
                 val query = """
@@ -245,9 +245,9 @@ class RemoteDetailDao {
     }
 
     // 특정 studyIdx에 해당하는 신청자 정보를 tb_study_request 에서 가져오는 메소드
-    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> = withContext(Dispatchers.IO) {
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<UserData> = withContext(Dispatchers.IO) {
         try {
-            val members = mutableListOf<SqlUserData>()
+            val members = mutableListOf<UserData>()
             HikariCPDataSource.getConnection().use { connection ->
                 val query = """
                     SELECT u.* FROM tb_study_request sr
@@ -258,14 +258,14 @@ class RemoteDetailDao {
                     statement.setInt(1, studyIdx)
                     val resultSet = statement.executeQuery()
                     while (resultSet.next()) {
-                        members.add(SqlUserData.getUserData(resultSet))
+                        members.add(UserData.getUserData(resultSet))
                     }
                 }
             }
             return@withContext members
         } catch (e: Exception) {
             Log.e(TAG, "Error fetching study request members", e)
-            return@withContext emptyList<SqlUserData>()
+            return@withContext emptyList<UserData>()
         }
     }
 

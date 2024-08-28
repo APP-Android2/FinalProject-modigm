@@ -13,7 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowProfileStudyBinding
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 
 class ProfileStudyViewHolder(
     private val context: Context,
@@ -21,7 +21,7 @@ class ProfileStudyViewHolder(
     private val rowClickListener: (Int) -> Unit, ): RecyclerView.ViewHolder(rowProfileStudyBinding.root) {
 
     // 구성요소 세팅
-    fun bind(data: SqlStudyData, rowClickListener: (Int) -> Unit) {
+    fun bind(data: StudyData, rowClickListener: (Int) -> Unit) {
         rowProfileStudyBinding.apply {
             // 썸네일
             setStudyImage(data)
@@ -62,7 +62,7 @@ class ProfileStudyViewHolder(
     }
 
     // 스터디 이미지 설정
-    private fun setStudyImage(data: SqlStudyData) {
+    private fun setStudyImage(data: StudyData) {
         Log.d("ProfileStudyViewHolder", "setStudyImage called with: ${data.studyPic}")
 
         rowProfileStudyBinding.apply {

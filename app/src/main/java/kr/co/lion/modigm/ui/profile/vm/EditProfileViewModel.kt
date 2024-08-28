@@ -3,14 +3,11 @@ package kr.co.lion.modigm.ui.profile.vm
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -125,7 +122,7 @@ class EditProfileViewModel: ViewModel() {
         }
 
         // 데이터를 객체에 담는다
-        val user = SqlUserData(
+        val user = UserData(
             userIdx = prefs.getInt("currentUserIdx"),
             userProfilePic = _editProfilePicUrl.value!!,
             userIntro = _editProfileIntro.value!!,

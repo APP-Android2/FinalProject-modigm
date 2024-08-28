@@ -35,8 +35,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailBinding
-import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
@@ -55,8 +55,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     var studyIdx = 0
     var userIdx = 1
 
-    private var currentStudyData: SqlStudyData? = null
-    private var currentUserData: SqlUserData? = null
+    private var currentStudyData: StudyData? = null
+    private var currentUserData: UserData? = null
 
     // 뷰가 생성된 직후 호출
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -299,7 +299,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         }
     }
 
-    fun updateUI(data: SqlStudyData) {
+    fun updateUI(data: StudyData) {
 
         with(binding) {
             //툴바 설정 함수 호출
@@ -407,7 +407,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
 
     // 툴바 설정
-    fun settingToolbar(data: SqlStudyData) {
+    fun settingToolbar(data: StudyData) {
         with(binding) {
             (activity as AppCompatActivity).setSupportActionBar(toolbar)
             (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)

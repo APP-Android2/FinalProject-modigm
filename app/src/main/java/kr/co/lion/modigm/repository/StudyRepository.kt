@@ -2,7 +2,7 @@ package kr.co.lion.modigm.repository
 
 import android.util.Log
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 
 class StudyRepository() {
 
@@ -15,12 +15,12 @@ class StudyRepository() {
      * @param userIdx 사용자 인덱스
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+    suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> {
         return runCatching {
             remoteStudyDataSource.getAllStudyData(userIdx).getOrThrow()
         }.onFailure { e ->
             Log.e(tag, "전체 스터디 목록 조회 중 오류 발생: ${e.message}", e)
-            Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+            Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
         }
     }
 
@@ -29,7 +29,7 @@ class StudyRepository() {
      * @param userIdx 사용자 인덱스
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun getMyStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+    suspend fun getMyStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> {
         return runCatching {
             remoteStudyDataSource.getMyStudyData(userIdx).getOrThrow()
         }.onFailure { e ->
@@ -42,7 +42,7 @@ class StudyRepository() {
      * @param userIdx 사용자 인덱스
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun getFavoriteStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> {
+    suspend fun getFavoriteStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> {
         return runCatching {
             remoteStudyDataSource.getFavoriteStudyData(userIdx).getOrThrow()
         }.onFailure { e ->

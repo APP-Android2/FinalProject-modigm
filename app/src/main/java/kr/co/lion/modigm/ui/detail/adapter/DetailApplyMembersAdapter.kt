@@ -14,15 +14,15 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowDetailApplyMemberBinding
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
 class DetailApplyMembersAdapter(
     private val viewModel: DetailViewModel,
     private val currentUserId: Int,
     private val studyIdx: Int,
-    private val onItemClicked: (SqlUserData) -> Unit
-) : ListAdapter<SqlUserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
+    private val onItemClicked: (UserData) -> Unit
+) : ListAdapter<UserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
         val binding = RowDetailApplyMemberBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -36,7 +36,7 @@ class DetailApplyMembersAdapter(
 
     inner class MemberViewHolder(private val binding: RowDetailApplyMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(user: SqlUserData) {
+        fun bind(user: UserData) {
 
             itemView.setOnClickListener {
                 onItemClicked(user)
@@ -85,7 +85,7 @@ class DetailApplyMembersAdapter(
         }
 
         // custom dialog
-        fun showRefuseDialog(user: SqlUserData) {
+        fun showRefuseDialog(user: UserData) {
             val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.custom_dialog, null)
             val dialog = MaterialAlertDialogBuilder(itemView.context, R.style.dialogColor)
                 .setTitle("거절 확인")
@@ -110,12 +110,12 @@ class DetailApplyMembersAdapter(
         }
     }
 
-    class UserDiffCallback : DiffUtil.ItemCallback<SqlUserData>() {
-        override fun areItemsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
+    class UserDiffCallback : DiffUtil.ItemCallback<UserData>() {
+        override fun areItemsTheSame(oldItem: UserData, newItem: UserData): Boolean {
             return oldItem.userUid == newItem.userUid
         }
 
-        override fun areContentsTheSame(oldItem: SqlUserData, newItem: SqlUserData): Boolean {
+        override fun areContentsTheSame(oldItem: UserData, newItem: UserData): Boolean {
             return oldItem == newItem
         }
     }

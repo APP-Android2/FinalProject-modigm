@@ -1,15 +1,15 @@
 package kr.co.lion.modigm.db.detail
 
 import android.util.Log
-import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
 
 class RemoteDetailDataSource {
     private val TAG = "SqlRemoteDetailDataSource"
     private val studyDao = RemoteDetailDao()
 
     // 특정 studyIdx에 해당하는 스터디 데이터를 가져오는 메소드
-    suspend fun getStudyById(studyIdx: Int): SqlStudyData? {
+    suspend fun getStudyById(studyIdx: Int): StudyData? {
         return try {
             val studies = studyDao.getAllStudies()
             studies.find { it.studyIdx == studyIdx }
@@ -47,7 +47,7 @@ class RemoteDetailDataSource {
     }
 
     // 모든 스터디 데이터를 가져와서 상세 정보를 포함한 리스트로 반환하는 메소드
-    suspend fun getAllStudyDetails(userIdx: Int): List<Triple<SqlStudyData, Int, Boolean>> {
+    suspend fun getAllStudyDetails(userIdx: Int): List<Triple<StudyData, Int, Boolean>> {
         return try {
             val studies = studyDao.getAllStudies()
             val studyMembers = studyDao.getAllStudyMembers().toMap()
@@ -67,7 +67,7 @@ class RemoteDetailDataSource {
     }
 
     // 특정 userIdx에 해당하는 사용자 데이터를 가져오는 메소드
-    suspend fun getUserById(userIdx: Int): SqlUserData? {
+    suspend fun getUserById(userIdx: Int): UserData? {
         return try {
             val users = studyDao.getAllUsers()
             Log.d("RemoteStudyDataSource", "Fetched users: $users")
@@ -101,7 +101,7 @@ class RemoteDetailDataSource {
     }
 
     // 스터디 데이터를 업데이트하는 메소드
-    suspend fun updateStudy(studyData: SqlStudyData): Boolean {
+    suspend fun updateStudy(studyData: StudyData): Boolean {
         return try {
             studyDao.updateStudy(studyData) > 0
         } catch (e: Exception) {
@@ -137,7 +137,7 @@ class RemoteDetailDataSource {
         return studyDao.addUserToStudyRequest(studyIdx, userIdx)
     }
 
-    suspend fun getStudyRequestMembers(studyIdx: Int): List<SqlUserData> {
+    suspend fun getStudyRequestMembers(studyIdx: Int): List<UserData> {
         return studyDao.getStudyRequestMembers(studyIdx)
     }
 

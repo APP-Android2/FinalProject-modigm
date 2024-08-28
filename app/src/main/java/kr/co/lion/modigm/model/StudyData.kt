@@ -2,7 +2,7 @@ package kr.co.lion.modigm.model
 
 import java.sql.ResultSet
 
-data class SqlStudyData(
+data class StudyData(
     val studyIdx: Int = -1,                     // 스터디 아이디
     val studyTitle: String = "",                // 제목
     val studyContent: String = "",              // 내용
@@ -39,8 +39,8 @@ data class SqlStudyData(
 
 
     companion object{
-        fun fromMap(map: Map<String, Any>): SqlStudyData {
-            return SqlStudyData(
+        fun fromMap(map: Map<String, Any>): StudyData {
+            return StudyData(
                 studyIdx = map["studyIdx"] as Int,
                 studyTitle = map["studyTitle"] as String,
                 studyContent = map["studyContent"] as String,
@@ -58,8 +58,8 @@ data class SqlStudyData(
             )
         }
 
-        fun getStudyData(resultSet: ResultSet): SqlStudyData{
-            return SqlStudyData(
+        fun getStudyData(resultSet: ResultSet): StudyData{
+            return StudyData(
                 resultSet.getInt("studyIdx"),
                 resultSet.getString("studyTitle"),
                 resultSet.getString("studyContent"),

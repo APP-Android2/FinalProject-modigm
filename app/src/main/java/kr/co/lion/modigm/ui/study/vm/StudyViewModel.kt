@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
@@ -25,18 +25,18 @@ class StudyViewModel : ViewModel() {
     // --------------------------------- 라이브데이터 시작 --------------------------------
 
     // 전체 스터디 목록 중 모집중인 스터디 리스트
-    private val _allStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val allStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyData
+    private val _allStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
+    val allStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _allStudyData
 
 
 
     // 내 스터디 리스트
-    private val _myStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val myStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _myStudyData
+    private val _myStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
+    val myStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _myStudyData
 
     // 좋아요한 스터디 목록
-    private val _favoritedStudyData = MutableLiveData<List<Triple<SqlStudyData, Int, Boolean>>>()
-    val favoritedStudyData: LiveData<List<Triple<SqlStudyData, Int, Boolean>>> = _favoritedStudyData
+    private val _favoritedStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
+    val favoritedStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _favoritedStudyData
 
     // 좋아요 상태
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.WriteStudyRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
@@ -138,7 +138,7 @@ class WriteViewModel : ViewModel() {
 
         return try {
             // 스터디 테이블에 저장
-            val studyData = SqlStudyData(
+            val studyData = StudyData(
                 studyTitle = studyTitle.value ?: "",
                 studyContent = studyContent.value ?: "",
                 studyType = selectedFieldTag.value ?: "",
