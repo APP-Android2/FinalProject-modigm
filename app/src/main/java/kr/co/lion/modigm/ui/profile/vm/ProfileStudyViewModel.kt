@@ -5,15 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.ProfileRepository
 
 class ProfileStudyViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
 
     // 사용자가 참여한 스터디 리스트
-    private val _profileStudyList = MutableLiveData<List<SqlStudyData>>()
-    val profileStudyList: MutableLiveData<List<SqlStudyData>> = _profileStudyList
+    private val _profileStudyList = MutableLiveData<List<StudyData>>()
+    val profileStudyList: MutableLiveData<List<StudyData>> = _profileStudyList
 
     // 사용자가 진행한 스터디 목록 (전체)
     fun loadHostStudyList(userIdx: Int) = viewModelScope.launch {

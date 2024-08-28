@@ -40,7 +40,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailEditBinding
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.Skill
@@ -80,7 +80,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     )
 
     // 현재 스터디 데이터
-    private var currentStudyData: SqlStudyData? = null
+    private var currentStudyData: StudyData? = null
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
@@ -232,7 +232,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     }
 
     // 실제로 UI 업데이트 수행
-    fun updateUI(data: SqlStudyData) {
+    fun updateUI(data: StudyData) {
         with(binding) {
             // 제목
             editTextDetailEditTitle.setText(data.studyTitle)
@@ -840,7 +840,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         val placeName = if (studyOnOffline == "온라인") "" else selectedPlaceName
         val detailPlaceName = if (studyOnOffline == "온라인") "" else selectedDetailPlaceName
 
-        val updatedStudyData = SqlStudyData(
+        val updatedStudyData = StudyData(
             studyIdx = studyIdx,
             studyTitle = binding.editTextDetailEditTitle.text.toString(),
             studyContent = studyContent,

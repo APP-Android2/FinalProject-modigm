@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.model.SqlStudyData
-import kr.co.lion.modigm.model.SqlUserData
+import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.DetailRepository
 import kr.co.lion.modigm.repository.StudyRepository
 
@@ -19,17 +19,17 @@ class DetailViewModel: ViewModel() {
     private val detailRepository = DetailRepository()
     private val studyRepository = StudyRepository()
 
-    private val _studyData = MutableStateFlow<SqlStudyData?>(null)
-    val studyData: StateFlow<SqlStudyData?> = _studyData
+    private val _studyData = MutableStateFlow<StudyData?>(null)
+    val studyData: StateFlow<StudyData?> = _studyData
 
     private val _memberCount = MutableStateFlow(0)
     val memberCount: StateFlow<Int> = _memberCount
 
-    private val _allStudyDetails = MutableStateFlow<List<Triple<SqlStudyData, Int, Boolean>>>(emptyList())
-    val allStudyDetails: StateFlow<List<Triple<SqlStudyData, Int, Boolean>>> = _allStudyDetails
+    private val _allStudyDetails = MutableStateFlow<List<Triple<StudyData, Int, Boolean>>>(emptyList())
+    val allStudyDetails: StateFlow<List<Triple<StudyData, Int, Boolean>>> = _allStudyDetails
 
-    private val _userData = MutableStateFlow<SqlUserData?>(null)
-    val userData: StateFlow<SqlUserData?> = _userData
+    private val _userData = MutableStateFlow<UserData?>(null)
+    val userData: StateFlow<UserData?> = _userData
 
     private val _studyTechList = MutableStateFlow<List<Int>>(emptyList())
     val studyTechList: StateFlow<List<Int>> get() = _studyTechList
@@ -43,8 +43,8 @@ class DetailViewModel: ViewModel() {
     private val _studySkills = MutableStateFlow<List<Int>>(emptyList())
     val studySkills: StateFlow<List<Int>> get() = _studySkills
 
-    private val _studyMembers = MutableStateFlow<List<SqlUserData>>(emptyList())
-    val studyMembers: StateFlow<List<SqlUserData>> = _studyMembers
+    private val _studyMembers = MutableStateFlow<List<UserData>>(emptyList())
+    val studyMembers: StateFlow<List<UserData>> = _studyMembers
 
     private val _removeUserResult = MutableSharedFlow<Boolean>()
     val removeUserResult: SharedFlow<Boolean> = _removeUserResult
@@ -52,8 +52,8 @@ class DetailViewModel: ViewModel() {
     private val _addUserResult = MutableSharedFlow<Boolean>()
     val addUserResult: SharedFlow<Boolean> = _addUserResult
 
-    private val _studyRequestMembers = MutableStateFlow<List<SqlUserData>>(emptyList())
-    val studyRequestMembers: StateFlow<List<SqlUserData>> = _studyRequestMembers
+    private val _studyRequestMembers = MutableStateFlow<List<UserData>>(emptyList())
+    val studyRequestMembers: StateFlow<List<UserData>> = _studyRequestMembers
 
     private val _acceptUserResult = MutableSharedFlow<Boolean>()
     val acceptUserResult: SharedFlow<Boolean> = _acceptUserResult
@@ -112,7 +112,7 @@ class DetailViewModel: ViewModel() {
                 }
 
                 // 해당 userIdx들에 해당하는 사용자 정보 가져오기
-                val users = mutableListOf<SqlUserData>()
+                val users = mutableListOf<UserData>()
 
                 userIds.forEach { userIdx ->
                     detailRepository.getUserById(userIdx).collect { user ->
@@ -178,7 +178,7 @@ class DetailViewModel: ViewModel() {
     }
 
     // 스터디 데이터를 업데이트하는 함수
-    fun updateStudyData(studyData: SqlStudyData) {
+    fun updateStudyData(studyData: StudyData) {
         viewModelScope.launch {
             val result = detailRepository.updateStudy(studyData)
             _updateResult.value = result

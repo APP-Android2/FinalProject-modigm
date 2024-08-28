@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.RowLinkBinding
-import kr.co.lion.modigm.model.SqlUserLinkData
 import java.net.URL
 
 class LinkViewHolder(

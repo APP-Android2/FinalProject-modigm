@@ -55,11 +55,7 @@ class LoginViewModel : ViewModel() {
 
     // 이메일 로그인 에러를 담는 LiveData
     private val _emailLoginError = MutableLiveData<Throwable?>()
-    val emailDialogError: LiveData<Throwable?> = _emailLoginError
-
-    // 이메일 오류 결과를 담는 LiveData
-    private val _emailInputError = MutableLiveData<Throwable?>()
-    val emailInputError: LiveData<Throwable?> = _emailInputError
+    val emailLoginError: LiveData<Throwable?> = _emailLoginError
 
     // 현재 사용자의 인덱스를 가져오는 함수
     private fun getCurrentUserIdx(): Int {

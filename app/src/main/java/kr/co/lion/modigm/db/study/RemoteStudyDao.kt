@@ -4,7 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.HikariCPDataSource
-import kr.co.lion.modigm.model.SqlStudyData
+import kr.co.lion.modigm.model.StudyData
 
 class RemoteStudyDao {
 
@@ -15,7 +15,7 @@ class RemoteStudyDao {
      * @param userIdx 사용자 인덱스
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun selectAllStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> =
+    suspend fun selectAllStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> =
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
@@ -31,9 +31,9 @@ class RemoteStudyDao {
                     connection.prepareStatement(combinedQuery).use { statement ->
                         statement.setInt(1, userIdx)
                         val resultSet = statement.executeQuery()
-                        val result = mutableListOf<Triple<SqlStudyData, Int, Boolean>>()
+                        val result = mutableListOf<Triple<StudyData, Int, Boolean>>()
                         while (resultSet.next()) {
-                            val studyData = SqlStudyData.getStudyData(resultSet)
+                            val studyData = StudyData.getStudyData(resultSet)
                             val memberCount = resultSet.getInt("memberCount")
                             val isFavorite = resultSet.getBoolean("isFavorite")
                             result.add(Triple(studyData, memberCount, isFavorite))
@@ -43,7 +43,7 @@ class RemoteStudyDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "스터디 및 멤버 수 데이터 조회 중 오류 발생", e)
-                Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+                Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
 
@@ -52,7 +52,7 @@ class RemoteStudyDao {
      * @param userIdx 사용자 인덱스
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun selectMyStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> =
+    suspend fun selectMyStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> =
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
@@ -70,9 +70,9 @@ class RemoteStudyDao {
                         statement.setInt(1, userIdx)
                         statement.setInt(2, userIdx)
                         val resultSet = statement.executeQuery()
-                        val result = mutableListOf<Triple<SqlStudyData, Int, Boolean>>()
+                        val result = mutableListOf<Triple<StudyData, Int, Boolean>>()
                         while (resultSet.next()) {
-                            val studyData = SqlStudyData.getStudyData(resultSet)
+                            val studyData = StudyData.getStudyData(resultSet)
                             val memberCount = resultSet.getInt("memberCount")
                             val isFavorite = resultSet.getBoolean("isFavorite")
                             result.add(Triple(studyData, memberCount, isFavorite))
@@ -82,7 +82,7 @@ class RemoteStudyDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "내 스터디 목록 조회 중 오류 발생", e)
-                Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+                Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
 
@@ -91,7 +91,7 @@ class RemoteStudyDao {
      * @param userIdx 사용자 인덱스
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun selectFavoriteStudyData(userIdx: Int): Result<List<Triple<SqlStudyData, Int, Boolean>>> =
+    suspend fun selectFavoriteStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> =
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
@@ -107,9 +107,9 @@ class RemoteStudyDao {
                     connection.prepareStatement(query).use { statement ->
                         statement.setInt(1, userIdx)
                         val resultSet = statement.executeQuery()
-                        val result = mutableListOf<Triple<SqlStudyData, Int, Boolean>>()
+                        val result = mutableListOf<Triple<StudyData, Int, Boolean>>()
                         while (resultSet.next()) {
-                            val studyData = SqlStudyData.getStudyData(resultSet)
+                            val studyData = StudyData.getStudyData(resultSet)
                             val memberCount = resultSet.getInt("memberCount")
                             val isFavorite = resultSet.getBoolean("isFavorite")
                             result.add(Triple(studyData, memberCount, isFavorite))
@@ -119,7 +119,7 @@ class RemoteStudyDao {
                 }
             }.onFailure { e ->
                 Log.e(tag, "좋아요한 스터디 목록 조회 중 오류 발생", e)
-                Result.failure<List<Triple<SqlStudyData, Int, Boolean>>>(e)
+                Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
 
