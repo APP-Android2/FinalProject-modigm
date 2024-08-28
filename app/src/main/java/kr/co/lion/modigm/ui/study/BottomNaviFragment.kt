@@ -53,6 +53,43 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         }
     }
 
+    // 백버튼 콜백
+    private val backPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            private var doubleBackToExitPressedOnce = false
+
+            override fun handleOnBackPressed() {
+                // 현재 활성화된 프래그먼트를 확인
+                val currentFragment = childFragmentManager.findFragmentById(R.id.containerBottomNavi)
+
+                // 바텀 내비게이션에 포함된 프래그먼트인지 확인
+                val isBottomNavFragment = currentFragment is StudyFragment
+                        || currentFragment is FavoriteFragment
+                        || currentFragment is ChatFragment
+                        || currentFragment is ProfileFragment
+
+                // 바텀 내비게이션 프래그먼트가 활성화된 경우에만 백버튼 종료 동작 수행
+                if (isBottomNavFragment) {
+                    if (doubleBackToExitPressedOnce) {
+                        requireActivity().finishAffinity()
+                        exitProcess(0) // 앱 프로세스를 완전히 종료
+                    } else {
+                        doubleBackToExitPressedOnce = true
+                        // Snackbar를 표시하여 사용자에게 알림
+                        requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
+                        // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
+                        view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
+                    }
+                } else {
+                    // 다른 프래그먼트가 활성화된 경우 기본 백버튼 동작 수행
+                    isEnabled = false
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
+        }
+    }
+
     // --------------------------------- LC START ---------------------------------
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -94,6 +131,12 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         }
 
         backButton()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // 백버튼 콜백 제거
+        backPressedCallback.remove()
     }
 
     // --------------------------------- LC END ---------------------------------
@@ -224,24 +267,9 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
     // 백버튼 종료 동작
     private fun backButton() {
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                private var doubleBackToExitPressedOnce = false
-
-                override fun handleOnBackPressed() {
-                    // 백버튼을 두 번 눌렀을 때 앱 종료
-                    if (doubleBackToExitPressedOnce) {
-                        requireActivity().finishAffinity()
-                        exitProcess(0) // 앱 프로세스를 완전히 종료
-                    } else {
-                        doubleBackToExitPressedOnce = true
-                        // Snackbar를 표시하여 사용자에게 알림
-                        requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
-                        // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
-                        view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-                    }
-                }
-            })
+        // 백버튼 콜백을 안전하게 추가
+        backPressedCallback.let { callback ->
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+        }
     }
 }
