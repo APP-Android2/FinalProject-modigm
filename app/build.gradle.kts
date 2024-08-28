@@ -143,4 +143,7 @@ dependencies {
 
     // 리사이클러뷰 스와이프 새로고침
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // 스켈레톤 UI
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
 }
