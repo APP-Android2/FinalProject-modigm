@@ -192,7 +192,9 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
             if (childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null) {
                 childFragmentManager.commit {
                     setReorderingAllowed(true)
-                    add(R.id.containerBottomNavi, fragments[FragmentName.STUDY.str]!!, FragmentName.STUDY.str)
+                    fragments[FragmentName.STUDY.str]?.let {
+                        add(R.id.containerBottomNavi, it, FragmentName.STUDY.str)
+                    }
                 }
                 activeFragment = fragments[FragmentName.STUDY.str]
             }

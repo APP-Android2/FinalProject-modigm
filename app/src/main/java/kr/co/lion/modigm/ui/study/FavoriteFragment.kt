@@ -82,6 +82,7 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
                 layoutManager = LinearLayoutManager(requireActivity())
 
             }
+
         }
     }
 
@@ -96,15 +97,18 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
 
         // 전체 데이터 관찰 (필터링이 없을 때)
         viewModel.favoritedStudyData.observe(viewLifecycleOwner) { studyList ->
-            if (studyList.isNotEmpty()) {
-                binding.recyclerviewFavorite.visibility = View.VISIBLE
-                binding.blankLayoutFavorite.visibility = View.GONE
-                studyAdapter.updateData(studyList)
+            with(binding) {
+                if (studyList.isNotEmpty()) {
+                    recyclerviewFavorite.visibility = View.VISIBLE
+                    blankLayoutFavorite.visibility = View.GONE
+                    studyAdapter.updateData(studyList)
 
-            } else {
-                binding.recyclerviewFavorite.visibility = View.GONE
-                binding.blankLayoutFavorite.visibility = View.VISIBLE
+                } else {
+                    recyclerviewFavorite.visibility = View.GONE
+                    blankLayoutFavorite.visibility = View.VISIBLE
+                }
             }
+
         }
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
