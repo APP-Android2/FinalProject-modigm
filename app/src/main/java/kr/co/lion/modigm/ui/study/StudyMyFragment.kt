@@ -131,7 +131,13 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
                 }
             }
 
-
+            // 쓸어내려 새로고침 기능
+            with(swipeRefreshLayoutStudyMy){
+                setOnRefreshListener {
+                    viewModel.getMyStudyData()
+                    isRefreshing = false
+                }
+            }
         }
     }
 
@@ -141,6 +147,17 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
 //            studyMyAdapter.updateData(studyList)
 //            Log.d("StudyMyFragment", "필터링된 내 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
 //        }
+
+        // 로딩 상태 관찰
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            with(binding){
+                if (isLoading) {
+                    progressBarStudyMy.visibility = View.VISIBLE
+                } else {
+                    progressBarStudyMy.visibility = View.GONE
+                }
+            }
+        }
 
         // 내 스터디 데이터 관찰 (필터링이 없을 때)
         viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
@@ -185,11 +202,14 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
     // 오류 다이얼로그 표시
     private fun studyErrorDialog(message: String) {
         val dialog = CustomLoginErrorDialog(requireContext())
-        dialog.setTitle("오류")
-        dialog.setMessage(message)
-        dialog.setPositiveButton("확인") {
-            dialog.dismiss()
+        with(dialog){
+            setTitle("오류")
+            setMessage(message)
+            setPositiveButton("확인") {
+                dismiss()
+            }
+            show()
         }
-        dialog.show()
+
     }
 }

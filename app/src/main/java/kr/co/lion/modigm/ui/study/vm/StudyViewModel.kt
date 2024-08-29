@@ -28,7 +28,9 @@ class StudyViewModel : ViewModel() {
     private val _allStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val allStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _allStudyData
 
-
+    // 로딩 상태를 나타내는 LiveData
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
     // 내 스터디 리스트
     private val _myStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
@@ -67,6 +69,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getAllStudyData() {
         viewModelScope.launch {
+            _isLoading.value = true // 로딩 시작
             val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
@@ -74,6 +77,7 @@ class StudyViewModel : ViewModel() {
                 Log.e(tag, "Error getAllStudyData", it)
                 _allStudyError.postValue(it)
             }
+            _isLoading.value = false // 로딩 종료
         }
     }
 
@@ -82,6 +86,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getMyStudyData() {
         viewModelScope.launch {
+            _isLoading.value = true // 로딩 시작
             val result = studyRepository.getMyStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _myStudyData.postValue(it)
@@ -89,6 +94,7 @@ class StudyViewModel : ViewModel() {
                 Log.e(tag, "Error getMyStudyData", e)
                 _myStudyError.postValue(e)
             }
+            _isLoading.value = false // 로딩 종료
         }
     }
 
@@ -97,6 +103,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getFavoriteStudyData() {
         viewModelScope.launch {
+            _isLoading.value = true // 로딩 시작
             val result = studyRepository.getFavoriteStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _favoritedStudyData.postValue(it)
@@ -104,6 +111,7 @@ class StudyViewModel : ViewModel() {
                 Log.e(tag, "Error getFavoriteStudyData", e)
                 _favoriteStudyError.postValue(e)
             }
+            _isLoading.value = false // 로딩 종료
         }
     }
 
