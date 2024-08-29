@@ -27,20 +27,27 @@ class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 로그인 배경 이미지 프리(미리)로드 하기
-        Glide.with(this)
-            .load(R.drawable.background_login2)
-            .transform(CenterCrop(), BlurTransformation(5, 3), ColorFilterTransformation(0x60000000))
-            .preload()
+        // 로그인 배경 이미지 프리로드
+        preloadBackground()
 
         // 바인딩
         setContentView(binding.root)
 
+        // 스플래시 스크린 보여주기
         showSplashScreen()
     }
 
     // --------------------------------- LC END ---------------------------------
 
+    // 로그인 배경 이미지 프리(미리)로드 하기
+    private fun preloadBackground() {
+        Glide.with(this)
+            .load(R.drawable.background_login2)
+            .transform(CenterCrop(), BlurTransformation(5, 3), ColorFilterTransformation(0x60000000))
+            .preload()
+    }
+
+    // 스플래시 스크린 보여주기
     private fun showSplashScreen() {
         lifecycleScope.launch {
             // 안드로이드 12 미만에서는 스플래시 스크린 보여주기
