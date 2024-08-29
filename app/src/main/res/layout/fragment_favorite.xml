@@ -1,57 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="10dp"
-    tools:context=".ui.study.FavoriteFragment"
-    android:background="@color/white">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolBarFavorite"
-        style="@style/CustomToolbar"
-        android:elevation="4dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:title="찜한 스터디"
-        app:titleTextAppearance="@style/toolbarText" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerviewFavorite"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"/>
+    android:background="@color/white"
+    tools:context=".ui.study.FavoriteFragment">
 
     <LinearLayout
-        android:id="@+id/blankLayoutFavorite"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="200dp"
-            app:tint="#ccc"
-            android:src="@drawable/icon_book_24px" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolBarFavorite"
+            style="@style/CustomToolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/textGray"
-            android:text="찜한 스터디 내역이 없어요"
-            android:textSize="18dp"
-            android:textStyle="bold" />
+            android:elevation="4dp"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            app:title="찜한 스터디"
+            app:titleTextAppearance="@style/toolbarText" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerviewFavorite"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp" />
+
+
+        <LinearLayout
+            android:id="@+id/blankLayoutFavorite"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="200dp"
+                android:src="@drawable/icon_book_24px"
+                app:tint="#ccc" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="찜한 스터디 내역이 없어요"
+                android:textColor="@color/textGray"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
     </LinearLayout>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBarFavorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/pointColor"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</FrameLayout>

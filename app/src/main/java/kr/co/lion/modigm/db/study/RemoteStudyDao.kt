@@ -64,6 +64,7 @@ class RemoteStudyDao {
                     LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
                     LEFT JOIN tb_favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
                     WHERE sm.userIdx = ?
+                    AND s.studyState = true
                     GROUP BY s.studyIdx
                 """
                     connection.prepareStatement(query).use { statement ->
@@ -102,6 +103,7 @@ class RemoteStudyDao {
                 INNER JOIN tb_study s ON f.studyIdx = s.studyIdx
                 LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
                 WHERE f.userIdx = ?
+                AND s.studyState = true
                 GROUP BY s.studyIdx
                 """
                     connection.prepareStatement(query).use { statement ->

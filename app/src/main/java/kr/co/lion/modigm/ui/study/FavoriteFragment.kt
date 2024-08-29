@@ -82,6 +82,7 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
                 layoutManager = LinearLayoutManager(requireActivity())
 
             }
+
         }
     }
 
@@ -92,19 +93,32 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
 //            studyAllAdapter.updateData(studyList)
 //            Log.d("StudyAllFragment", "필터링된 전체 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
 //        }
+        // 로딩 상태 관찰
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            with(binding){
+                if (isLoading) {
+                    progressBarFavorite.visibility = View.VISIBLE
+                } else {
+                    progressBarFavorite.visibility = View.GONE
+                }
+            }
+        }
 
 
         // 전체 데이터 관찰 (필터링이 없을 때)
         viewModel.favoritedStudyData.observe(viewLifecycleOwner) { studyList ->
-            if (studyList.isNotEmpty()) {
-                binding.recyclerviewFavorite.visibility = View.VISIBLE
-                binding.blankLayoutFavorite.visibility = View.GONE
-                studyAdapter.updateData(studyList)
+            with(binding) {
+                if (studyList.isNotEmpty()) {
+                    recyclerviewFavorite.visibility = View.VISIBLE
+                    blankLayoutFavorite.visibility = View.GONE
+                    studyAdapter.updateData(studyList)
 
-            } else {
-                binding.recyclerviewFavorite.visibility = View.GONE
-                binding.blankLayoutFavorite.visibility = View.VISIBLE
+                } else {
+                    recyclerviewFavorite.visibility = View.GONE
+                    blankLayoutFavorite.visibility = View.VISIBLE
+                }
             }
+
         }
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
@@ -139,11 +153,14 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
     // 오류 다이얼로그 표시
     private fun showStudyErrorDialog(message: String) {
         val dialog = CustomLoginErrorDialog(requireContext())
-        dialog.setTitle("오류")
-        dialog.setMessage(message)
-        dialog.setPositiveButton("확인") {
-            dialog.dismiss()
+        with(dialog){
+            setTitle("오류")
+            setMessage(message)
+            setPositiveButton("확인") {
+                dismiss()
+            }
+            show()
         }
-        dialog.show()
+
     }
 }

@@ -3,8 +3,8 @@ package kr.co.lion.modigm.ui.study
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.lion.modigm.R
@@ -53,6 +53,35 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         }
     }
 
+    // 백버튼 콜백
+    private val backPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            private var doubleBackToExitPressedOnce = false
+
+            override fun handleOnBackPressed() {
+
+                with(binding){
+                    if(bottomNavigationView.selectedItemId == R.id.bottomNaviStudy){
+                        if (doubleBackToExitPressedOnce) {
+                            requireActivity().finishAffinity()
+                            exitProcess(0) // 앱 프로세스를 완전히 종료
+                        } else {
+                            doubleBackToExitPressedOnce = true
+                            // Snackbar를 표시하여 사용자에게 알림
+                            requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
+                            // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
+                            view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
+                        }
+                    } else {
+                        // 현재 프래그먼트가 StudyFragment가 아닌 경우 StudyFragment로 이동
+                        bottomNavigationView.selectedItemId = R.id.bottomNaviStudy
+                    }
+                }
+
+            }
+        }
+    }
+
     // --------------------------------- LC START ---------------------------------
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -96,6 +125,12 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         backButton()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // 백버튼 콜백 제거
+        backPressedCallback.remove()
+    }
+
     // --------------------------------- LC END ---------------------------------
 
     // 로그인 스낵바를 표시하는 함수
@@ -121,39 +156,13 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         }
     }
 
-    // 현재 보여지고 있는 프래그먼트를 기억하기 위한 변수
-    private var activeFragment: Fragment? = null
-
+    // 현재 선택된 아이템의 인덱스를 기억하기 위한 변수
     private var currentNavItemIndex = 0
 
     // 뷰 초기화 함수
     private fun initView() {
-
-        with(binding) {
-            val fragments = mapOf(
-                FragmentName.STUDY.str to StudyFragment(),
-                FragmentName.LIKE.str to FavoriteFragment(),
-                FragmentName.CHAT.str to ChatFragment().apply {
-                    arguments = Bundle().apply {
-                        putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
-                    }
-                },
-                FragmentName.PROFILE.str to ProfileFragment().apply {
-                    arguments = Bundle().apply {
-                        putInt("userIdx", prefs.getInt("currentUserIdx"))
-                    }
-                }
-            )
-
-            // 초기 프래그먼트 설정
-            if (childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null) {
-                childFragmentManager.commit {
-                    setReorderingAllowed(true)
-                    add(R.id.containerBottomNavi, fragments[FragmentName.STUDY.str]!!, FragmentName.STUDY.str)
-                }
-                activeFragment = fragments[FragmentName.STUDY.str]
-            }
-
+        with(binding){
+            // 스터디 작성 버튼 클릭 시
             fabStudyWrite.setOnClickListener {
                 requireActivity().supportFragmentManager.commit {
                     add(R.id.containerMain, WriteFragment())
@@ -161,7 +170,12 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 }
             }
 
-            // 바텀 네비게이션 아이템 선택 리스너 설정
+            if (childFragmentManager.findFragmentById(R.id.containerBottomNavi) == null) {
+                childFragmentManager.commit {
+                    setReorderingAllowed(true)
+                    replace<StudyFragment>(R.id.containerBottomNavi)
+                }
+            }
             bottomNavigationView.setOnItemSelectedListener { item ->
 
                 val newNavItemIndex = when (item.itemId) {
@@ -177,44 +191,46 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                     return@setOnItemSelectedListener true
                 }
 
-                // 애니메이션 방향 설정
-                val enterAnim =
-                    if (newNavItemIndex > currentNavItemIndex) {
-                        R.anim.slide_in_right
-                    } else {
-                        R.anim.slide_in_left
-                    }
-                val exitAnim =
-                    if (newNavItemIndex > currentNavItemIndex) {
-                        R.anim.slide_out_left
-                    } else {
-                        R.anim.slide_out_right
-                    }
-
-                val fragmentToShow = when (item.itemId) {
-                    R.id.bottomNaviStudy -> fragments[FragmentName.STUDY.str]
-                    R.id.bottomNaviHeart -> fragments[FragmentName.LIKE.str]
-                    R.id.bottomNaviChat -> fragments[FragmentName.CHAT.str]
-                    R.id.bottomNaviMy -> fragments[FragmentName.PROFILE.str]
-                    else -> null
-                }
-
-                fragmentToShow?.let { fragment ->
-                    fabStudyWrite.visibility = if (item.itemId == R.id.bottomNaviStudy || item.itemId == R.id.bottomNaviHeart) View.VISIBLE else View.GONE
-
-                    childFragmentManager.commit {
-                        setCustomAnimations(enterAnim, exitAnim, enterAnim, exitAnim)
-                        setReorderingAllowed(true)
-                        activeFragment?.let { hide(it) }
-                        if (!fragment.isAdded) {
-                            add(R.id.containerBottomNavi, fragment, fragment.tag)
+                when(item.itemId) {
+                    R.id.bottomNaviStudy -> {
+                        childFragmentManager.commit {
+                            setReorderingAllowed(true)
+                            replace<StudyFragment>(R.id.containerBottomNavi)
+                            addToBackStack(FragmentName.STUDY.str)
                         }
-                        show(fragment)
                     }
-                    activeFragment = fragment
+                    R.id.bottomNaviHeart -> {
+                        childFragmentManager.commit {
+                            setReorderingAllowed(true)
+                            replace<FavoriteFragment>(R.id.containerBottomNavi)
+                            addToBackStack(FragmentName.LIKE.str)
+                        }
+                    }
+                    R.id.bottomNaviChat -> {
+                        val chatFragment = ChatFragment().apply {
+                            arguments = Bundle().apply {
+                                putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
+                            }
+                        }
+                        childFragmentManager.commit {
+                            setReorderingAllowed(true)
+                            replace(R.id.containerBottomNavi, chatFragment)
+                            addToBackStack(FragmentName.CHAT.str)
+                        }
+                    }
+                    R.id.bottomNaviMy -> {
+                        val profileFragment = ProfileFragment().apply {
+                            arguments = Bundle().apply {
+                                putInt("userIdx", prefs.getInt("currentUserIdx"))
+                            }
+                        }
+                        childFragmentManager.commit {
+                            setReorderingAllowed(true)
+                            replace(R.id.containerBottomNavi, profileFragment)
+                            addToBackStack(FragmentName.PROFILE.str)
+                        }
+                    }
                 }
-
-                // 선택된 아이템 인덱스 업데이트
                 currentNavItemIndex = newNavItemIndex
                 true
             }
@@ -224,24 +240,9 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
     // 백버튼 종료 동작
     private fun backButton() {
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                private var doubleBackToExitPressedOnce = false
-
-                override fun handleOnBackPressed() {
-                    // 백버튼을 두 번 눌렀을 때 앱 종료
-                    if (doubleBackToExitPressedOnce) {
-                        requireActivity().finishAffinity()
-                        exitProcess(0) // 앱 프로세스를 완전히 종료
-                    } else {
-                        doubleBackToExitPressedOnce = true
-                        // Snackbar를 표시하여 사용자에게 알림
-                        requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
-                        // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
-                        view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-                    }
-                }
-            })
+        // 백버튼 콜백을 안전하게 추가
+        backPressedCallback.let { callback ->
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+        }
     }
 }

@@ -75,7 +75,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         initView()
         observeViewModel()
         viewModel.getAllStudyData()
-        Log.d(TAG, "onViewCreated 호출됨")
+        Log.d(tag, "onViewCreated 호출됨")
     }
 
     override fun onDestroyView() {
@@ -163,11 +163,30 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                     }
                 }
             }
+
+            // 쓸어내려 새로고침 기능
+            with(swipeRefreshLayoutStudyAll){
+                setOnRefreshListener {
+                    viewModel.getAllStudyData()
+                    isRefreshing = false
+                }
+            }
         }
     }
 
 
     private fun observeViewModel() {
+
+        // 로딩 상태 관찰
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            with(binding){
+                if (isLoading) {
+                    progressBarStudyAll.visibility = View.VISIBLE
+                } else {
+                    progressBarStudyAll.visibility = View.GONE
+                }
+            }
+        }
 
         // 필터 적용 여부를 관찰하여, 필터가 적용된 경우와 그렇지 않은 경우를 구분
         viewModel.isFilterApplied.observe(viewLifecycleOwner) { isFilterApplied ->
@@ -184,20 +203,23 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             }
         }
 
+        // 좋아요 상태 관찰
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
             // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
             studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
 
+        // 전체 스터디 목록 오류 관찰
         viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
-            Log.e(TAG, "전체 스터디 목록 오류 발생", e)
+            Log.e(tag, "전체 스터디 목록 오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }
         }
 
+        // 좋아요 오류 관찰
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-            Log.e(TAG, "좋아요 오류 발생", e)
+            Log.e(tag, "좋아요 오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }
@@ -218,11 +240,14 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
     // 오류 다이얼로그 표시
     private fun studyErrorDialog(message: String) {
         val dialog = CustomLoginErrorDialog(requireContext())
-        dialog.setTitle("오류")
-        dialog.setMessage(message)
-        dialog.setPositiveButton("확인") {
-            dialog.dismiss()
+        with(dialog){
+            setTitle("오류")
+            setMessage(message)
+            setPositiveButton("확인") {
+                dismiss()
+            }
+            show()
         }
-        dialog.show()
+
     }
 }

@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
@@ -29,6 +30,8 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
 
         // 초기 뷰 세팅
         initView()
+
+        backButton()
     }
 
     // --------------------------------- LC END ---------------------------------
@@ -339,5 +342,11 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
             }
         }
 
+    }
+    private fun backButton(){
+        // 백버튼 처리
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            parentFragmentManager.popBackStack()
+        }
     }
 }
