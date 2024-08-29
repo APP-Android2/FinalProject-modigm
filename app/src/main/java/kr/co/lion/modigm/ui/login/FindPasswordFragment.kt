@@ -15,7 +15,11 @@ import kr.co.lion.modigm.util.shake
 
 class FindPasswordFragment : VBBaseFragment<FragmentFindPasswordBinding>(FragmentFindPasswordBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: FindPasswordViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { FindPasswordFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 

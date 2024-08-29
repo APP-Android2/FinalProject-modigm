@@ -16,7 +16,11 @@ import kr.co.lion.modigm.util.shake
 
 class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>(FragmentFindPasswordAuthBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: FindPasswordViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { FindPasswordAuthFragment::class.simpleName }
 
     private val verificationId by lazy {
         arguments?.getString("verificationId") ?: ""
@@ -135,14 +139,15 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
     // 뒤로가기 다이얼로그 표시
     private fun showCancelDialog() {
         val dialog = CustomCancelDialog(requireContext())
-        dialog.setTitle("뒤로가기")
-        dialog.setPositiveButton("확인") {
-            parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+        with(dialog){
+            setTitle("뒤로가기")
+            setPositiveButton("확인") {
+                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+            }
+            setNegativeButton("취소") {
+                dismiss()
+            }
+            show()
         }
-        dialog.setNegativeButton("취소") {
-
-            dialog.dismiss()
-        }
-        dialog.show()
     }
 }

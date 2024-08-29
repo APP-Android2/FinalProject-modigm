@@ -22,6 +22,9 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
 
+    // 태그
+    private val logTag by lazy { StudyMyFragment::class.simpleName }
+
     // 어답터
     private val studyAdapter: StudyAdapter by lazy {
         StudyAdapter(
@@ -142,11 +145,6 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
     }
 
     private fun observeViewModel() {
-//        // 필터링된 데이터 관찰
-//        viewModel.filteredMyStudyList.observe(viewLifecycleOwner) { studyList ->
-//            studyMyAdapter.updateData(studyList)
-//            Log.d("StudyMyFragment", "필터링된 내 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
-//        }
 
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -162,7 +160,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         // 내 스터디 데이터 관찰 (필터링이 없을 때)
         viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
             studyAdapter.updateData(studyList)
-            Log.d(tag, "내 스터디 목록 업데이트: ${studyList.size} 개")
+            Log.d(logTag, "내 스터디 목록 업데이트: ${studyList.size} 개")
         }
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
@@ -172,7 +170,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
 
         if (!viewModel.myStudyError.hasObservers()) {
             viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
-                Log.e(tag, "내 스터디 목록 오류 발생", e)
+                Log.e(logTag, "내 스터디 목록 오류 발생", e)
                 if (e != null) {
                     showStudyErrorDialog(e)
                 }
@@ -181,7 +179,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
 
         if (!viewModel.isFavoriteError.hasObservers()) {
             viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-                Log.e(tag, "좋아요 오류 발생", e)
+                Log.e(logTag, "좋아요 오류 발생", e)
                 if (e != null) {
                     showStudyErrorDialog(e)
                 }

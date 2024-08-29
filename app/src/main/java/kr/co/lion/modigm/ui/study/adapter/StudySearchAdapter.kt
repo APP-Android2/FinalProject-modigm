@@ -15,6 +15,9 @@ class StudySearchAdapter(
     private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.Adapter<StudyViewHolder>() {
 
+    // 태그
+    private val logTag by lazy { StudySearchAdapter::class.simpleName }
+
     private var searchList: List<Triple<StudyData, Int, Boolean>> = studyList
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): StudyViewHolder {
@@ -44,7 +47,7 @@ class StudySearchAdapter(
             studyList.filter { it.first.studyTitle.contains(query, ignoreCase = true) }
         }
         notifyDataSetChanged()
-        Log.d("update adapter", searchList.toString())
+        Log.d(logTag, searchList.toString())
     }
 
 
@@ -53,6 +56,6 @@ class StudySearchAdapter(
     fun updateData(list: List<Triple<StudyData, Int, Boolean>>) {
         studyList = list
         notifyDataSetChanged()
-        Log.d("update adapter", list.toString())
+        Log.d(logTag, list.toString())
     }
 }

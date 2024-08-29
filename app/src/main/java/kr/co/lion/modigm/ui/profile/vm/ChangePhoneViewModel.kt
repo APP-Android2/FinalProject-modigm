@@ -15,7 +15,10 @@ import kr.co.lion.modigm.util.toNationalPhoneNumber
 
 class ChangePhoneViewModel : ViewModel() {
 
-    private val tag by lazy { ChangePhoneViewModel::class.simpleName }
+    // 태그
+    private val logTag by lazy { ChangePhoneViewModel::class.simpleName }
+
+    // 로그인 레포지토리
     private val loginRepository by lazy { LoginRepository() }
 
     // 전화번호 인증에 필요 onCodeSent에서 전달받음
@@ -112,17 +115,17 @@ class ChangePhoneViewModel : ViewModel() {
      * @param userPassword 사용자의 비밀번호
      */
     fun checkPassword(userPassword: String) {
-        Log.d(tag, "checkPassword 호출됨. userPassword: $userPassword")
+        Log.d(logTag, "checkPassword 호출됨. userPassword: $userPassword")
         viewModelScope.launch {
             val result = loginRepository.checkPassword(userPassword)
             result.onSuccess { currentUserPhone ->
-                Log.d(tag, "currentUserPhone: $currentUserPhone")
+                Log.d(logTag, "currentUserPhone: $currentUserPhone")
                 _currentUserPhone.postValue(currentUserPhone.toNationalPhoneNumber())
-                Log.d(tag, "비밀번호 확인 성공.")
+                Log.d(logTag, "비밀번호 확인 성공.")
                 _isPasswordComplete.postValue(true)
 
             }.onFailure { e ->
-                Log.e(tag, "비밀번호 확인 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "비밀번호 확인 실패. 오류: ${e.message}", e)
                 _passwordInputError.postValue(Throwable("비밀번호가 일치하지 않습니다."))
             }
         }
@@ -130,7 +133,7 @@ class ChangePhoneViewModel : ViewModel() {
 
     // 소셜 로그인 유저가 제공한 이메일로 인증하는 메서드
     fun socialLoginReAuthenticate(context: Activity) {
-        Log.d(tag, "socialLoginReAuthenticate 호출됨.")
+        Log.d(logTag, "socialLoginReAuthenticate 호출됨.")
         viewModelScope.launch {
             val result = when (getCurrentUserProvider()) {
                 JoinType.KAKAO.provider -> {
@@ -144,11 +147,11 @@ class ChangePhoneViewModel : ViewModel() {
                 }
             }
             result.onSuccess { currentUserPhone ->
-                Log.d(tag, "소셜 로그인 재인증 성공")
+                Log.d(logTag, "소셜 로그인 재인증 성공")
                 _currentUserPhone.postValue(currentUserPhone.toNationalPhoneNumber())
                 _isSocialReAuthComplete.postValue(true)
             }.onFailure { e ->
-                Log.e(tag, "소셜 로그인 재인증 실패: ${e.message}", e)
+                Log.e(logTag, "소셜 로그인 재인증 실패: ${e.message}", e)
                 _socialReAuthError.postValue(e)
             }
         }
@@ -160,18 +163,18 @@ class ChangePhoneViewModel : ViewModel() {
      * @param userPhone 사용자의 전화번호
      */
     fun checkPhone(activity: Activity, userPhone: String) {
-        Log.d(tag, "checkPhone 호출됨. userPhone: $userPhone")
+        Log.d(logTag, "checkPhone 호출됨. userPhone: $userPhone")
         viewModelScope.launch {
             val resultAuth = loginRepository.sendPhoneAuthCode(activity, userPhone)
             resultAuth.onSuccess { result ->
                 val verificationId = result.first
                 val credential = result.second as? com.google.firebase.auth.PhoneAuthCredential
                 val token = result.third as? PhoneAuthProvider.ForceResendingToken
-                Log.d(tag, "인증 문자 발송 성공.")
+                Log.d(logTag, "인증 문자 발송 성공.")
                 _verificationId.postValue(verificationId)
                 _isAuthCodeComplete.postValue(true)
             }.onFailure { e ->
-                Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "인증 문자 발송 실패. 오류: ${e.message}", e)
                 _phoneInputError.postValue(Throwable("인증번호가 잘못되었습니다."))
             }
         }
@@ -185,14 +188,14 @@ class ChangePhoneViewModel : ViewModel() {
      * @param authCode 사용자가 입력한 인증 코드
      */
     fun updatePhone(currentUserPhone: String, newUserPhone: String, verificationId: String, authCode: String) {
-        Log.d(tag, "checkCode 호출됨. authCode: $authCode")
+        Log.d(logTag, "checkCode 호출됨. authCode: $authCode")
         viewModelScope.launch {
             val resultDataSource = loginRepository.updatePhone(getCurrentUserIdx(), currentUserPhone, newUserPhone, verificationId, authCode)
             resultDataSource.onSuccess {
-                Log.d(tag, "전화번호 변경 성공.")
+                Log.d(logTag, "전화번호 변경 성공.")
                 _isComplete.postValue(true)
                 }.onFailure { e ->
-                Log.e(tag, "전화번호 변경 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "전화번호 변경 실패. 오류: ${e.message}", e)
                 _authCodeInputError.postValue(e)
             }
         }

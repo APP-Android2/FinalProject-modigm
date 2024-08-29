@@ -16,8 +16,10 @@ class StudyViewModel : ViewModel() {
     // --------------------------------- MySQL 적용 ---------------------------------
     // --------------------------------- 초기화 시작 --------------------------------
 
-    private val tag by lazy { StudyViewModel::class.simpleName }
+    // 태그
+    private val logTag by lazy { StudyViewModel::class.simpleName }
 
+    // 스터디 레포지토리
     private val studyRepository by lazy { StudyRepository() }
 
 
@@ -85,7 +87,7 @@ class StudyViewModel : ViewModel() {
                 _allStudyData.postValue(it)
                 _isFilterApplied.value = false // 필터가 해제되었음을 표시
             }.onFailure {
-                Log.e(tag, "Error getAllStudyData", it)
+                Log.e(logTag, "Error getAllStudyData", it)
                 _allStudyError.postValue(it)
             }
             _isLoading.value = false // 로딩 종료
@@ -102,7 +104,7 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _myStudyData.postValue(it)
             }.onFailure { e ->
-                Log.e(tag, "Error getMyStudyData", e)
+                Log.e(logTag, "Error getMyStudyData", e)
                 _myStudyError.postValue(e)
             }
             _isLoading.value = false // 로딩 종료
@@ -119,7 +121,7 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _favoritedStudyData.postValue(it)
             }.onFailure { e ->
-                Log.e(tag, "Error getFavoriteStudyData", e)
+                Log.e(logTag, "Error getFavoriteStudyData", e)
                 _favoriteStudyError.postValue(e)
             }
             _isLoading.value = false // 로딩 종료
@@ -144,7 +146,7 @@ class StudyViewModel : ViewModel() {
             result.onSuccess {
                 _isFavorite.value = Pair(studyIdx, !currentState)
             }.onFailure { e ->
-                Log.e(tag, "Error changing favorite state", e)
+                Log.e(logTag, "Error changing favorite state", e)
                 _isFavoriteError.postValue(e)
             }
         }
@@ -161,7 +163,7 @@ class StudyViewModel : ViewModel() {
                     _filteredStudyData.postValue(it)
                     _isFilterApplied.value = true // 필터가 적용되었음을 표시
                 }.onFailure { e ->
-                    Log.e("StudyViewModel", "필터링된 스터디 목록 가져오기 실패", e)
+                    Log.e(logTag, "필터링된 스터디 목록 가져오기 실패", e)
                 }
             }
         }

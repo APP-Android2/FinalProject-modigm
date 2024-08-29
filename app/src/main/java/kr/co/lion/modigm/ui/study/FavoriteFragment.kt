@@ -18,8 +18,10 @@ import kr.co.lion.modigm.util.FragmentName
 class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavoriteBinding::inflate) {
 
     // 뷰모델
-
     private val viewModel: StudyViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { FavoriteFragment::class.simpleName }
 
     // 어답터
     private val studyAdapter: StudyAdapter by lazy {
@@ -55,7 +57,7 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
         initView()
         viewModel.getFavoriteStudyData()
         observeViewModel()
-        Log.d("StudyAllFragment", "onViewCreated 호출됨")
+        Log.d(logTag, "onViewCreated 호출됨")
 
 
     }
@@ -127,13 +129,13 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
         }
 
         viewModel.favoriteStudyError.observe(viewLifecycleOwner) { e ->
-            Log.e("StudyAllFragment", "오류 발생", e)
+            Log.e(logTag, "오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }
         }
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-            Log.e("StudyAllFragment", "오류 발생", e)
+            Log.e(logTag, "오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }

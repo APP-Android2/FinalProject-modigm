@@ -20,10 +20,13 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 import kr.co.lion.modigm.util.toEditable
 
-class ChangePhoneAuthFragment :
-    VBBaseFragment<FragmentChangePhoneAuthBinding>(FragmentChangePhoneAuthBinding::inflate) {
+class ChangePhoneAuthFragment : VBBaseFragment<FragmentChangePhoneAuthBinding>(FragmentChangePhoneAuthBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: ChangePhoneViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { ChangePhoneAuthFragment::class.simpleName }
 
     private val currentUserPhone by lazy {
         arguments?.getString("currentUserPhone") ?: ""
@@ -50,7 +53,7 @@ class ChangePhoneAuthFragment :
     // 초기 뷰 세팅
     private fun initView() {
         with(binding) {
-            Log.d("ChangePhoneAuthFragment", currentUserPhone)
+            Log.d(logTag, currentUserPhone)
             textInputEditChangePhone.text = currentUserPhone.toEditable()
 
             // 번호 입력 시 자동으로 하이픈을 넣어줌
@@ -220,29 +223,33 @@ class ChangePhoneAuthFragment :
     private fun changePhoneCompleteDialog() {
         viewModel.isCompleteTo(false)
         val dialog = CustomUpdatePasswordDialog(requireContext())
-        dialog.setTitle("전화번호 변경")
-        dialog.setMessage("전화번호 변경을 완료했습니다")
-        dialog.setPositiveButton("확인") {
-            parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+        with(dialog) {
+            setTitle("전화번호 변경")
+            setMessage("전화번호 변경을 완료했습니다")
+            setPositiveButton("확인") {
+                parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+            }
+            show()
         }
-        dialog.show()
+
     }
 
     // 뒤로가기 다이얼로그 표시
     private fun showCancelDialog() {
         val dialog = CustomCancelDialog(requireContext())
-        dialog.setTitle("뒤로가기")
-        dialog.setMessage("변경을 취소하시겠습니까?")
-        dialog.setPositiveButton("확인") {
-            lifecycleScope.launch {
-                parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+        with(dialog){
+            setTitle("뒤로가기")
+            setMessage("변경을 취소하시겠습니까?")
+            setPositiveButton("확인") {
+                lifecycleScope.launch {
+                    parentFragmentManager.popBackStack(FragmentName.EDIT_PROFILE.str, 0)
+                }
             }
+            setNegativeButton("취소") {
+                dismiss()
+            }
+            show()
         }
-        dialog.setNegativeButton("취소") {
-
-            dialog.dismiss()
-        }
-        dialog.show()
     }
 
     // 문자 인증 60초 타이머

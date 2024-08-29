@@ -20,13 +20,17 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
 import kotlin.system.exitProcess
 
-class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate),
-    OnRecyclerViewScrollListener {
+class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate), OnRecyclerViewScrollListener {
 
+    // 회원가입 타입
     private val joinType: JoinType? by lazy {
         JoinType.getType(arguments?.getString("joinType") ?: "")
     }
 
+    // 태그
+    private val logTag by lazy { BottomNaviFragment::class.simpleName }
+
+    // 뷰모델
     private val viewModel: BottomNaviViewModel by viewModels()
 
     // FAB 가시성 상태를 위한 플래그

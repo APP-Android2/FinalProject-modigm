@@ -22,6 +22,9 @@ class SplashScreenActivity : AppCompatActivity() {
         ActivitySplashScreenBinding.inflate(layoutInflater)
     }
 
+    // 태그
+    private val logTag by lazy { SplashScreenActivity::class.simpleName }
+
     // --------------------------------- LC START ---------------------------------
 
     override fun onCreate(savedInstanceState: Bundle?) {

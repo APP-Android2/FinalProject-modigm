@@ -16,6 +16,9 @@ class StudyAdapter(
     private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.Adapter<StudyViewHolder>() {
 
+    // 태그
+    private val logTag by lazy { StudyAdapter::class.simpleName }
+
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): StudyViewHolder {
         val binding: RowStudyBinding =
             RowStudyBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
@@ -33,7 +36,7 @@ class StudyAdapter(
     override fun onBindViewHolder(holder: StudyViewHolder, position: Int) {
         holder.bind(studyList[position])
         Log.d(
-            "StudyAdapter",
+            logTag,
             "onBindViewHolder: position = $position, studyIdx = ${studyList[position].first.studyIdx}"
         )
     }
@@ -43,7 +46,7 @@ class StudyAdapter(
     fun updateData(list: List<Triple<StudyData, Int, Boolean>>) {
         studyList = list
         notifyDataSetChanged()
-        Log.d("StudyAdapter", "updateData: ${list.size} 개의 데이터로 업데이트")
+        Log.d(logTag, "updateData: ${list.size} 개의 데이터로 업데이트")
     }
 
     fun updateItem(studyIdx: Int, isLiked: Boolean) {

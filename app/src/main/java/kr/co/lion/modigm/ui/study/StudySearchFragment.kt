@@ -21,6 +21,9 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
     // 뷰모델
     private val viewModel: StudyViewModel by viewModels()
 
+    // 태그
+    private val logTag by lazy { StudySearchFragment::class.simpleName }
+
     // 어답터
     private val studySearchAdapter: StudySearchAdapter by lazy {
         StudySearchAdapter(

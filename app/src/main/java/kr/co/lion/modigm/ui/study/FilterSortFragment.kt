@@ -23,6 +23,9 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
 
     private val viewModel: StudyViewModel by activityViewModels()
 
+    // 태그
+    private val logTag by lazy { FilterSortFragment::class.simpleName }
+
     // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

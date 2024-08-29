@@ -19,6 +19,9 @@ class StudyViewHolder(
     private val favoriteClickListener: (Int, Boolean) -> Unit,
 ) : RecyclerView.ViewHolder(binding.root) {
 
+    // 태그
+    private val logTag by lazy { StudyViewHolder::class.simpleName }
+
     fun bind(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
             setupRootView(studyData)

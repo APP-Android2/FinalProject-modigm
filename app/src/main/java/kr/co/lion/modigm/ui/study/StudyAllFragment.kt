@@ -23,7 +23,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
     private val viewModel: StudyViewModel by activityViewModels()
 
     // 태그
-    private val TAG by lazy { StudyAllFragment::class.simpleName }
+    private val logTag by lazy { StudyAllFragment::class.simpleName }
 
     // 어답터
     private val studyAdapter: StudyAdapter by lazy {
@@ -75,7 +75,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         initView()
         observeViewModel()
         viewModel.getAllStudyData()
-        Log.d(tag, "onViewCreated 호출됨")
+        Log.d(logTag, "onViewCreated 호출됨")
     }
 
     override fun onDestroyView() {
@@ -193,12 +193,12 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             if (isFilterApplied) {
                 viewModel.filteredStudyData.observe(viewLifecycleOwner) { studyList ->
                     studyAdapter.updateData(studyList)
-                    Log.d(TAG, "필터 적용된 스터디 목록 업데이트: ${studyList.size} 개")
+                    Log.d(logTag, "필터 적용된 스터디 목록 업데이트: ${studyList.size} 개")
                 }
             } else {
                 viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
                     studyAdapter.updateData(studyList)
-                    Log.d(TAG, "전체 스터디 목록 업데이트: ${studyList.size} 개")
+                    Log.d(logTag, "전체 스터디 목록 업데이트: ${studyList.size} 개")
                 }
             }
         }
@@ -211,7 +211,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
         // 전체 스터디 목록 오류 관찰
         viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
-            Log.e(tag, "전체 스터디 목록 오류 발생", e)
+            Log.e(logTag, "전체 스터디 목록 오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }
@@ -219,7 +219,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
         // 좋아요 오류 관찰
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-            Log.e(tag, "좋아요 오류 발생", e)
+            Log.e(logTag, "좋아요 오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }
