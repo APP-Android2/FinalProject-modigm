@@ -112,6 +112,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
             }
         }
 
+        // 뷰 초기화
         initView()
         // 프리퍼런스 전체 확인 로그 (필터 입력: SharedPreferencesLog)
         prefs.logAllPreferences()
@@ -193,6 +194,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
                 when(item.itemId) {
                     R.id.bottomNaviStudy -> {
+                        fabStudyWrite.show()
                         childFragmentManager.commit {
                             setReorderingAllowed(true)
                             replace<StudyFragment>(R.id.containerBottomNavi)
@@ -200,6 +202,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                         }
                     }
                     R.id.bottomNaviHeart -> {
+                        fabStudyWrite.hide()
                         childFragmentManager.commit {
                             setReorderingAllowed(true)
                             replace<FavoriteFragment>(R.id.containerBottomNavi)
@@ -207,6 +210,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                         }
                     }
                     R.id.bottomNaviChat -> {
+                        fabStudyWrite.hide()
                         val chatFragment = ChatFragment().apply {
                             arguments = Bundle().apply {
                                 putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
@@ -219,6 +223,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                         }
                     }
                     R.id.bottomNaviMy -> {
+                        fabStudyWrite.hide()
                         val profileFragment = ProfileFragment().apply {
                             arguments = Bundle().apply {
                                 putInt("userIdx", prefs.getInt("currentUserIdx"))
