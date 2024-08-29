@@ -2,6 +2,7 @@ package kr.co.lion.modigm.repository
 
 import android.util.Log
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
+import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.model.StudyData
 
 class StudyRepository() {
@@ -78,5 +79,12 @@ class StudyRepository() {
             Log.e(tag, "좋아요 삭제 중 오류 발생: ${e.message}", e)
             Result.failure<Boolean>(e)
         }
+    }
+
+    /**
+     * 필터링된 스터디 목록 가져오기
+     */
+    suspend fun getFilteredStudyList(filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
+        return remoteStudyDataSource.getFilteredStudyList(filter)
     }
 }

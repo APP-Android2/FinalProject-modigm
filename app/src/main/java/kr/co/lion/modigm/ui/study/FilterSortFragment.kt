@@ -11,6 +11,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFilterSortBinding
+import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FilterSort
@@ -95,75 +96,51 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
 
             // 필터 적용 버튼 클릭 시
             buttonApplyFilter.setOnClickListener {
-                val filterData = mutableMapOf<String, String>()
-
-                // studyType 필터 데이터 설정
-                val selectedStudyTypeText = getSelectedChipText(chipGroupBunryu)
-                Log.d("FilterSortFragment", "선택된 분류 칩 텍스트: $selectedStudyTypeText")
-                val studyTypeValue = selectedStudyTypeText?.let { displayName ->
-                    FilterSort.fromDisplayName(displayName)?.value.toString()
+                // 필터 데이터 수집
+                val studyTypeValue = getSelectedChipText(chipGroupBunryu)?.let { displayName ->
+                    if (displayName == "전체") "" else FilterSort.fromDisplayName(displayName)?.displayName.toString()
                 } ?: ""
-                Log.d("FilterSortFragment", "변환된 studyType 값: $studyTypeValue")
 
-                // studyPeriod 필터 데이터 설정
-                val selectedStudyPeriodText = getSelectedChipText(binding.chipGroupGigan)
-                Log.d("FilterSortFragment", "선택된 기간 칩 텍스트: $selectedStudyPeriodText")
-                val studyPeriodValue = selectedStudyPeriodText?.let { displayName ->
-                    FilterSort.fromDisplayName(displayName)?.value.toString()
+                val studyPeriodValue = getSelectedChipText(binding.chipGroupGigan)?.let { displayName ->
+                    if (displayName == "전체") "" else FilterSort.fromDisplayName(displayName)?.displayName.toString()
                 } ?: ""
-                Log.d("FilterSortFragment", "변환된 studyPeriod 값: $studyPeriodValue")
 
-                // studyOnOffline 필터 데이터 설정
-                val selectedStudyOnOfflineText = getSelectedChipText(chipGroupJangso)
-                Log.d("FilterSortFragment", "선택된 장소 칩 텍스트: $selectedStudyOnOfflineText")
-                val studyOnOfflineValue = selectedStudyOnOfflineText?.let { displayName ->
-                    FilterSort.fromDisplayName(displayName)?.value.toString()
+                val studyOnOfflineValue = getSelectedChipText(chipGroupJangso)?.let { displayName ->
+                    if (displayName == "전체") "" else FilterSort.fromDisplayName(displayName)?.displayName.toString()
                 } ?: ""
-                Log.d("FilterSortFragment", "변환된 studyOnOffline 값: $studyOnOfflineValue")
 
-                // studyMaxMember 필터 데이터 설정
-                val selectedStudyMaxMemberText = getSelectedChipText(chipGroupInwon)
-                Log.d("FilterSortFragment", "선택된 최대 인원수 칩 텍스트: $selectedStudyMaxMemberText")
-                val studyMaxMemberValue = selectedStudyMaxMemberText?.let { displayName ->
-                    FilterSort.fromDisplayName(displayName)?.value.toString()
+                val studyMaxMemberValue = getSelectedChipText(chipGroupInwon)?.let { displayName ->
+                    if (displayName == "전체") "" else FilterSort.fromDisplayName(displayName)?.displayName.toString()
                 } ?: ""
-                Log.d("FilterSortFragment", "변환된 studyMaxMember 값: $studyMaxMemberValue")
 
-                // studyApplyMethod 필터 데이터 설정
-                val selectedStudyApplyMethodText = getSelectedChipText(chipGroupSinchung)
-                Log.d("FilterSortFragment", "선택된 신청 방식 칩 텍스트: $selectedStudyApplyMethodText")
-                val studyApplyMethodValue = selectedStudyApplyMethodText?.let { displayName ->
-                    FilterSort.fromDisplayName(displayName)?.value.toString()
+                val studyApplyMethodValue = getSelectedChipText(chipGroupSinchung)?.let { displayName ->
+                    if (displayName == "전체") "" else FilterSort.fromDisplayName(displayName)?.displayName.toString()
                 } ?: ""
-                Log.d("FilterSortFragment", "변환된 studyApplyMethod 값: $studyApplyMethodValue")
 
-                // studySkillList 필터 데이터 설정
-                val selectedStudySkillListText = getSelectedChipText(chipGroupGisul)
-                Log.d("FilterSortFragment", "선택된 기술 스택 칩 텍스트: $selectedStudySkillListText")
-                val studySkillListValue = selectedStudySkillListText?.let { displayName ->
-                    FilterSort.fromDisplayName(displayName)?.value.toString()
+                val studySkillListValue = getSelectedChipText(chipGroupGisul)?.let { displayName ->
+                    if (displayName == "전체") "" else FilterSort.fromDisplayName(displayName)?.displayName.toString()
                 } ?: ""
-                Log.d("FilterSortFragment", "변환된 studySkillList 값: $studySkillListValue")
 
-                // programmingLanguage 필터 데이터 설정
-                val selectedProgrammingLanguageText = getSelectedChipText(chipGroupPrograming)
-                Log.d("FilterSortFragment", "선택된 프로그래밍 언어 칩 텍스트: $selectedProgrammingLanguageText")
-                val programmingLanguageValue = selectedProgrammingLanguageText?.let { displayName ->
-                    FilterSort.fromDisplayName(displayName)?.value.toString()
+                val programmingLanguageValue = getSelectedChipText(chipGroupPrograming)?.let { displayName ->
+                    if (displayName == "전체") "" else FilterSort.fromDisplayName(displayName)?.displayName.toString()
                 } ?: ""
-                Log.d("FilterSortFragment", "변환된 programmingLanguage 값: $programmingLanguageValue")
 
                 // 필터 데이터 담기
-                filterData["studyType"] = studyTypeValue
-                filterData["studyPeriod"] = studyPeriodValue
-                filterData["studyOnOffline"] = studyOnOfflineValue
-                filterData["studyMaxMember"] = studyMaxMemberValue
-                filterData["studyApplyMethod"] = studyApplyMethodValue
-                filterData["studySkillList"] = studySkillListValue
-                filterData["programmingLanguage"] = programmingLanguageValue
+                val filterStudyData = FilterStudyData(
+                    studyType = studyTypeValue,
+                    studyPeriod = studyPeriodValue,
+                    studyOnOffline = studyOnOfflineValue,
+                    studyMaxMember = studyMaxMemberValue.toIntOrNull() ?: 0,  // 기본값으로 0 설정
+                    studyApplyMethod = studyApplyMethodValue,
+                    studySkillList = studySkillListValue,
+                    programmingLanguage = programmingLanguageValue
+                )
 
-                Log.d("FilterSortFragment", "적용된 필터 데이터: $filterData")
-                viewModel.updateFilterData(filterData)
+                Log.d("FilterSortFragment", "적용된 필터 데이터: $filterStudyData")
+
+                // 필터링된 데이터 요청
+                viewModel.getFilteredStudyList(filterStudyData)
+
                 parentFragmentManager.popBackStack()
             }
         }
@@ -196,17 +173,21 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
 
     // 기술 스택 칩 클릭 리스너 설정 함수
     private fun setTechStackChipClickListener(chipGroup: ChipGroup, targetLayout: View) {
-        with(binding){
+        with(binding) {
+            // ChipGroup의 상태가 변경될 때 호출되는 리스너 설정
             chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
                 if (checkedIds.isNotEmpty()) {
-                    val checkedId = checkedIds[0]
-                    val chip = group.findViewById<Chip>(checkedId)
-                    updateVisibility(targetLayout, chip.isChecked)
-                    updateChipStyles(chipGroup, checkedId)
-                    Log.d("FilterSortFragment", "Chip 선택됨: ${chip.text}")
+                    // 선택된 칩이 있는 경우
+                    val checkedId = checkedIds[0] // 선택된 칩의 ID 가져오기
+                    val chip = group.findViewById<Chip>(checkedId) // ID로 칩 찾기
+                    updateVisibility(targetLayout, chip.isChecked) // 선택된 칩에 따라 레이아웃 가시성 업데이트
+                    updateChipStyles(chipGroup, checkedId) // 선택된 칩의 스타일을 업데이트
+                    Log.d("FilterSortFragment", "Chip 선택됨: ${chip.text}") // 로그로 선택된 칩의 텍스트 출력
 
-                    textViewFilterPrograming.text = "${chip.text}" // 여기서 TextView 업데이트
+                    // 선택된 칩의 텍스트를 TextView에 업데이트
+                    textViewFilterPrograming.text = "${chip.text}"
 
+                    // 선택된 칩의 텍스트에 따라 다른 카테고리의 칩 그룹을 설정하고 스크롤 이동
                     when (chip.text) {
                         "프로그래밍 언어" -> {
                             setupChipGroup(chipGroupPrograming, getChipsByCategory(Category.PROGRAMMING))
@@ -256,23 +237,24 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
                             setupChipGroup(chipGroupPrograming, getChipsByCategory(Category.BIG_DATA))
                             scrollToView(layoutFilterPrograming)
                         }
-
-                        // 다른 카테고리 추가...
-                        else -> updateVisibility(layoutFilterPrograming, false)
+                        // 다른 카테고리 추가 가능...
+                        else -> updateVisibility(layoutFilterPrograming, false) // 기본적으로 레이아웃 가시성 비활성화
                     }
 
+                    // '전체'가 아닌 선택된 칩이 체크된 경우 레이아웃을 표시
                     updateVisibility(layoutFilterPrograming, chip.text != "전체" && chip.isChecked)
                 } else {
-                    updateVisibility(targetLayout, false)
-                    updateVisibility(layoutFilterPrograming, false)
-                    updateChipStyles(chipGroup, -1) // Reset all chip styles
-                    Log.d("FilterSortFragment", "Chip 선택 해제됨")
+                    // 선택된 칩이 없는 경우
+                    updateVisibility(targetLayout, false) // 타겟 레이아웃을 숨기기
+                    updateVisibility(layoutFilterPrograming, false) // 필터 레이아웃도 숨기기
+                    updateChipStyles(chipGroup, -1) // 모든 칩 스타일 초기화
+                    Log.d("FilterSortFragment", "Chip 선택 해제됨") // 로그로 칩 해제 출력
                 }
-                updateApplyButtonState()
+                updateApplyButtonState() // 칩 상태 변경에 따라 적용 버튼 상태 업데이트
             }
         }
-
     }
+
 
     private fun setChipClickListener(chipGroup: ChipGroup, targetLayout: View) {
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->

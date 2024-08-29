@@ -22,6 +22,9 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
 
+    // 태그
+    private val TAG by lazy { StudyAllFragment::class.simpleName }
+
     // 어답터
     private val studyAdapter: StudyAdapter by lazy {
         StudyAdapter(
@@ -72,7 +75,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         initView()
         observeViewModel()
         viewModel.getAllStudyData()
-        Log.d(tag, "onViewCreated 호출됨")
+        Log.d(TAG, "onViewCreated 호출됨")
     }
 
     override fun onDestroyView() {
@@ -165,10 +168,20 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
 
     private fun observeViewModel() {
-        // 이미 관찰자가 등록된 경우를 피하기 위해 조건 추가
-        viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
-            studyAdapter.updateData(studyList)
-            Log.d(tag, "전체 스터디 목록 업데이트: ${studyList.size} 개")
+
+        // 필터 적용 여부를 관찰하여, 필터가 적용된 경우와 그렇지 않은 경우를 구분
+        viewModel.isFilterApplied.observe(viewLifecycleOwner) { isFilterApplied ->
+            if (isFilterApplied) {
+                viewModel.filteredStudyData.observe(viewLifecycleOwner) { studyList ->
+                    studyAdapter.updateData(studyList)
+                    Log.d(TAG, "필터 적용된 스터디 목록 업데이트: ${studyList.size} 개")
+                }
+            } else {
+                viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
+                    studyAdapter.updateData(studyList)
+                    Log.d(TAG, "전체 스터디 목록 업데이트: ${studyList.size} 개")
+                }
+            }
         }
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
@@ -177,14 +190,14 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         }
 
         viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
-            Log.e(tag, "전체 스터디 목록 오류 발생", e)
+            Log.e(TAG, "전체 스터디 목록 오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }
         }
 
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-            Log.e(tag, "좋아요 오류 발생", e)
+            Log.e(TAG, "좋아요 오류 발생", e)
             if (e != null) {
                 showStudyErrorDialog(e)
             }

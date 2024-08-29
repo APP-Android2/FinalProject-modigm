@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -28,8 +29,6 @@ class StudyViewModel : ViewModel() {
     private val _allStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val allStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _allStudyData
 
-
-
     // 내 스터디 리스트
     private val _myStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val myStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _myStudyData
@@ -37,6 +36,15 @@ class StudyViewModel : ViewModel() {
     // 좋아요한 스터디 목록
     private val _favoritedStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val favoritedStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _favoritedStudyData
+
+    // 필터링된 스터디 목록 LiveData
+    private val _filteredStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
+    val filteredStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> get() = _filteredStudyData
+
+    // 필터 적용 여부를 관리하는 LiveData
+    private val _isFilterApplied = MutableLiveData<Boolean>(false)
+    val isFilterApplied: LiveData<Boolean> = _isFilterApplied
+
 
     // 좋아요 상태
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()
@@ -70,6 +78,7 @@ class StudyViewModel : ViewModel() {
             val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
+                _isFilterApplied.value = false // 필터가 해제되었음을 표시
             }.onFailure {
                 Log.e(tag, "Error getAllStudyData", it)
                 _allStudyError.postValue(it)
@@ -132,6 +141,31 @@ class StudyViewModel : ViewModel() {
     }
 
     /**
+     * 필터링된 스터디 목록 가져오기
+     */
+    fun getFilteredStudyList(newFilterData: FilterStudyData) {
+        viewModelScope.launch {
+            newFilterData.let { filter ->
+                val result = studyRepository.getFilteredStudyList(filter)
+                result.onSuccess {
+                    _filteredStudyData.postValue(it)
+                    _isFilterApplied.value = true // 필터가 적용되었음을 표시
+                }.onFailure { e ->
+                    Log.e("StudyViewModel", "필터링된 스터디 목록 가져오기 실패", e)
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+    /**
      * 데이터 초기화 메서드
      */
     fun clearData() {
@@ -143,14 +177,12 @@ class StudyViewModel : ViewModel() {
         _isFavoriteError.postValue(null)
         _myStudyError.postValue(null)
         _allStudyError.postValue(null)
-
-        filterData.clear()
     }
 
     // ------------------MySQL 적용 끝-----------------------
 
-    // 필터 데이터
-    private val filterData = mutableMapOf<String, String>()
+//    // 필터 데이터
+//    private val filterData = mutableMapOf<String, String>()
 
 //    // 필터링된 스터디 목록 (전체)
 //    private val _filteredStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
@@ -160,16 +192,16 @@ class StudyViewModel : ViewModel() {
 //    private val _filteredMyStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
 //    val filteredMyStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredMyStudyList
 
-    /**
-     * 필터 데이터 업데이트
-     * @param newFilterData 새로운 필터 데이터
-     */
-    fun updateFilterData(newFilterData: Map<String, String>) {
-        filterData.putAll(newFilterData)
-        Log.d("StudyViewModel", "필터 데이터 업데이트: $filterData")
-//        applyFilters()
-//        applyMyFilters()
-    }
+//    /**
+//     * 필터 데이터 업데이트
+//     * @param newFilterData 새로운 필터 데이터
+//     */
+//    fun updateFilterData(newFilterData: Map<String, String>) {
+//        filterData.putAll(newFilterData)
+//        Log.d("StudyViewModel", "필터 데이터 업데이트: $filterData")
+////        applyFilters()
+////        applyMyFilters()
+//    }
 
 //    // 필터 적용 (전체 스터디)
 //    private fun applyFilters() {

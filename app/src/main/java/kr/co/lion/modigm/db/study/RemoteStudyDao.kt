@@ -4,6 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.HikariCPDataSource
+import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.model.StudyData
 
 class RemoteStudyDao {
@@ -169,4 +170,85 @@ class RemoteStudyDao {
                 Result.failure<Boolean>(e)
             }
         }
+
+
+    /**
+     * 필터링된 스터디 목록 조회
+     */
+    suspend fun selectFilteredStudyData(filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                HikariCPDataSource.getConnection().use { connection ->
+                    val query = """
+                        SELECT s.*, COUNT(sm.userIdx) as memberCount,
+                               IF(f.favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite
+                        FROM tb_study s
+                        LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
+                        LEFT JOIN tb_favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
+                        WHERE s.studyState = true
+                        ${buildFilterQuery(filter)}
+                        GROUP BY s.studyIdx
+                    """
+
+                    connection.prepareStatement(query).use { statement ->
+                        // 사용자 인덱스 설정
+                        statement.setInt(1, 1) // Example: Replace with actual userIdx or other criteria
+                        val resultSet = statement.executeQuery()
+                        val result = mutableListOf<Triple<StudyData, Int, Boolean>>()
+                        while (resultSet.next()) {
+                            val studyData = StudyData.getStudyData(resultSet)
+                            val memberCount = resultSet.getInt("memberCount")
+                            val isFavorite = resultSet.getBoolean("isFavorite")
+                            result.add(Triple(studyData, memberCount, isFavorite))
+                        }
+                        result
+                    }
+                }
+            }
+        }
+
+    private fun buildFilterQuery(filter: FilterStudyData): String {
+        val conditions = mutableListOf<String>()
+
+        filter.studyType.takeIf { it.isNotEmpty() }?.let {
+            conditions.add("s.studyType = '$it'")
+        }
+
+        // 기간 필터 문자열 비교
+        filter.studyPeriod.takeIf { it.isNotEmpty() }?.let { periodFilter ->
+            when (periodFilter) {
+                "1개월이하" -> conditions.add("s.studyPeriod IN ('1개월이하')")
+                "2개월이하" -> conditions.add("s.studyPeriod IN ('1개월이하', '2개월이하')")
+                "3개월이하" -> conditions.add("s.studyPeriod IN ('1개월이하', '2개월이하', '3개월이하')")
+                "4개월이하" -> conditions.add("s.studyPeriod IN ('1개월이하', '2개월이하', '3개월이하', '4개월이하')")
+                "5개월이하" -> conditions.add("s.studyPeriod IN ('1개월이하', '2개월이하', '3개월이하', '4개월이하', '5개월이하')")
+                "6개월미만" -> conditions.add("s.studyPeriod IN ('1개월이하', '2개월이하', '3개월이하', '4개월이하', '5개월이하', '6개월미만')")
+                "6개월이상" -> conditions.add("s.studyPeriod IN ('6개월이상')")
+                else -> {}
+            }
+        }
+
+        filter.studyOnOffline.takeIf { it.isNotEmpty() }?.let {
+            conditions.add("s.studyOnOffline = '$it'")
+        }
+        filter.studyMaxMember.takeIf { it > 0 }?.let {
+            conditions.add("s.studyMaxMember = $it")
+        }
+        filter.studyApplyMethod.takeIf { it.isNotEmpty() }?.let {
+            conditions.add("s.studyApplyMethod = '$it'")
+        }
+        filter.studySkillList.takeIf { it.isNotEmpty() }?.let {
+            conditions.add("s.studySkillList LIKE '%$it%'")
+        }
+        filter.programmingLanguage.takeIf { it.isNotEmpty() }?.let {
+            conditions.add("s.programmingLanguage LIKE '%$it%'")
+        }
+
+        return if (conditions.isNotEmpty()) {
+            "AND " + conditions.joinToString(" AND ")
+        } else {
+            ""
+        }
+    }
+
 }

@@ -11,13 +11,13 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
 
     // 기간
     ALL_PERIOD(0, "전체", Category.PERIOD),
-    ONE_MONTH(1, "1개월 이하", Category.PERIOD),
-    TWO_MONTHS(2, "2개월 이하", Category.PERIOD),
-    THREE_MONTHS(3, "3개월 이하", Category.PERIOD),
-    FOUR_MONTHS(4, "4개월 이하", Category.PERIOD),
-    FIVE_MONTHS(5, "5개월 이하", Category.PERIOD),
-    SIX_MONTHS_DOWN(6, "6개월 미만", Category.PERIOD),
-    SIX_MONTHS_UP(7, "6개월 이상", Category.PERIOD),
+    ONE_MONTH(1, "1개월이하", Category.PERIOD),
+    TWO_MONTHS(2, "2개월이하", Category.PERIOD),
+    THREE_MONTHS(3, "3개월이하", Category.PERIOD),
+    FOUR_MONTHS(4, "4개월이하", Category.PERIOD),
+    FIVE_MONTHS(5, "5개월이하", Category.PERIOD),
+    SIX_MONTHS_DOWN(6, "6개월미만", Category.PERIOD),
+    SIX_MONTHS_UP(7, "6개월이상", Category.PERIOD),
 
     // 온/오프라인
     ALL_PLACE(0, "전체", Category.ONOFFLINE),
