@@ -4,14 +4,17 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
@@ -83,6 +86,21 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
                 }
             }
 
+            // 공지사항
+            layoutSettingsNotice.setOnClickListener {
+                openWebView(Links.NOTICE.url)
+            }
+
+            // 고객센터
+            layoutSettingsService.setOnClickListener {
+                openWebView(Links.SERVICE.url)
+            }
+
+            // 이용약관
+            layoutSettingsTerms.setOnClickListener {
+                openWebView(Links.TERMS.url)
+            }
+
             // 로그아웃 (오류뜸, clearBackStack 수정 필요)
             layoutSettingsLogout.setOnClickListener {
                 // SharedPreferences 초기화
@@ -95,6 +113,24 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
                     .replace(R.id.containerMain, LoginFragment())
                     .addToBackStack(null)
                     .commit()
+            }
+        }
+    }
+
+    private fun openWebView(url: String){
+        viewLifecycleOwner.lifecycleScope.launch {
+            // bundle 에 필요한 정보를 담는다
+            val bundle = Bundle()
+            bundle.putString("link", url)
+
+            // 이동할 프래그먼트로 bundle을 넘긴다
+            val profileWebFragment = ProfileWebFragment()
+            profileWebFragment.arguments = bundle
+
+            // Fragment 교체
+            parentFragmentManager.commit {
+                add(R.id.containerMain, profileWebFragment)
+                addToBackStack(FragmentName.PROFILE_WEB.str)
             }
         }
     }
