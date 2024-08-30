@@ -81,7 +81,6 @@ class StudyViewModel : ViewModel() {
             val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
-                _isFilterApplied.value = false // 필터가 해제되었음을 표시
             }.onFailure {
                 Log.e(logTag, "Error getAllStudyData", it)
                 _allStudyError.postValue(it)

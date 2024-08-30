@@ -75,17 +75,10 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         initView()
         observeViewModel()
         viewModel.getAllStudyData()
-        Log.d(logTag, "onViewCreated 호출됨")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-
-        // LiveData 관찰자 제거
-        viewModel.allStudyData.removeObservers(viewLifecycleOwner)
-        viewModel.isFavorite.removeObservers(viewLifecycleOwner)
-        viewModel.allStudyError.removeObservers(viewLifecycleOwner)
-        viewModel.isFavoriteError.removeObservers(viewLifecycleOwner)
 
         viewModel.clearData() // ViewModel 데이터 초기화
 
@@ -183,8 +176,10 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             with(binding){
                 if (isLoading) {
+                    Log.d(logTag,"로딩중")
                     progressBarStudyAll.visibility = View.VISIBLE
                 } else {
+                    Log.d(logTag,"로딩완료")
                     progressBarStudyAll.visibility = View.GONE
                 }
             }
@@ -213,16 +208,16 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
         // 전체 스터디 목록 오류 관찰
         viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
-            Log.e(logTag, "전체 스터디 목록 오류 발생", e)
             if (e != null) {
+                Log.e(logTag, "전체 스터디 목록 오류 발생", e)
                 showStudyErrorDialog(e)
             }
         }
 
         // 좋아요 오류 관찰
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-            Log.e(logTag, "좋아요 오류 발생", e)
             if (e != null) {
+                Log.e(logTag, "좋아요 오류 발생", e)
                 showStudyErrorDialog(e)
             }
         }
@@ -250,6 +245,5 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             }
             show()
         }
-
     }
 }

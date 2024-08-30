@@ -70,8 +70,8 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
 
         // 초기 뷰 세팅
         initView()
-        viewModel.getMyStudyData()
         observeViewModel()
+        viewModel.getMyStudyData()
     }
 
     override fun onDestroyView() {
@@ -156,8 +156,10 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             with(binding){
                 if (isLoading) {
+                    Log.d(logTag, "로딩중")
                     progressBarStudyMy.visibility = View.VISIBLE
                 } else {
+                    Log.d(logTag, "로딩완료")
                     progressBarStudyMy.visibility = View.GONE
                 }
             }
@@ -185,15 +187,15 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         }
 
         viewModel.myStudyError.observe(viewLifecycleOwner) { e ->
-            Log.e(logTag, "내 스터디 목록 오류 발생", e)
             if (e != null) {
+                Log.e(logTag, "내 스터디 목록 오류 발생", e)
                 showStudyErrorDialog(e)
             }
         }
 
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-            Log.e(logTag, "좋아요 오류 발생", e)
             if (e != null) {
+                Log.e(logTag, "좋아요 오류 발생", e)
                 showStudyErrorDialog(e)
             }
         }
