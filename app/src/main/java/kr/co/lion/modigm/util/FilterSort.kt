@@ -25,16 +25,16 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OFFLINE(2, "오프라인", Category.ONOFFLINE),
     ONOFFLINE(3, "온오프혼합", Category.ONOFFLINE),
 
-    // 인원 수
+    // 모집 인원
     ALL_PEOPLE(0, "전체", Category.PEOPLE),
-    ONE_TO_FIVE(1, "1~5명", Category.PEOPLE),
+    ONE_TO_FIVE(1, "2~5명", Category.PEOPLE),
     SIX_TO_TEN(2, "6~10명", Category.PEOPLE),
-    MORE_THAN_ELEVEN(3, "11명 이상", Category.PEOPLE),
+    MORE_THAN_ELEVEN(3, "11명이상", Category.PEOPLE),
 
-    // 신청 방식
-    ALL_METHOD(0, "전체", Category.APPLY_METHOD),
-    FIRST_COME_FIRST_SERVE(1, "선착순", Category.APPLY_METHOD),
-    APPLICATION(2, "신청제", Category.APPLY_METHOD),
+//    // 신청 방식
+//    ALL_METHOD(0, "전체", Category.APPLY_METHOD),
+//    FIRST_COME_FIRST_SERVE(1, "선착순", Category.APPLY_METHOD),
+//    APPLICATION(2, "신청제", Category.APPLY_METHOD),
 
     // 기술 스택
     ALL_TECH(0, "전체", Category.TECH_STACK),
@@ -225,7 +225,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     companion object {
         fun fromDisplayName(displayName: String): FilterSort? {
             Log.d("FilterSort", "fromDisplayName 호출: $displayName")
-            return values().find { it.displayName.equals(displayName, ignoreCase = true) }
+            return entries.find { it.displayName.equals(displayName, ignoreCase = true) }
         }
     }
 

@@ -9,7 +9,7 @@ import kr.co.lion.modigm.model.StudyData
 
 class RemoteStudyDao {
 
-    private val tag by lazy { RemoteStudyDao::class.simpleName }
+    private val logTag by lazy { RemoteStudyDao::class.simpleName }
 
     /**
      * 모든 스터디와 스터디 멤버 데이터 조회 (좋아요 여부 포함)
@@ -43,7 +43,7 @@ class RemoteStudyDao {
                     }
                 }
             }.onFailure { e ->
-                Log.e(tag, "스터디 및 멤버 수 데이터 조회 중 오류 발생", e)
+                Log.e(logTag, "스터디 및 멤버 수 데이터 조회 중 오류 발생", e)
                 Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
@@ -82,7 +82,7 @@ class RemoteStudyDao {
                     }
                 }
             }.onFailure { e ->
-                Log.e(tag, "내 스터디 목록 조회 중 오류 발생", e)
+                Log.e(logTag, "내 스터디 목록 조회 중 오류 발생", e)
                 Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
@@ -120,7 +120,7 @@ class RemoteStudyDao {
                     }
                 }
             }.onFailure { e ->
-                Log.e(tag, "좋아요한 스터디 목록 조회 중 오류 발생", e)
+                Log.e(logTag, "좋아요한 스터디 목록 조회 중 오류 발생", e)
                 Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
@@ -244,7 +244,7 @@ class RemoteStudyDao {
                     }
                 }
             }.onFailure { e ->
-                Log.e(tag, "내 스터디 목록 필터링 조회 중 오류 발생", e)
+                Log.e(logTag, "내 스터디 목록 필터링 조회 중 오류 발생", e)
                 Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
@@ -273,17 +273,14 @@ class RemoteStudyDao {
         filter.studyOnOffline.takeIf { it.isNotEmpty() }?.let {
             conditions.add("s.studyOnOffline = '$it'")
         }
-        filter.studyMaxMember.takeIf { it > 0 }?.let {
-            conditions.add("s.studyMaxMember = $it")
-        }
-        filter.studyApplyMethod.takeIf { it.isNotEmpty() }?.let {
-            conditions.add("s.studyApplyMethod = '$it'")
-        }
-        filter.studySkillList.takeIf { it.isNotEmpty() }?.let {
-            conditions.add("s.studySkillList LIKE '%$it%'")
-        }
-        filter.programmingLanguage.takeIf { it.isNotEmpty() }?.let {
-            conditions.add("s.programmingLanguage LIKE '%$it%'")
+        // 인원수 필터 문자열 비교
+        filter.studyMaxMember.takeIf { it.isNotEmpty() }?.let { maxMemberFilter ->
+            when (maxMemberFilter) {
+                "2~5명" -> conditions.add("s.studyMaxMember BETWEEN 2 AND 5")
+                "6~10명" -> conditions.add("s.studyMaxMember BETWEEN 6 AND 10")
+                "11명이상" -> conditions.add("s.studyMaxMember >= 11")
+                else -> {} // 전체 선택 시 필터링하지 않음
+            }
         }
 
         return if (conditions.isNotEmpty()) {
