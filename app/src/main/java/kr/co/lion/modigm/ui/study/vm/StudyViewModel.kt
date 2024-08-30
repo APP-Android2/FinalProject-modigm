@@ -40,12 +40,16 @@ class StudyViewModel : ViewModel() {
     val myStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _myStudyData
 
     // 좋아요한 스터디 목록
-    private val _favoritedStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
-    val favoritedStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _favoritedStudyData
+    private val _favoriteStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
+    val favoriteStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _favoriteStudyData
 
-    // 필터링된 스터디 목록 LiveData
-    private val _filteredStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
-    val filteredStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> get() = _filteredStudyData
+    // 필터링된 전체 스터디 목록 LiveData
+    private val _filterAllStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
+    val filterAllStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> get() = _filterAllStudyData
+
+    // 필터링된 내 스터디 목록 LiveData
+    private val _filteredMyStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
+    val filteredMyStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> get() = _filteredMyStudyData
 
     // 필터 적용 여부를 관리하는 LiveData
     private val _isFilterApplied = MutableLiveData<Boolean>(false)
@@ -81,7 +85,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getAllStudyData() {
         viewModelScope.launch {
-            _isLoading.value = true // 로딩 시작
+            _isLoading.postValue(true) // 로딩 시작
             val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
@@ -90,7 +94,7 @@ class StudyViewModel : ViewModel() {
                 Log.e(logTag, "Error getAllStudyData", it)
                 _allStudyError.postValue(it)
             }
-            _isLoading.value = false // 로딩 종료
+            _isLoading.postValue(false) // 로딩 종료
         }
     }
 
@@ -99,7 +103,7 @@ class StudyViewModel : ViewModel() {
      */
     fun getMyStudyData() {
         viewModelScope.launch {
-            _isLoading.value = true // 로딩 시작
+            _isLoading.postValue(true) // 로딩 시작
             val result = studyRepository.getMyStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _myStudyData.postValue(it)
@@ -107,7 +111,7 @@ class StudyViewModel : ViewModel() {
                 Log.e(logTag, "Error getMyStudyData", e)
                 _myStudyError.postValue(e)
             }
-            _isLoading.value = false // 로딩 종료
+            _isLoading.postValue(false) // 로딩 종료
         }
     }
 
@@ -116,15 +120,15 @@ class StudyViewModel : ViewModel() {
      */
     fun getFavoriteStudyData() {
         viewModelScope.launch {
-            _isLoading.value = true // 로딩 시작
+            _isLoading.postValue(true) // 로딩 시작
             val result = studyRepository.getFavoriteStudyData(getCurrentUserIdx())
             result.onSuccess {
-                _favoritedStudyData.postValue(it)
+                _favoriteStudyData.postValue(it)
             }.onFailure { e ->
                 Log.e(logTag, "Error getFavoriteStudyData", e)
                 _favoriteStudyError.postValue(e)
             }
-            _isLoading.value = false // 로딩 종료
+            _isLoading.postValue(false) // 로딩 종료
         }
     }
 
@@ -144,7 +148,7 @@ class StudyViewModel : ViewModel() {
 
             // 결과에 따른 UI 업데이트
             result.onSuccess {
-                _isFavorite.value = Pair(studyIdx, !currentState)
+                _isFavorite.postValue(Pair(studyIdx, !currentState))
             }.onFailure { e ->
                 Log.e(logTag, "Error changing favorite state", e)
                 _isFavoriteError.postValue(e)
@@ -153,29 +157,44 @@ class StudyViewModel : ViewModel() {
     }
 
     /**
-     * 필터링된 스터디 목록 가져오기
+     * 필터링된 전체 스터디 목록 가져오기
      */
-    fun getFilteredStudyList(newFilterData: FilterStudyData) {
+    fun getFilteredAllStudyList(newFilterData: FilterStudyData) {
         viewModelScope.launch {
+            _isLoading.postValue(true) // 로딩 시작
             newFilterData.let { filter ->
-                val result = studyRepository.getFilteredStudyList(filter)
+                val result = studyRepository.getFilteredAllStudyList(filter)
                 result.onSuccess {
-                    _filteredStudyData.postValue(it)
-                    _isFilterApplied.value = true // 필터가 적용되었음을 표시
+                    _filterAllStudyData.postValue(it)
+                    _isFilterApplied.postValue(true) // 필터가 적용되었음을 표시
                 }.onFailure { e ->
                     Log.e(logTag, "필터링된 스터디 목록 가져오기 실패", e)
+                    _allStudyError.postValue(e)
                 }
             }
+            _isLoading.postValue(false) // 로딩 종료
         }
     }
 
-
-
-
-
-
-
-
+    /**
+     * 필터링된 내 스터디 목록 가져오기
+     */
+    fun getFilteredMyStudyList(newFilterData: FilterStudyData) {
+        viewModelScope.launch {
+            _isLoading.postValue(true) // 로딩 시작
+            newFilterData.let { filter ->
+                val result = studyRepository.getFilteredMyStudyList(getCurrentUserIdx(), filter)
+                result.onSuccess {
+                    _filteredMyStudyData.postValue(it)
+                    _isFilterApplied.postValue(true) // 필터가 적용되었음을 표시
+                }.onFailure { e ->
+                    Log.e(logTag, "필터링된 스터디 목록 가져오기 실패", e)
+                    _myStudyError.postValue(e)
+                }
+            }
+            _isLoading.postValue(false) // 로딩 종료
+        }
+    }
 
     /**
      * 데이터 초기화 메서드
@@ -183,157 +202,17 @@ class StudyViewModel : ViewModel() {
     fun clearData() {
         _allStudyData.postValue(emptyList())
         _myStudyData.postValue(emptyList())
-        _favoritedStudyData.postValue(emptyList())
+        _favoriteStudyData.postValue(emptyList())
         _isFavorite.postValue(Pair(-1, false))
         _favoriteStudyError.postValue(null)
         _isFavoriteError.postValue(null)
         _myStudyError.postValue(null)
         _allStudyError.postValue(null)
+        _isLoading.postValue(false)
+        _isFilterApplied.postValue(false)
+        _filterAllStudyData.postValue(emptyList())
+        _filteredMyStudyData.postValue(emptyList())
     }
 
     // ------------------MySQL 적용 끝-----------------------
-
-//    // 필터 데이터
-//    private val filterData = mutableMapOf<String, String>()
-
-//    // 필터링된 스터디 목록 (전체)
-//    private val _filteredStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
-//    val filteredStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredStudyList
-//
-//    // 필터링된 스터디 목록 (내 스터디)
-//    private val _filteredMyStudyList = MutableLiveData<List<Pair<StudyData, Int>>>()
-//    val filteredMyStudyList: LiveData<List<Pair<StudyData, Int>>> get() = _filteredMyStudyList
-
-//    /**
-//     * 필터 데이터 업데이트
-//     * @param newFilterData 새로운 필터 데이터
-//     */
-//    fun updateFilterData(newFilterData: Map<String, String>) {
-//        filterData.putAll(newFilterData)
-//        Log.d("StudyViewModel", "필터 데이터 업데이트: $filterData")
-////        applyFilters()
-////        applyMyFilters()
-//    }
-
-//    // 필터 적용 (전체 스터디)
-//    private fun applyFilters() {
-//        val studyTypeFilter = filterData["studyType"]?.toIntOrNull()
-//        val studyPeriodFilter = filterData["studyPeriod"]?.toIntOrNull()
-//        val studyOnOfflineFilter = filterData["studyOnOffline"]?.toIntOrNull()
-//        val studyMaxMemberFilter = filterData["studyMaxMember"]?.toIntOrNull()
-//        val studyApplyMethodFilter = filterData["studyApplyMethod"]?.toIntOrNull()
-//        val studySkillListFilter = filterData["studySkillList"]?.toIntOrNull()
-//        val programmingLanguageFilter = filterData["programmingLanguage"]?.toIntOrNull()
-//
-//        Log.d("StudyViewModel", "필터 적용: studyTypeFilter = $studyTypeFilter, studyPeriodFilter = $studyPeriodFilter, studyOnOfflineFilter = $studyOnOfflineFilter, studyMaxMemberFilter = $studyMaxMemberFilter, studyApplyMethodFilter = $studyApplyMethodFilter, studySkillListFilter = $studySkillListFilter, programmingLanguageFilter = $programmingLanguageFilter")
-//
-//        val studyStateTrueDataList = _studyStateTrueDataList.value
-//        Log.d("StudyViewModel", "전체 스터디 데이터: $studyStateTrueDataList")
-//
-//        // 타입
-//        val typeFilteredList = studyStateTrueDataList?.filter { (study, _) ->
-//            studyTypeFilter == null || studyTypeFilter == 0 || study.studyType == studyTypeFilter
-//        } ?: emptyList()
-//
-//        // 기간
-//        val periodFilteredList = typeFilteredList.filter { (study, _) ->
-//            studyPeriodFilter == null || studyPeriodFilter == 0 || study.studyPeriod == studyPeriodFilter
-//        }
-//
-//        // 온오프라인
-//        val onOfflineFilteredList = periodFilteredList.filter { (study, _) ->
-//            studyOnOfflineFilter == null || studyOnOfflineFilter == 0 || study.studyOnOffline == studyOnOfflineFilter
-//        }
-//
-//        // 최대 인원수 필터링
-//        val maxMemberFilteredList = onOfflineFilteredList.filter { (study, _) ->
-//            studyMaxMemberFilter == null || studyMaxMemberFilter == 0 || when (studyMaxMemberFilter) {
-//                1 -> study.studyMaxMember in 1..5
-//                2 -> study.studyMaxMember in 6..10
-//                3 -> study.studyMaxMember >= 11
-//                else -> true
-//            }
-//        }
-//
-//        // 신청 방식 필터링
-//        val applyMethodFilteredList = maxMemberFilteredList.filter { (study, _) ->
-//            studyApplyMethodFilter == null || studyApplyMethodFilter == 0 || study.studyApplyMethod == studyApplyMethodFilter
-//        }
-//
-//        // 기술 스택 필터링
-//        val skillListFilteredList = applyMethodFilteredList.filter { (study, _) ->
-//            studySkillListFilter == null || studySkillListFilter == 0 || study.studySkillList.contains(studySkillListFilter)
-//        }
-//
-//        // 프로그래밍 언어 필터링
-//        val programmingLanguageFilteredList = skillListFilteredList.filter { (study, _) ->
-//            programmingLanguageFilter == null || programmingLanguageFilter == 0 || study.studySkillList.contains(programmingLanguageFilter)
-//        }
-//
-//        // 필터링된 데이터로 LiveData 업데이트
-//        _filteredStudyList.value = programmingLanguageFilteredList
-//
-//        Log.d("StudyViewModel", "필터링된 결과: ${_filteredStudyList.value?.size} 개, 필터링된 데이터: ${_filteredStudyList.value}")
-//    }
-
-//    // 필터 적용 (내 스터디)
-//    private fun applyMyFilters() {
-//        val studyTypeFilter = filterData["studyType"]?.toIntOrNull()
-//        val studyPeriodFilter = filterData["studyPeriod"]?.toIntOrNull()
-//        val studyOnOfflineFilter = filterData["studyOnOffline"]?.toIntOrNull()
-//        val studyMaxMemberFilter = filterData["studyMaxMember"]?.toIntOrNull()
-//        val studyApplyMethodFilter = filterData["studyApplyMethod"]?.toIntOrNull()
-//        val studySkillListFilter = filterData["studySkillList"]?.toIntOrNull()
-//        val programmingLanguageFilter = filterData["programmingLanguage"]?.toIntOrNull()
-//
-//        Log.d("StudyViewModel", "필터 적용: studyTypeFilter = $studyTypeFilter, studyPeriodFilter = $studyPeriodFilter, studyOnOfflineFilter = $studyOnOfflineFilter, studyMaxMemberFilter = $studyMaxMemberFilter, studyApplyMethodFilter = $studyApplyMethodFilter, studySkillListFilter = $studySkillListFilter, programmingLanguageFilter = $programmingLanguageFilter")
-//
-//        val studyMyDataList = _studyMyDataList.value
-//        Log.d("StudyViewModel", "내 스터디 데이터: $studyMyDataList")
-//
-//        // 타입
-//        val typeFilteredList = studyMyDataList?.filter { (study, _) ->
-//            studyTypeFilter == null || studyTypeFilter == 0 || study.studyType == studyTypeFilter
-//        } ?: emptyList()
-//
-//        // 기간
-//        val periodFilteredList = typeFilteredList.filter { (study, _) ->
-//            studyPeriodFilter == null || studyPeriodFilter == 0 || study.studyPeriod == studyPeriodFilter
-//        }
-//
-//        // 온오프라인
-//        val onOfflineFilteredList = periodFilteredList.filter { (study, _) ->
-//            studyOnOfflineFilter == null || studyOnOfflineFilter == 0 || study.studyOnOffline == studyOnOfflineFilter
-//        }
-//
-//        // 최대 인원수 필터링
-//        val maxMemberFilteredList = onOfflineFilteredList.filter { (study, _) ->
-//            studyMaxMemberFilter == null || studyMaxMemberFilter == 0 || when (studyMaxMemberFilter) {
-//                1 -> study.studyMaxMember in 1..5
-//                2 -> study.studyMaxMember in 6..10
-//                3 -> study.studyMaxMember >= 11
-//                else -> true
-//            }
-//        }
-//
-//        // 신청 방식 필터링
-//        val applyMethodFilteredList = maxMemberFilteredList.filter { (study, _) ->
-//            studyApplyMethodFilter == null || studyApplyMethodFilter == 0 || study.studyApplyMethod == studyApplyMethodFilter
-//        }
-//
-//        // 기술 스택 필터링
-//        val skillListFilteredList = applyMethodFilteredList.filter { (study, _) ->
-//            studySkillListFilter == null || studySkillListFilter == 0 || study.studySkillList.contains(studySkillListFilter)
-//        }
-//
-//        // 프로그래밍 언어 필터링
-//        val programmingLanguageFilteredList = skillListFilteredList.filter { (study, _) ->
-//            programmingLanguageFilter == null || programmingLanguageFilter == 0 || study.studySkillList.contains(programmingLanguageFilter)
-//        }
-//
-//        // 필터링된 데이터로 LiveData 업데이트
-//        _filteredMyStudyList.value = programmingLanguageFilteredList
-//
-//        Log.d("StudyViewModel", "필터링된 결과: ${_filteredMyStudyList.value?.size} 개, 필터링된 데이터: ${_filteredMyStudyList.value}")
-//    }
 }

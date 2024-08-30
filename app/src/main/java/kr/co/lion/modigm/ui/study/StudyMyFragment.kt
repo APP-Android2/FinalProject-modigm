@@ -93,8 +93,14 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
             // 필터 버튼
             imageViewStudyMyFilter.setOnClickListener {
                 // 필터 및 정렬 화면으로 이동
+                val filterSortFragment = FilterSortFragment().apply {
+                    arguments = Bundle().apply {
+                        putString("filterWhere", logTag)
+                    }
+                }
+
                 requireActivity().supportFragmentManager.commit {
-                    add(R.id.containerMain, FilterSortFragment())
+                    add(R.id.containerMain, filterSortFragment)
                     addToBackStack(FragmentName.FILTER_SORT.str)
                 }
             }
@@ -156,12 +162,22 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
                 }
             }
         }
-
-        // 내 스터디 데이터 관찰 (필터링이 없을 때)
-        viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
-            studyAdapter.updateData(studyList)
-            Log.d(logTag, "내 스터디 목록 업데이트: ${studyList.size} 개")
+        // 필터 적용 여부를 관찰하여, 필터가 적용된 경우와 그렇지 않은 경우를 구분
+        viewModel.isFilterApplied.observe(viewLifecycleOwner) { isFilterApplied ->
+            if (isFilterApplied) {
+                viewModel.filteredMyStudyData.observe(viewLifecycleOwner) { studyList ->
+                    studyAdapter.updateData(studyList)
+                    Log.d(logTag, "필터 적용된 스터디 목록 업데이트: ${studyList.size} 개")
+                }
+            } else {
+                // 내 스터디 데이터 관찰 (필터링이 없을 때)
+                viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
+                    studyAdapter.updateData(studyList)
+                    Log.d(logTag, "내 스터디 목록 업데이트: ${studyList.size} 개")
+                }
+            }
         }
+
 
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
             // 좋아요 상태가 변경되었을 때 특정 항목 업데이트

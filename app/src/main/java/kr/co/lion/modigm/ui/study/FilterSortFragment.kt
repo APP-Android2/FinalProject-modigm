@@ -26,6 +26,10 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
     // 태그
     private val logTag by lazy { FilterSortFragment::class.simpleName }
 
+    private val filterWhere by lazy {
+        arguments?.getString("filterWhere") ?: ""
+    }
+
     // --------------------------------- LC START ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -144,8 +148,11 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
 
                 Log.d("FilterSortFragment", "적용된 필터 데이터: $filterStudyData")
 
-                // 필터링된 데이터 요청
-                viewModel.getFilteredStudyList(filterStudyData)
+
+                when(filterWhere){
+                    "StudyAllFragment" -> viewModel.getFilteredAllStudyList(filterStudyData)
+                    "StudyMyFragment" -> viewModel.getFilteredMyStudyList(filterStudyData)
+                }
 
                 parentFragmentManager.popBackStack()
             }

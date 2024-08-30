@@ -107,6 +107,12 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                 // 클릭 시
                 setOnClickListener {
                     // 필터 및 정렬 화면으로 이동
+                    val filterSortFragment = FilterSortFragment().apply {
+                        arguments = Bundle().apply {
+                            putString("filterWhere", logTag)
+                        }
+                    }
+
                     requireActivity().supportFragmentManager.commit {
                         setCustomAnimations(
                             R.anim.slide_in,
@@ -114,7 +120,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                             R.anim.fade_in,
                             R.anim.slide_out
                         )
-                        add(R.id.containerMain, FilterSortFragment())
+                        add(R.id.containerMain, filterSortFragment)
                         addToBackStack(FragmentName.FILTER_SORT.str)
                     }
                 }
@@ -191,7 +197,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         // 필터 적용 여부를 관찰하여, 필터가 적용된 경우와 그렇지 않은 경우를 구분
         viewModel.isFilterApplied.observe(viewLifecycleOwner) { isFilterApplied ->
             if (isFilterApplied) {
-                viewModel.filteredStudyData.observe(viewLifecycleOwner) { studyList ->
+                viewModel.filterAllStudyData.observe(viewLifecycleOwner) { studyList ->
                     studyAdapter.updateData(studyList)
                     Log.d(logTag, "필터 적용된 스터디 목록 업데이트: ${studyList.size} 개")
                 }

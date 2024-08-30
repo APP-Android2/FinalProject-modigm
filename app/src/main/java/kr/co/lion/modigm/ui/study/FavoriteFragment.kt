@@ -108,7 +108,7 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
 
 
         // 전체 데이터 관찰 (필터링이 없을 때)
-        viewModel.favoritedStudyData.observe(viewLifecycleOwner) { studyList ->
+        viewModel.favoriteStudyData.observe(viewLifecycleOwner) { studyList ->
             with(binding) {
                 if (studyList.isNotEmpty()) {
                     recyclerviewFavorite.visibility = View.VISIBLE

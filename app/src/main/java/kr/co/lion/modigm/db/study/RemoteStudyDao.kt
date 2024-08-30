@@ -175,7 +175,7 @@ class RemoteStudyDao {
 
 
     /**
-     * 필터링된 스터디 목록 조회
+     * 필터링된 전체 스터디 목록 조회
      */
     suspend fun selectFilteredStudyData(filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> =
         withContext(Dispatchers.IO) {
@@ -206,6 +206,46 @@ class RemoteStudyDao {
                         result
                     }
                 }
+            }
+        }
+
+    /**
+     * 필터링된 내 스터디 목록 조회
+     */
+    suspend fun selectFilteredMyStudyData(userIdx: Int, filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                HikariCPDataSource.getConnection().use { connection ->
+                    val query = """
+                        SELECT s.*, COUNT(sm.userIdx) as memberCount,
+                               IF(f.favoriteIdx IS NOT NULL, TRUE, FALSE) as isFavorite
+                        FROM tb_study s
+                        LEFT JOIN tb_study_member sm ON s.studyIdx = sm.studyIdx
+                        LEFT JOIN tb_favorite f ON s.studyIdx = f.studyIdx AND f.userIdx = ?
+                        WHERE s.studyState = true
+                        AND sm.userIdx = ?
+                        ${buildFilterQuery(filter)}
+                        GROUP BY s.studyIdx
+                    """
+
+                    connection.prepareStatement(query).use { statement ->
+                        // 사용자 인덱스 설정
+                        statement.setInt(1, userIdx) // 실제 사용자 인덱스 설정
+                        statement.setInt(2, userIdx) // 실제 사용자 인덱스 설정 (내 스터디 필터링에 필요)
+                        val resultSet = statement.executeQuery()
+                        val result = mutableListOf<Triple<StudyData, Int, Boolean>>()
+                        while (resultSet.next()) {
+                            val studyData = StudyData.getStudyData(resultSet)
+                            val memberCount = resultSet.getInt("memberCount")
+                            val isFavorite = resultSet.getBoolean("isFavorite")
+                            result.add(Triple(studyData, memberCount, isFavorite))
+                        }
+                        result
+                    }
+                }
+            }.onFailure { e ->
+                Log.e(tag, "내 스터디 목록 필터링 조회 중 오류 발생", e)
+                Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
             }
         }
 

@@ -82,9 +82,16 @@ class RemoteStudyDataSource {
     }
 
     /**
-     * 필터링된 스터디 목록 가져오기
+     * 필터링된 전체 스터디 목록 가져오기
      */
     suspend fun getFilteredStudyList(filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
         return dao.selectFilteredStudyData(filter)
+    }
+
+    /**
+     * 필터링된 내 스터디 목록 가져오기
+     */
+    suspend fun getFilteredMyStudyList(userIdx: Int, filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
+        return dao.selectFilteredMyStudyData(userIdx, filter)
     }
 }
