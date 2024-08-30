@@ -12,13 +12,13 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.study.adapter.StudyAdapter
-import kr.co.lion.modigm.ui.study.vm.StudyViewModel
+import kr.co.lion.modigm.ui.study.vm.FavoriteViewModel
 import kr.co.lion.modigm.util.FragmentName
 
 class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavoriteBinding::inflate) {
 
     // 뷰모델
-    private val viewModel: StudyViewModel by viewModels()
+    private val viewModel: FavoriteViewModel by viewModels()
 
     // 태그
     private val logTag by lazy { FavoriteFragment::class.simpleName }
@@ -90,11 +90,7 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
 
 
     private fun observeViewModel() {
-//        // 필터링된 데이터 관찰
-//        viewModel.filteredStudyList.observe(viewLifecycleOwner) { studyList ->
-//            studyAllAdapter.updateData(studyList)
-//            Log.d("StudyAllFragment", "필터링된 전체 스터디 목록 업데이트: ${studyList.size} 개, 데이터: $studyList")
-//        }
+
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             with(binding){

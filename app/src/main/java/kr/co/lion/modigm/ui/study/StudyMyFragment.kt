@@ -162,6 +162,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
                 }
             }
         }
+
         // 필터 적용 여부를 관찰하여, 필터가 적용된 경우와 그렇지 않은 경우를 구분
         viewModel.isFilterApplied.observe(viewLifecycleOwner) { isFilterApplied ->
             if (isFilterApplied) {
@@ -178,27 +179,22 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
             }
         }
 
-
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
             // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
             studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
 
-        if (!viewModel.myStudyError.hasObservers()) {
-            viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
-                Log.e(logTag, "내 스터디 목록 오류 발생", e)
-                if (e != null) {
-                    showStudyErrorDialog(e)
-                }
+        viewModel.myStudyError.observe(viewLifecycleOwner) { e ->
+            Log.e(logTag, "내 스터디 목록 오류 발생", e)
+            if (e != null) {
+                showStudyErrorDialog(e)
             }
         }
 
-        if (!viewModel.isFavoriteError.hasObservers()) {
-            viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-                Log.e(logTag, "좋아요 오류 발생", e)
-                if (e != null) {
-                    showStudyErrorDialog(e)
-                }
+        viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
+            Log.e(logTag, "좋아요 오류 발생", e)
+            if (e != null) {
+                showStudyErrorDialog(e)
             }
         }
     }

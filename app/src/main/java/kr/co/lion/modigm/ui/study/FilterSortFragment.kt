@@ -21,6 +21,7 @@ import kr.co.lion.modigm.util.FragmentName
 
 class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFilterSortBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
 
     // 태그

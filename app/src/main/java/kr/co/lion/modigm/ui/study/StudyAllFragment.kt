@@ -112,7 +112,6 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                             putString("filterWhere", logTag)
                         }
                     }
-
                     requireActivity().supportFragmentManager.commit {
                         setCustomAnimations(
                             R.anim.slide_in,
@@ -125,9 +124,6 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                     }
                 }
             }
-
-
-
             // 리사이클러뷰
             with(recyclerViewStudyAll) {
                 // 리사이클러뷰 어답터

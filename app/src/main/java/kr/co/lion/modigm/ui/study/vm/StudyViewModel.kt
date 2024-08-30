@@ -39,10 +39,6 @@ class StudyViewModel : ViewModel() {
     private val _myStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val myStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _myStudyData
 
-    // 좋아요한 스터디 목록
-    private val _favoriteStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
-    val favoriteStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _favoriteStudyData
-
     // 필터링된 전체 스터디 목록 LiveData
     private val _filterAllStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val filterAllStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> get() = _filterAllStudyData
@@ -60,15 +56,11 @@ class StudyViewModel : ViewModel() {
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()
     val isFavorite: LiveData<Pair<Int, Boolean>> = _isFavorite
 
-
     private val _allStudyError = MutableLiveData<Throwable?>()
     val allStudyError: LiveData<Throwable?> = _allStudyError
 
     private val _myStudyError = MutableLiveData<Throwable?>()
     val myStudyError: LiveData<Throwable?> = _myStudyError
-
-    private val _favoriteStudyError = MutableLiveData<Throwable?>()
-    val favoriteStudyError: LiveData<Throwable?> = _favoriteStudyError
 
     private val _isFavoriteError = MutableLiveData<Throwable?>()
     val isFavoriteError: LiveData<Throwable?> = _isFavoriteError
@@ -110,23 +102,6 @@ class StudyViewModel : ViewModel() {
             }.onFailure { e ->
                 Log.e(logTag, "Error getMyStudyData", e)
                 _myStudyError.postValue(e)
-            }
-            _isLoading.postValue(false) // 로딩 종료
-        }
-    }
-
-    /**
-     * 좋아요한 스터디 목록 가져오기 (찜화면 접근 시)
-     */
-    fun getFavoriteStudyData() {
-        viewModelScope.launch {
-            _isLoading.postValue(true) // 로딩 시작
-            val result = studyRepository.getFavoriteStudyData(getCurrentUserIdx())
-            result.onSuccess {
-                _favoriteStudyData.postValue(it)
-            }.onFailure { e ->
-                Log.e(logTag, "Error getFavoriteStudyData", e)
-                _favoriteStudyError.postValue(e)
             }
             _isLoading.postValue(false) // 로딩 종료
         }
@@ -202,9 +177,7 @@ class StudyViewModel : ViewModel() {
     fun clearData() {
         _allStudyData.postValue(emptyList())
         _myStudyData.postValue(emptyList())
-        _favoriteStudyData.postValue(emptyList())
         _isFavorite.postValue(Pair(-1, false))
-        _favoriteStudyError.postValue(null)
         _isFavoriteError.postValue(null)
         _myStudyError.postValue(null)
         _allStudyError.postValue(null)

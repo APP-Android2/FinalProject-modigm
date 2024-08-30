@@ -35,10 +35,6 @@ class StudyAdapter(
 
     override fun onBindViewHolder(holder: StudyViewHolder, position: Int) {
         holder.bind(studyList[position])
-        Log.d(
-            logTag,
-            "onBindViewHolder: position = $position, studyIdx = ${studyList[position].first.studyIdx}"
-        )
     }
 
     // 목록 새로고침

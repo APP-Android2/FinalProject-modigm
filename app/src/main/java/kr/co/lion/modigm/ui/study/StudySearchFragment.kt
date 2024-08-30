@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.study
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
@@ -12,14 +13,15 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudySearchBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
+import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.study.adapter.StudySearchAdapter
-import kr.co.lion.modigm.ui.study.vm.StudyViewModel
+import kr.co.lion.modigm.ui.study.vm.StudySearchViewModel
 import kr.co.lion.modigm.util.FragmentName
 
 class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentStudySearchBinding::inflate) {
 
     // 뷰모델
-    private val viewModel: StudyViewModel by viewModels()
+    private val viewModel: StudySearchViewModel by viewModels()
 
     // 태그
     private val logTag by lazy { StudySearchFragment::class.simpleName }
@@ -43,8 +45,17 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
                     addToBackStack(FragmentName.DETAIL.str)
                 }
             },
-            favoriteClickListener = { studyIdx, currentState ->
-                viewModel.changeFavoriteState(studyIdx, currentState)
+            favoriteClickListener = { studyIdx, _ ->
+                // DetailFragment로 이동
+                val detailFragment = DetailFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", studyIdx)
+                    }
+                }
+                requireActivity().supportFragmentManager.commit {
+                    replace(R.id.containerMain, detailFragment)
+                    addToBackStack(FragmentName.DETAIL.str)
+                }
             }
         )
     }
@@ -56,7 +67,7 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
 
         initView()
         observeViewModel()
-        viewModel.getAllStudyData()
+        viewModel.getSearchStudyData()
     }
 
     override fun onDestroyView() {
@@ -78,7 +89,7 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
                 parentFragmentManager.popBackStack()
             }
 
-            // init SearchView
+            // 서치뷰 설정
             searchView.isSubmitButtonEnabled = true
 
             val searchTextView: TextView =
@@ -101,8 +112,53 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
     }
 
     private fun observeViewModel() {
-        viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
+        // 로딩 상태 관찰
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            with(binding){
+                if (isLoading) {
+                    progressBarStudySearch.visibility = View.VISIBLE
+                } else {
+                    progressBarStudySearch.visibility = View.GONE
+                }
+            }
+        }
+
+        // 검색 데이터 관찰 (필터링이 없을 때)
+        viewModel.searchStudyData.observe(viewLifecycleOwner) { studyList ->
             studySearchAdapter.updateData(studyList)
         }
+
+        // 검색 스터디 목록 오류 관찰
+        viewModel.searchStudyError.observe(viewLifecycleOwner) { e ->
+            Log.e(logTag, "전체 스터디 목록 오류 발생", e)
+            if (e != null) {
+                showStudyErrorDialog(e)
+            }
+        }
+    }
+
+    // 스터디 오류 처리 메서드
+    private fun showStudyErrorDialog(e: Throwable) {
+        val message = if (e.message != null) {
+            e.message.toString()
+        } else {
+            "알 수 없는 오류!"
+        }
+
+        studyErrorDialog(message)
+    }
+
+    // 오류 다이얼로그 표시
+    private fun studyErrorDialog(message: String) {
+        val dialog = CustomLoginErrorDialog(requireContext())
+        with(dialog){
+            setTitle("오류")
+            setMessage(message)
+            setPositiveButton("확인") {
+                dismiss()
+            }
+            show()
+        }
+
     }
 }
