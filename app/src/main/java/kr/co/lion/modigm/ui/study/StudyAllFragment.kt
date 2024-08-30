@@ -162,8 +162,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             // 쓸어내려 새로고침 기능
             with(swipeRefreshLayoutStudyAll){
                 setOnRefreshListener {
-                    viewModel.getAllStudyData()
-                    isRefreshing = false
+                    viewModel.refreshAllStudyData()
                 }
             }
         }
@@ -171,6 +170,11 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
 
     private fun observeViewModel() {
+
+        // 스와이프 리프레시 로딩 상태 관찰
+        viewModel.isRefreshing.observe(viewLifecycleOwner) { isRefreshing ->
+            binding.swipeRefreshLayoutStudyAll.isRefreshing = isRefreshing
+        }
 
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->

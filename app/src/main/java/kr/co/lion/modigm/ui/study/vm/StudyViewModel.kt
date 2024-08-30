@@ -31,21 +31,25 @@ class StudyViewModel : ViewModel() {
     private val _allStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val allStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _allStudyData
 
-    // 로딩 상태를 나타내는 LiveData
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-
     // 내 스터디 리스트
     private val _myStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
     val myStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _myStudyData
 
+    // 로딩 상태를 나타내는 LiveData
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    // 스와이프 리프레시 상태를 나타내는 LiveData
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean> = _isRefreshing
+
     // 필터링된 전체 스터디 목록 LiveData
     private val _filterAllStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
-    val filterAllStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> get() = _filterAllStudyData
+    val filterAllStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _filterAllStudyData
 
     // 필터링된 내 스터디 목록 LiveData
     private val _filteredMyStudyData = MutableLiveData<List<Triple<StudyData, Int, Boolean>>>()
-    val filteredMyStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> get() = _filteredMyStudyData
+    val filteredMyStudyData: LiveData<List<Triple<StudyData, Int, Boolean>>> = _filteredMyStudyData
 
     // 필터 적용 여부를 관리하는 LiveData
     private val _isFilterApplied = MutableLiveData<Boolean>(false)
@@ -103,6 +107,40 @@ class StudyViewModel : ViewModel() {
                 _myStudyError.postValue(e)
             }
             _isLoading.postValue(false) // 로딩 종료
+        }
+    }
+
+    /**
+     * 스와이프 리프레시용 전체 스터디 데이터 가져오기
+     */
+    fun refreshAllStudyData() {
+        viewModelScope.launch {
+            _isRefreshing.postValue(true) // 스와이프 리프레시 로딩 시작
+            val result = studyRepository.getAllStudyData(getCurrentUserIdx())
+            result.onSuccess {
+                _allStudyData.postValue(it)
+            }.onFailure {
+                Log.e(logTag, "Error refreshAllStudyData", it)
+                _allStudyError.postValue(it)
+            }
+            _isRefreshing.postValue(false) // 스와이프 리프레시 로딩 종료
+        }
+    }
+
+    /**
+     * 스와이프 리프레시용 내 스터디 데이터 가져오기
+     */
+    fun refreshMyStudyData() {
+        viewModelScope.launch {
+            _isRefreshing.postValue(true) // 스와이프 리프레시 로딩 시작
+            val result = studyRepository.getMyStudyData(getCurrentUserIdx())
+            result.onSuccess {
+                _myStudyData.postValue(it)
+            }.onFailure {
+                Log.e(logTag, "Error refreshMyStudyData", it)
+                _myStudyError.postValue(it)
+            }
+            _isRefreshing.postValue(false) // 스와이프 리프레시 로딩 종료
         }
     }
 

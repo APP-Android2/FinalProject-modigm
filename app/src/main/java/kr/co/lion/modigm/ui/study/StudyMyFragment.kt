@@ -143,14 +143,18 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
             // 쓸어내려 새로고침 기능
             with(swipeRefreshLayoutStudyMy){
                 setOnRefreshListener {
-                    viewModel.getMyStudyData()
-                    isRefreshing = false
+                    viewModel.refreshMyStudyData()
                 }
             }
         }
     }
 
     private fun observeViewModel() {
+
+        // 스와이프 리프레시 로딩 상태 관찰
+        viewModel.isRefreshing.observe(viewLifecycleOwner) { isRefreshing ->
+            binding.swipeRefreshLayoutStudyMy.isRefreshing = isRefreshing
+        }
 
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -181,11 +185,13 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
             }
         }
 
+        // 좋아요 상태 관찰
         viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
             // 좋아요 상태가 변경되었을 때 특정 항목 업데이트
             studyAdapter.updateItem(isFavorite.first, isFavorite.second)
         }
 
+        // 내 스터디 목록 오류 관찰
         viewModel.myStudyError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
                 Log.e(logTag, "내 스터디 목록 오류 발생", e)
@@ -193,6 +199,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
             }
         }
 
+        // 좋아요 오류 관찰
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
                 Log.e(logTag, "좋아요 오류 발생", e)
