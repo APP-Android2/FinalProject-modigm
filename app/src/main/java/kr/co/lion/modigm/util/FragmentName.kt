@@ -6,9 +6,6 @@ enum class FragmentName (var str: String){
 
     // 채팅
     CHAT("ChatFragment"),
-    CHAT_GROUP("ChatGroupFragment"),
-    CHAT_ONE_TO_ONE("ChatOnetoOneFragment"),
-    CHAT_ROOM("ChatRoomFragment"),
 
     // 글 상세보기
     DETAIL("DetailFragment"),
@@ -21,7 +18,7 @@ enum class FragmentName (var str: String){
     JOIN_DUPLICATE("JoinDuplicateFragment"),
 
     // 찜
-    LIKE("LikeFragment"),
+    FAVORITE("FavoriteFragment"),
 
     // 로그인
     LOGIN("LoginFragment"),

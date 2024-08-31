@@ -106,4 +106,16 @@ class StudyRepository() {
             Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
         }
     }
+
+    /**
+     * 기술 스택 데이터를 가져오는 메소드
+     */
+    suspend fun getTechStackData(): Result<List<Triple<Int, String, String>>> {
+        return runCatching {
+            remoteStudyDataSource.selectAllTechStack().getOrThrow()
+        }.onFailure { e ->
+            Log.e(logTag, "기술 스택 데이터 조회 중 오류 발생: ${e.message}", e)
+            Result.failure<List<Triple<Int, String, String>>>(e)
+        }
+    }
 }

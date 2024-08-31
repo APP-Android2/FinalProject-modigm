@@ -210,7 +210,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                         childFragmentManager.commit {
                             setReorderingAllowed(true)
                             replace<FavoriteFragment>(R.id.containerBottomNavi)
-                            addToBackStack(FragmentName.LIKE.str)
+                            addToBackStack(FragmentName.FAVORITE.str)
                         }
                     }
                     R.id.bottomNaviChat -> {

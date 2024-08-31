@@ -55,6 +55,10 @@ class StudyViewModel : ViewModel() {
     private val _isFilterApplied = MutableLiveData<Boolean>(false)
     val isFilterApplied: LiveData<Boolean> = _isFilterApplied
 
+    // 기술 스택 데이터 LiveData
+    private val _techStackData = MutableLiveData<List<Triple<Int, String, String>>>()
+    val techStackData: LiveData<List<Triple<Int, String, String>>> = _techStackData
+
 
     // 좋아요 상태
     private val _isFavorite = MutableLiveData<Pair<Int, Boolean>>()
@@ -222,6 +226,20 @@ class StudyViewModel : ViewModel() {
         _isFilterApplied.postValue(false)
         _filterAllStudyData.postValue(emptyList())
         _filteredMyStudyData.postValue(emptyList())
+    }
+
+    /**
+     * 기술 스택 데이터를 가져오는 함수
+     */
+    fun getTechStackData() {
+        viewModelScope.launch {
+            val result = studyRepository.getTechStackData()
+            result.onSuccess {
+                _techStackData.postValue(it)
+            }.onFailure { e ->
+                Log.e(logTag, "기술 스택 데이터 조회 실패", e)
+            }
+        }
     }
 
     // ------------------MySQL 적용 끝-----------------------

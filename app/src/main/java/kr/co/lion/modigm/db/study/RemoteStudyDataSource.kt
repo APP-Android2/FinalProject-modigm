@@ -94,4 +94,11 @@ class RemoteStudyDataSource {
     suspend fun getFilteredMyStudyList(userIdx: Int, filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
         return dao.selectFilteredMyStudyData(userIdx, filter)
     }
+
+    /**
+     * 기술 스택 데이터를 조회하는 메소드
+     */
+    suspend fun selectAllTechStack(): Result<List<Triple<Int, String, String>>> {
+        return dao.selectAllTechStack()
+    }
 }

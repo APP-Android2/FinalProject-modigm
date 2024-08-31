@@ -115,7 +115,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                     // 필터 및 정렬 화면으로 이동
                     val filterSortFragment = FilterSortFragment().apply {
                         arguments = Bundle().apply {
-                            putString("filterWhere", logTag)
+                            putString("filterWhere", FragmentName.STUDY_ALL.str)
                         }
                     }
                     requireActivity().supportFragmentManager.commit {

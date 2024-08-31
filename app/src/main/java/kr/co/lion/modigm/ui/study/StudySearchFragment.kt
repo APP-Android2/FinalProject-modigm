@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.appcompat.widget.SearchView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.commit
@@ -67,6 +68,12 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
 
         initView()
         observeViewModel()
+        backButton()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
         viewModel.getSearchStudyData()
     }
 
@@ -160,5 +167,12 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
             show()
         }
 
+    }
+
+    private fun backButton(){
+        // 백버튼 처리
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            parentFragmentManager.popBackStack()
+        }
     }
 }
