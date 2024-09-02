@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -389,12 +390,17 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 bundle.putString("email", viewModel.alreadyRegisteredUserEmail.value)
                 bundle.putString("provider", viewModel.alreadyRegisteredUserProvider.value)
                 bundle.putParcelable("user", viewModel.user.value)
-                val joinFragment = JoinDuplicateFragment()
-                joinFragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, joinFragment)
-                    .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
-                    .commit()
+                val joinDupFragment = JoinDuplicateFragment()
+                joinDupFragment.arguments = bundle
+                parentFragmentManager.commit {
+                    hide(this@JoinFragment)
+                    if(joinDupFragment.isAdded){
+                        show(joinDupFragment)
+                    }else{
+                        add(R.id.containerMain, joinDupFragment)
+                    }
+                }
+                viewModel.setIsPhoneAlreadyRegistered(false)
             }
         }
 

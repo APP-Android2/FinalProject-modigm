@@ -2,9 +2,12 @@ package kr.co.lion.modigm.ui.join
 
 import android.os.Build.VERSION
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import com.google.firebase.auth.FirebaseUser
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinDuplicateBinding
@@ -13,7 +16,6 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.login.LoginFragment
-import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 
 class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(FragmentJoinDuplicateBinding::inflate) {
@@ -45,14 +47,14 @@ class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(Fragm
         settingToolBar()
         settingExistingUserInfo()
         settingButtonJoinDupLogin()
-
+        backButton()
     }
 
     private fun settingToolBar(){
         with(binding.toolbarJoinDup){
             setNavigationIcon(R.drawable.arrow_back_24px)
             setNavigationOnClickListener {
-                parentFragmentManager.popBackStack(FragmentName.JOIN_DUPLICATE.str, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                backPressedCallback.handleOnBackPressed()
             }
         }
     }
@@ -87,6 +89,39 @@ class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(Fragm
             parentFragmentManager.beginTransaction()
                 .replace(R.id.containerMain, LoginFragment())
                 .commit()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // 백버튼 콜백 제거
+        backPressedCallback.remove()
+    }
+
+    // 백버튼 콜백
+    private val backPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+
+            override fun handleOnBackPressed() {
+
+                val joinFragment = parentFragmentManager.fragments[0]
+
+                parentFragmentManager.commit {
+                    joinFragment?.let {
+                        show(joinFragment)
+                    }
+                    hide(this@JoinDuplicateFragment)
+                }
+
+            }
+        }
+    }
+
+    // 백버튼 종료 동작
+    private fun backButton() {
+        // 백버튼 콜백을 안전하게 추가
+        backPressedCallback.let { callback ->
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
         }
     }
 
