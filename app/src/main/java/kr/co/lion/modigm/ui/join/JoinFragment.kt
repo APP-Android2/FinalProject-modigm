@@ -60,6 +60,10 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         settingToolBar()
         settingCollector()
 
+        // 로그인 상태인 경우 미리 로그아웃 처리해주기
+        // 로그인 상태에서 회원가입 진입 후 다시 빠져나올때 로그인된 계정이 파이어베이스 인증에서 삭제될 수 있음
+        viewModel.signOut()
+
         return binding.root
     }
 
