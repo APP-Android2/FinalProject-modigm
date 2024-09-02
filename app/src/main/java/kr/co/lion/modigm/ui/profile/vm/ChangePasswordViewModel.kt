@@ -11,8 +11,10 @@ import kr.co.lion.modigm.util.toNationalPhoneNumber
 
 class ChangePasswordViewModel : ViewModel() {
 
-    private val tag by lazy { ChangePasswordViewModel::class.simpleName }
+    // 태그
+    private val logTag by lazy { ChangePasswordViewModel::class.simpleName }
 
+    // 로그인 레포지토리
     private val loginRepository by lazy { LoginRepository() }
 
     // 비밀번호 변경 완료
@@ -57,16 +59,16 @@ class ChangePasswordViewModel : ViewModel() {
      * @param userPassword 사용자의 비밀번호
      */
     fun checkPassword(userPassword: String) {
-        Log.d(tag, "checkPassword 호출됨")
+        Log.d(logTag, "checkPassword 호출됨")
         viewModelScope.launch {
             val result = loginRepository.checkPassword(userPassword)
             result.onSuccess { currentUserPhone ->
                 _currentUserPhone.postValue(currentUserPhone.toNationalPhoneNumber())
-                Log.d(tag, "비밀번호 확인 성공.")
+                Log.d(logTag, "비밀번호 확인 성공.")
                 _isCurrentPasswordComplete.postValue(true)
 
             }.onFailure { e ->
-                Log.e(tag, "비밀번호 확인 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "비밀번호 확인 실패. 오류: ${e.message}", e)
                 _passwordInputError.postValue(Throwable("비밀번호가 일치하지 않습니다."))
             }
         }
@@ -76,14 +78,14 @@ class ChangePasswordViewModel : ViewModel() {
      * @param newPassword 변경할 비밀번호
      */
     fun updatePassword(newPassword: String) {
-        Log.d(tag, "updatePassword 호출됨")
+        Log.d(logTag, "updatePassword 호출됨")
         viewModelScope.launch {
             val result = loginRepository.updatePassword(newPassword)
             result.onSuccess {
-                Log.d(tag, "비밀번호 변경 성공.")
+                Log.d(logTag, "비밀번호 변경 성공.")
                 _isComplete.postValue(true)
             }.onFailure { e ->
-                Log.e(tag, "비밀번호 변경 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "비밀번호 변경 실패. 오류: ${e.message}", e)
             }
         }
     }

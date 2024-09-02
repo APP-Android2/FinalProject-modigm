@@ -33,14 +33,14 @@
 
             <!-- 분류 필터 -->
             <LinearLayout
-                android:id="@+id/layoutFilterBunryu"
+                android:id="@+id/layoutFilterType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterBunryu"
+                    android:id="@+id/textViewFilterType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -49,21 +49,21 @@
                     android:textStyle="bold" />
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupBunryu"
+                    android:id="@+id/chipGroupType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
             <!-- 기간 필터 -->
             <LinearLayout
-                android:id="@+id/layoutFilterGigan"
+                android:id="@+id/layoutFilterPeriod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterGigan"
+                    android:id="@+id/textViewFilterPeriod"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -72,122 +72,99 @@
                     android:textStyle="bold" />
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupGigan"
+                    android:id="@+id/chipGroupPeriod"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-            <!-- 장소 필터 -->
+            <!-- 온ㆍ오프라인 필터 -->
             <LinearLayout
-                android:id="@+id/layoutFilterJangso"
+                android:id="@+id/layoutFilterOnOffline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterJangso"
+                    android:id="@+id/textViewFilterOnOffline"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="장소"
+                    android:text="온ㆍ오프라인"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupJangso"
+                    android:id="@+id/chipGroupOnOffline"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
 
-            <!-- 인원수 필터 -->
+            <!-- 모집 인원 필터 -->
             <LinearLayout
-                android:id="@+id/layoutFilterInwon"
+                android:id="@+id/layoutFilterMaxMember"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterInWon"
+                    android:id="@+id/textViewFilterMaxMember"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="인원수"
+                    android:text="모집 인원"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupInwon"
+                    android:id="@+id/chipGroupMaxMember"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <!-- 신청 방식 필터 -->
+            <!-- 기술 분류 필터 -->
             <LinearLayout
-                android:id="@+id/layoutFilterSinchung"
+                android:id="@+id/layoutFilterTechCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterSinchung"
+                    android:id="@+id/textViewFilterTechCategory"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="신청 방식"
+                    android:text="기술 분류"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupSinchung"
+                    android:id="@+id/chipGroupTechCategory"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-
-            <!-- 기술 스택 필터 -->
+            <!-- 기술 이름 필터 -->
             <LinearLayout
-                android:id="@+id/layoutFilterGisul"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterGisul"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="기술 스택"
-                    android:textSize="18dp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupGisul"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <!-- 프로그래밍 언어 필터 -->
-            <LinearLayout
-                android:id="@+id/layoutFilterPrograming"
+                android:id="@+id/layoutFilterTechName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/textViewFilterPrograming"
+                    android:id="@+id/textViewFilterTechName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="프로그래밍 언어"
+                    android:text="기술 이름"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupPrograming"
+                    android:id="@+id/chipGroupTechName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 

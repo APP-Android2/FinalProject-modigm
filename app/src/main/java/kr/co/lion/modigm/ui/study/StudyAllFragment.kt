@@ -4,10 +4,16 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.annotation.OptIn
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
+import com.google.android.material.imageview.ShapeableImageView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudyAllBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
@@ -21,6 +27,9 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
     // 뷰모델
     private val viewModel: StudyViewModel by activityViewModels()
+
+    // 태그
+    private val logTag by lazy { StudyAllFragment::class.simpleName }
 
     // 어답터
     private val studyAdapter: StudyAdapter by lazy {
@@ -67,29 +76,28 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         // 초기 뷰 세팅
         initView()
+        // 뷰모델 관찰자 등록
         observeViewModel()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 전체 스터디 데이터 요청
         viewModel.getAllStudyData()
-        Log.d(tag, "onViewCreated 호출됨")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-
-        // LiveData 관찰자 제거
-        viewModel.allStudyData.removeObservers(viewLifecycleOwner)
-        viewModel.isFavorite.removeObservers(viewLifecycleOwner)
-        viewModel.allStudyError.removeObservers(viewLifecycleOwner)
-        viewModel.isFavoriteError.removeObservers(viewLifecycleOwner)
-
-        viewModel.clearData() // ViewModel 데이터 초기화
+        // ViewModel 데이터 초기화
+        viewModel.clearData()
 
     }
 
     override fun onDetach() {
         super.onDetach()
+        // 스크롤 리스너 인터페이스 해제
         scrollListener = null
     }
 
@@ -101,9 +109,15 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
         with(binding) {
             // 필터 버튼
             with(imageViewStudyAllFilter) {
+
                 // 클릭 시
                 setOnClickListener {
                     // 필터 및 정렬 화면으로 이동
+                    val filterSortFragment = FilterSortFragment().apply {
+                        arguments = Bundle().apply {
+                            putString("filterWhere", FragmentName.STUDY_ALL.str)
+                        }
+                    }
                     requireActivity().supportFragmentManager.commit {
                         setCustomAnimations(
                             R.anim.slide_in,
@@ -111,14 +125,11 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                             R.anim.fade_in,
                             R.anim.slide_out
                         )
-                        add(R.id.containerMain, FilterSortFragment())
+                        add(R.id.containerMain, filterSortFragment)
                         addToBackStack(FragmentName.FILTER_SORT.str)
                     }
                 }
             }
-
-
-
             // 리사이클러뷰
             with(recyclerViewStudyAll) {
                 // 리사이클러뷰 어답터
@@ -164,31 +175,58 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             // 쓸어내려 새로고침 기능
             with(swipeRefreshLayoutStudyAll){
                 setOnRefreshListener {
-                    viewModel.getAllStudyData()
-                    isRefreshing = false
+                    viewModel.refreshAllStudyData()
                 }
             }
         }
     }
 
-
     private fun observeViewModel() {
+
+        // 스와이프 리프레시 로딩 상태 관찰
+        viewModel.isRefreshing.observe(viewLifecycleOwner) { isRefreshing ->
+            binding.swipeRefreshLayoutStudyAll.isRefreshing = isRefreshing
+        }
 
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             with(binding){
                 if (isLoading) {
+                    Log.d(logTag,"로딩중")
                     progressBarStudyAll.visibility = View.VISIBLE
                 } else {
+                    Log.d(logTag,"로딩완료")
                     progressBarStudyAll.visibility = View.GONE
                 }
             }
         }
 
-        // 전체 스터디 목록 관찰
-        viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
-            studyAdapter.updateData(studyList)
-            Log.d(tag, "전체 스터디 목록 업데이트: ${studyList.size} 개")
+        // 필터 적용 여부를 관찰하여, 필터가 적용된 경우와 그렇지 않은 경우를 구분
+        viewModel.isFilterApplied.observe(viewLifecycleOwner) { isFilterApplied ->
+            with(binding){
+                // 필터가 적용된 경우
+                if (isFilterApplied) {
+
+                    // 필터 아이콘 UI 변경 (뱃지)
+                    setBadge(imageViewStudyAllFilter, R.color.redColor)
+                    val pointColor = ContextCompat.getColor(requireContext(), R.color.pointColor)
+                    imageViewStudyAllFilter.setColorFilter(pointColor)
+
+                    // 필터 적용된 스터디 목록을 관찰
+                    viewModel.filterAllStudyData.observe(viewLifecycleOwner) { studyList ->
+                        studyAdapter.updateData(studyList)
+                        Log.d(logTag, "필터 적용된 스터디 목록 업데이트: ${studyList.size} 개")
+                    }
+                    // 필터가 적용되지 않은 경우
+                } else {
+                    // 전체 스터디 목록을 관찰
+                    viewModel.allStudyData.observe(viewLifecycleOwner) { studyList ->
+                        studyAdapter.updateData(studyList)
+                        Log.d(logTag, "전체 스터디 목록 업데이트: ${studyList.size} 개")
+                    }
+                }
+            }
+
         }
 
         // 좋아요 상태 관찰
@@ -199,16 +237,16 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
         // 전체 스터디 목록 오류 관찰
         viewModel.allStudyError.observe(viewLifecycleOwner) { e ->
-            Log.e(tag, "전체 스터디 목록 오류 발생", e)
             if (e != null) {
+                Log.e(logTag, "전체 스터디 목록 오류 발생", e)
                 showStudyErrorDialog(e)
             }
         }
 
         // 좋아요 오류 관찰
         viewModel.isFavoriteError.observe(viewLifecycleOwner) { e ->
-            Log.e(tag, "좋아요 오류 발생", e)
             if (e != null) {
+                Log.e(logTag, "좋아요 오류 발생", e)
                 showStudyErrorDialog(e)
             }
         }
@@ -236,6 +274,15 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             }
             show()
         }
+    }
 
+    // 뱃지 설정
+    @OptIn(ExperimentalBadgeUtils::class)
+    private fun setBadge(icon: ShapeableImageView, badgeColor: Int ) {
+        val setBadgeColor = ContextCompat.getColor(requireContext(), badgeColor)
+        val badgeDrawable = BadgeDrawable.create(requireContext())
+        BadgeUtils.attachBadgeDrawable(badgeDrawable, icon)
+        badgeDrawable.badgeGravity = BadgeDrawable.TOP_END
+        badgeDrawable.backgroundColor = setBadgeColor
     }
 }

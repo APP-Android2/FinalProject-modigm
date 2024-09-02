@@ -14,10 +14,13 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.shake
 
-class FindEmailAuthFragment :
-    VBBaseFragment<FragmentFindEmailAuthBinding>(FragmentFindEmailAuthBinding::inflate) {
+class FindEmailAuthFragment : VBBaseFragment<FragmentFindEmailAuthBinding>(FragmentFindEmailAuthBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: FindEmailViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { FindEmailAuthFragment::class.simpleName }
 
     private val verificationId by lazy {
         arguments?.getString("verificationId") ?:""
@@ -43,7 +46,6 @@ class FindEmailAuthFragment :
     // 초기 뷰 세팅
     private fun initView() {
         with(binding) {
-
             // 실시간 텍스트 변경 감지 설정
             textInputEditFindAuthCode.addTextChangedListener(inputWatcher)
 
@@ -56,7 +58,6 @@ class FindEmailAuthFragment :
                     showCancelDialog()
                 }
             }
-
             // 완료 버튼
             with(buttonFindEmailAuthOK) {
                 isEnabled = false // 버튼을 처음에 비활성화
@@ -89,7 +90,6 @@ class FindEmailAuthFragment :
     }
 
     private fun observeViewModel() {
-
         with(binding){
             // 유효성 검사
             viewModel.authCodeInputError.observe(viewLifecycleOwner) { error ->
@@ -126,29 +126,31 @@ class FindEmailAuthFragment :
     // 이메일 다이얼로그 표시
     private fun showFindEmailDialog(email: String) {
         val dialog = CustomFindEmailDialog(requireContext())
-        dialog.setTitle("이메일 찾기")
-        dialog.setEmail("$email 입니다.")
-        dialog.setPositiveButton("확인") {
-            parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+        with(dialog){
+            setTitle("이메일 찾기")
+            setEmail("$email 입니다.")
+            setPositiveButton("확인") {
+                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+            }
+            show()
         }
-        dialog.show()
     }
 
     // 뒤로가기 다이얼로그 표시
     private fun showCancelDialog() {
         val dialog = CustomCancelDialog(requireContext())
-        dialog.setTitle("뒤로가기")
-        dialog.setPositiveButton("확인") {
-            lifecycleScope.launch {
-                viewModel.authLogout()
-                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+        with(dialog){
+            setTitle("뒤로가기")
+            setPositiveButton("확인") {
+                lifecycleScope.launch {
+                    viewModel.authLogout()
+                    parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                }
             }
+            setNegativeButton("취소") {
+                dismiss()
+            }
+            show()
         }
-        dialog.setNegativeButton("취소") {
-
-            dialog.dismiss()
-        }
-        dialog.show()
     }
-
 }

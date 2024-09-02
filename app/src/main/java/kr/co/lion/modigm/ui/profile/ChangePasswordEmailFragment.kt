@@ -15,7 +15,12 @@ import kr.co.lion.modigm.util.shake
 
 
 class ChangePasswordEmailFragment : VBBaseFragment<FragmentChangePasswordEmailBinding>(FragmentChangePasswordEmailBinding::inflate) {
+
+    // 뷰모델
     private val viewModel: ChangePasswordViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { ChangePasswordEmailFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 

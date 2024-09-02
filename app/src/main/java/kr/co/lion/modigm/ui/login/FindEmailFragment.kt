@@ -14,10 +14,13 @@ import kr.co.lion.modigm.ui.login.vm.FindEmailViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.shake
 
-class FindEmailFragment :
-    VBBaseFragment<FragmentFindEmailBinding>(FragmentFindEmailBinding::inflate) {
+class FindEmailFragment : VBBaseFragment<FragmentFindEmailBinding>(FragmentFindEmailBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: FindEmailViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { FindEmailFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 

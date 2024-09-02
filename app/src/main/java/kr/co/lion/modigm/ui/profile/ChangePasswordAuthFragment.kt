@@ -18,7 +18,11 @@ import kr.co.lion.modigm.util.shake
 
 class ChangePasswordAuthFragment : VBBaseFragment<FragmentChangePasswordAuthBinding>(FragmentChangePasswordAuthBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: ChangePasswordViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { ChangePasswordAuthFragment::class.simpleName }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -161,29 +165,32 @@ class ChangePasswordAuthFragment : VBBaseFragment<FragmentChangePasswordAuthBind
     private fun changePasswordCompleteDialog() {
         viewModel.isCompleteTo(false)
         val dialog = CustomUpdatePasswordDialog(requireContext())
-        dialog.setTitle("비밀번호 변경")
-        dialog.setMessage("비밀번호 변경을 완료했습니다")
-        dialog.setPositiveButton("확인") {
-            parentFragmentManager.popBackStack(FragmentName.SETTINGS.str,0)
+        with(dialog) {
+            setTitle("비밀번호 변경")
+            setMessage("비밀번호 변경을 완료했습니다")
+            setPositiveButton("확인") {
+                parentFragmentManager.popBackStack(FragmentName.SETTINGS.str,0)
+            }
+            show()
         }
-        dialog.show()
+
     }
 
     // 뒤로가기 다이얼로그 표시
     private fun showCancelDialog() {
         val dialog = CustomCancelDialog(requireContext())
-        dialog.setTitle("뒤로가기")
-        dialog.setMessage("변경을 취소하시겠습니까?")
-        dialog.setPositiveButton("확인") {
-            lifecycleScope.launch {
-                parentFragmentManager.popBackStack(FragmentName.SETTINGS.str,0)
+        with(dialog){
+            setTitle("뒤로가기")
+            setMessage("변경을 취소하시겠습니까?")
+            setPositiveButton("확인") {
+                lifecycleScope.launch {
+                    parentFragmentManager.popBackStack(FragmentName.SETTINGS.str,0)
+                }
             }
+            setNegativeButton("취소") {
+                dismiss()
+            }
+            show()
         }
-        dialog.setNegativeButton("취소") {
-
-            dialog.dismiss()
-        }
-        dialog.show()
     }
-
 }

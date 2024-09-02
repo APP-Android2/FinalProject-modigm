@@ -12,7 +12,10 @@ import kr.co.lion.modigm.repository.LoginRepository
 
 class FindEmailViewModel : ViewModel() {
 
-    private val tag by lazy { FindEmailViewModel::class.simpleName }
+    // 태그
+    private val logTag by lazy { FindEmailViewModel::class.simpleName }
+
+    // 로그인 레포지토리
     private val loginRepository by lazy { LoginRepository() }
 
     // 찾은 이메일
@@ -59,33 +62,33 @@ class FindEmailViewModel : ViewModel() {
      * @param userPhone 사용자의 전화번호
      */
     fun checkNameAndPhone(activity: Activity, userName: String, userPhone: String) {
-        Log.d(tag, "checkNameAndPhone 호출됨. userName: $userName, userPhone: $userPhone")
+        Log.d(logTag, "checkNameAndPhone 호출됨. userName: $userName, userPhone: $userPhone")
         viewModelScope.launch {
             val resultPhone = loginRepository.getUserDataByUserPhone(userPhone)
             resultPhone.onSuccess { userData ->
-                Log.d(tag, "전화번호 확인 성공. userData: $userData")
+                Log.d(logTag, "전화번호 확인 성공. userData: $userData")
                 if (userData.userName == userName) {
-                    Log.d(tag, "이름 일치 확인됨. 인증 문자 발송 시작.")
+                    Log.d(logTag, "이름 일치 확인됨. 인증 문자 발송 시작.")
                     // 이름이 일치하면 인증 문자 발송
                     val resultAuth = loginRepository.sendPhoneAuthCode(activity, userPhone)
                     resultAuth.onSuccess { result ->
                         val verificationId = result.first
                         val credential = result.second as? com.google.firebase.auth.PhoneAuthCredential
                         val token = result.third as? PhoneAuthProvider.ForceResendingToken
-                        Log.d(tag, "인증 문자 발송 성공.")
+                        Log.d(logTag, "인증 문자 발송 성공.")
                         _verificationId.postValue(verificationId)
                         _isComplete.postValue(true)
 
                     }.onFailure { e ->
-                        Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
+                        Log.e(logTag, "인증 문자 발송 실패. 오류: ${e.message}", e)
                         _phoneInputError.postValue(e)
                     }
                 } else {
-                    Log.e(tag, "이름 불일치. 입력한 이름: $userName, DB 이름: ${userData.userName}")
+                    Log.e(logTag, "이름 불일치. 입력한 이름: $userName, DB 이름: ${userData.userName}")
                     _nameInputError.postValue(Throwable("일치하는 이름이 없습니다."))
                 }
             }.onFailure { e ->
-                Log.e(tag, "전화번호 확인 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "전화번호 확인 실패. 오류: ${e.message}", e)
                 _phoneInputError.postValue(Throwable("등록되지 않은 전화번호입니다."))
             }
         }
@@ -97,15 +100,15 @@ class FindEmailViewModel : ViewModel() {
      * @param authCode 입력한 인증 코드
      */
     fun checkCodeAndFindEmail(verificationId: String, authCode: String) {
-        Log.d(tag, "checkCodeAndFindEmail 호출됨. verificationId: $verificationId, inputCode: $authCode")
+        Log.d(logTag, "checkCodeAndFindEmail 호출됨. verificationId: $verificationId, inputCode: $authCode")
         viewModelScope.launch {
             val result = loginRepository.getEmailByAuthCode(verificationId, authCode)
             result.onSuccess { email ->
-                Log.d(tag, "인증번호 확인 성공. email: $email")
+                Log.d(logTag, "인증번호 확인 성공. email: $email")
                 _emailResult.postValue(email)
                 _isComplete.postValue(true)
             }.onFailure { e ->
-                Log.e(tag, "인증번호 확인 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "인증번호 확인 실패. 오류: ${e.message}", e)
                 _authCodeInputError.postValue(Throwable("인증번호가 잘못되었습니다."))
             }
         }
@@ -113,9 +116,9 @@ class FindEmailViewModel : ViewModel() {
     fun authLogout(){
         val result = loginRepository.authLogout()
         result.onSuccess {
-            Log.d(tag, "로그아웃 성공.")
+            Log.d(logTag, "로그아웃 성공.")
         }.onFailure { e ->
-            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
+            Log.e(logTag, "로그아웃 실패. 오류: ${e.message}", e)
         }
     }
 

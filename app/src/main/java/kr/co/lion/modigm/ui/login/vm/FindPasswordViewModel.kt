@@ -11,7 +11,10 @@ import kr.co.lion.modigm.repository.LoginRepository
 
 class FindPasswordViewModel: ViewModel() {
 
-    private val tag by lazy { FindPasswordViewModel::class.simpleName }
+    // 태그
+    private val logTag by lazy { FindPasswordViewModel::class.simpleName }
+
+    // 로그인 레포지토리
     private val loginRepository by lazy { LoginRepository() }
 
     // 이메일 에러
@@ -66,20 +69,20 @@ class FindPasswordViewModel: ViewModel() {
                     val authResult = loginRepository.sendPhoneAuthCode(activity, userPhone)
                     authResult.onSuccess { result ->
                         val (verificationId, credential, resendToken) = result
-                        Log.d(tag, "인증 문자 발송 성공.")
+                        Log.d(logTag, "인증 문자 발송 성공.")
                         _verificationId.postValue(verificationId)
-                        Log.d(tag, "인증 문자 발송 성공. credential: $credential")
+                        Log.d(logTag, "인증 문자 발송 성공. credential: $credential")
                         _isComplete.postValue(true)
                     }.onFailure { e ->
-                        Log.e(tag, "인증 문자 발송 실패. 오류: ${e.message}", e)
+                        Log.e(logTag, "인증 문자 발송 실패. 오류: ${e.message}", e)
                         _phoneInputError.postValue(e)
                     }
                 } else {
-                    Log.e(tag, "이메일 불일치. 입력한 이메일: $userEmail, DB 이메일: ${userData.userEmail}")
+                    Log.e(logTag, "이메일 불일치. 입력한 이메일: $userEmail, DB 이메일: ${userData.userEmail}")
                     _emailInputError.postValue(Throwable("일치하는 이메일이 없습니다."))
                 }
             }.onFailure {
-                Log.e(tag, "이메일 확인 실패. 오류: ${it.message}", it)
+                Log.e(logTag, "이메일 확인 실패. 오류: ${it.message}", it)
                 _emailInputError.postValue(Throwable("등록되지 않은 이메일입니다."))
             }
         }
@@ -91,15 +94,15 @@ class FindPasswordViewModel: ViewModel() {
      * @param authCode 입력한 인증 코드
      */
     fun checkByAuthCode(verificationId: String, authCode: String) {
-        Log.d(tag, "checkCodeAndFindPW 호출됨. verificationId: $verificationId, authCode: $authCode")
+        Log.d(logTag, "checkCodeAndFindPW 호출됨. verificationId: $verificationId, authCode: $authCode")
         viewModelScope.launch {
             val signInResult = loginRepository.signInByAuthCode(verificationId, authCode)
             signInResult.onSuccess { signIn ->
-                Log.d(tag, "로그인 성공. signIn: $signIn")
+                Log.d(logTag, "로그인 성공. signIn: $signIn")
                 _verificationId.value = verificationId
                 _isComplete.postValue(true)
             }.onFailure { e ->
-                Log.e(tag, "인증번호 확인 실패. 오류: ${e.message}", e)
+                Log.e(logTag, "인증번호 확인 실패. 오류: ${e.message}", e)
                 _authCodeError.postValue(Throwable("인증번호가 잘못되었습니다."))
             }
         }
@@ -114,10 +117,10 @@ class FindPasswordViewModel: ViewModel() {
             if (newPassword.isNotEmpty()) {
                 val updateResult = loginRepository.updatePassword(newPassword)
                 updateResult.onSuccess {
-                    Log.d(tag, "비밀번호 변경 성공.")
+                    Log.d(logTag, "비밀번호 변경 성공.")
                     _isComplete.postValue(true)
                 }.onFailure { e ->
-                    Log.e(tag, "비밀번호 변경 실패. 오류: ${e.message}", e)
+                    Log.e(logTag, "비밀번호 변경 실패. 오류: ${e.message}", e)
                     _newPasswordError.postValue(e)
                 }
             }
@@ -127,9 +130,9 @@ class FindPasswordViewModel: ViewModel() {
     fun authLogout() {
         val result = loginRepository.authLogout()
         result.onSuccess {
-            Log.d(tag, "로그아웃 성공.")
+            Log.d(logTag, "로그아웃 성공.")
         }.onFailure { e ->
-            Log.e(tag, "로그아웃 실패. 오류: ${e.message}", e)
+            Log.e(logTag, "로그아웃 실패. 오류: ${e.message}", e)
         }
     }
 

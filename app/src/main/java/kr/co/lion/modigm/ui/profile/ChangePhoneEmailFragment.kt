@@ -15,7 +15,11 @@ import kr.co.lion.modigm.util.shake
 
 class ChangePhoneEmailFragment : VBBaseFragment<FragmentChangePhoneEmailBinding>(FragmentChangePhoneEmailBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: ChangePhoneViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { ChangePhoneEmailFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 

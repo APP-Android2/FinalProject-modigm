@@ -12,8 +12,11 @@ import kr.co.lion.modigm.util.FragmentName
 
 class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBinding>(FragmentChangePhoneSocialBinding::inflate) {
 
-    // 뷰모델 선언
+    // 뷰모델
     private val viewModel: ChangePhoneViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { ChangePhoneSocialFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 

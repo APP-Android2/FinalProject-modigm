@@ -23,7 +23,11 @@ import kr.co.lion.modigm.util.shake
 
 class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
+
+    // 태그
+    private val logTag by lazy { OtherLoginFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 
@@ -111,7 +115,7 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
         viewModel.emailLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
                 hideLoginLoading()
-                Log.i("LoginFragment", "이메일 로그인 성공")
+                Log.i(logTag, "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
                 goToBottomNaviFragment(joinType)
             }
@@ -140,7 +144,7 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
 
     // 회원가입 화면으로 이동하는 메소드
     private fun goToJoinFragment(joinType: JoinType) {
-        Log.d("LoginFragment", "navigateToJoinFragment - joinType: ${joinType.provider}")
+        Log.d(logTag, "navigateToJoinFragment - joinType: ${joinType.provider}")
 
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)

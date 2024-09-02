@@ -16,7 +16,11 @@ import java.util.regex.Pattern
 
 class FindUpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>(FragmentUpdatePasswordBinding::inflate) {
 
+    // 뷰모델
     private val viewModel: FindPasswordViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { FindUpdatePasswordFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 
@@ -135,29 +139,33 @@ class FindUpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>
     private fun showFindEmailDialog() {
         viewModel.isCompleteTo(false)
         val dialog = CustomUpdatePasswordDialog(requireContext())
-        dialog.setTitle("비밀번호 변경")
-        dialog.setMessage("비밀번호 변경이 완료되었습니다.")
-        dialog.setPositiveButton("확인") {
-            // 비밀번호 변경 완료 후 로그인 화면으로 이동
-            parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+        with(dialog){
+            setTitle("비밀번호 변경")
+            setMessage("비밀번호 변경이 완료되었습니다.")
+            setPositiveButton("확인") {
+                // 비밀번호 변경 완료 후 로그인 화면으로 이동
+                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+            }
+            show()
         }
-        dialog.show()
+
     }
 
     // 뒤로가기 다이얼로그 표시
     private fun showCancelDialog() {
         val dialog = CustomCancelDialog(requireContext())
-        dialog.setTitle("뒤로가기")
-        dialog.setPositiveButton("예") {
-            lifecycleScope.launch {
-                viewModel.authLogout()
-                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+        with(dialog){
+            setTitle("뒤로가기")
+            setPositiveButton("예") {
+                lifecycleScope.launch {
+                    viewModel.authLogout()
+                    parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                }
             }
+            setNegativeButton("아니오") {
+                dismiss()
+            }
+            show()
         }
-        dialog.setNegativeButton("아니오") {
-
-            dialog.dismiss()
-        }
-        dialog.show()
     }
 }

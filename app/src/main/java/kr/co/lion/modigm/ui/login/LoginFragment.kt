@@ -30,7 +30,11 @@ import kotlin.system.exitProcess
 
 class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
 
-    private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
+    // 뷰모델
+    private val viewModel: LoginViewModel by viewModels()
+
+    // 태그
+    private val logTag by lazy { LoginFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 
@@ -80,18 +84,18 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
             // 카카오 로그인 버튼 클릭 리스너 설정
             imageButtonLoginKakao.setOnClickListener {
                 showLoginLoading()
-                Log.i(tag, "카카오 로그인 버튼 클릭됨")
+                Log.i(logTag, "카카오 로그인 버튼 클릭됨")
                 viewModel.loginKakao(requireContext())
             }
             // 깃허브 로그인 버튼 클릭 리스너 설정
             imageButtonLoginGithub.setOnClickListener {
                 showLoginLoading()
-                Log.i(tag, "깃허브 로그인 버튼 클릭됨")
+                Log.i(logTag, "깃허브 로그인 버튼 클릭됨")
                 viewModel.githubLogin(requireActivity())
             }
             // 다른 방법으로 로그인 버튼 클릭 리스너 설정
             textButtonLoginOther.setOnClickListener {
-                Log.i(tag, "다른 방법으로 로그인 버튼 클릭됨")
+                Log.i(logTag, "다른 방법으로 로그인 버튼 클릭됨")
                 parentFragmentManager.commit {
                     replace<OtherLoginFragment>(R.id.containerMain)
                     addToBackStack(FragmentName.OTHER_LOGIN.str)
@@ -120,7 +124,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
                 hideLoginLoading()
-                Log.i(tag, "카카오 로그인 성공")
+                Log.i(logTag, "카카오 로그인 성공")
                 val joinType = JoinType.KAKAO
                 goToBottomNaviFragment(joinType)
             }
@@ -129,7 +133,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         viewModel.githubLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
                 hideLoginLoading()
-                Log.i(tag, "깃허브 로그인 성공")
+                Log.i(logTag, "깃허브 로그인 성공")
                 val joinType = JoinType.GITHUB
                 goToBottomNaviFragment(joinType)
             }
@@ -138,7 +142,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         viewModel.kakaoJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
                 hideLoginLoading()
-                Log.i(tag, "카카오 회원가입으로 이동")
+                Log.i(logTag, "카카오 회원가입으로 이동")
                 val joinType = JoinType.KAKAO
                 goToJoinFragment(joinType)
             }
@@ -147,7 +151,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         viewModel.githubJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
                 hideLoginLoading()
-                Log.i(tag, "깃허브 회원가입으로 이동")
+                Log.i(logTag, "깃허브 회원가입으로 이동")
                 val joinType = JoinType.GITHUB
 
                 goToJoinFragment(joinType)
@@ -157,7 +161,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         viewModel.emailAutoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
                 hideLoginLoading()
-                Log.i("LoginFragment", "이메일 로그인 성공")
+                Log.i(logTag, "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
                 goToBottomNaviFragment(joinType)
             }

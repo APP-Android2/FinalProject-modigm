@@ -5,6 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class BottomNaviViewModel : ViewModel() {
+
+    // 태그
+    private val logTag by lazy { BottomNaviViewModel::class.simpleName }
+
     private val _isSnackBarShown = MutableLiveData(false)
     val isSnackBarShown: LiveData<Boolean> = _isSnackBarShown
 

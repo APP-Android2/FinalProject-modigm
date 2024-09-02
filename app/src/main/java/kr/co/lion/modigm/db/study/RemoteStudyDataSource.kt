@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.db.study
 
 import android.util.Log
+import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.model.StudyData
 
 class RemoteStudyDataSource {
@@ -78,5 +79,26 @@ class RemoteStudyDataSource {
             Log.e(tag, "좋아요 삭제 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
+    }
+
+    /**
+     * 필터링된 전체 스터디 목록 가져오기
+     */
+    suspend fun getFilteredStudyList(filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
+        return dao.selectFilteredStudyData(filter)
+    }
+
+    /**
+     * 필터링된 내 스터디 목록 가져오기
+     */
+    suspend fun getFilteredMyStudyList(userIdx: Int, filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
+        return dao.selectFilteredMyStudyData(userIdx, filter)
+    }
+
+    /**
+     * 기술 스택 데이터를 조회하는 메소드
+     */
+    suspend fun selectAllTechStack(): Result<List<Triple<Int, String, String>>> {
+        return dao.selectAllTechStack()
     }
 }

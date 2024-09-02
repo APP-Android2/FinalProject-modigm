@@ -14,9 +14,10 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class LoginViewModel : ViewModel() {
 
-    private val tag by lazy { LoginViewModel::class.simpleName }
+    // 태그
+    private val logTag by lazy { LoginViewModel::class.simpleName }
 
-    // LoginRepository 초기화
+    // 로그인 레포지토리
     private val loginRepository by lazy { LoginRepository() }
 
     // 카카오 로그인 결과를 담는 LiveData
@@ -172,14 +173,14 @@ class LoginViewModel : ViewModel() {
      */
     fun tryAutoLogin() {
         // 자동 로그인이 활성화 되어 있다면
-        Log.d(tag, "tryAutoLogin 호출됨.")
+        Log.d(logTag, "tryAutoLogin 호출됨.")
         if(getAutoLogin()) {
             viewModelScope.launch {
                 val userIdx = getCurrentUserIdx()
                 val result = loginRepository.autoLogin(userIdx)
                 result.onSuccess {
                     // 자동 로그인 성공
-                    Log.d(tag, "자동 로그인 성공. ${getCurrentUserProvider()}")
+                    Log.d(logTag, "자동 로그인 성공. ${getCurrentUserProvider()}")
                     when (getCurrentUserProvider()) {
                         JoinType.GITHUB.provider -> _githubLoginResult.postValue(true)
                         JoinType.KAKAO.provider  -> _kakaoLoginResult.postValue(true)
@@ -187,7 +188,7 @@ class LoginViewModel : ViewModel() {
                     }
                 }.onFailure { e ->
                     // 자동 로그인 실패
-                    Log.e(tag, "자동 로그인 실패. 오류: ${e.message}", e)
+                    Log.e(logTag, "자동 로그인 실패. 오류: ${e.message}", e)
                     when (getCurrentUserProvider()) {
                         JoinType.GITHUB.provider -> _githubLoginResult.postValue(false)
                         JoinType.KAKAO.provider  -> _kakaoLoginResult.postValue(false)
