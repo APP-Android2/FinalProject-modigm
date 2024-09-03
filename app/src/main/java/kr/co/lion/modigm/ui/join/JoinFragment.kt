@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -59,6 +60,10 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         settingValuesFromBundle()
         settingToolBar()
         settingCollector()
+
+        // 로그인 상태인 경우 미리 로그아웃 처리해주기
+        // 로그인 상태에서 회원가입 진입 후 다시 빠져나올때 로그인된 계정이 파이어베이스 인증에서 삭제될 수 있음
+        viewModel.signOut()
 
         return binding.root
     }
@@ -385,12 +390,17 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 bundle.putString("email", viewModel.alreadyRegisteredUserEmail.value)
                 bundle.putString("provider", viewModel.alreadyRegisteredUserProvider.value)
                 bundle.putParcelable("user", viewModel.user.value)
-                val joinFragment = JoinDuplicateFragment()
-                joinFragment.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, joinFragment)
-                    .addToBackStack(FragmentName.JOIN_DUPLICATE.str)
-                    .commit()
+                val joinDupFragment = JoinDuplicateFragment()
+                joinDupFragment.arguments = bundle
+                parentFragmentManager.commit {
+                    hide(this@JoinFragment)
+                    if(joinDupFragment.isAdded){
+                        show(joinDupFragment)
+                    }else{
+                        add(R.id.containerMain, joinDupFragment)
+                    }
+                }
+                viewModel.setIsPhoneAlreadyRegistered(false)
             }
         }
 
