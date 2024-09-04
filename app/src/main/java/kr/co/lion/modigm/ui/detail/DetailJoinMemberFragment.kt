@@ -24,8 +24,6 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
     private val viewModel: DetailViewModel by activityViewModels()
     private lateinit var adapter: DetailJoinMembersAdapter
 
-    // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
-//    var studyIdx = 0
     var currentUserId = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
