@@ -232,6 +232,17 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             }
         }
 
+        // 새로운 코드 추가: 알림 성공 여부를 관찰
+        lifecycleScope.launch {
+            viewModel.notificationResult.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { result ->
+                if (result) {
+                    Log.d("DetailFragment", "Notification sent successfully.")
+                } else {
+                    Log.e("DetailFragment", "Failed to send notification.")
+                }
+            }
+        }
+
         lifecycleScope.launch {
             viewModel.isLiked.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { isLiked ->
                 updateLikeButton(isLiked)
@@ -423,21 +434,42 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     }
 
     // 앱바 스크롤 설정
+//    fun setupAppBarScrollListener() {
+//        with(binding) {
+//            appBarDetail.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+//                // 전체 스크롤 범위를 계산
+//                val scrollRange = appBarLayout.totalScrollRange
+//                // 뒤로가기 아이콘
+//                val drawable =
+//                    ContextCompat.getDrawable(requireContext(), R.drawable.icon_arrow_back_24px)
+//                // 스크롤 최대일 때 아이콘 색상 변경
+//                if (scrollRange + verticalOffset == 0) {
+//                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.black))
+//                } else {
+//                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.white))
+//                }
+//                // 네비게이션 아이콘 업데이트
+//                toolbar.navigationIcon = drawable
+//            })
+//        }
+//    }
+
     fun setupAppBarScrollListener() {
         with(binding) {
             appBarDetail.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
-                // 전체 스크롤 범위를 계산
+                if (!isAdded) return@OnOffsetChangedListener // 프래그먼트가 액티비티에 추가되지 않았으면 반환
+
+                val context = context ?: return@OnOffsetChangedListener // context가 null이면 반환
+
                 val scrollRange = appBarLayout.totalScrollRange
-                // 뒤로가기 아이콘
-                val drawable =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.icon_arrow_back_24px)
-                // 스크롤 최대일 때 아이콘 색상 변경
+                val drawable = ContextCompat.getDrawable(context, R.drawable.icon_arrow_back_24px)
+
                 if (scrollRange + verticalOffset == 0) {
-                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.black))
+                    drawable?.setTint(ContextCompat.getColor(context, R.color.black))
                 } else {
-                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.white))
+                    drawable?.setTint(ContextCompat.getColor(context, R.color.white))
                 }
-                // 네비게이션 아이콘 업데이트
+
                 toolbar.navigationIcon = drawable
             })
         }
@@ -488,6 +520,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 val detailMemberFragment = DetailMemberFragment().apply {
                     arguments = Bundle().apply {
                         putInt("studyIdx", currentStudyData?.studyIdx?:0)
+                        putString("studyTitle",currentStudyData?.studyTitle?:"")
                     }
                 }
 
@@ -636,16 +669,20 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     }
 
     private fun handleNonOwnerButtonClick(view: View) {
+        // applyMethod를 currentStudyData의 studyApplyMethod 값으로 설정
+        val applyMethod = currentStudyData?.studyApplyMethod ?: "선착순"  // 기본값을 "선착순"으로 설정
+
         val method = currentStudyData?.studyApplyMethod
         Log.d("DetailFragment", "Button clicked, method: $method")
 
         if (method != null && currentStudyData?.userIdx != userIdx) {
             Log.d("DetailFragment", "Button clicked, method: $method")
-            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, method)
+            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext()) // context 전달
         } else {
             Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
         }
     }
+
 
     private fun showSnackbar(view: View, message: String) {
         val snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)

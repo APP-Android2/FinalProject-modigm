@@ -306,7 +306,6 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
             }
         })
     }
-
     // 로딩 화면 표시
     private fun showLoginLoading() {
         with(binding){

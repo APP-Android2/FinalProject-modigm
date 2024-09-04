@@ -33,6 +33,8 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
 
         // 전달받은 studyIdx 값
         val studyIdx = arguments?.getInt("studyIdx") ?: 0
+        val studyTitle = arguments?.getString("studyTitle") ?:""
+        val imageUrl = arguments?.getString("imageUrl") ?:""
         Log.d("DetailJoinMemberFragment", "Received studyIdx: $studyIdx")
 
         if (studyIdx == 0) {
@@ -40,7 +42,7 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
             return  // studyIdx가 0이면 더 이상 진행하지 않도록 한다
         }
 
-        adapter = DetailJoinMembersAdapter(viewModel, currentUserId, studyIdx) { user ->
+        adapter = DetailJoinMembersAdapter(viewModel, currentUserId, studyIdx, studyTitle, imageUrl) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putInt("userIdx", user.userIdx)

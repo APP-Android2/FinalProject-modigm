@@ -81,6 +81,19 @@ android {
         dataBinding = true
         buildConfig = true
     }
+
+    // 빌드 과정에서 제외할 파일 지정 (리소스 파일 중복 문제 방지)
+    packagingOptions {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/notice.txt"
+        }
+    }
 }
 
 dependencies {
@@ -146,4 +159,8 @@ dependencies {
 
     // 스켈레톤 UI
     implementation("com.facebook.shimmer:shimmer:0.5.0")
+
+    // notification
+    implementation("com.google.firebase:firebase-messaging:23.1.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.16.0")
 }

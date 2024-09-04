@@ -25,16 +25,19 @@ class DetailApplyMemberFragment : VBBaseFragment<FragmentDetailApplyMemberBindin
 
     // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
     var studyIdx = 0
+    var studyTitle = ""
+    var imageUrl = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // 전달받은 studyIdx 값
         val studyIdx = arguments?.getInt("studyIdx") ?: 0
+        studyTitle = arguments?.getString("studyTitle") ?:""
 
         var currentUserId = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
-        adapter = DetailApplyMembersAdapter(viewModel,currentUserId, studyIdx) { user ->
+        adapter = DetailApplyMembersAdapter(requireContext(),viewModel,currentUserId, studyIdx, studyTitle, imageUrl) { user ->
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putInt("userIdx", user.userIdx)

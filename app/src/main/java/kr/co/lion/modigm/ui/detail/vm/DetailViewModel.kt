@@ -1,18 +1,27 @@
 package kr.co.lion.modigm.ui.detail.vm
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.DetailRepository
 import kr.co.lion.modigm.repository.StudyRepository
+import kr.co.lion.modigm.ui.notification.FCMService
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 class DetailViewModel: ViewModel() {
 
@@ -63,6 +72,10 @@ class DetailViewModel: ViewModel() {
 
     private val _isLiked = MutableStateFlow(false)
     val isLiked: StateFlow<Boolean> = _isLiked
+
+    // 알림 전송 결과를 저장하는 플로우 추가
+    private val _notificationResult = MutableSharedFlow<Boolean>()
+    val notificationResult: SharedFlow<Boolean> = _notificationResult
 
     fun clearData() {
         _studyData.value = null
@@ -204,16 +217,336 @@ class DetailViewModel: ViewModel() {
         }
     }
 
-    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String) {
+    // FCM 토큰을 서버에 등록
+    fun registerFcmToken(userIdx: Int, fcmToken: String) {
         viewModelScope.launch {
-            val result = if (applyMethod == "선착순") {
+            val result = detailRepository.registerFcmToken(userIdx, fcmToken)
+            if (result) {
+                Log.d("DetailViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx")
+            } else {
+                Log.e("DetailViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
+            }
+        }
+    }
+
+
+//    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context) {
+//        viewModelScope.launch {
+//            val success = if (applyMethod == "선착순") {
+//                detailRepository.addUserToStudy(studyIdx, userIdx)
+//            } else {
+//                detailRepository.addUserToStudyRequest(studyIdx, userIdx)
+//            }
+//
+//            if (success) {
+//                // 신청 사용자에게 알림 전송
+//                val title = "신청 완료"
+//                val body = "신청이 성공적으로 완료되었습니다."
+//                sendPushNotification(context, userIdx, title, body) // 신청한 사용자에게 알림
+//
+//                // 글 작성자의 FCM 토큰 가져오기
+//                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull() // study 데이터 가져오기
+//                val writerUserIdx = studyData?.userIdx
+//
+//                if (writerUserIdx != null && writerUserIdx != userIdx) { // 글 작성자가 신청자와 다른 경우에만
+//                    val writerFcmToken = detailRepository.getUserFcmToken(writerUserIdx)
+//                    if (writerFcmToken != null) {
+//                        val writerTitle = "새로운 스터디 신청"
+//                        val writerBody = "${_userData.value?.userName}님이 ${studyData.studyTitle} 스터디에 신청했습니다."
+//                        val result = FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody)
+//
+//                        if (result) {
+//                            Log.d("DetailViewModel", "Notification sent successfully to writerUserIdx: $writerUserIdx")
+//                        } else {
+//                            Log.e("DetailViewModel", "Failed to send notification to writerUserIdx: $writerUserIdx")
+//                        }
+//                    } else {
+//                        Log.e("DetailViewModel", "Failed to retrieve FCM token for writerUserIdx: $writerUserIdx")
+//                    }
+//                }
+//
+//                _addUserResult.emit(true)
+//            } else {
+//                _addUserResult.emit(false)
+//            }
+//        }
+//    }
+
+    // 사용자가 신청할 때 알림을 전송하고 데이터를 저장하는 메서드
+    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context) {
+        viewModelScope.launch {
+            val success = if (applyMethod == "선착순") {
                 detailRepository.addUserToStudy(studyIdx, userIdx)
             } else {
                 detailRepository.addUserToStudyRequest(studyIdx, userIdx)
             }
-            _addUserResult.emit(result)
+
+            if (success) {
+                // 신청 사용자에게 알림 전송
+                val title = "신청 완료"
+                val body = "신청이 성공적으로 완료되었습니다."
+                sendPushNotification(context, userIdx, title, body,studyIdx) // 신청한 사용자에게 알림
+
+                // 글 작성자의 FCM 토큰 가져오기
+                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull() // study 데이터 가져오기
+                val writerUserIdx = studyData?.userIdx
+
+                if (writerUserIdx != null && writerUserIdx != userIdx) { // 글 작성자가 신청자와 다른 경우에만
+                    val writerFcmToken = detailRepository.getUserFcmToken(writerUserIdx)
+                    if (writerFcmToken != null) {
+                        val writerTitle = "새로운 스터디 신청"
+                        val writerBody = "${_userData.value?.userName}님이 ${studyData?.studyTitle} 스터디에 신청했습니다."
+                        val result = FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody)
+
+                        if (result) {
+                            Log.d("DetailViewModel", "Notification sent successfully to writerUserIdx: $writerUserIdx")
+
+                            // 알림 저장
+                            val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                            val saveResult = detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl)
+                            if (saveResult) {
+                                Log.d("DetailViewModel", "Notification saved successfully to database for writerUserIdx: $writerUserIdx")
+                            } else {
+                                Log.e("DetailViewModel", "Failed to save notification to database for writerUserIdx: $writerUserIdx")
+                            }
+                        } else {
+                            Log.e("DetailViewModel", "Failed to send notification to writerUserIdx: $writerUserIdx")
+                        }
+                    } else {
+                        Log.e("DetailViewModel", "Failed to retrieve FCM token for writerUserIdx: $writerUserIdx")
+                    }
+                }
+
+                _addUserResult.emit(true)
+            } else {
+                _addUserResult.emit(false)
+            }
         }
     }
+
+
+//    // 알림 전송 메서드
+//    fun sendPushNotification(context: Context, userIdx: Int, title: String, body: String) {
+//        viewModelScope.launch {
+//            // 먼저 데이터베이스에서 사용자 토큰을 가져옵니다
+//            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+//
+//            // 사용자 토큰이 null이 아니면 알림을 보냅니다
+//            if (userFcmToken != null) {
+//                // FCMService의 sendNotificationToToken 메서드에 context를 포함한 올바른 인자들을 전달합니다.
+//                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+//                if (result) {
+//                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+//                } else {
+//                    Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+//                }
+//            } else {
+//                Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+//            }
+//        }
+//    }
+
+    // 푸시 알림 전송 및 데이터 저장 메서드
+    fun sendPushNotification(context: Context, userIdx: Int, title: String, body: String, studyIdx: Int) {
+        viewModelScope.launch {
+            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+
+            if (userFcmToken != null) {
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+                if (result) {
+                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+
+                    // 알림 내용과 이미지 URL을 데이터베이스에 저장
+                    val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                    if (saveResult) {
+                        Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
+                    } else {
+                        Log.e("DetailViewModel", "Failed to save notification to database for userIdx: $userIdx")
+                    }
+                } else {
+                    Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+                }
+            } else {
+                Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+            }
+        }
+    }
+
+
+//    // 사용자가 거절되었을 때 알림을 전송하고 데이터베이스에 기록하는 메서드
+//    fun notifyUserRejected(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String, imageUrl: String) {
+//        viewModelScope.launch {
+//            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+//
+//            if (userFcmToken != null) {
+//                val title = "신청 거절"
+//                val body = "귀하의 신청이 $studyTitle 스터디에서 거절되었습니다."
+//                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+//
+//                if (result) {
+//                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+//                    saveNotificationToDatabase(userIdx, title, body,imageUrl)
+//                } else {
+//                    Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+//                }
+//            } else {
+//                Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+//            }
+//        }
+//    }
+
+    // 사용자가 거절되었을 때 알림을 전송하고 데이터를 저장하는 메서드
+    fun notifyUserRejected(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
+        viewModelScope.launch {
+            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+
+            if (userFcmToken != null) {
+                val title = "신청 거절"
+                val body = "귀하의 신청이 $studyTitle 스터디에서 거절되었습니다."
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+
+                if (result) {
+                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+
+                    // 알림 내용을 데이터베이스에 저장
+                    val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                    if (saveResult) {
+                        Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
+                    } else {
+                        Log.e("DetailViewModel", "Failed to save notification to database for userIdx: $userIdx")
+                    }
+                } else {
+                    Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+                }
+            } else {
+                Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+            }
+        }
+    }
+
+//    // 사용자가 승인되었을 때 알림을 전송하고 데이터베이스에 기록하는 메서드
+//    fun notifyUserAccepted(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String, imageUrl: String) {
+//        viewModelScope.launch {
+//            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+//
+//            if (userFcmToken != null) {
+//                val title = "신청 승인"
+//                val body = "귀하의 신청이 $studyTitle 스터디에서 승인되었습니다."
+//                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+//
+//                if (result) {
+//                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+//                    saveNotificationToDatabase(userIdx, title, body, imageUrl)
+//                } else {
+//                    Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+//                }
+//            } else {
+//                Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+//            }
+//        }
+//    }
+
+    // 사용자가 승인되었을 때 알림을 전송하고 데이터를 저장하는 메서드
+    fun notifyUserAccepted(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
+        viewModelScope.launch {
+            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+
+            if (userFcmToken != null) {
+                val title = "신청 승인"
+                val body = "귀하의 신청이 $studyTitle 스터디에서 승인되었습니다."
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+
+                if (result) {
+                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+
+                    // 알림 내용을 데이터베이스에 저장
+                    val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                    if (saveResult) {
+                        Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
+                    } else {
+                        Log.e("DetailViewModel", "Failed to save notification to database for userIdx: $userIdx")
+                    }
+                } else {
+                    Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+                }
+            } else {
+                Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+            }
+        }
+    }
+
+//    // 사용자가 내보내졌을 때 알림을 전송하고 데이터베이스에 기록하는 메서드
+//    fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String, imageUrl: String) {
+//        viewModelScope.launch {
+//            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+//
+//            if (userFcmToken != null) {
+//                val title = "스터디 탈퇴 알림"
+//                val body = "$studyTitle 스터디에서 내보내졌습니다."
+//                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+//
+//                if (result) {
+//                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+//                    saveNotificationToDatabase(userIdx, title, body, imageUrl)
+//                } else {
+//                    Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+//                }
+//            } else {
+//                Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+//            }
+//        }
+//    }
+// 사용자가 내보내졌을 때 푸시 알림 전송하고 데이터를 저장하는 메서드
+fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
+    viewModelScope.launch {
+        val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+
+        if (userFcmToken != null) {
+            val title = "스터디 탈퇴 알림"
+            val body = "$studyTitle 스터디에서 내보내졌습니다."
+            val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+
+            if (result) {
+                Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+
+                // 알림 내용을 데이터베이스에 저장
+                val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                if (saveResult) {
+                    Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
+                } else {
+                    Log.e("DetailViewModel", "Failed to save notification to database for userIdx: $userIdx")
+                }
+            } else {
+                Log.e("DetailViewModel", "Failed to send notification to userIdx: $userIdx")
+            }
+        } else {
+            Log.e("DetailViewModel", "Failed to retrieve FCM token for userIdx: $userIdx")
+        }
+    }
+}
+
+    // Cover Photo URL 가져오는 메서드
+    private suspend fun getCoverPhotoUrl(studyIdx: Int): String {
+        return detailRepository.getStudyPicByStudyIdx(studyIdx).firstOrNull() ?: ""
+    }
+
+//    // 알림을 데이터베이스에 저장하는 메서드
+//    private fun saveNotificationToDatabase(userIdx: Int, title: String, content: String, imageUrl: String) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val success = detailRepository.insertNotification(userIdx, title, content, imageUrl)
+//            if (success) {
+//                Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
+//            } else {
+//                Log.e("DetailViewModel", "Failed to save notification to database for userIdx: $userIdx")
+//            }
+//        }
+//    }
+
+
 
     fun fetchStudyRequestMembers(studyIdx: Int) {
         viewModelScope.launch {
