@@ -22,6 +22,8 @@ class DetailJoinMembersAdapter(
     private val viewModel: DetailViewModel,
     private var currentUserId: Int,
     private val studyIdx: Int,
+    private val studyTitle:String,
+    private val imageUrl: String,
     private val onItemClicked: (UserData) -> Unit
 ) : ListAdapter<UserData, DetailJoinMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
@@ -98,6 +100,7 @@ class DetailJoinMembersAdapter(
 
             dialogBinding.btnYes.setOnClickListener {
                 viewModel.removeUserFromStudy(studyIdx, member.userIdx)  // 스터디에서 사용자 삭제 호출
+                viewModel.notifyUserKicked(itemView.context, member.userIdx, studyIdx, studyTitle) // 내보내기 푸시 알림 전송
                 removeItem(adapterPosition)
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
