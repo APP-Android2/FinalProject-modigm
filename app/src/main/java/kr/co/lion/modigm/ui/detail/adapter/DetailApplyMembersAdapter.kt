@@ -18,9 +18,12 @@ import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 
 class DetailApplyMembersAdapter(
+    private val context: Context, // Context를 생성자에서 받습니다.
     private val viewModel: DetailViewModel,
     private val currentUserId: Int,
     private val studyIdx: Int,
+    private val studyTitle: String, // studyTitle 추가
+    private val imageUrl: String,
     private val onItemClicked: (UserData) -> Unit
 ) : ListAdapter<UserData, DetailApplyMembersAdapter.MemberViewHolder>(UserDiffCallback()) {
 
@@ -56,6 +59,7 @@ class DetailApplyMembersAdapter(
             // 승인 버튼
             binding.buttonDetailAccept.setOnClickListener {
                 viewModel.acceptUser(studyIdx, user.userIdx)
+                viewModel.notifyUserAccepted(context,user.userIdx, studyIdx, studyTitle) // 신청 승인 알림 전송
             }
 
         }
@@ -97,6 +101,7 @@ class DetailApplyMembersAdapter(
                 // 예 버튼 로직
                 Log.d("Dialog", "확인을 선택했습니다.")
                 viewModel.removeUserFromApplyList(studyIdx, user.userIdx)
+                viewModel.notifyUserRejected(context,user.userIdx, studyIdx, studyTitle) // 신청 거절 알림 전송
                 dialog.dismiss()
             }
 
