@@ -51,6 +51,30 @@ android {
         buildConfigField("String", "BK_SECRETKEY", bucketSecretKey)
         buildConfigField("String", "BK_NAME", bucketName)
 
+        // Notification 관련 설정
+        val serviceAccountType = localProperties.getProperty("service_account_type") ?: ""
+        val projectId = localProperties.getProperty("project_id") ?: ""
+        val privateKeyId = localProperties.getProperty("private_key_id") ?: ""
+        val privateKey = localProperties.getProperty("private_key")?.replace("\\n", "\\n") ?: ""
+        val clientEmail = localProperties.getProperty("client_email") ?: ""
+        val clientId = localProperties.getProperty("client_id") ?: ""
+        val authUri = localProperties.getProperty("auth_uri") ?: ""
+        val tokenUri = localProperties.getProperty("token_uri") ?: ""
+        val authProviderCertUrl = localProperties.getProperty("auth_provider_x509_cert_url") ?: ""
+        val clientCertUrl = localProperties.getProperty("client_x509_cert_url") ?: ""
+
+        buildConfigField("String", "SERVICE_ACCOUNT_TYPE", "$serviceAccountType")
+        buildConfigField("String", "PROJECT_ID", "$projectId")
+        buildConfigField("String", "PRIVATE_KEY_ID", "$privateKeyId")
+        buildConfigField("String", "PRIVATE_KEY", "$privateKey")
+        buildConfigField("String", "CLIENT_EMAIL", "$clientEmail")
+        buildConfigField("String", "CLIENT_ID", "$clientId")
+        buildConfigField("String", "AUTH_URI", "$authUri")
+        buildConfigField("String", "TOKEN_URI", "$tokenUri")
+        buildConfigField("String", "AUTH_PROVIDER_X509_CERT_URL", "$authProviderCertUrl")
+        buildConfigField("String", "CLIENT_X509_CERT_URL", "$clientCertUrl")
+
+
         // manifestPlaceholders 설정
         manifestPlaceholders["PLACE_API_KEY"] = placeApiKey
         manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey

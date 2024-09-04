@@ -13,7 +13,9 @@ import java.io.IOException
 import android.content.Context
 import java.io.InputStream
 import com.google.auth.oauth2.GoogleCredentials
+import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
+import java.util.Properties
 
 object FCMService {
     private const val TAG = "FCMService"
@@ -62,12 +64,24 @@ object FCMService {
         }
     }
 
-
-    // Access Token을 가져오는 메서드 수정
     fun getAccessToken(context: Context): String? {
         return try {
-            // res/raw 폴더에 있는 JSON 파일을 InputStream으로 읽기
-            val inputStream: InputStream = context.resources.openRawResource(R.raw.service_account) // service_account.json 파일명 사용
+            val jsonContent = """
+            {
+              "type": "${BuildConfig.SERVICE_ACCOUNT_TYPE}",
+              "project_id": "${BuildConfig.PROJECT_ID}",
+              "private_key_id": "${BuildConfig.PRIVATE_KEY_ID}",
+              "private_key": "${BuildConfig.PRIVATE_KEY}",
+              "client_email": "${BuildConfig.CLIENT_EMAIL}",
+              "client_id": "${BuildConfig.CLIENT_ID}",
+              "auth_uri": "${BuildConfig.AUTH_URI}",
+              "token_uri": "${BuildConfig.TOKEN_URI}",
+              "auth_provider_x509_cert_url": "${BuildConfig.AUTH_PROVIDER_X509_CERT_URL}",
+              "client_x509_cert_url": "${BuildConfig.CLIENT_X509_CERT_URL}"
+            }
+        """.trimIndent()
+
+            val inputStream = jsonContent.byteInputStream()
             val credentials = GoogleCredentials.fromStream(inputStream)
                 .createScoped(listOf("https://www.googleapis.com/auth/firebase.messaging"))
             credentials.refreshIfExpired() // 토큰이 만료된 경우 새로고침
