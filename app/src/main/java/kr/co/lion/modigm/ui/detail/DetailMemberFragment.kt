@@ -16,7 +16,7 @@ import kr.co.lion.modigm.util.FragmentName
 
 class DetailMemberFragment : VBBaseFragment<FragmentDetailMemberBinding>(FragmentDetailMemberBinding::inflate) {
 
-    // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
+    // 현재 선택된 스터디 idx 번호를 담을 변수
     var studyIdx = 0
     var studyTitle = ""
 
