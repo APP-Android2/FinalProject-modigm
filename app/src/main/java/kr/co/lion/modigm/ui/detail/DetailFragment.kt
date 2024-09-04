@@ -51,7 +51,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
     private var isPopupShown = false
 
-    // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
+    // 현재 선택된 스터디 idx 번호를 담을 변수
     var studyIdx = 0
     var userIdx = 1
 
@@ -433,27 +433,6 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         }
     }
 
-    // 앱바 스크롤 설정
-//    fun setupAppBarScrollListener() {
-//        with(binding) {
-//            appBarDetail.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
-//                // 전체 스크롤 범위를 계산
-//                val scrollRange = appBarLayout.totalScrollRange
-//                // 뒤로가기 아이콘
-//                val drawable =
-//                    ContextCompat.getDrawable(requireContext(), R.drawable.icon_arrow_back_24px)
-//                // 스크롤 최대일 때 아이콘 색상 변경
-//                if (scrollRange + verticalOffset == 0) {
-//                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.black))
-//                } else {
-//                    drawable?.setTint(ContextCompat.getColor(requireContext(), R.color.white))
-//                }
-//                // 네비게이션 아이콘 업데이트
-//                toolbar.navigationIcon = drawable
-//            })
-//        }
-//    }
-
     fun setupAppBarScrollListener() {
         with(binding) {
             appBarDetail.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
@@ -520,7 +499,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 val detailMemberFragment = DetailMemberFragment().apply {
                     arguments = Bundle().apply {
                         putInt("studyIdx", currentStudyData?.studyIdx?:0)
-                        putString("studyTitle",currentStudyData?.studyTitle?:"")
+                        putString("studyTitle",currentStudyData?.studyTitle?:"") // study title 전달
                     }
                 }
 
@@ -677,7 +656,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         if (method != null && currentStudyData?.userIdx != userIdx) {
             Log.d("DetailFragment", "Button clicked, method: $method")
-            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext()) // context 전달
+            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext())
         } else {
             Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
         }
