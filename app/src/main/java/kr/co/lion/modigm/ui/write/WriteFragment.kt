@@ -18,105 +18,116 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 
-
 class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding::inflate) {
-
+    // 뷰모델
     private val viewModel: WriteViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // tab
-        setupTabs()
-
-        // toolbar
-        setupToolbar()
-
-        // 다음 버튼
-        setupNextButton()
-
-        // 감시
-        observe()
-
+        // 초기 뷰
+        initView()
+        // 뷰모델 관찰
+        observeViewModel()
         // 뒤로가기 버튼 처리
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             handleBackPress()
         }
     }
 
-    fun observe() {
-        viewModel.isItemSelected.observe(viewLifecycleOwner) { isItemSelected ->
-            if (isItemSelected) {
-                binding.buttonWriteNext.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.pointColor)
-                binding.buttonWriteNext.setTextColor(Color.WHITE) // 텍스트 색상을 흰색으로 설정
-            } else {
-                binding.buttonWriteNext.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.buttonGray)
-                // 선택된 항목이 없다면 버튼을 원래의 색상으로 변경하고 텍스트 색상을 기본 색상으로 설정
-                binding.buttonWriteNext.setTextColor(ContextCompat.getColor(requireContext(), R.color.textGray))
-            }
-        }
-    }
+    private fun initView(){
+        with(binding) {
 
-    private fun setupTabs() {
-        val fragments = listOf(
-            WriteFieldFragment(),
-            WritePeriodFragment(),
-            WriteProceedFragment(),
-            WriteSkillFragment(),
-            WriteIntroFragment()
-        )
+            // 탭 레이아웃 설정
+            with(tabLayoutWriteFragment){
+                val fragments = listOf(
+                    WriteFieldFragment(),
+                    WritePeriodFragment(),
+                    WriteProceedFragment(),
+                    WriteSkillFragment(),
+                    WriteIntroFragment()
+                )
 
-        val fragmentManager = childFragmentManager
-        selectFragment(fragmentManager, fragments.first())  // 처음 탭의 프래그먼트를 불러옵니다.
+                val fragmentManager = childFragmentManager
+                selectFragment(fragmentManager, fragments.first())  // 처음 탭의 프래그먼트를 불러옵니다.
 
-        // 탭에 제목을 설정하고 추가하는 부분
-        val tabTitles = listOf("분야", "기간", "진행방식", "기술", "소개")
-        tabTitles.forEachIndexed { index, title ->
-            val tab = binding.tabLayoutWriteFragment.newTab().setText(title)
-            binding.tabLayoutWriteFragment.addTab(tab)
-            // 첫 번째 탭을 선택 상태로 설정
-            if (index == 0) {
-                binding.tabLayoutWriteFragment.selectTab(tab)
-            }
-        }
-
-        binding.tabLayoutWriteFragment.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                viewModel.currentTab = tab.position
-                selectFragment(fragmentManager, fragments[tab.position])
-                updateProgressBar(tab.position)
-            }
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {
-                selectFragment(fragmentManager, fragments[tab.position])
-                updateProgressBar(tab.position)
-            }
-        })
-    }
-
-    private fun setupNextButton() {
-        binding.buttonWriteNext.setOnClickListener {
-            if (viewModel.validateCurrentTab()) {
-                if (viewModel.currentTab == 4) {
-                    val introFragment = childFragmentManager.fragments.find { it is WriteIntroFragment } as? WriteIntroFragment
-                    introFragment?.uploadImageAndSaveData  { studyIdx ->
-                        Log.d("WriteFragment", "Navigating to detail with studyIdx: $studyIdx")
-                        navigateToDetailFragment(studyIdx)  // 데이터베이스에 저장된 studyIdx 값을 전달하여 상세 프래그먼트로 이동
-                    }
-                } else {
-                    val currentTab = binding.tabLayoutWriteFragment.selectedTabPosition
-                    val nextTabPosition = currentTab + 1
-                    if (nextTabPosition < binding.tabLayoutWriteFragment.tabCount) {
-                        val tab = binding.tabLayoutWriteFragment.getTabAt(nextTabPosition)
-                        tab?.select()
+                // 탭에 제목을 설정하고 추가하는 부분
+                val tabTitles = listOf("분야", "기간", "진행방식", "기술", "소개")
+                tabTitles.forEachIndexed { index, title ->
+                    val tab = newTab().setText(title)
+                    addTab(tab)
+                    // 첫 번째 탭을 선택 상태로 설정
+                    if (index == 0) {
+                        selectTab(tab)
                     }
                 }
-            } else {
-                Toast.makeText(requireContext(), "모든 필드를 올바르게 입력해주세요.", Toast.LENGTH_SHORT).show()
+
+                addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                    override fun onTabSelected(tab: TabLayout.Tab) {
+                        viewModel.currentTab = tab.position
+                        selectFragment(fragmentManager, fragments[tab.position])
+                        updateProgressBar(tab.position)
+                    }
+                    override fun onTabUnselected(tab: TabLayout.Tab) {}
+                    override fun onTabReselected(tab: TabLayout.Tab) {
+                        selectFragment(fragmentManager, fragments[tab.position])
+                        updateProgressBar(tab.position)
+                    }
+                })
+            }
+
+            // 다음 버튼
+            with(buttonWriteNext){
+                setOnClickListener {
+                    if (viewModel.validateCurrentTab()) {
+                        if (viewModel.currentTab == 4) {
+                            val introFragment = childFragmentManager.fragments.find { it is WriteIntroFragment } as? WriteIntroFragment
+                            introFragment?.uploadImageAndSaveData  { studyIdx ->
+                                Log.d("WriteFragment", "Navigating to detail with studyIdx: $studyIdx")
+                                navigateToDetailFragment(studyIdx)  // 데이터베이스에 저장된 studyIdx 값을 전달하여 상세 프래그먼트로 이동
+                            }
+                        } else {
+                            val currentTab = tabLayoutWriteFragment.selectedTabPosition
+                            val nextTabPosition = currentTab + 1
+                            if (nextTabPosition < tabLayoutWriteFragment.tabCount) {
+                                val tab = tabLayoutWriteFragment.getTabAt(nextTabPosition)
+                                tab?.select()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "모든 필드를 올바르게 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            // 툴바 설정
+            with(toolbarWriteFragment){
+                // 뒤로가기 버튼
+                setNavigationOnClickListener {
+                    parentFragmentManager.popBackStack()
+                }
             }
         }
     }
 
+    // 뷰모델 관찰
+    private fun observeViewModel() {
+        with(binding){
+            // 뷰모델 관찰자 등록
+            viewModel.isItemSelected.observe(viewLifecycleOwner) { isItemSelected ->
+                if (isItemSelected) {
+                    buttonWriteNext.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.pointColor)
+                    buttonWriteNext.setTextColor(Color.WHITE) // 텍스트 색상을 흰색으로 설정
+                } else {
+                    buttonWriteNext.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.buttonGray)
+                    // 선택된 항목이 없다면 버튼을 원래의 색상으로 변경하고 텍스트 색상을 기본 색상으로 설정
+                    buttonWriteNext.setTextColor(ContextCompat.getColor(requireContext(), R.color.textGray))
+                }
+            }
+        }
+    }
+
+    // 글상세 프래그먼트로 이동하는 메서드
     private fun navigateToDetailFragment(studyIdx: Int) {
         val detailFragment = DetailFragment().apply {
             arguments = Bundle().apply {
@@ -130,26 +141,20 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
         Log.d("WriteFragment", "DetailFragment transaction committed with studyIdx: $studyIdx")
     }
 
+    // 프래그먼트 선택 메서드
     private fun selectFragment(fragmentManager: FragmentManager, fragment: Fragment) {
         val transaction: FragmentTransaction = fragmentManager.beginTransaction()
         transaction.replace(R.id.frameLayout_writeFragment, fragment)
         transaction.commit()
     }
 
-
-    fun setupToolbar(){
-        with(binding){
-            toolbarWriteFragment.setNavigationOnClickListener {
-                parentFragmentManager.popBackStack()
-            }
-        }
-    }
-
+    // 프로그레스바 설정
     private fun updateProgressBar(position: Int) {
         val progressPercentage = (position + 1) * 20 // 5개의 탭이므로 20%씩 증가
         binding.progressBarWriteFragment.progress = progressPercentage
     }
 
+    // 뒤로가기 버튼 처리
     private fun handleBackPress() {
         val currentTab = binding.tabLayoutWriteFragment.selectedTabPosition
         if (currentTab > 0) {
@@ -160,5 +165,4 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
             requireActivity().supportFragmentManager.popBackStack()
         }
     }
-
 }

@@ -19,9 +19,9 @@ class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWri
         super.onViewCreated(view, savedInstanceState)
 
         with(binding){
-            cardviewWriteFieldStudy.setTag("스터디")
-            cardviewWriteFieldContest.setTag("공모전")
-            cardviewWriteFieldProject.setTag("프로젝트")
+            cardviewWriteFieldStudy.tag = "스터디"
+            cardviewWriteFieldContest.tag = "공모전"
+            cardviewWriteFieldProject.tag = "프로젝트"
 
             cardviewWriteFieldStudy.setOnClickListener {
                 onCardClicked(it as MaterialCardView)
