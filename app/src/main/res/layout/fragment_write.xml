@@ -23,7 +23,8 @@
         android:max="100"
         android:progress="20"
         android:progressTint="@color/pointColor"
-        app:trackColor="@color/white" />
+        app:trackColor="@color/white"
+        android:indeterminate="false"/>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutWrite"

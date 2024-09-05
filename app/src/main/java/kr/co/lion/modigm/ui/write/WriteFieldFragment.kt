@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import com.google.android.material.card.MaterialCardView
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteFieldBinding
@@ -14,31 +15,27 @@ class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWri
 
     private val viewModel: WriteViewModel by activityViewModels()
 
-    private var selectedCardView: MaterialCardView? = null // 선택된 카드뷰를 기억하기 위한 변수
+    private var selectedCardView: MaterialCardView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initView()
-
-        // ViewModel에 저장된 선택 상태를 확인하고 복원
-        viewModel.selectedFieldTag.value?.let { selectedTag ->
-            when (selectedTag) {
-                "스터디" -> selectCardView(binding.cardviewWriteFieldStudy)
-                "프로젝트" -> selectCardView(binding.cardviewWriteFieldProject)
-                "공모전" -> selectCardView(binding.cardviewWriteFieldContest)
-                else -> { /* 저장된 데이터 없음 */ }
-            }
-        }
     }
 
     private fun initView() {
         with(binding) {
             // ViewModel에 저장된 선택 상태를 확인하고 복원
             when(viewModel.getUpdateData("studyType")) {
-                "스터디" -> selectCardView(cardviewWriteFieldStudy)
-                "프로젝트" -> selectCardView(cardviewWriteFieldProject)
-                "공모전" -> selectCardView(cardviewWriteFieldContest)
+                "스터디" -> {
+                    selectCardView(cardviewWriteFieldStudy)
+                }
+                "프로젝트" -> {
+                    selectCardView(cardviewWriteFieldProject)
+                }
+                "공모전" -> {
+                    selectCardView(cardviewWriteFieldContest)
+                }
             }
 
             // 카드뷰 태그 설정
@@ -49,27 +46,26 @@ class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWri
             // 다음 버튼
             with(buttonWriteFieldNext) {
                 setOnClickListener {
-                    // 프로그래스바 수정
-                    viewModel.updateCurrentTabNum(1)
-                }
-            }
+                    viewModel.updateData("StudyType", selectedCardView?.tag.toString())
 
-            viewModel.currentTabNum.observe(viewLifecycleOwner) {
-                // 프로그래스바 수정
-                with(binding) {
+                    // 탭과 프로그래스바 상태를 뷰모델을 통해 업데이트
+                    viewModel.updateSelectedTab(1) // 탭을 두 번째로 이동
 
+                    parentFragmentManager.commit {
+                        replace(R.id.containerWrite, WritePeriodFragment())
+                    }
                 }
             }
 
 
             cardviewWriteFieldStudy.setOnClickListener {
-                onCardClicked(it as MaterialCardView)
+                selectCardView(cardviewWriteFieldStudy)
             }
             cardviewWriteFieldContest.setOnClickListener {
-                onCardClicked(it as MaterialCardView)
+                selectCardView(cardviewWriteFieldContest)
             }
             cardviewWriteFieldProject.setOnClickListener {
-                onCardClicked(it as MaterialCardView)
+                selectCardView(cardviewWriteFieldProject)
             }
         }
     }
@@ -86,27 +82,6 @@ class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWri
     private fun changeStrokeColor(cardView: MaterialCardView, isSelected: Boolean) {
         val colorResId = if (isSelected) R.color.pointColor else R.color.textGray
         cardView.strokeColor = ContextCompat.getColor(requireContext(), colorResId)
-    }
-
-    // 카드뷰 클릭 이벤트 처리 함수
-    private fun onCardClicked(clickedCardView: MaterialCardView) {
-        // 이미 선택된 카드뷰인 경우, 선택을 취소하지 않음
-        if (clickedCardView == selectedCardView) {
-            return
-        }
-        viewModel.validateField(true)
-
-        val wasSelected = clickedCardView == selectedCardView
-        // 선택된 카드뷰가 이미 있다면 선택 해제
-        selectedCardView?.apply {
-            changeStrokeColor(this, false) // 선택 해제 시 스트로크 색상을 변경
-        }
-        // 새로 클릭된 카드뷰를 선택하고 스트로크 색상 변경
-        selectedCardView = if (!wasSelected) clickedCardView else null
-        changeStrokeColor(clickedCardView, !wasSelected)
-
-        // 선택된 카드뷰의 태그를 뷰모델에 저장
-        viewModel.selectedFieldTag.value = clickedCardView.tag as String
     }
 
 }

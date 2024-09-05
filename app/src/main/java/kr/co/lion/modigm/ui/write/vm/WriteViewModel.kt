@@ -14,6 +14,20 @@ class WriteViewModel : ViewModel() {
     // 스터디 Repository
     private val writeStudyRepository = WriteStudyRepository()
 
+    // 탭의 현재 선택 상태를 저장할 변수
+    private val _selectedTabPosition = MutableLiveData(0)
+    val selectedTabPosition: LiveData<Int> get() = _selectedTabPosition
+
+    // 프로그래스바 상태를 저장할 변수
+    private val _progressBarState = MutableLiveData(20)
+    val progressBarState: LiveData<Int> get() = _progressBarState
+
+    // 탭 선택 상태 업데이트
+    fun updateSelectedTab(position: Int) {
+        _selectedTabPosition.value = position
+        _progressBarState.value = (position + 1) * 20 // 탭 위치에 따라 프로그래스바 업데이트
+    }
+
     private val _isItemSelected = MutableLiveData<Boolean>()
     val isItemSelected: LiveData<Boolean> get() = _isItemSelected
 
