@@ -10,6 +10,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep3Binding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
+import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.collectWhenStarted
 
 class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.fragment_join_step3) {
@@ -24,13 +25,18 @@ class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.frag
         super.onCreateView(inflater, container, savedInstanceState)
         binding.viewModel = joinStep3ViewModel
 
-        settingCollector()
         return binding.root
     }
 
-    private fun settingCollector(){
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        settingChips()
+        settingCollector()
+    }
+
+    private fun settingChips(){
         //Chip 셋팅
-        collectWhenStarted(joinStep3ViewModel.interestList) {
+        Interest.entries.toTypedArray().also {
             if(it.isNotEmpty()){
                 binding.textViewJoinAlert.visibility = View.GONE
             }
@@ -60,7 +66,8 @@ class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.frag
                 )
             }
         }
-
+    }
+    private fun settingCollector(){
         // 에러메시지 셋팅
         collectWhenStarted(joinStep3ViewModel.isValidate) {
             if(it == true){
