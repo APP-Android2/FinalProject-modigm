@@ -20,7 +20,6 @@ import kr.co.lion.modigm.util.Skill
 class WriteSkillFragment : VBBaseFragment<FragmentWriteSkillBinding>(FragmentWriteSkillBinding::inflate), OnSkillSelectedListener {
 
     private val viewModel: WriteViewModel by activityViewModels()
-    private val tabName = "skill"
 
     private var selectedCardView: MaterialCardView? = null // 선택된 카드뷰를 기억하기 위한 변수
 
@@ -41,7 +40,7 @@ class WriteSkillFragment : VBBaseFragment<FragmentWriteSkillBinding>(FragmentWri
 
     }
 
-    fun settingBottomSheeet(){
+    private fun settingBottomSheeet(){
         // textLaout 클릭 시 리스너
         binding.textInputLayoutWriteSkill.editText?.setOnClickListener {
             // bottom sheet
@@ -52,11 +51,11 @@ class WriteSkillFragment : VBBaseFragment<FragmentWriteSkillBinding>(FragmentWri
         }
     }
 
-    fun settingView(){
+    private fun settingView(){
         // cardView 클릭 시 Stroke 색상 변경
         with(binding){
-            cardviewWriteSkillApplicationSystem.setTag("신청제")
-            cardviewWriteSkillFirstCome.setTag("선착순")
+            cardviewWriteSkillApplicationSystem.tag = "신청제"
+            cardviewWriteSkillFirstCome.tag = "선착순"
             // 신청제
             cardviewWriteSkillApplicationSystem.setOnClickListener {
                 onCardClicked(it as MaterialCardView)
@@ -120,7 +119,7 @@ class WriteSkillFragment : VBBaseFragment<FragmentWriteSkillBinding>(FragmentWri
     }
 
 
-    fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
+    private fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
         // 기존의 칩들을 삭제
         chipGroup.removeAllViews()
         selectedSkillList.clear()
@@ -154,7 +153,7 @@ class WriteSkillFragment : VBBaseFragment<FragmentWriteSkillBinding>(FragmentWri
         // ViewModel에 저장된 스킬 목록을 가져와서 칩을 추가
         viewModel.studySkillList.value?.let { skillNums ->
             val skills = skillNums.mapNotNull { num ->
-                Skill.values().find { it.num == num }
+                Skill.entries.find { it.num == num }
             }
             addChipsToGroup(binding.chipGroupWriteSkill, skills)
         }

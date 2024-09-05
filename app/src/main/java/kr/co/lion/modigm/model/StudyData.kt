@@ -58,7 +58,7 @@ data class StudyData(
             )
         }
 
-        fun getStudyData(resultSet: ResultSet): StudyData{
+        fun getStudyData(resultSet: ResultSet): StudyData {
             return StudyData(
                 resultSet.getInt("studyIdx"),
                 resultSet.getString("studyTitle"),

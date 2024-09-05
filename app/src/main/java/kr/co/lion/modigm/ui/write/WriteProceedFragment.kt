@@ -24,17 +24,23 @@ import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(FragmentWriteProceedBinding::inflate), OnPlaceSelectedListener {
 
     private val viewModel: WriteViewModel by activityViewModels()
-    val tabName = "proceed"
 
-    var onOffline: Int = 0
+    private var onOffline: Int = 0
 
     // 선택된 장소 이름
     private var selectedPlaceName: String = ""
+
     // 선택된 상세 장소 이름
     private var selectedDetailPlaceName: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        initView()
+
+
+    }
+
+    private fun initView() {
         // 칩 세팅
         setupChipGroups()
 
@@ -73,7 +79,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
         }
     }
 
-    fun setupChipGroups(){
+    private fun setupChipGroups(){
         binding.chipGroupWriteType.removeAllViews()
 
         setupChipGroup(
@@ -98,7 +104,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
         viewModel.validateProceedInput()
     }
 
-    fun setPlaceSelectionListener() {
+    private fun setPlaceSelectionListener() {
         // 반복하며 칩에 클릭 리스너 설정
         binding.chipGroupWriteType.children.forEach { view ->
             (view as Chip).setOnClickListener {
@@ -126,7 +132,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
         }
     }
     // 칩 스타일 업데이트
-    fun updateChipStyles(group: ChipGroup, checkedId: Int) {
+    private fun updateChipStyles(group: ChipGroup, checkedId: Int) {
         group.children.forEach { view ->
             if (view is Chip) {
                 // 현재 칩이 선택된 상태인지 확인
@@ -138,7 +144,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
     }
 
 
-    fun setupChipGroup(chipGroup: ChipGroup, chipNames: List<String>, chipTags: Map<String, Int>? = null) {
+    private fun setupChipGroup(chipGroup: ChipGroup, chipNames: List<String>, chipTags: Map<String, Int>? = null) {
         chipGroup.isSingleSelection = true  // Single selection 모드 활성화
         chipGroup.removeAllViews()  // 중복 생성을 방지하기 위해 기존 뷰를 제거
 
@@ -152,7 +158,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                     ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
                 setTextColor(ContextCompat.getColor(context, R.color.black))
                 setTextAppearance(R.style.ChipTextStyle)
-                tag = chipTags?.get(name) ?: index + 1
+                tag = chipTags?.get(name) ?: (index + 1)
             }
             // 칩을 칩그룹에 추가
             chipGroup.addView(chip)
@@ -161,7 +167,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
     }
 
     // 개별 칩에 클릭리스너 설정
-    fun setupChipListener(chip: Chip, chipGroup: ChipGroup) {
+    private fun setupChipListener(chip: Chip, chipGroup: ChipGroup) {
         chip.setOnClickListener {
             // 클릭된 칩이 현재 선택되지 않았다면, 선택 처리
             if (!chip.isChecked) {
@@ -184,7 +190,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
     }
 
     // 칩 스타일 업데이트
-    fun updateChipStyle(chip: Chip, isSelected: Boolean) {
+    private fun updateChipStyle(chip: Chip, isSelected: Boolean) {
         val context = chip.context
         val backgroundColor = if (isSelected) ContextCompat.getColor(
             context,
@@ -200,7 +206,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
     }
 
     // 가시성 업데이트
-    fun updatePlaceVisibility(chip: Chip) {
+    private fun updatePlaceVisibility(chip: Chip) {
         when (chip.text.toString()) {
             // '온라인'이 선택된 경우 장소 선택 입력 필드 숨김
             "온라인" -> binding.textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
@@ -224,7 +230,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
         viewModel.validateProceedInput()
     }
 
-    fun setupBottomSheet() {
+    private fun setupBottomSheet() {
         binding.textInputLayoutWriteProceedOfflineClicked.editText?.setOnClickListener {
             val bottomSheet = PlaceBottomSheetFragment().apply {
                 setOnPlaceSelectedListener(this@WriteProceedFragment)
@@ -235,7 +241,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
     }
 
     // 인원수 입력 설정
-    fun setupMemberInputWatcher() {
+    private fun setupMemberInputWatcher() {
         binding.textFieldWriteProceedNumOfMember.addTextChangedListener(object :
             TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -291,7 +297,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
 
     }
 
-    fun validateAnswer() {
+    private fun validateAnswer() {
         viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
             if (onOffline == "온라인") {
                 binding.textFieldWriteProceedLocation.error = null // "온라인"일 경우 장소 오류를 초기화
