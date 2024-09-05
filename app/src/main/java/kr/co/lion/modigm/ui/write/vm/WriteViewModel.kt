@@ -10,6 +10,7 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 
 class WriteViewModel : ViewModel() {
+
     // 스터디 Repository
     private val writeStudyRepository = WriteStudyRepository()
 
@@ -162,5 +163,4 @@ class WriteViewModel : ViewModel() {
             null
         }
     }
-
 }

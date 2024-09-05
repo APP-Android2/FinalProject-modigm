@@ -8,15 +8,15 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import com.google.android.material.tabs.TabLayout
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentWriteBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
+import kr.co.lion.modigm.util.FragmentName
 
 class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding::inflate) {
     // 뷰모델
@@ -30,9 +30,8 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
         // 뷰모델 관찰
         observeViewModel()
         // 뒤로가기 버튼 처리
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            handleBackPress()
-        }
+        backButton()
+
     }
 
     private fun initView(){
@@ -47,9 +46,7 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
                     WriteSkillFragment(),
                     WriteIntroFragment()
                 )
-
-                val fragmentManager = childFragmentManager
-                selectFragment(fragmentManager, fragments.first())  // 처음 탭의 프래그먼트를 불러옵니다.
+                selectFragment(fragments.first())  // 처음 탭의 프래그먼트를 불러옵니다.
 
                 // 탭에 제목을 설정하고 추가하는 부분
                 val tabTitles = listOf("분야", "기간", "진행방식", "기술", "소개")
@@ -65,13 +62,17 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
                 addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                     override fun onTabSelected(tab: TabLayout.Tab) {
                         viewModel.currentTab = tab.position
-                        selectFragment(fragmentManager, fragments[tab.position])
-                        updateProgressBar(tab.position)
+                        selectFragment(fragments[tab.position])
+                        // 게이지 20%씩 증가
+                        val progressPercentage = (tab.position + 1) * 20
+                        progressBarWriteFragment.progress = progressPercentage
                     }
                     override fun onTabUnselected(tab: TabLayout.Tab) {}
                     override fun onTabReselected(tab: TabLayout.Tab) {
-                        selectFragment(fragmentManager, fragments[tab.position])
-                        updateProgressBar(tab.position)
+                        selectFragment(fragments[tab.position])
+                        // 게이지 20%씩 증가
+                        val progressPercentage = (tab.position + 1) * 20
+                        progressBarWriteFragment.progress = progressPercentage
                     }
                 })
             }
@@ -129,40 +130,46 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
 
     // 글상세 프래그먼트로 이동하는 메서드
     private fun navigateToDetailFragment(studyIdx: Int) {
+
+        // 번들 데이터
         val detailFragment = DetailFragment().apply {
             arguments = Bundle().apply {
                 putInt("studyIdx", studyIdx)
             }
         }
-        Log.d("WriteFragment", "DetailFragment created with studyIdx: $studyIdx")
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.containerMain,detailFragment)
-            .commit()
-        Log.d("WriteFragment", "DetailFragment transaction committed with studyIdx: $studyIdx")
+        //
+        with(parentFragmentManager){
+            popBackStack(FragmentName.BOTTOM_NAVI.str, 0)
+            commit {
+                replace(R.id.containerMain, detailFragment)
+                addToBackStack(FragmentName.DETAIL.str)
+            }
+        }
+
     }
 
     // 프래그먼트 선택 메서드
-    private fun selectFragment(fragmentManager: FragmentManager, fragment: Fragment) {
-        val transaction: FragmentTransaction = fragmentManager.beginTransaction()
-        transaction.replace(R.id.frameLayout_writeFragment, fragment)
-        transaction.commit()
-    }
-
-    // 프로그레스바 설정
-    private fun updateProgressBar(position: Int) {
-        val progressPercentage = (position + 1) * 20 // 5개의 탭이므로 20%씩 증가
-        binding.progressBarWriteFragment.progress = progressPercentage
+    private fun selectFragment(fragment: Fragment) {
+        childFragmentManager.commit {
+            replace(R.id.container_writeFragment, fragment)
+        }
     }
 
     // 뒤로가기 버튼 처리
-    private fun handleBackPress() {
-        val currentTab = binding.tabLayoutWriteFragment.selectedTabPosition
-        if (currentTab > 0) {
-            val previousTabPosition = currentTab - 1
-            val tab = binding.tabLayoutWriteFragment.getTabAt(previousTabPosition)
-            tab?.select()
-        } else {
-            requireActivity().supportFragmentManager.popBackStack()
+    private fun backButton() {
+        with(binding) {
+            // 백버튼 처리
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+
+                val currentTab = tabLayoutWriteFragment.selectedTabPosition
+                if (currentTab > 0) {
+                    val previousTabPosition = currentTab - 1
+                    val tab = tabLayoutWriteFragment.getTabAt(previousTabPosition)
+                    tab?.select()
+                } else {
+                    parentFragmentManager.popBackStack()
+                }
+            }
         }
     }
 }
