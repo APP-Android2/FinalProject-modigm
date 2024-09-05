@@ -1,149 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f7f7f7"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:transitionGroup="true">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.write.WriteIntroFragment">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingHorizontal="16dp"
-            android:orientation="vertical"
-            android:background="#f7f7f7">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:text="커버 사진을 선해주세요(필수)"
+                android:textSize="18dp"
+                android:textStyle="bold" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
-                <TextView
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:text="커버 사진을 선해주세요(필수)"
-                    android:textSize="18dp"
-                    android:textStyle="bold" />
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/textGray"
+                    app:strokeWidth="2dp">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:cardCornerRadius="16dp"
-                        app:cardBackgroundColor="@color/white"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/textGray"
-                        app:strokeWidth="2dp">
-
-                        <ImageView
-                            style="@style/Widget.Material3.MaterialTimePicker.ImageButton"
-                            android:id="@+id/cardview_writeIntro_cardCover"
-                            android:layout_width="70dp"
-                            android:layout_height="70dp"
-                            android:padding="20dp"
-                            android:src="@drawable/icon_photo_plus_24px"
-                            app:tint="@color/textGray" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardViewCoverImageSelect"
-                        android:visibility="invisible"
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/cardview_writeIntro_cardCover"
+                        style="@style/Widget.Material3.MaterialTimePicker.ImageButton"
                         android:layout_width="70dp"
                         android:layout_height="70dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardBackgroundColor="@color/white"
-                        app:cardElevation="0dp"
-                        android:layout_marginStart="10dp"
-                        app:strokeColor="@color/textGray"
-                        app:strokeWidth="2dp">
+                        android:padding="20dp"
+                        android:src="@drawable/icon_photo_plus_24px"
+                        app:tint="@color/textGray" />
 
-                        <ImageView
-                            android:id="@+id/imageViewCoverImageSelect"
-                            android:layout_width="70dp"
-                            android:layout_height="70dp"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/image_detail_2" />
+                </com.google.android.material.card.MaterialCardView>
 
-                    </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardViewCoverImageSelect"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_marginStart="10dp"
+                    android:visibility="invisible"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/textGray"
+                    app:strokeWidth="2dp">
 
-                </LinearLayout>
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/imageViewCoverImageSelect"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/image_detail_2" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="모집 소개글을 작성해주세요"
-                    android:textSize="18dp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout_writeIntro_title"
-                    style="@style/CustomTextInputLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:endIconMode="clear_text"
-                    app:hintAnimationEnabled="false"
-                    app:hintEnabled="false">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textInput_writeIntro_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="제목 입력"
-                        android:inputType="text"
-                        android:textSize="16dp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ex.개발자 북클럽 모집(최소 8자 이상)"
-                    android:textColor="@color/textGray"
-                    android:textSize="14dp" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout_writeIntro_content"
-                    style="@style/CustomTextInputLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    app:endIconMode="clear_text"
-                    app:hintAnimationEnabled="false"
-                    app:hintEnabled="false">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textInput_writeIntro_content"
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:gravity="top"
-                        android:hint="소개글 입력(최대한 자세히 입력해주세요)"
-                        android:inputType="textMultiLine"
-                        android:textSize="16dp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    android:id="@+id/textView_writeIntro_write_example"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="작성 예시보기"
-                    android:textColor="@color/pointColor"
-                    android:textSize="14dp" />
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
 
-        </ScrollView>
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="모집 소개글을 작성해주세요"
+                android:textSize="18dp"
+                android:textStyle="bold" />
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout_writeIntro_title"
+                style="@style/CustomTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:endIconMode="clear_text"
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false">
 
-    </LinearLayout>
-</layout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInput_writeIntro_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="제목 입력"
+                    android:inputType="text"
+                    android:textSize="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ex.개발자 북클럽 모집(최소 8자 이상)"
+                android:textColor="@color/textGray"
+                android:textSize="14dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout_writeIntro_content"
+                style="@style/CustomTextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:endIconMode="clear_text"
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInput_writeIntro_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:gravity="top"
+                    android:hint="소개글 입력(최대한 자세히 입력해주세요)"
+                    android:inputType="textMultiLine"
+                    android:textSize="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/textView_writeIntro_write_example"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="작성 예시보기"
+                android:textColor="@color/pointColor"
+                android:textSize="14dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonWriteIntroNext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:backgroundTint="@color/buttonGray"
+        android:text="다음"
+        android:textColor="@color/textGray"
+        android:textSize="14dp" />
+
+</LinearLayout>

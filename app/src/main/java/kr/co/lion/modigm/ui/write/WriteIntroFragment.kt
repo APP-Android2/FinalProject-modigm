@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
@@ -29,14 +30,15 @@ import kr.co.lion.modigm.databinding.FragmentWriteIntroBinding
 import kr.co.lion.modigm.db.write.RemoteWriteStudyDao
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.CustomIntroDialog
+import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
+import kr.co.lion.modigm.util.FragmentName
 import java.io.File
 import kotlin.random.Random
 
 class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWriteIntroBinding::inflate) {
 
     val viewModel: WriteViewModel by activityViewModels()
-    val tabName = "intro"
 
     // 카메라 실행을 위한 런처
     lateinit var cameraLauncher: ActivityResultLauncher<Intent>
@@ -63,6 +65,8 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initView()
 
         // RemoteWriteStudyDao 객체 생성
         remoteWriteStudyDao = RemoteWriteStudyDao()
@@ -112,6 +116,19 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    private fun initView() {
+        with(binding) {
+            // 작성 버튼
+            with(buttonWriteIntroNext){
+                setOnClickListener {
+                    uploadImageAndSaveData { studyIdx ->
+                        navigateToDetailFragment(studyIdx)
+                    }
+                }
+            }
+        }
+    }
+
     // ImageView에 이미지를 로드하는 메서드
     private fun loadImageIntoImageView(uri: Uri) {
         try {
@@ -129,7 +146,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
 
-    fun setupButton() {
+    private fun setupButton() {
         with(binding) {
             // image 버튼 클릭 리스너
             cardviewWriteIntroCardCover.setOnClickListener {
@@ -146,7 +163,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
 
-    fun initData() {
+    private fun initData() {
         val context = requireContext()
 
         // 권한 확인
@@ -157,7 +174,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         cameraLauncher = registerForActivityResult(contract1) {
             // 사진을 사용하겠다고 한 다음에 돌아왔을 경우
             if (it.resultCode == AppCompatActivity.RESULT_OK) {
-                contentUri?.let { uri ->
+                contentUri.let { uri ->
                     // 사진 객체를 생성한다.
                     val bitmap = BitmapFactory.decodeFile(uri.path) // 사진 객체 생성
 
@@ -221,7 +238,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     // 유효성 검사 메서드
-    fun validateIntro() {
+    private fun validateIntro() {
         val isTitleValid = binding.textInputWriteIntroTitle.text.toString().length >= 8
         val isContentValid = binding.textInputWriteIntroContent.text.toString().length >= 10
 //        val isImageAdded = isAddPicture
@@ -236,7 +253,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     // ExifInterface : 사진, 영상, 소리 등의 파일에 기록한 정보
     // 위치, 날짜, 조리개값, 노출 정도 등등 다양한 정보가 기록된다.
     // ExifInterface 정보에서 사진 회전 각도값을 가져와서 그만큼 다시 돌려준다.
-    fun getDegree(uri: Uri): Int {
+    private fun getDegree(uri: Uri): Int {
         val context = requireContext()
         // 사진 정보를 가지고 있는 객체 가져온다.
         var exifInterface: ExifInterface? = null
@@ -275,7 +292,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     // 회전시키는 메서드
-    fun rotateBitmap(bitmap: Bitmap, degree: Float): Bitmap {
+    private fun rotateBitmap(bitmap: Bitmap, degree: Float): Bitmap {
         // 회전 이미지를 생성하기 위한 변환 행렬
         val matrix = Matrix()
         matrix.postRotate(degree)
@@ -293,7 +310,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     // 이미지 사이즈를 조정하는 메서드
-    fun resizeBitmap(bitmap: Bitmap, targetWidth: Int): Bitmap {
+    private fun resizeBitmap(bitmap: Bitmap, targetWidth: Int): Bitmap {
         // 이미지의 확대/축소 비율을 구한다.
         val ratio = targetWidth.toDouble() / bitmap.width.toDouble()
         // 세로 길이를 구한다.
@@ -304,7 +321,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         return resizedBitmap
     }
 
-    fun showPopupWindow(anchorView: View) {
+    private fun showPopupWindow(anchorView: View) {
         val layoutInflater = LayoutInflater.from(requireContext())
         val popupView = layoutInflater.inflate(R.layout.custom_popup_cover_image, null)
 
@@ -424,6 +441,26 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 Log.e("WriteIntroFragment", "Error saving data to database", e)
             }
         }
+    }
+
+    // 글상세 프래그먼트로 이동하는 메서드
+    private fun navigateToDetailFragment(studyIdx: Int) {
+
+        // 번들 데이터
+        val detailFragment = DetailFragment().apply {
+            arguments = Bundle().apply {
+                putInt("studyIdx", studyIdx)
+            }
+        }
+        // 프래그먼트 교체
+        with(parentFragmentManager){
+            popBackStack(FragmentName.BOTTOM_NAVI.str, 0)
+            commit {
+                replace(R.id.containerMain, detailFragment)
+                addToBackStack(FragmentName.DETAIL.str)
+            }
+        }
+
     }
 }
 

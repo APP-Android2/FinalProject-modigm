@@ -62,11 +62,9 @@ class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding:
     private fun initView() {
         // 바인딩
         with(binding) {
-            // 탭 레이아웃 설정
-            val tabLayout: TabLayout = tabLayoutStudy
 
             // 탭 선택 리스너 설정
-            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            tabLayoutStudy.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
 
                     // 선택된 탭에 따라 프래그먼트 교체

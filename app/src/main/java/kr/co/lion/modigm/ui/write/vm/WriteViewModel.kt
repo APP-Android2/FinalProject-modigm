@@ -10,27 +10,61 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 
 class WriteViewModel : ViewModel() {
-    // 스터디 Repository
-    val writeStudyRepository = WriteStudyRepository()
 
-//    private val prefs: PreferenceUtil = ModigmApplication.prefs
+    // 스터디 Repository
+    private val writeStudyRepository = WriteStudyRepository()
 
     private val _isItemSelected = MutableLiveData<Boolean>()
     val isItemSelected: LiveData<Boolean> get() = _isItemSelected
+
+    // MutableMap으로 데이터를 관리
+    private val _writeDataMap = MutableLiveData<MutableMap<String, Any>>(mutableMapOf())
+    val writeDataMap: LiveData<MutableMap<String, Any>> get() = _writeDataMap
+
+    // 데이터를 업데이트하는 함수
+    fun updateData(key: String, value: Any) {
+        val currentMap = _writeDataMap.value ?: mutableMapOf()
+        currentMap[key] = value
+        _writeDataMap.value = currentMap // 변경된 값을 다시 할당하여 UI에 반영
+    }
+
+    // 데이터를 특정 키로 가져오는 함수
+    fun getUpdateData(key: String): Any? {
+        return _writeDataMap.value?.get(key)
+    }
+
+    private val _currentTabNum = MutableLiveData<Int>()
+    val currentTabNum: LiveData<Int> get() = _currentTabNum
+
+
+    fun updateCurrentTabNum(tabNum: Int) {
+        _currentTabNum.value = tabNum
+
+    }
+
+
+
+
+
+
+
+
+
+
 
 
     // 각 탭의 유효성 검사 상태를 저장하는 LiveData
 
     // 분야
-    val isFieldValid = MutableLiveData<Boolean>(false)
+    private val isFieldValid = MutableLiveData<Boolean>(false)
     // 기간
-    val isPeriodValid = MutableLiveData<Boolean>(false)
+    private val isPeriodValid = MutableLiveData<Boolean>(false)
     // 진행 방식
-    val isProceedValid = MutableLiveData<Boolean>(false)
+    private val isProceedValid = MutableLiveData<Boolean>(false)
     // 기술
-    val isSkillValid = MutableLiveData<Boolean>(false)
+    private val isSkillValid = MutableLiveData<Boolean>(false)
     // 소개
-    val isIntroValid = MutableLiveData<Boolean>(false)
+    private val isIntroValid = MutableLiveData<Boolean>(false)
 
     var currentTab = 0 // 현재 탭의 위치를 저장
 
@@ -48,9 +82,6 @@ class WriteViewModel : ViewModel() {
 
     // 신청 방식 데이터 저장
     val selectedApplyTag = MutableLiveData<String>()
-
-    // 작성자 uid
-    val writeUid = MutableLiveData<String>("")
 
     // 이미지 URI 저장
     val studyPicUri = MutableLiveData<String>("")
@@ -151,11 +182,11 @@ class WriteViewModel : ViewModel() {
                 studyPic = studyPicUri.value ?: "",
                 studyMaxMember = studyMaxMember.value ?: 0,
                 studyState = true,
-                userIdx = userIdx.toInt(),
+                userIdx = userIdx,
             )
             val studyIdx = studySkillList.value?.let {
                 writeStudyRepository.uploadStudyData(
-                    userIdx.toInt(),
+                    userIdx,
                     studyData,
                     studySkillList.value?:listOf(),
                     studyPicUri.value
@@ -167,5 +198,4 @@ class WriteViewModel : ViewModel() {
             null
         }
     }
-
 }
