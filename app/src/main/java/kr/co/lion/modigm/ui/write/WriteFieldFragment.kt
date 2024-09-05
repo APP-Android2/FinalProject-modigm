@@ -13,15 +13,16 @@ import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWriteFieldBinding::inflate) {
 
     private val viewModel: WriteViewModel by activityViewModels()
+
     private var selectedCardView: MaterialCardView? = null // 선택된 카드뷰를 기억하기 위한 변수
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         with(binding){
-            cardviewWriteFieldStudy.setTag("스터디")
-            cardviewWriteFieldContest.setTag("공모전")
-            cardviewWriteFieldProject.setTag("프로젝트")
+            cardviewWriteFieldStudy.tag = "스터디"
+            cardviewWriteFieldContest.tag = "공모전"
+            cardviewWriteFieldProject.tag = "프로젝트"
 
             cardviewWriteFieldStudy.setOnClickListener {
                 onCardClicked(it as MaterialCardView)
@@ -37,12 +38,20 @@ class WriteFieldFragment : VBBaseFragment<FragmentWriteFieldBinding>(FragmentWri
         // ViewModel에 저장된 선택 상태를 확인하고 복원
         viewModel.selectedFieldTag.value?.let { selectedTag ->
             when (selectedTag) {
-                "스터디" -> binding.cardviewWriteFieldStudy.performClick()
-                "프로젝트" -> binding.cardviewWriteFieldProject.performClick()
-                "공모전" -> binding.cardviewWriteFieldContest.performClick()
+                "스터디" -> selectCardView(binding.cardviewWriteFieldStudy)
+                "프로젝트" -> selectCardView(binding.cardviewWriteFieldProject)
+                "공모전" -> selectCardView(binding.cardviewWriteFieldContest)
                 else -> { /* 저장된 데이터 없음 */ }
             }
         }
+    }
+
+    private fun selectCardView(cardView: MaterialCardView) {
+        selectedCardView?.let {
+            changeStrokeColor(it, false) // 기존 선택 해제
+        }
+        selectedCardView = cardView
+        changeStrokeColor(cardView, true) // 새로 선택
     }
 
     // 클릭된 카드뷰의 스트로크 색상 변경 함수

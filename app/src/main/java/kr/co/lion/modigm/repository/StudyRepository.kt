@@ -4,6 +4,7 @@ import android.util.Log
 import kr.co.lion.modigm.db.study.RemoteStudyDataSource
 import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.TechStackData
 
 class StudyRepository() {
 
@@ -13,12 +14,11 @@ class StudyRepository() {
 
     /**
      * 전체 스터디 목록을 가져오는 메소드 (좋아요 여부 포함)
-     * @param userIdx 사용자 인덱스
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> {
+    suspend fun getAllStudyData(): Result<List<Triple<StudyData, Int, Boolean>>> {
         return runCatching {
-            remoteStudyDataSource.getAllStudyData(userIdx).getOrThrow()
+            remoteStudyDataSource.getAllStudyData().getOrThrow()
         }.onFailure { e ->
             Log.e(logTag, "전체 스터디 목록 조회 중 오류 발생: ${e.message}", e)
             Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
@@ -110,9 +110,9 @@ class StudyRepository() {
     /**
      * 기술 스택 데이터를 가져오는 메소드
      */
-    suspend fun getTechStackData(): Result<List<Triple<Int, String, String>>> {
+    suspend fun getTechStackData(): Result<List<TechStackData>> {
         return runCatching {
-            remoteStudyDataSource.selectAllTechStack().getOrThrow()
+            remoteStudyDataSource.getTechStackData().getOrThrow()
         }.onFailure { e ->
             Log.e(logTag, "기술 스택 데이터 조회 중 오류 발생: ${e.message}", e)
             Result.failure<List<Triple<Int, String, String>>>(e)

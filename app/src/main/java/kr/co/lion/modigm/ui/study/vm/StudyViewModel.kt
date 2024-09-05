@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.model.StudyData
+import kr.co.lion.modigm.model.TechStackData
 import kr.co.lion.modigm.repository.StudyRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
@@ -56,8 +57,8 @@ class StudyViewModel : ViewModel() {
     val isFilterApplied: LiveData<Boolean> = _isFilterApplied
 
     // 기술 스택 데이터 LiveData
-    private val _techStackData = MutableLiveData<List<Triple<Int, String, String>>>()
-    val techStackData: LiveData<List<Triple<Int, String, String>>> = _techStackData
+    private val _techStackData = MutableLiveData<List<TechStackData>>()
+    val techStackData: LiveData<List<TechStackData>> = _techStackData
 
 
     // 좋아요 상태
@@ -86,7 +87,7 @@ class StudyViewModel : ViewModel() {
     fun getAllStudyData() {
         viewModelScope.launch {
             _isLoading.postValue(true) // 로딩 시작
-            val result = studyRepository.getAllStudyData(getCurrentUserIdx())
+            val result = studyRepository.getAllStudyData()
             result.onSuccess {
                 _allStudyData.postValue(it)
             }.onFailure {
@@ -120,7 +121,7 @@ class StudyViewModel : ViewModel() {
     fun refreshAllStudyData() {
         viewModelScope.launch {
             _isRefreshing.postValue(true) // 스와이프 리프레시 로딩 시작
-            val result = studyRepository.getAllStudyData(getCurrentUserIdx())
+            val result = studyRepository.getAllStudyData()
             result.onSuccess {
                 _allStudyData.postValue(it)
             }.onFailure {
