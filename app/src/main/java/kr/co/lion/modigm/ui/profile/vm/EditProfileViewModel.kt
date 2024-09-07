@@ -131,9 +131,6 @@ class EditProfileViewModel: ViewModel() {
 
         // 데이터베이스 업데이트
         profileRepository.updateUserData(user)
-
-        // 프로필 화면 재로드
-        profileFragment.updateViews()
     }
 
     fun updateUserLinkData(profileFragment: ProfileFragment) = viewModelScope.launch {
@@ -141,9 +138,6 @@ class EditProfileViewModel: ViewModel() {
 
         // 데이터베이스 업데이트
         profileRepository.updateUserLinkData(userIdx, _editProfileLinkList.value)
-
-        // 프로필 화면 재로드
-        profileFragment.updateViews()
     }
 
     // 링크 목록 순서 변경

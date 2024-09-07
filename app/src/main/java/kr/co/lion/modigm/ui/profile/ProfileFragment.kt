@@ -133,14 +133,13 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         initView()
     }
 
-    fun updateViews() {
+    override fun onResume() {
+        super.onResume()
         setupUserInfo()
     }
 
     private fun initView() {
         setupToolbar()
-        //setupFab()
-        setupUserInfo()
         setupRecyclerViewLink()
         setupRecyclerViewPartStudy()
         setupRecyclerViewHostStudy()
