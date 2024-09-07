@@ -196,38 +196,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         }
     }
 
-//    private fun setupFab() {
-//        fragmentProfileBinding.apply {
-//            fabProfile.apply {
-//                if (myProfile) {
-//                    // 본인의 프로필일 때
-//                    visibility = View.INVISIBLE
-//                }
-//                else {
-//                    // 1:1 채팅 방 찾기
-//                    lifecycleScope.launch {
-//                        chatRoomViewModel.findChatRoomIdx(ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!, uid!!)
-//                    }
-//                    setOnClickListener {
-//                        chatRoomViewModel.chatRoomIdx.observe(viewLifecycleOwner, Observer { chatRoomIdx ->
-//                            // 채팅방 없음(생성 O)
-//                            if (chatRoomIdx == 0) {
-//                                CoroutineScope(Dispatchers.Main).launch {
-//                                    val thisChatRoomIdx = addChatRoomData()
-//                                    enterChatRoom(thisChatRoomIdx)
-//                                }
-//                            }
-//                            // 채팅방 있음(생성 X)
-//                            else {
-//                                enterChatRoom(chatRoomIdx)
-//                            }
-//                        })
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     private fun setupUserInfo() {
         profileViewModel.profileUserIdx.value = userIdx
         profileViewModel.loadUserData()

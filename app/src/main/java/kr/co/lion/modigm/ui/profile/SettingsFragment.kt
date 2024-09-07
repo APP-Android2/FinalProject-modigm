@@ -37,7 +37,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
         // 뒤로 가기 물리키
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                requireActivity().supportFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack()
             }
         })
     }
@@ -50,7 +50,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
             // 뒤로 가기
             setNavigationIcon(R.drawable.icon_arrow_back_24px)
             setNavigationOnClickListener {
-                requireActivity().supportFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack()
             }
         }
     }
@@ -60,7 +60,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .add(R.id.containerMain, EditProfileFragment(profileFragment))
+                    .replace(R.id.containerMain, EditProfileFragment(profileFragment))
                     .addToBackStack(FragmentName.EDIT_PROFILE.str)
                     .commit()
             }
@@ -83,7 +83,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
                 // 버튼 클릭 시
                 setOnClickListener {
                     parentFragmentManager.commit {
-                        add(R.id.containerMain, ChangePasswordEmailFragment())
+                        replace(R.id.containerMain, ChangePasswordEmailFragment())
                         addToBackStack(FragmentName.CHANGE_PASSWORD_EMAIL.str)
                     }
                 }
@@ -104,7 +104,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
                 openWebView(Links.TERMS.url)
             }
 
-            // 로그아웃 (오류뜸, clearBackStack 수정 필요)
+            // 로그아웃
             layoutSettingsLogout.setOnClickListener {
                 // 로그아웃 확인 다이얼로그
                 val customDialogBinding = CustomLogoutDialogBinding.inflate(layoutInflater)
