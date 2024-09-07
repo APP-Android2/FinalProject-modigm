@@ -13,6 +13,7 @@ import com.google.android.material.chip.ChipGroup
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFilterSortBinding
 import kr.co.lion.modigm.model.FilterStudyData
+import kr.co.lion.modigm.model.TechStackData
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
 import kr.co.lion.modigm.util.FilterSort
@@ -33,7 +34,7 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
 
     // 기술 스택 선택 데이터를 담을 리스트
     private val selectedTechIdxs = mutableListOf<Int>()
-    private lateinit var techStackData: List<Triple<Int, String, String>>
+    private lateinit var techStackData: List<TechStackData>
 
     // --------------------------------- LC START ---------------------------------
 
@@ -64,9 +65,9 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
             // 기술 스택 데이터 초기화 (추가된 부분)
             viewModel.techStackData.observe(viewLifecycleOwner) { data ->
                 techStackData = data
-                val categories = techStackData.map { it.third }.distinct()
+                val categories = techStackData.map { it.techCategory }.distinct()
                 setupChipGroupWithListener(chipGroupTechCategory, categories) { selectedCategory ->
-                    val techNames = techStackData.filter { it.third == selectedCategory }.map { it.second }
+                    val techNames = techStackData.filter { it.techCategory == selectedCategory }.map { it.techName }
                     setupMultiSelectableChipGroup(chipGroupTechName, techNames)
                 }
             }
@@ -101,7 +102,7 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
                 chipGroupTechName.checkedChipIds.forEach { id ->
                     val chip = chipGroupTechName.findViewById<Chip>(id)
                     val techName = chip.text.toString()
-                    techStackData.find { it.second == techName }?.first?.let { techIdx ->
+                    techStackData.find { it.techName == techName }?.techIdx?.let { techIdx ->
                         selectedTechIdxs.add(techIdx)
                     }
                 }

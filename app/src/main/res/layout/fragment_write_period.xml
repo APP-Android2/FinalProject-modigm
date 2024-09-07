@@ -1,61 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f7f7f7"
+    android:transitionGroup="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <TextView
+        android:id="@+id/textView_writePeriod_question"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#f7f7f7"
-        tools:context=".ui.write.WritePeriodFragment">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
 
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="164dp"
 
-        <TextView
-            android:id="@+id/textView_writePeriod_question"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+        android:text="얼마나 진행 하실건가요?"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textSize="18dp"
 
-            android:layout_marginTop="40dp"
-            android:layout_marginEnd="164dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            android:text="얼마나 진행 하실건가요?"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textSize="18dp"
+    <TextView
+        android:id="@+id/textView_writePeriod_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
 
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
 
-        <TextView
-            android:id="@+id/textView_writePeriod_notice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+        android:text="자세한 기간과 모임시간은 소개글에 작성해주세요 :)"
+        android:textColor="@color/textGray"
+        android:textSize="16dp"
 
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_question" />
 
-            android:text="자세한 기간과 모임시간은 소개글에 작성해주세요 :)"
-            android:textColor="@color/textGray"
-            android:textSize="16dp"
+    <Spinner
+        android:id="@+id/SpinnerWritePeriod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="26dp"
+        android:background="@drawable/style_spinner"
+        android:spinnerMode="dialog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice"/>
 
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_question" />
-
-        <Spinner
-            android:id="@+id/SpinnerWritePeriod"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
-            android:layout_marginHorizontal="16dp"
-            android:background="@drawable/style_spinner"
-            android:spinnerMode="dialog"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice"
-            tools:layout_editor_absoluteX="-16dp" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>
