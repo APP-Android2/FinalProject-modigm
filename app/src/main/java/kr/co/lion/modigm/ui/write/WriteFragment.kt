@@ -6,7 +6,6 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
 import androidx.activity.addCallback
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -19,10 +18,9 @@ import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.FragmentName
 
 class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding::inflate) {
+
     // 뷰모델
     private val viewModel: WriteViewModel by activityViewModels()
-
-    private var previousTabPosition: Int = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -33,7 +31,7 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
         // 초기 프래그먼트 설정
         if (savedInstanceState == null) {
             childFragmentManager.commit {
-                replace<WriteFieldFragment>(R.id.containerWrite)
+                replace<WriteTypeFragment>(R.id.containerWrite)
             }
         }
         // 뷰모델 관찰
@@ -52,12 +50,12 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
                     override fun onTabSelected(tab: TabLayout.Tab) {
                         // 선택된 탭에 따라 프래그먼트 교체
                         val fragment = when (tab.position) {
-                            0 -> WriteFieldFragment()
+                            0 -> WriteTypeFragment()
                             1 -> WritePeriodFragment()
                             2 -> WriteProceedFragment()
-                            3 -> WriteSkillFragment()
+                            3 -> WriteTechStackFragment()
                             4 -> WriteIntroFragment()
-                            else -> WriteFieldFragment()
+                            else -> WriteTypeFragment()
                         }
 
                         viewModel.updateSelectedTab(tab.position)
@@ -67,9 +65,6 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
                             setReorderingAllowed(true)
                             replace(R.id.containerWrite, fragment)
                         }
-
-                        // 이전 탭 위치를 업데이트
-                        previousTabPosition = tab.position
                     }
 
                     override fun onTabUnselected(tab: TabLayout.Tab?) {}
@@ -82,7 +77,8 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
             with(toolbarWriteFragment){
                 // 뒤로가기 버튼
                 setNavigationOnClickListener {
-                    showCancelDialog()
+                    // 이전 탭 클릭 시 처리
+                    moveToPreviousTab()
                 }
             }
         }
@@ -98,59 +94,65 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
     }
 
     private fun observeViewModel() {
-        // 탭 선택 상태 관찰
-        viewModel.selectedTabPosition.observe(viewLifecycleOwner) { position ->
-            // 해당 포지션의 탭을 선택
-            val tab = binding.tabLayoutWrite.getTabAt(position)
-            tab?.select()
+        with(binding) {
+            // 탭 선택 상태 관찰
+            viewModel.selectedTabPosition.observe(viewLifecycleOwner) { position ->
+                // 해당 포지션의 탭을 선택
+                val tab = tabLayoutWrite.getTabAt(position)
+                tab?.select()
 
-            // 탭에 따른 프래그먼트 교체
-            val fragment = when (position) {
-                0 -> WriteFieldFragment()
-                1 -> WritePeriodFragment()
-                2 -> WriteProceedFragment()
-                3 -> WriteSkillFragment()
-                4 -> WriteIntroFragment()
-                else -> WriteFieldFragment()
+                // 탭에 따른 프래그먼트 교체
+                val fragment = when (position) {
+                    0 -> WriteTypeFragment()
+                    1 -> WritePeriodFragment()
+                    2 -> WriteProceedFragment()
+                    3 -> WriteTechStackFragment()
+                    4 -> WriteIntroFragment()
+                    else -> WriteTypeFragment()
+                }
+
+                childFragmentManager.commit {
+                    replace(R.id.containerWrite, fragment)
+                }
             }
 
-            childFragmentManager.commit {
-                replace(R.id.containerWrite, fragment)
+            // 프로그래스바 상태 관찰
+            viewModel.progressBarState.observe(viewLifecycleOwner) { progress ->
+                animateProgressBar(progressBarWrite, progressBarWrite.progress, progress)
             }
         }
 
-        // 프로그래스바 상태 관찰
-        viewModel.progressBarState.observe(viewLifecycleOwner) { progress ->
-            animateProgressBar(binding.progressBarWrite, binding.progressBarWrite.progress, progress)
-        }
-    }
-
-    // 프래그먼트 선택 메서드
-    private fun selectFragment(fragment: Fragment) {
-        childFragmentManager.commit {
-            replace(R.id.containerWrite, fragment)
-        }
     }
 
     // 뒤로가기 버튼 처리
     private fun backButton() {
-        with(binding) {
-            // 백버튼 처리
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-                val currentTab = tabLayoutWrite.selectedTabPosition
-                if (currentTab > 0) {
-                    val previousTabPosition = currentTab - 1
-                    val tab = tabLayoutWrite.getTabAt(previousTabPosition)
-                    tab?.select()
+        // 백버튼 처리
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            // 뒤로가기 처리
+            moveToPreviousTab()
+        }
+    }
 
-                    // 프로그래스바 감소 애니메이션 적용
-                    val progressPercentage = (previousTabPosition + 1) * 20
-                    animateProgressBar(progressBarWrite, progressBarWrite.progress, progressPercentage)
-                } else {
-                    parentFragmentManager.popBackStack()
-                }
+    // 뒤로가기 처리
+    private fun moveToPreviousTab() {
+        with(binding){
+            // 현재 탭
+            val currentTab = tabLayoutWrite.selectedTabPosition
+            // 기간/진행방식/기술/소개 = 이전 탭
+            if (currentTab > 0) {
+                val previousTabPosition = currentTab - 1
+                val tab = tabLayoutWrite.getTabAt(previousTabPosition)
+                tab?.select()
+
+                // 프로그래스바 감소 애니메이션 적용
+                val progressPercentage = (previousTabPosition + 1) * 20
+                animateProgressBar(progressBarWrite, progressBarWrite.progress, progressPercentage)
+            // 분류 = 팝 백스택,
+            } else {
+                showCancelDialog()
             }
         }
+
     }
 
     // 뒤로가기 다이얼로그 표시
@@ -158,6 +160,7 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
         val dialog = CustomCancelDialog(requireContext())
         with(dialog){
             setTitle("뒤로가기")
+            setMessage("작성을 취소하시겠습니까?")
             setPositiveButton("확인") {
                 parentFragmentManager.popBackStack(FragmentName.BOTTOM_NAVI.str,0)
             }

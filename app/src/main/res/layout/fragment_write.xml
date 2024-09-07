@@ -12,9 +12,8 @@
         android:id="@+id/toolbar_writeFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:navigationIcon="@drawable/arrow_back_24px"
-        android:title="@string/toolbarTitle_WriteFragment" />
+        android:title="모집 글 작성" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progressBarWrite"
@@ -40,7 +39,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="분야" />
+            android:text="타입" />
         <com.google.android.material.tabs.TabItem
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,7 +47,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="진행방식" />
+            android:text="진행" />
         <com.google.android.material.tabs.TabItem
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

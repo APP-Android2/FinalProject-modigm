@@ -1,13 +1,10 @@
 package kr.co.lion.modigm.ui.write
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
@@ -20,114 +17,240 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.OnPlaceSelectedListener
 import kr.co.lion.modigm.ui.detail.PlaceBottomSheetFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
+import kr.co.lion.modigm.util.shake
+import kr.co.lion.modigm.util.showLoginSnackBar
 
-class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(FragmentWriteProceedBinding::inflate), OnPlaceSelectedListener {
+class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(FragmentWriteProceedBinding::inflate),
+    OnPlaceSelectedListener {
 
     private val viewModel: WriteViewModel by activityViewModels()
 
-    private var onOffline: Int = 0
-
-    // 선택된 장소 이름
-    private var selectedPlaceName: String = ""
-
-    // 선택된 상세 장소 이름
-    private var selectedDetailPlaceName: String = ""
+    // bottomSheet에서 선택한 항목의 제목
+    override fun onPlaceSelected(placeName: String, detailPlaceName:String) {
+        with(binding) {
+            // 선택된 장소 이름
+            val locationText  = "$placeName\n$detailPlaceName"
+            textInputEditWriteProceedPlace.setText(locationText)
+            viewModel.updateWriteData("studyPlace", placeName)
+            viewModel.updateWriteData("studyDetailPlace", detailPlaceName)
+            updateButtonColor()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         initView()
 
-
     }
 
     private fun initView() {
-        // 칩 세팅
-        setupChipGroups()
 
-        //bottom Sheet
+        // 칩 및 초기 데이터 세팅
+        initChipGroupAndData()
+
+        // 바텀 시트
         setupBottomSheet()
 
         // 인원수 입력
         setupMemberInputWatcher()
 
-        // 유효성 검사
-        validateAnswer()
+        // 다음 버튼
+        nextButton()
 
-        // ViewModel에 저장된 선택 상태 복원
-        restoreState()
+
     }
 
-    private fun restoreState() {
-        // 칩 그룹의 선택 상태 복원
-        viewModel.studyOnOffline.value?.let { proceedType ->
-            binding.chipGroupWriteType.children.forEach { view ->
-                if (view is Chip && view.tag == proceedType) {
-                    view.isChecked = true
-                    updateChipStyle(view, true)
-                    updatePlaceVisibility(view)
+    // 칩 및 초기 데이터 세팅
+    private fun initChipGroupAndData(){
+        with(binding) {
+            with(chipGroupWriteType) {
+                removeAllViews()
+
+                // 이전에 저장한 값
+                val studyOnOffline = viewModel.getUpdateData("studyOnOffline")
+                val studyPlace = viewModel.getUpdateData("studyPlace")
+                val studyDetailPlace = viewModel.getUpdateData("studyDetailPlace")
+                val studyMaxMember = viewModel.getUpdateData("studyMaxMember")
+
+                setupChipGroup(
+                    chipGroupWriteType,
+                    listOf("오프라인", "온라인", "온·오프 혼합"),
+                    mapOf("온라인" to 1, "오프라인" to 2, "온·오프 혼합" to 3)
+                )
+
+                // 장소선택 가시성 설정
+                setPlaceSelectionListener()
+
+                // studyOnOffline 값에 따라 칩 선택. null이면 선택 안함
+                studyOnOffline?.let { selectedValue ->
+                    children.forEach { view ->
+                        if (view is Chip) {
+                            if (view.text == selectedValue) {
+                                view.isChecked = true
+                                updateChipStyle(view, true)
+
+                                when (selectedValue) {
+                                    "온라인" -> {
+                                        updatePlaceVisibility(view)
+                                        if(studyMaxMember != null) {
+                                            textInputEditProceedMaxMember.setText(studyMaxMember.toString())
+                                        }
+                                    }
+                                    "오프라인", "온·오프 혼합" -> {
+                                        if(studyMaxMember != null) {
+                                            textInputEditProceedMaxMember.setText(studyMaxMember.toString())
+                                        }
+                                        if(studyPlace != null) {
+                                            textInputEditWriteProceedPlace.setText("$studyPlace\n$studyDetailPlace")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                updateButtonColor()
+            }
+        }
+    }
+
+    // 바텀 시트
+    private fun setupBottomSheet() {
+        // 바텀 시트
+        with(binding) {
+            with(textInputLayoutProceedPlace) {
+                editText?.setOnClickListener {
+                    val bottomSheet = PlaceBottomSheetFragment().apply {
+                        setOnPlaceSelectedListener(this@WriteProceedFragment)
+                    }
+                    bottomSheet.show(childFragmentManager, bottomSheet.tag)
                 }
             }
         }
-
-        // 장소 선택 상태 복원
-        viewModel.studyPlace.value?.let { placeName ->
-            binding.textFieldWriteProceedLocation.setText(placeName)
-        }
-
-        viewModel.studyDetailPlace.value?.let { detailPlaceName ->
-            binding.textFieldWriteProceedLocation.setText(detailPlaceName)
-        }
     }
 
-    private fun setupChipGroups(){
-        binding.chipGroupWriteType.removeAllViews()
+    // 인원수 입력
+    private fun setupMemberInputWatcher() {
 
-        setupChipGroup(
-            binding.chipGroupWriteType,
-            listOf("오프라인", "온라인", "온·오프 혼합"),
-            mapOf("온라인" to 1, "오프라인" to 2, "온·오프 혼합" to 3) // tag 값을 지정
-        )
+        with(binding) {
+            with(textInputEditProceedMaxMember) {
+                addTextChangedListener(object :
+                    TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
-        // 장소선택 가시성 설정
-        setPlaceSelectionListener()
+                    }
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        // 텍스트가 변경되는 동안 호출됩니다.
+                        if (s != null && s.startsWith("0") && s.length > 1) {
+                            // 입력된 값이 "0"으로 시작하고 길이가 1 초과인 경우, "0"을 제거합니다.
+                            val correctString = s.toString().substring(1)
+                            setText(correctString)
+                            setSelection(correctString.length) // 커서를 수정된 텍스트의 끝으로 이동
+                        }
+                    }
+                    override fun afterTextChanged(s: Editable?) {
+                        // 텍스트 변경 후 호출됩니다.
+                        s?.toString()?.let {
+                            if(it.isEmpty()){
+                                // 빈 값일 경우 최소값으로 지정
+                                setText("0")
+                                setSelection(text.toString().length) // 커서를 텍스트 끝으로 이동
+                            }else{
+                                // 사용자가 입력한 수의 최대 값을 30으로 제한
+                                val num = it.toIntOrNull()
+                                num?.let { value ->
+                                    if (value > 30) {
+                                        setText("30")
+                                    }
+                                }
+                            }
+                        }
+                        setSelection(text.toString().length) // 커서를 끝으로 이동
+                        viewModel.updateWriteData("studyMaxMember", text.toString().toInt())
 
-        // "오프라인" 칩을 선택 상태로 설정
-        binding.chipGroupWriteType.children.forEach { view ->
-            if ((view as Chip).text == "오프라인") {
-                view.isChecked = true
-                // 선택된 칩의 스타일 업데이트
-                updateChipStyle(view, true)
+                        updateButtonColor()
+                    }
+                })
+                setOnEditorActionListener { v, actionId, event ->
+                    if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                        // 포커스 해제
+                        v.clearFocus()
+                        // 키보드 숨기기
+                        val imm = context?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                        imm?.hideSoftInputFromWindow(v.windowToken, 0)
+                        true // 이벤트 처리 완료
+                    } else {
+                        false // 다른 액션 ID의 경우 이벤트 처리 안함
+                    }
+                }
             }
         }
-        // 초기 유효성 검사 실행
-        viewModel.studyOnOffline.value = "오프라인" // 오프라인으로 설정
-        viewModel.validateProceedInput()
     }
 
+    // 다음 버튼
+    private fun nextButton() {
+        with(binding) {
+            with(buttonWriteProceedNext) {
+                setOnClickListener {
+
+                    // 온오프라인 방식으로 분기
+                    // 선택된 칩을 찾고, 그 텍스트를 studyOnOffline에 저장
+                    val selectedChip = chipGroupWriteType.children
+                        .filterIsInstance<Chip>()
+                        .firstOrNull { it.isChecked }  // 선택된 칩 찾기
+                    val studyOnOffline = selectedChip?.text.toString()  // 선택된 칩의 텍스트
+
+                    val studyPlace = viewModel.getUpdateData("studyPlace")
+                    val studyDetailPlace = viewModel.getUpdateData("studyDetailPlace")
+
+                    when (selectedChip?.text.toString()) {
+                        "온라인" -> {
+
+                            if(!checkMaxMember()){
+                                requireActivity().showLoginSnackBar("입력되지 않은 항목이 있습니다.", null)
+                                return@setOnClickListener
+                            }
+                            viewModel.updateWriteData("studyOnOffline", studyOnOffline)
+                            viewModel.updateWriteData("studyPlace", "")
+                            viewModel.updateSelectedTab(3)
+                        }
+                        "오프라인", "온·오프 혼합" -> {
+
+                            if (!checkAllInput()) {
+                                requireActivity().showLoginSnackBar("입력되지 않은 항목이 있습니다.", null)
+                                return@setOnClickListener
+                            }
+                            viewModel.updateWriteData("studyOnOffline", studyOnOffline)
+                            viewModel.updateWriteData("studyPlace", studyPlace)
+                            viewModel.updateWriteData("studyDetailPlace", studyDetailPlace)
+                            viewModel.updateSelectedTab(3)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 장소 선택 리스너
     private fun setPlaceSelectionListener() {
-        // 반복하며 칩에 클릭 리스너 설정
-        binding.chipGroupWriteType.children.forEach { view ->
-            (view as Chip).setOnClickListener {
-                Log.d("SelectedChip", "Selected chip: ${view.text}")
-                // 칩 클릭시 가시성 업데이트 함수 호출
-                updatePlaceVisibility(view)
-                // 칩 스타일 업데이트
-                updateChipStyles(binding.chipGroupWriteType, view.id)
+        with(binding){
+            // 반복하며 칩에 클릭 리스너 설정
+            chipGroupWriteType.children.forEach { view ->
+                (view as Chip).setOnClickListener {
+                    // 칩 클릭시 가시성 업데이트 함수 호출
+                    updatePlaceVisibility(view)
+                    // 칩 스타일 업데이트
+                    updateChipStyles(chipGroupWriteType, view.id)
 
-                onOffline = view.tag as Int
-//                viewModel.studyOnOffline.value = onOffline.toString()
-                viewModel.studyOnOffline.value = if (onOffline == 1) "온라인" else "오프라인" // "온라인"이나 "오프라인"으로 설정
+                    val studyOnOffline = view.text.toString()
+                    viewModel.updateWriteData("studyOnOffline", studyOnOffline)
 
-                if (onOffline == 1) { // "온라인"이 선택된 경우
-                    val locationText = ""
-                    binding.textFieldWriteProceedLocation.setText(locationText)
-                    viewModel.studyPlace.value = locationText
-                    viewModel.studyDetailPlace.value = ""
+                    if (studyOnOffline == "온라인") { // "온라인"이 선택된 경우
+                        viewModel.updateWriteData("studyPlace", "")
+                        viewModel.updateWriteData("studyDetailPlace", "")
+                    }
+                    updateButtonColor()
                 }
-
-                Log.d("SelectedChip", "onOffline: ${onOffline}")
-
-                viewModel.validateProceedInput()
             }
         }
     }
@@ -143,7 +266,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
         }
     }
 
-
+    // 칩 그룹 설정
     private fun setupChipGroup(chipGroup: ChipGroup, chipNames: List<String>, chipTags: Map<String, Int>? = null) {
         chipGroup.isSingleSelection = true  // Single selection 모드 활성화
         chipGroup.removeAllViews()  // 중복 생성을 방지하기 위해 기존 뷰를 제거
@@ -184,142 +307,108 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                     updateChipStyle(view, view.isChecked)
                 }
             }
-            // 선택된 칩의 tag 출력
-            Log.d("DetailEditFragment", "Selected Chip Tag: ${chip.tag}")
         }
     }
 
     // 칩 스타일 업데이트
     private fun updateChipStyle(chip: Chip, isSelected: Boolean) {
-        val context = chip.context
-        val backgroundColor = if (isSelected) ContextCompat.getColor(
-            context,
-            R.color.pointColor
-        ) else ContextCompat.getColor(context, R.color.white)
-        val textColor = if (isSelected) ContextCompat.getColor(
-            context,
-            R.color.white
-        ) else ContextCompat.getColor(context, R.color.black)
-
-        chip.chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
-        chip.setTextColor(textColor)
+        with(chip) {
+            // 칩 배경색 설정
+            val backgroundColor = if (isSelected) {
+                ContextCompat.getColor(context, R.color.pointColor)
+            } else {
+                ContextCompat.getColor(context, R.color.white)
+            }
+            // 칩 텍스트 색상 설정
+            val textColor = if (isSelected) {
+                ContextCompat.getColor(context, R.color.white)
+            } else {
+                ContextCompat.getColor(context, R.color.black)
+            }
+            chipBackgroundColor = ColorStateList.valueOf(backgroundColor)
+            setTextColor(textColor)
+        }
     }
 
     // 가시성 업데이트
     private fun updatePlaceVisibility(chip: Chip) {
-        when (chip.text.toString()) {
-            // '온라인'이 선택된 경우 장소 선택 입력 필드 숨김
-            "온라인" -> binding.textInputLayoutWriteProceedOfflineClicked.visibility = View.GONE
-            else -> {
-                binding.textInputLayoutWriteProceedOfflineClicked.visibility = View.VISIBLE
+        with(binding) {
+            when (chip.text.toString()) {
+                // '온라인'이 선택된 경우 장소 선택 입력 필드 숨김
+                "온라인" -> textInputLayoutProceedPlace.visibility = View.GONE
+                else -> {
+                    textInputLayoutProceedPlace.visibility = View.VISIBLE
 
-            }
-        }
-    }
-
-    // 인터페이스 구현
-    // bottomSheet에서 선택한 항목의 제목
-    override fun onPlaceSelected(placeName: String, detailPlaceName:String) {
-        selectedPlaceName = placeName
-        selectedDetailPlaceName = detailPlaceName
-        val locationText  = "$selectedPlaceName\n$selectedDetailPlaceName"
-        binding.textFieldWriteProceedLocation.setText(locationText)
-
-        viewModel.studyPlace.value = selectedPlaceName
-        viewModel.studyDetailPlace.value = selectedDetailPlaceName
-        viewModel.validateProceedInput()
-    }
-
-    private fun setupBottomSheet() {
-        binding.textInputLayoutWriteProceedOfflineClicked.editText?.setOnClickListener {
-            val bottomSheet = PlaceBottomSheetFragment().apply {
-                setOnPlaceSelectedListener(this@WriteProceedFragment)
-            }
-            bottomSheet.show(childFragmentManager, bottomSheet.tag)
-
-        }
-    }
-
-    // 인원수 입력 설정
-    private fun setupMemberInputWatcher() {
-        binding.textFieldWriteProceedNumOfMember.addTextChangedListener(object :
-            TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // 변경 전에 호출됩니다.
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // 텍스트가 변경되는 동안 호출됩니다.
-                if (s != null && s.startsWith("0") && s.length > 1) {
-                    // 입력된 값이 "0"으로 시작하고 길이가 1 초과인 경우, "0"을 제거합니다.
-                    val correctString = s.toString().substring(1)
-                    binding.textFieldWriteProceedNumOfMember.setText(correctString)
-                    binding.textFieldWriteProceedNumOfMember.setSelection(correctString.length) // 커서를 수정된 텍스트의 끝으로 이동
                 }
             }
+        }
 
-            override fun afterTextChanged(s: Editable?) {
-                // 텍스트 변경 후 호출됩니다.
-                s?.toString()?.let {
-                    if(it.isEmpty()){
-                        // 사용자가 모든 텍스트를 지웠을 경우 "0"을 자동으로 입력
-                        binding.textFieldWriteProceedNumOfMember.setText("0")
-                        binding.textFieldWriteProceedNumOfMember.setSelection(binding.textFieldWriteProceedNumOfMember.text.toString().length) // 커서를 텍스트 끝으로 이동
-                    }else{
-                        val num = it.toIntOrNull()
-                        num?.let { value ->
-                            if (value > 30) {
-                                binding.textFieldWriteProceedNumOfMember.setText("30")
-                            }
-                        }
-                    }
-                }
-                binding.textFieldWriteProceedNumOfMember.setSelection(binding.textFieldWriteProceedNumOfMember.text.toString().length) // 커서를 끝으로 이동
-                viewModel.studyMaxMember.value = binding.textFieldWriteProceedNumOfMember.text.toString().toInt()
-                viewModel.validateProceedInput()
-            }
-        })
+    }
 
-        binding.textFieldWriteProceedNumOfMember.setOnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                // 포커스 해제
-                v.clearFocus()
-
-                // 키보드 숨기기
-                val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                imm?.hideSoftInputFromWindow(v.windowToken, 0)
-
-                true // 이벤트 처리 완료
+    // 버튼의 색상을 업데이트하는 함수
+    private fun updateButtonColor() {
+        with(binding){
+            val colorResId = if (textInputEditProceedMaxMember.text != null && textInputEditWriteProceedPlace.text != null) {
+                R.color.pointColor
             } else {
-                false // 다른 액션 ID의 경우 이벤트 처리 안함
+                R.color.buttonGray
             }
-        }
+            with(buttonWriteProceedNext) {
+                setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            }
 
+        }
     }
 
-    private fun validateAnswer() {
-        viewModel.studyOnOffline.observe(viewLifecycleOwner) { onOffline ->
-            if (onOffline == "온라인") {
-                binding.textFieldWriteProceedLocation.error = null // "온라인"일 경우 장소 오류를 초기화
-                return@observe
-            }
 
-            viewModel.studyPlace.observe(viewLifecycleOwner) { place ->
-                if (onOffline != "온라인" && place.isEmpty()) {
-                    binding.textFieldWriteProceedLocation.error = "스터디 할 장소를 입력해주세요"
-                } else {
-                    binding.textFieldWriteProceedLocation.error = null
+    // 전체 유효성 검사
+    private fun checkAllInput(): Boolean {
+        return checkPlace() && checkMaxMember()
+    }
+
+    // 장소 입력 유효성 검사
+    private fun checkPlace(): Boolean {
+        with(binding) {
+            // 에러 메시지를 설정하고 포커스와 흔들기 동작을 수행하는 함수
+            fun showError(message: String) {
+                textInputLayoutProceedPlace.error = message
+                textInputEditWriteProceedPlace.requestFocus()
+                textInputEditWriteProceedPlace.shake()
+            }
+            return when {
+                textInputEditWriteProceedPlace.text.toString().isEmpty() -> {
+                    showError("장소를 입력해주세요.")
+                    false
+                }
+                else -> {
+                    textInputLayoutProceedPlace.error = null
+                    true
                 }
             }
         }
+    }
 
-        viewModel.studyMaxMember.observe(viewLifecycleOwner) { max ->
-            if (max > 30) {
-                binding.textFieldWriteProceedNumOfMember.error = "최대 정원은 30명입니다"
-            } else {
-                binding.textFieldWriteProceedNumOfMember.error = null
+    // 인원수 입력 유효성 검사
+    private fun checkMaxMember():Boolean {
+        with(binding) {
+
+            // 에러 메시지를 설정하고 포커스와 흔들기 동작을 수행하는 함수
+            fun showError(message: String) {
+                textInputLayoutProceedMaxMember.error = message
+                textInputEditProceedMaxMember.requestFocus()
+                textInputEditProceedMaxMember.shake()
+            }
+            return when {
+                textInputEditProceedMaxMember.text.toString().isEmpty() -> {
+                    showError("인원 수를 입력해주세요.")
+                    false
+                }
+                else -> {
+                    textInputLayoutProceedMaxMember.error = null
+                    true
+                }
             }
         }
     }
-
 }

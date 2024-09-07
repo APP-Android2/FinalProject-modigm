@@ -2,16 +2,18 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#f7f7f7"
-    android:orientation="vertical"
     android:paddingHorizontal="16dp"
     android:transitionGroup="true">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,7 +23,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="40dp"
                 android:text="진행할 장소를 입력해주세요"
                 android:textSize="18dp"
                 android:textStyle="bold" />
@@ -40,7 +42,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout_writeProceed_offline_clicked"
+                    android:id="@+id/textInputLayoutProceedPlace"
                     style="@style/CustomTextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -52,7 +54,7 @@
                     app:startIconDrawable="@drawable/icon_location_on_24px">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textField_writeProceed_location"
+                        android:id="@+id/textInputEditWriteProceedPlace"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:cursorVisible="false"
@@ -71,7 +73,7 @@
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayout_writeProceed"
+                    android:id="@+id/textInputLayoutProceedMaxMember"
                     style="@style/CustomTextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -81,7 +83,7 @@
                     app:hintEnabled="false">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textField_writeProceed_numOfMember"
+                        android:id="@+id/textInputEditProceedMaxMember"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="인원 수 입력"
@@ -92,6 +94,15 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonWriteProceedNext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/buttonGray"
+        android:text="다음"
+        android:textColor="@color/textGray"
+        android:textSize="14dp" />
 
 </LinearLayout>
 

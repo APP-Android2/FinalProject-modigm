@@ -16,16 +16,16 @@
         android:orientation="vertical">
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView"
+            android:id="@+id/textViewTypeTile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:layout_marginEnd="128dp"
-            android:text="@string/textView_WriteFieldFragment_question"
+            android:text="어떤 활동을 하고싶으신가요?"
             android:textSize="18dp" />
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardview_writeField_study"
+            android:id="@+id/cardViewWriteTypeStudy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="26dp"
@@ -39,7 +39,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="32dp"
-                android:text="@string/textView_WriteFieldFragment_study"
+                android:text="스터디"
                 android:textSize="16dp" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -49,13 +49,13 @@
                 android:layout_marginTop="36dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="12dp"
-                android:text="@string/textView_WriterFieldFragment_study_content"
+                android:text="목표를 정해 함께 성장해 갈 사람을 원해요"
                 android:textColor="@color/textGray"
                 android:textSize="14dp" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardview_writeField_contest"
+            android:id="@+id/cardViewWriteTypeContest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -69,7 +69,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="32dp"
-                android:text="@string/textView_WriterFieldFragment_contest"
+                android:text="공모전"
                 android:textSize="16dp" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -79,13 +79,13 @@
                 android:layout_marginTop="36dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="12dp"
-                android:text="@string/textView_WriterFieldFragment_contest_content"
+                android:text="같이 공모전에 도전할 사람을 원해요"
                 android:textColor="@color/textGray"
                 android:textSize="14dp" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardview_writeField_project"
+            android:id="@+id/cardViewWriteTypeProject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -99,7 +99,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="32dp"
-                android:text="@string/textView_WriterFieldFragment_project"
+                android:text="프로젝트"
                 android:textSize="16dp" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -109,16 +109,16 @@
                 android:layout_marginTop="36dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="12dp"
-                android:text="@string/textView_WriterFieldFragment_project_content"
+                android:text="같이 프로젝트 진행할 사람이 필요해요"
                 android:textColor="@color/textGray"
                 android:textSize="14dp" />
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonWriteFieldNext"
+        android:id="@+id/buttonWriteTypeNext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp"
+        android:layout_marginBottom="20dp"
         android:backgroundTint="@color/buttonGray"
         android:text="다음"
         android:textColor="@color/textGray"
