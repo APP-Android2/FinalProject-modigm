@@ -2,7 +2,9 @@ package kr.co.lion.modigm.ui.detail.vm
 
 import android.content.Context
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
+import android.widget.TextView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.volley.Response
@@ -242,11 +244,18 @@ class DetailViewModel: ViewModel() {
             if (isAlreadyApplied) {
                 // 이미 신청한 경우
                 withContext(Dispatchers.Main) {
-                    Snackbar.make(
-                        view, // View를 사용하여 Snackbar 표시
+                    // 스낵바 생성
+                    val snackbar = Snackbar.make(
+                        view,
                         "이미 신청한 스터디입니다.",
                         Snackbar.LENGTH_LONG
-                    ).show()
+                    )
+                    // 텍스트 뷰의 글씨 크기를 dp로 변환하여 설정
+                    val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                    val textSizeInPx = dpToPx(context, 14f) // 원하는 글씨 크기를 dp로 설정
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+
+                    snackbar.show()
                 }
                 return@launch
             }
@@ -301,7 +310,10 @@ class DetailViewModel: ViewModel() {
         }
     }
 
-
+    // dp를 px로 변환하는 함수
+    private fun dpToPx(context: Context, dp: Float): Float {
+        return dp * context.resources.displayMetrics.density
+    }
 
     // 푸시 알림 전송 및 데이터 저장 메서드
     fun sendPushNotification(context: Context, userIdx: Int, title: String, body: String, studyIdx: Int) {
