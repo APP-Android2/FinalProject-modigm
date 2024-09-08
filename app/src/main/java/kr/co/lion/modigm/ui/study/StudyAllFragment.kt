@@ -10,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
@@ -150,7 +151,16 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                     // 리사이클러뷰 스크롤 상태 변경 시 호출되는 메서드
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                         super.onScrollStateChanged(recyclerView, newState)
+                        // 스크롤 중일 때 Glide 이미지 로딩을 일시 중지
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            Glide.with(recyclerView.context).resumeRequests()
+                        } else {
+                            Glide.with(recyclerView.context).pauseRequests()
+                        }
+
                         scrollListener?.onRecyclerViewScrollStateChanged(newState)
+
+
                     }
                 })
 

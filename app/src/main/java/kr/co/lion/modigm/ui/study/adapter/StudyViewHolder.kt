@@ -37,8 +37,6 @@ class StudyViewHolder(
             setStudyType(studyData.first.studyType)
             // 스터디 현재 인원수, 최대 인원수
             setStudyMembers(studyData)
-            // 신청 방식 (선착순, 신청제)
-            textViewStudyApplyMethod.text = studyData.first.studyApplyMethod
             // 찜 상태
             setFavoriteButton(studyData)
         }
@@ -65,9 +63,10 @@ class StudyViewHolder(
             progressBarStudyPic.visibility = View.VISIBLE
             imageViewStudyPic.visibility = View.GONE
 
+            // Glide로 비동기 이미지 로딩
             val requestOptions = RequestOptions()
-                .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
-                .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
+                .placeholder(R.drawable.image_loading_gray) // 로딩 중일 때 표시할 이미지
+                .error(R.drawable.image_detail_1) // 오류 발생 시 표시할 이미지
 
             Glide.with(itemView.context)
                 .load(studyData.first.studyPic)
