@@ -11,10 +11,10 @@
         android:icon="@drawable/icon_favorite_full_24px"
         android:title="찜" />
     <item
-        android:id="@+id/bottomNaviChat"
+        android:id="@+id/bottomNaviNotification"
         android:enabled="true"
-        android:icon="@drawable/icon_chat_24px"
-        android:title="채팅" />
+        android:icon="@drawable/icon_notifications_24px"
+        android:title="알림" />
     <item
         android:id="@+id/bottomNaviMy"
         android:enabled="true"
