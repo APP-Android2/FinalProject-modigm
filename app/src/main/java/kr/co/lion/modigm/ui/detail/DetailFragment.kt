@@ -656,7 +656,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         if (method != null && currentStudyData?.userIdx != userIdx) {
             Log.d("DetailFragment", "Button clicked, method: $method")
-            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext())
+//            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext())
+            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext(), requireView())
+
         } else {
             Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
         }
