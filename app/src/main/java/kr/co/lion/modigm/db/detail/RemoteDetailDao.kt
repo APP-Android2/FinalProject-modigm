@@ -340,15 +340,16 @@ class RemoteDetailDao {
 
 
     // 알림 데이터를 데이터베이스에 삽입하는 메서드
-    suspend fun insertNotification(userId: Int, title: String, content: String, coverPhotoUrl: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String, studyIdx: Int): Boolean = withContext(Dispatchers.IO) {
         try {
             HikariCPDataSource.getConnection().use { connection ->
-                val query = "INSERT INTO tb_notification (userIdx, notificationTitle, notificationContent, cover_photo_url) VALUES (?, ?, ?, ?)"
+                val query = "INSERT INTO tb_notification (userIdx, notificationTitle, notificationContent, cover_photo_url, studyIdx) VALUES (?, ?, ?, ?, ?)"
                 connection.prepareStatement(query).use { statement ->
-                    statement.setInt(1, userId)
+                    statement.setInt(1, userIdx)
                     statement.setString(2, title)
                     statement.setString(3, content)
                     statement.setString(4, coverPhotoUrl)
+                    statement.setInt(5, studyIdx) // studyIdx 저장
                     val rowsAffected = statement.executeUpdate()
                     Log.d(TAG, "insertNotification: rowsAffected=$rowsAffected")
                     return@withContext rowsAffected > 0

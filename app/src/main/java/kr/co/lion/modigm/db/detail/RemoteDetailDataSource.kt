@@ -169,9 +169,9 @@ class RemoteDetailDataSource {
     }
 
     // 알림 데이터를 삽입하는 메서드
-    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String): Boolean {
+    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String, studyIdx: Int): Boolean {
         return try {
-            studyDao.insertNotification(userIdx, title, content, coverPhotoUrl)
+            studyDao.insertNotification(userIdx, title, content, coverPhotoUrl,studyIdx)
         } catch (e: Exception) {
             Log.e(TAG, "Error inserting notification: ${e.message}")
             false

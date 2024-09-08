@@ -289,7 +289,7 @@ class DetailViewModel: ViewModel() {
 
                             // 알림 저장
                             val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
-                            val saveResult = detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl)
+                            val saveResult = detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl,studyIdx)
                             if (saveResult) {
                                 Log.d("DetailViewModel", "Notification saved successfully to database for writerUserIdx: $writerUserIdx")
                             } else {
@@ -327,7 +327,7 @@ class DetailViewModel: ViewModel() {
 
                     // 알림 내용과 이미지 URL을 데이터베이스에 저장
                     val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
-                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl, studyIdx) // studyIdx 포함
                     if (saveResult) {
                         Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
                     } else {
@@ -341,6 +341,7 @@ class DetailViewModel: ViewModel() {
             }
         }
     }
+
 
     // 사용자가 거절되었을 때 알림을 전송하고 데이터를 저장하는 메서드
     fun notifyUserRejected(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
@@ -357,7 +358,7 @@ class DetailViewModel: ViewModel() {
 
                     // 알림 내용을 데이터베이스에 저장
                     val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
-                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl,studyIdx)
                     if (saveResult) {
                         Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
                     } else {
@@ -387,7 +388,7 @@ class DetailViewModel: ViewModel() {
 
                     // 알림 내용을 데이터베이스에 저장
                     val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
-                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                    val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl,studyIdx)
                     if (saveResult) {
                         Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
                     } else {
@@ -416,7 +417,7 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
 
                 // 알림 내용을 데이터베이스에 저장
                 val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
-                val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl)
+                val saveResult = detailRepository.insertNotification(userIdx, title, body, coverPhotoUrl,studyIdx)
                 if (saveResult) {
                     Log.d("DetailViewModel", "Notification saved successfully to database for userIdx: $userIdx")
                 } else {

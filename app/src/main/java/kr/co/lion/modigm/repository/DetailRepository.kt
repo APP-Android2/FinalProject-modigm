@@ -100,8 +100,8 @@ class DetailRepository {
     }
 
     // 알림 데이터를 삽입하는 메서드 추가
-    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String): Boolean {
-        return remoteDetailDataSource.insertNotification(userIdx, title, content, coverPhotoUrl)
+    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String, studyIdx: Int): Boolean {
+        return remoteDetailDataSource.insertNotification(userIdx, title, content, coverPhotoUrl,studyIdx)
     }
 
     // FCM 토큰 등록 메서드
