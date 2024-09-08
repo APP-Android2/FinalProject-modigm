@@ -11,6 +11,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.chat.ChatFragment
+import kr.co.lion.modigm.ui.notification.NotificationFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.study.vm.BottomNaviViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
@@ -110,7 +111,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
             currentNavItemIndex = it
             binding.bottomNavigationView.selectedItemId = when (currentNavItemIndex) {
                 1 -> R.id.bottomNaviHeart
-                2 -> R.id.bottomNaviChat
+                2 -> R.id.bottomNaviNotification
                 3 -> R.id.bottomNaviMy
                 else -> R.id.bottomNaviStudy
             }
@@ -186,7 +187,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 val newNavItemIndex = when (item.itemId) {
                     R.id.bottomNaviStudy -> 0
                     R.id.bottomNaviHeart -> 1
-                    R.id.bottomNaviChat -> 2
+                    R.id.bottomNaviNotification -> 2
                     R.id.bottomNaviMy -> 3
                     else -> currentNavItemIndex
                 }
@@ -213,17 +214,17 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             addToBackStack(FragmentName.FAVORITE.str)
                         }
                     }
-                    R.id.bottomNaviChat -> {
+                    R.id.bottomNaviNotification -> {
                         fabStudyWrite.hide()
-                        val chatFragment = ChatFragment().apply {
+                        val notificationFragment = NotificationFragment().apply {
                             arguments = Bundle().apply {
                                 putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
                             }
                         }
                         childFragmentManager.commit {
                             setReorderingAllowed(true)
-                            replace(R.id.containerBottomNavi, chatFragment)
-                            addToBackStack(FragmentName.CHAT.str)
+                            replace(R.id.containerBottomNavi, notificationFragment)
+                            addToBackStack(FragmentName.NOTI.str)
                         }
                     }
                     R.id.bottomNaviMy -> {
