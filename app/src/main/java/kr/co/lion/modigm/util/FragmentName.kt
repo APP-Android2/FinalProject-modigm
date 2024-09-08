@@ -7,6 +7,9 @@ enum class FragmentName (var str: String){
     // 채팅
     CHAT("ChatFragment"),
 
+    // 알림
+    NOTI("NotificationFragment"),
+
     // 글 상세보기
     DETAIL("DetailFragment"),
     DETAIL_MEMBER("DetailMemberFragment"),
