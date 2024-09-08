@@ -2,11 +2,13 @@ package kr.co.lion.modigm.ui.detail.vm
 
 import android.content.Context
 import android.util.Log
+import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,10 +16,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.DetailRepository
 import kr.co.lion.modigm.repository.StudyRepository
+import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.notification.FCMService
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -229,10 +233,25 @@ class DetailViewModel: ViewModel() {
         }
     }
 
-
     // 사용자가 신청할 때 알림을 전송하고 데이터를 저장하는 메서드
-    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context) {
+    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View) {
         viewModelScope.launch {
+            // 기존 신청 여부 확인
+            val isAlreadyApplied = detailRepository.isAlreadyApplied(userIdx, studyIdx)
+
+            if (isAlreadyApplied) {
+                // 이미 신청한 경우
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(
+                        view, // View를 사용하여 Snackbar 표시
+                        "이미 신청한 스터디입니다.",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+                return@launch
+            }
+
+            // 기존 신청이 없는 경우 신청 진행
             val success = if (applyMethod == "선착순") {
                 detailRepository.addUserToStudy(studyIdx, userIdx)
             } else {
@@ -243,7 +262,7 @@ class DetailViewModel: ViewModel() {
                 // 신청 사용자에게 알림 전송
                 val title = "신청 완료"
                 val body = "신청이 성공적으로 완료되었습니다."
-                sendPushNotification(context, userIdx, title, body,studyIdx) // 신청한 사용자에게 알림
+                sendPushNotification(context, userIdx, title, body, studyIdx) // 신청한 사용자에게 알림
 
                 // 글 작성자의 FCM 토큰 가져오기
                 val studyData = detailRepository.getStudyById(studyIdx).firstOrNull() // study 데이터 가져오기
@@ -281,6 +300,8 @@ class DetailViewModel: ViewModel() {
             }
         }
     }
+
+
 
     // 푸시 알림 전송 및 데이터 저장 메서드
     fun sendPushNotification(context: Context, userIdx: Int, title: String, body: String, studyIdx: Int) {
@@ -495,5 +516,4 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
             }
         }
     }
-
 }
