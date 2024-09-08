@@ -44,7 +44,7 @@ class StudyViewHolder(
 
     private fun setupRootView(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
-            with(root){
+            root.apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -103,22 +103,24 @@ class StudyViewHolder(
 
     // 스터디 진행 방식 설정 (온라인/오프라인/혼합)
     private fun setStudyOnOffline(studyOnOffline: String) {
-        with(binding.textViewStudyOnOffline) {
-            // 스터디 진행 방식에 따라 텍스트와 텍스트 색상을 설정
-            text = studyOnOffline
-            when (studyOnOffline) {
-                "온라인" -> setTextColor(Color.parseColor("#0FA981"))
-                "오프라인" -> setTextColor(Color.parseColor("#EB9C58"))
-                "온오프혼합" -> setTextColor(Color.parseColor("#0096FF"))
+        with(binding) {
+            textViewStudyOnOffline.apply {
+                // 스터디 진행 방식에 따라 텍스트와 텍스트 색상을 설정
+                text = studyOnOffline
+                when (studyOnOffline) {
+                    "온라인" -> setTextColor(Color.parseColor("#0FA981"))
+                    "오프라인" -> setTextColor(Color.parseColor("#EB9C58"))
+                    "온오프혼합" -> setTextColor(Color.parseColor("#0096FF"))
+                }
             }
         }
     }
 
     private fun setStudyType(studyType: String) {
-        with(binding){
-            with(textViewStudyType) {
+        with(binding) {
+            textViewStudyType.apply {
                 text = studyType
-                with(imageViewStudyStudyTypeIcon){
+                with(imageViewStudyStudyTypeIcon) {
                     when (studyType) {
                         "스터디" -> setImageResource(R.drawable.icon_closed_book_24px)
                         "프로젝트" -> setImageResource(R.drawable.icon_code_box_24px)
@@ -131,24 +133,31 @@ class StudyViewHolder(
 
     private fun setStudyMembers(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
-            textViewStudyMaxMember.text = studyData.first.studyMaxMember.toString()
-            textViewStudyCurrentMember.text = studyData.second.toString()
+            textViewStudyMaxMember.apply {
+                text = studyData.first.studyMaxMember.toString()
+            }
+            textViewStudyCurrentMember.apply {
+                text = studyData.second.toString()
+            }
         }
     }
 
     private fun setFavoriteButton(studyData: Triple<StudyData, Int, Boolean>) {
-        with(binding.imageViewStudyFavorite) {
-            if (studyData.third) {
-                setImageResource(R.drawable.icon_favorite_full_24px)
-                setColorFilter(Color.parseColor("#D73333"))
-            } else {
-                setImageResource(R.drawable.icon_favorite_24px)
-                clearColorFilter()
-            }
+        with(binding) {
+            imageViewStudyFavorite.apply {
+                if (studyData.third) {
+                    setImageResource(R.drawable.icon_favorite_full_24px)
+                    setColorFilter(Color.parseColor("#D73333"))
+                } else {
+                    setImageResource(R.drawable.icon_favorite_24px)
+                    clearColorFilter()
+                }
 
-            setOnClickListener {
-                favoriteClickListener.invoke(studyData.first.studyIdx, studyData.third)
+                setOnClickListener {
+                    favoriteClickListener.invoke(studyData.first.studyIdx, studyData.third)
+                }
             }
         }
+
     }
 }
