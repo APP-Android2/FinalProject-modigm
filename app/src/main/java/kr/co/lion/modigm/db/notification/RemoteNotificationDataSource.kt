@@ -26,4 +26,9 @@ class RemoteNotificationDataSource {
             false
         }
     }
+
+    // 특정 알림을 읽음으로 표시하는 메서드
+    suspend fun markNotificationAsRead(notificationIdx: Int): Boolean {
+        return notificationDao.markNotificationAsRead(notificationIdx)
+    }
 }

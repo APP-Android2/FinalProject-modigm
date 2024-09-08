@@ -15,7 +15,6 @@ import com.google.android.material.badge.BadgeDrawable
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.chat.ChatFragment
 import kr.co.lion.modigm.ui.notification.NotificationFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.study.vm.BottomNaviViewModel
@@ -249,8 +248,6 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             addToBackStack(FragmentName.NOTI.str)
                         }
 
-                        // 알림을 확인했으므로 배지를 숨김
-                        showNotificationBadge(false)
                     }
                     R.id.bottomNaviMy -> {
                         fabStudyWrite.hide()
@@ -309,10 +306,15 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         // 화면이 다시 보일 때 알림을 확인하지 않았다면 배지를 유지
         if (shouldShowNotificationBadge()) {
             showNotificationBadge(true)
+        } else {
+            showNotificationBadge(false)
         }
     }
 
+    // 알림을 확인했는지 여부를 확인
     private fun shouldShowNotificationBadge(): Boolean {
-        return true // 알림을 확인하지 않은 상태라고 가정
+        // SharedPreferences 또는 ViewModel을 사용하여 알림 상태를 확인합니다.
+        return prefs.getBoolean("hasUnreadNotifications", false)
     }
+
 }
