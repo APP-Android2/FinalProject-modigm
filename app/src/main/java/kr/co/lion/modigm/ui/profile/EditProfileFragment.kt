@@ -44,11 +44,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
 
     // 어댑터 선언
     private lateinit var linkAddAdapter: LinkAddAdapter
-    // 앨범 실행을 위한 런처
-    lateinit var albumLauncher: ActivityResultLauncher<Intent>
-
-    // 프로필 사진 변경 여부
-    private var picChanged = false
 
     // 확인할 권한 목록
     private val permissionList = arrayOf(
@@ -68,7 +63,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
         super.onViewCreated(view, savedInstanceState)
         requestPermissions(permissionList, 0)
         initView()
-        setupAlbumLauncher()
     }
 
     private fun initView() {
@@ -100,9 +94,8 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
     private fun setupButtonChangePic() {
         binding.imageEditProfileChangePic.setOnClickListener {
             // 사진 및 앨범을 선택하는 바텀시트
-            val bottomSheet = ProfilepicBottomSheetFragment()
+            val bottomSheet = ProfilepicBottomSheetFragment(this)
             bottomSheet.show(childFragmentManager, bottomSheet.tag)
-            //startAlbumLauncher()
         }
     }
 
@@ -169,7 +162,7 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
     private fun setupButtonDone() {
         binding.buttonEditProfileDone.setOnClickListener {
             // 데이터베이스 업데이트
-            editProfileViewModel.updateUserData(profileFragment, picChanged, requireContext())
+            editProfileViewModel.updateUserData(profileFragment, editProfileViewModel.picChanged, requireContext())
             editProfileViewModel.updateUserLinkData(profileFragment)
 
             // 스낵바 띄우기
@@ -179,68 +172,6 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
             // 이전 프래그먼트로 돌아간다
             requireActivity().supportFragmentManager.popBackStack()
         }
-    }
-
-    // 앨범 런처 설정
-    fun setupAlbumLauncher() {
-        // 앨범 실행을 위한 런처
-        val albumContract = ActivityResultContracts.StartActivityForResult()
-        albumLauncher = registerForActivityResult(albumContract){
-            // 사진 선택을 완료한 후 돌아왔다면
-            if(it.resultCode == AppCompatActivity.RESULT_OK){
-                // 선택한 이미지의 경로 데이터를 관리하는 Uri 객체를 추출한다.
-                val newImageUri = it.data?.data
-                if(newImageUri != null){
-                    // 안드로이드 Q(10) 이상이라면
-                    val bitmap = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-                        // 이미지를 생성할 수 있는 객체를 생성한다.
-                        val source = ImageDecoder.createSource(requireContext().contentResolver, newImageUri)
-                        // Bitmap을 생성한다.
-                        ImageDecoder.decodeBitmap(source)
-                    } else {
-                        // 컨텐츠 프로바이더를 통해 이미지 데이터에 접근한다.
-                        val cursor = requireContext().contentResolver.query(newImageUri, null, null, null, null)
-                        if(cursor != null){
-                            cursor.moveToNext()
-
-                            // 이미지의 경로를 가져온다.
-                            val idx = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
-                            val source = cursor.getString(idx)
-
-                            // 이미지를 생성한다
-                            BitmapFactory.decodeFile(source)
-                        }  else {
-                            null
-                        }
-                    }
-
-                    // 회전 각도값을 가져온다.
-                    val degree = Picture.getDegree(requireContext(), newImageUri)
-                    // 회전 이미지를 가져온다
-                    val bitmap2 = Picture.rotateBitmap(bitmap!!, degree.toFloat())
-                    // 크기를 줄인 이미지를 가져온다.
-                    val bitmap3 = Picture.resizeBitmap(bitmap2, 1024)
-
-                    binding.imageProfilePic.setImageBitmap(bitmap3)
-                    editProfileViewModel.editProfilePicUri.value = newImageUri
-                    picChanged = true
-                }
-            }
-        }
-    }
-
-    // 앨범 런처를 실행하는 메서드
-    fun startAlbumLauncher(){
-        // 앨범에서 사진을 선택할 수 있도록 셋팅된 인텐트를 생성한다.
-        val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        // 실행할 액티비티의 타입을 설정(이미지를 선택할 수 있는 것이 뜨게 한다)
-        albumIntent.setType("image/*")
-        // 선택할 수 있는 파일들의 MimeType을 설정한다.
-        // 여기서 선택한 종류의 파일만 선택이 가능하다. 모든 이미지로 설정한다.
-        val mimeType = arrayOf("image/*")
-        albumIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeType)
-        // 액티비티를 실행한다.
-        albumLauncher.launch(albumIntent)
     }
 
     // 데이터 변경 관찰

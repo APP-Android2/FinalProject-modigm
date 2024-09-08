@@ -14,6 +14,7 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
+    var picChanged = false
 
     // 프로필 사진 Uri
     private val _editProfilePicUri = MutableStateFlow<Uri?>(null)

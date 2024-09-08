@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/iconInterestClose"
+        android:id="@+id/iconProfilepicClose"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_gravity="end"
@@ -23,19 +23,20 @@
         android:paddingHorizontal="20dp">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewProfilepicPhoto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginEnd="10dp"
+            android:layout_weight="1"
             android:backgroundTint="@color/cardview_light_background"
             app:strokeColor="@color/pointColor">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:padding="20dp"
-                android:gravity="center">
+                android:padding="20dp">
 
                 <ImageView
                     android:id="@+id/imageView"
@@ -49,39 +50,39 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="사진 활영"
-                    android:textSize="16dp"/>
+                    android:textSize="16dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewProfilepicAlbum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="10dp"
+            android:layout_weight="1"
             android:backgroundTint="@color/cardview_light_background"
             app:strokeColor="@color/pointColor">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:padding="20dp"
-                android:gravity="center">
+                android:padding="20dp">
 
                 <ImageView
                     android:id="@+id/imageView2"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_marginBottom="10dp"
-                    android:src="@drawable/icon_image_24px"
-                    />
+                    android:src="@drawable/icon_image_24px" />
 
                 <TextView
                     android:id="@+id/textView7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="앨범에서 선택"
-                    android:textSize="16dp"/>
+                    android:textSize="16dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
