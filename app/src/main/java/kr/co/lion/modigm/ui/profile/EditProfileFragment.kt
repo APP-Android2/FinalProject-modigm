@@ -99,7 +99,10 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
 
     private fun setupButtonChangePic() {
         binding.imageEditProfileChangePic.setOnClickListener {
-            startAlbumLauncher()
+            // 사진 및 앨범을 선택하는 바텀시트
+            val bottomSheet = ProfilepicBottomSheetFragment()
+            bottomSheet.show(childFragmentManager, bottomSheet.tag)
+            //startAlbumLauncher()
         }
     }
 
