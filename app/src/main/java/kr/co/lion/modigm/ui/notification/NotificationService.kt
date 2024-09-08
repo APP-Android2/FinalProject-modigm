@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kr.co.lion.modigm.R
@@ -36,6 +37,14 @@ class NotificationService : FirebaseMessagingService(){
             val studyIdx = remoteMessage.data["studyIdx"] // 데이터 페이로드에 스터디 ID 추가
             showNotification(title, body, studyIdx)
         }
+
+        // 화면을 갱신하도록 브로드캐스트를 보냄
+        notifyDataChanged()
+    }
+
+    private fun notifyDataChanged() {
+        val intent = Intent("ACTION_REFRESH_DATA")
+        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
     }
 
     private fun showNotification(title: String?, body: String?, studyIdx: String?) {
