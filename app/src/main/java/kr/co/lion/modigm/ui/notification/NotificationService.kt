@@ -80,6 +80,8 @@ class NotificationService : FirebaseMessagingService(){
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
+//        notificationBuilder.setNumber(1)
+
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
 
