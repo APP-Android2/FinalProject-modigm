@@ -59,6 +59,14 @@
                         android:textColor="@color/black"
                         android:textStyle="bold"
                         android:textSize="18dp" />
+                    <!-- 빨간 점 배지 -->
+                    <ImageView
+                        android:id="@+id/badgeNewNotification"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/red_dot"
+                        android:visibility="gone"/> <!-- 초기에는 보이지 않도록 설정 -->
 
                     <ImageView
                         android:id="@+id/imageViewDeleteNotification"
