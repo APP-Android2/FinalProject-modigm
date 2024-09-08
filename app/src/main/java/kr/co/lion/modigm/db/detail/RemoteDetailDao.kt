@@ -386,4 +386,25 @@ class RemoteDetailDao {
         }
     }
 
+    // 특정 사용자가 이미 스터디에 신청했는지 확인하는 메서드
+    suspend fun checkExistingApplication(userIdx: Int, studyIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "SELECT COUNT(*) AS count FROM tb_study_request WHERE userIdx = ? AND studyIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.setInt(2, studyIdx)
+                    val resultSet = statement.executeQuery()
+                    if (resultSet.next()) {
+                        return@withContext resultSet.getInt("count") > 0
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking existing application", e)
+        }
+        return@withContext false
+    }
+
+
 }

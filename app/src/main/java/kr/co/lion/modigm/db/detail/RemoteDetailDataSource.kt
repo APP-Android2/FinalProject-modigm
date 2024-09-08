@@ -188,4 +188,15 @@ class RemoteDetailDataSource {
         }
     }
 
+    // 사용자가 이미 신청했는지 확인하는 메서드
+    suspend fun checkExistingApplication(userIdx: Int, studyIdx: Int): Boolean {
+        return try {
+            studyDao.checkExistingApplication(userIdx, studyIdx)
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource Error", "Error checking existing application: ${e.message}")
+            false
+        }
+    }
+
+
 }

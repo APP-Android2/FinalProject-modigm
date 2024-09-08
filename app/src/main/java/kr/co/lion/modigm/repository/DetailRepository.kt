@@ -115,4 +115,9 @@ class DetailRepository {
             }
         }
     }
+
+    // 특정 사용자가 이미 스터디에 신청했는지 확인하는 메서드
+    suspend fun isAlreadyApplied(userIdx: Int, studyIdx: Int): Boolean {
+        return remoteDetailDataSource.checkExistingApplication(userIdx, studyIdx)
+    }
 }
