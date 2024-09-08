@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/notification_toolbar_refresh"
+        android:icon="@drawable/icon_sync_24px"
+        app:tint="@color/black"
+        android:title="새로고침"
+        app:showAsAction="ifRoom"/>
+</menu>
