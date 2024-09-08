@@ -59,7 +59,7 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
     private fun initView() {
         with(binding) {
             // 필요한 기술 레이아웃 클릭 시
-            with(textInputLayoutWriteTechStack) {
+            textInputLayoutWriteTechStack.apply {
                 editText?.setOnClickListener {
                     bottomSheetTechStack()
                 }
@@ -71,7 +71,7 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
                 }
             }
 
-            with(buttonWriteTechStackNext) {
+            buttonWriteTechStackNext.apply {
                 setOnClickListener {
                     // 유효성 검사
                     if (selectedTechStackList.isEmpty()) {

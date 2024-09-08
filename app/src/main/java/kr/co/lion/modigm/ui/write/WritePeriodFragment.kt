@@ -31,7 +31,7 @@ class WritePeriodFragment :
     private fun initView() {
         with(binding) {
             // 스피너 설정
-            with(SpinnerWritePeriod) {
+            spinnerWritePeriod.apply {
                 val spinnerItemList = listOf(
                     "기간 선택",
                     "1개월 이하",
@@ -93,7 +93,7 @@ class WritePeriodFragment :
     private fun updateButtonColor() {
         with(binding){
             val colorResId = if (selectPeriod != null) R.color.pointColor else R.color.buttonGray
-            with(buttonWritePeriodNext) {
+            buttonWritePeriodNext.apply {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             }
@@ -123,16 +123,18 @@ class WritePeriodFragment :
 
     // 스피너 선택값을 업데이트하는 함수
     private fun updateSpinnerSelection(period: String?) {
-        with(binding.SpinnerWritePeriod) {
-            when (period) {
-                "1개월 이하" -> setSelection(1)
-                "2개월 이하" -> setSelection(2)
-                "3개월 이하" -> setSelection(3)
-                "4개월 이하" -> setSelection(4)
-                "5개월 이하" -> setSelection(5)
-                "6개월 미만" -> setSelection(6)
-                "6개월 이상" -> setSelection(7)
-                else -> setSelection(0)
+        with(binding) {
+            spinnerWritePeriod.apply {
+                when (period) {
+                    "1개월 이하" -> setSelection(1)
+                    "2개월 이하" -> setSelection(2)
+                    "3개월 이하" -> setSelection(3)
+                    "4개월 이하" -> setSelection(4)
+                    "5개월 이하" -> setSelection(5)
+                    "6개월 미만" -> setSelection(6)
+                    "6개월 이상" -> setSelection(7)
+                    else -> setSelection(0)
+                }
             }
         }
     }

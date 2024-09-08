@@ -9,6 +9,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +21,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +32,7 @@ import kr.co.lion.modigm.ui.detail.CustomIntroDialog
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.shake
 import java.io.File
 import kotlin.random.Random
 
@@ -42,14 +44,33 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     // 태그
     private val logTag by lazy { WriteIntroFragment::class.simpleName }
 
-    // 카메라 실행을 위한 런처
-    private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
-
-    // 앨범 실행을 위한 런처
-    private lateinit var albumLauncher: ActivityResultLauncher<Intent>
-
     // 촬영된 사진이 저장된 경로 정보를 가지고 있는 Uri 객체
     private lateinit var contentUri: Uri
+
+    // 카메라 실행을 위한 런처
+    private val cameraLauncher: ActivityResultLauncher<Intent> by lazy {
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == AppCompatActivity.RESULT_OK) {
+                contentUri.let { uri ->
+                    processImageFromUri(uri)
+                    viewModel.updateWriteData("studyPic", uri.toString())
+                }
+            }
+        }
+    }
+
+    // 앨범 실행을 위한 런처
+    private val albumLauncher: ActivityResultLauncher<Intent> by lazy {
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == AppCompatActivity.RESULT_OK) {
+                result.data?.data?.let { selectedUri ->
+                    contentUri = selectedUri
+                    processImageFromUri(selectedUri)
+                    viewModel.updateWriteData("studyPic", selectedUri.toString())
+                }
+            }
+        }
+    }
 
     // 확인할 권한 목록
     private val permissionList = arrayOf(
@@ -60,69 +81,91 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     // 이미지를 첨부한 적이 있는지
     private var isAddPicture = false
 
-    // 권한 요청 런처 선언
-    private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // onCreate에서 런처들 미리 초기화
+        cameraLauncher
+        albumLauncher
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // 권한 요청
+        requestPermissions(permissionList, 0)
 
-        // 권한 요청 런처 초기화
-        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            // 권한 요청 결과 처리
-            permissions.entries.forEach { (permission, isGranted) ->
-                if (isGranted) {
-                    Log.d(logTag, "$permission 권한이 허용되었습니다.")
-                } else {
-                    Log.d(logTag, "$permission 권한이 거부되었습니다.")
-                }
-            }
-        }
-
-        // 권한 요청 실행
-        requestPermissionsIfNeeded()
-
-        Log.d(logTag, "onViewCreated: View 초기화 시작")
+        // 데이터 복원 함수 호출
+        restoreInputData()
+        // 초기 뷰 설정
         initView()
-
-        Log.d(logTag, "onViewCreated: ViewModel 데이터 복원 시작")
+        // 뷰모델 관찰
         observeViewModel()
 
-        // 텍스트 입력 변경 사항을 관찰
-        binding.textInputWriteIntroTitle.addTextChangedListener {
-            Log.d(logTag, "onViewCreated: Title 입력 변경 - ${binding.textInputWriteIntroTitle.text}")
-            viewModel.updateWriteData("studyTitle", binding.textInputWriteIntroTitle.text.toString())
-        }
-
-        binding.textInputWriteIntroContent.addTextChangedListener {
-            Log.d(logTag, "onViewCreated: Content 입력 변경")
-            viewModel.updateWriteData(
-                "studyContent",
-                binding.textInputWriteIntroContent.text.toString().replace(System.getProperty("line.separator"), "\\n")
-            )
-        }
     }
 
+    // 데이터 복원 함수
+    private fun restoreInputData() {
+        with(binding) {
+            // 제목 복원
+            viewModel.getUpdateData("studyTitle")?.let {
+                textInputWriteIntroTitle.setText(it as String)
+            }
 
+            // 내용 복원
+            viewModel.getUpdateData("studyContent")?.let {
+                Log.d(logTag, "스터디 내용 복원됨: $it")
+                textInputWriteIntroContent.setText((it as String).replace("\\n", System.lineSeparator()))
+            } ?: Log.d(logTag, "스터디 내용이 없습니다.")
 
-    // 권한 요청 함수
-    private fun requestPermissionsIfNeeded() {
-        permissionLauncher.launch(permissionList)
+            // 이미지 복원
+            viewModel.getUpdateData("studyPic")?.let {
+                contentUri = Uri.parse(it as String)
+                loadImageIntoImageView(contentUri)
+                isAddPicture = true
+            }
+        }
     }
 
     private fun initView() {
         with(binding) {
-            initData()
+
+            // 텍스트 입력 변경 사항을 관찰
+            textInputWriteIntroTitle.addTextChangedListener(inputWatcher)
+            textInputWriteIntroContent.addTextChangedListener(inputWatcher)
+
+            // 이미지 추가 버튼
             setupImageButton()
 
-            // 작성 버튼 클릭 시
-            buttonWriteIntroNext.setOnClickListener {
-                Log.d(logTag, "initView: 작성 버튼 클릭")
-                uploadImageAndSaveData(::navigateToDetailFragment)
+            // 작성 버튼
+            buttonWriteIntroNext.apply {
+                // 버튼 비활성화
+                isEnabled = false
+                // 클릭 시
+                setOnClickListener {
+                    // 클릭 시 입력 유효성 검사
+                    if(!checkAllInput()) {
+                        // 유효하지 않은 경우 리턴
+                        return@setOnClickListener
+                    }
+                    // 스터디 제목 업데이트
+                    viewModel.updateWriteData("studyTitle", textInputWriteIntroTitle.text.toString())
+                    // 스터디 내용 업데이트
+                    viewModel.updateWriteData("studyContent", System.lineSeparator().let {
+                        textInputWriteIntroContent.text.toString().replace(it, "\\n")
+                    })
+                    Log.d(logTag, "스터디 내용 저장됨: ${textInputWriteIntroContent.text.toString()}")
+
+                    // 이미지 업로드 및 데이터 저장
+                    uploadImageAndSaveData { studyIdx ->
+                        // 상세 프래그먼트로 이동
+                        navigateToDetailFragment(studyIdx)
+                    }
+                }
             }
         }
     }
 
     private fun observeViewModel() {
+        // 이미지 URI 데이터 복원
         (viewModel.getUpdateData("studyPic") as? String)?.let { uriString ->
             contentUri = Uri.parse(uriString).also {
                 Log.d(logTag, "observeViewModel: 이미지 URI 복원 - $uriString")
@@ -132,6 +175,96 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    // 글작성 소개 유효성 검사
+    private fun checkAllInput(): Boolean {
+        return checkStudyTitle()&& checkStudyContent()
+    }
+
+    // 스터디 제목 유효성 검사
+    private fun checkStudyTitle(): Boolean {
+        with(binding) {
+            fun showError(message: String) {
+                textInputLayoutWriteIntroTitle.error = message
+                textInputWriteIntroTitle.requestFocus()
+                textInputWriteIntroTitle.shake()
+            }
+            return when {
+                textInputWriteIntroTitle.text.toString().length < 8 -> {
+                    showError("제목은 8자 이상 입력해주세요")
+                    false
+                }
+                else -> {
+                    textInputLayoutWriteIntroTitle.error = null
+                    true
+                }
+            }
+        }
+    }
+
+    // 스터디 내용 유효성 검사
+    private fun checkStudyContent(): Boolean {
+        with(binding) {
+            fun showError(message: String) {
+                textInputLayoutWriteIntroContent.error = message
+                textInputWriteIntroContent.requestFocus()
+                textInputWriteIntroContent.shake()
+            }
+            return when {
+                textInputWriteIntroContent.text.toString().length < 10 -> {
+                    showError("내용은 10자 이상 입력해주세요.")
+                    false
+                }
+                else -> {
+                    textInputLayoutWriteIntroContent.error = null
+                    true
+                }
+            }
+        }
+    }
+
+    // 유효성 검사 및 버튼 활성화/비활성화 업데이트
+    private val inputWatcher = object : TextWatcher {
+        // 입력 내용 변경 전
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        // 입력 내용 변경 시
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            with(binding) {
+                // 작성 버튼
+                buttonWriteIntroNext.apply {
+                    // 스터디 제목 입력 시 ViewModel에 저장
+                    viewModel.updateWriteData("studyTitle", textInputWriteIntroTitle.text.toString())
+                    // 스터디 내용 입력 시 ViewModel에 저장
+                    viewModel.updateWriteData("studyContent", System.lineSeparator().let {
+                        textInputWriteIntroContent.text.toString().replace(it, "\\n")
+                    })
+
+                    // 입력 데이터가 모두 존재할 경우
+                    if(!textInputWriteIntroTitle.text.isNullOrEmpty() && !textInputWriteIntroContent.text.isNullOrEmpty()) {
+                        // 버튼 활성화
+                        isEnabled = true
+                    }
+
+                    // 스터디 제목 길이가 8자 이상일 경우
+                    if (textInputWriteIntroTitle.text.toString().length >= 8) {
+                        // 스터디 제목 에러 메시지 초기화
+                        textInputLayoutWriteIntroTitle.error = null
+                    }
+
+                    // 스터디 내용 길이가 10자 이상일 경우
+                    if (textInputWriteIntroContent.text.toString().length >= 10) {
+                        // 스터디 내용 에러 메시지 초기화
+                        textInputLayoutWriteIntroContent.error = null
+                    }
+                }
+            }
+
+        }
+        override fun afterTextChanged(p0: Editable?) {}
+    }
+
+
+    // 이미지 로드 및 ImageView에 표시
     private fun loadImageIntoImageView(uri: Uri) {
         try {
             requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
@@ -169,30 +302,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
-    private fun initData() {
-        requestPermissions(permissionList, 0)
-        Log.d(logTag, "initData: 권한 요청 - ${permissionList.joinToString(", ")}")
-
-        cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                contentUri.let { uri ->
-                    processImageFromUri(uri)
-                    viewModel.updateWriteData("studyPic", uri.toString())
-                }
-            }
-        }
-
-        albumLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                result.data?.data?.let { selectedUri ->
-                    contentUri = selectedUri
-                    processImageFromUri(selectedUri)
-                    viewModel.updateWriteData("studyPic", selectedUri.toString())
-                }
-            }
-        }
-    }
-
+    // 이미지 로드 및 처리
     private fun processImageFromUri(uri: Uri) {
         val bitmap = loadAndProcessImage(uri)  // 중복된 로직 분리
         bitmap?.let {
@@ -200,23 +310,18 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 cardViewCoverImageSelect.visibility = View.VISIBLE
                 imageViewCoverImageSelect.setImageBitmap(it)
                 isAddPicture = true
-                validateIntro()
             }
         }
     }
 
+    // 이미지 로드 및 비트맵 반환
     private fun loadAndProcessImage(uri: Uri): Bitmap? {
         return BitmapFactory.decodeFile(uri.path)?.let {
-            rotateBitmap(it, getDegree(uri).toFloat()).let { resized -> resizeBitmap(resized, 1024) }
+            resizeBitmap(rotateBitmap(it, getDegree(uri).toFloat()), 1024)
         }
     }
 
-    private fun validateIntro() {
-        val isTitleValid = binding.textInputWriteIntroTitle.text.toString().length >= 8
-        val isContentValid = binding.textInputWriteIntroContent.text.toString().length >= 10
-        Log.d(logTag, "validateIntro: Title 유효성 $isTitleValid, Content 유효성 $isContentValid")
-    }
-
+    // 이미지 회전 각도 가져오기
     private fun getDegree(uri: Uri): Int {
         val context = requireContext()
         var exifInterface: ExifInterface? = null
@@ -243,18 +348,21 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         return 0
     }
 
+    // 비트맵 회전
     private fun rotateBitmap(bitmap: Bitmap, degree: Float): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(degree)
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
     }
 
+    // 비트맵 크기 조정
     private fun resizeBitmap(bitmap: Bitmap, targetWidth: Int): Bitmap {
         val ratio = targetWidth.toDouble() / bitmap.width.toDouble()
         val targetHeight = (bitmap.height * ratio).toInt()
         return Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, false)
     }
 
+    // 이미지 선택 팝업창 표시
     private fun showPopupWindow(anchorView: View) {
         val layoutInflater = LayoutInflater.from(requireContext())
         val popupView = layoutInflater.inflate(R.layout.custom_popup_cover_image, null)
@@ -292,6 +400,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    // 이미지 업로드 및 데이터 저장
     private fun uploadImageAndSaveData(callback: (Int) -> Unit) {
         lifecycleScope.launch {
             try {
@@ -312,6 +421,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    // 랜덤 이미지 선택
     private fun selectRandomImageFromS3(): String {
         val randomImages = listOf(
             "https://modigm-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_1.jpg",
@@ -322,6 +432,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    // 데이터베이스에 데이터 저장
     private fun saveDataToDatabase(callback: (Int) -> Unit) {
         lifecycleScope.launch {
             try {
@@ -339,6 +450,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    // 글 상세 프래그먼트로 이동
     private fun navigateToDetailFragment(studyIdx: Int) {
         Log.d(logTag, "navigateToDetailFragment: DetailFragment로 이동 - studyIdx: $studyIdx")
         // 데이터 초기화
