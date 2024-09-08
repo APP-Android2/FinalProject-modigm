@@ -6,15 +6,23 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentNotificationBinding
 import kr.co.lion.modigm.model.NotificationData
 import kr.co.lion.modigm.ui.VBBaseFragment
@@ -86,6 +94,16 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun settingToolbar() {
         with(binding) {
             toolBarNotification.title = "알림"
+            toolBarNotification.inflateMenu(R.menu.menu_notification_toolbar) // 메뉴 설정
+            toolBarNotification.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.notification_toolbar_refresh -> {
+                        refreshData() // 새로고침 실행
+                        true
+                    }
+                    else -> false
+                }
+            }
         }
     }
 
