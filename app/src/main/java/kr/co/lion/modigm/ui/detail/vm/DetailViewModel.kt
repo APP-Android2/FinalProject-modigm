@@ -236,7 +236,7 @@ class DetailViewModel: ViewModel() {
     }
 
     // 사용자가 신청할 때 알림을 전송하고 데이터를 저장하는 메서드
-    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View) {
+    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View, studyTitle: String) {
         viewModelScope.launch {
             // 기존 신청 여부 확인
             val isAlreadyApplied = detailRepository.isAlreadyApplied(userIdx, studyIdx)
@@ -270,7 +270,7 @@ class DetailViewModel: ViewModel() {
             if (success) {
                 // 신청 사용자에게 알림 전송
                 val title = "신청 완료"
-                val body = "신청이 성공적으로 완료되었습니다."
+                val body = "${studyTitle}스터디 신청이 성공적으로 완료되었습니다."
                 sendPushNotification(context, userIdx, title, body, studyIdx) // 신청한 사용자에게 알림
 
                 // 글 작성자의 FCM 토큰 가져오기
