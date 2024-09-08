@@ -9,7 +9,8 @@ data class NotificationData(
     val notificationTitle: String,
     val notificationContent: String,
     val coverPhotoUrl: String?,
-    val notificationTime: Date
+    val notificationTime: Date,
+    val studyIdx: Int
 ) {
     companion object {
         fun getNotificationData(resultSet: ResultSet): NotificationData {
@@ -19,7 +20,8 @@ data class NotificationData(
                 notificationTitle = resultSet.getString("notificationTitle"),
                 notificationContent = resultSet.getString("notificationContent"),
                 coverPhotoUrl = resultSet.getString("cover_photo_url"),
-                notificationTime = resultSet.getTimestamp("notificationTime")
+                notificationTime = resultSet.getTimestamp("notificationTime"),
+                studyIdx = resultSet.getInt("studyIdx")
             )
         }
     }
