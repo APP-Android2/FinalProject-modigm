@@ -50,23 +50,30 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/textViewNotificationTitle"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="제목"
-                        android:textColor="@color/black"
-                        android:textStyle="bold"
-                        android:textSize="18dp" />
-                    <!-- 빨간 점 배지 -->
-                    <ImageView
-                        android:id="@+id/badgeNewNotification"
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/red_dot"
-                        android:visibility="gone"/> <!-- 초기에는 보이지 않도록 설정 -->
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/textViewNotificationTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="제목"
+                            android:textColor="@color/black"
+                            android:textStyle="bold"
+                            android:textSize="18dp" />
+                        <!-- 빨간 점 배지 -->
+                        <ImageView
+                            android:id="@+id/badgeNewNotification"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/red_dot"
+                            android:visibility="gone"/> <!-- 초기에는 보이지 않도록 설정 -->
+                    </LinearLayout>
 
                     <ImageView
                         android:id="@+id/imageViewDeleteNotification"
