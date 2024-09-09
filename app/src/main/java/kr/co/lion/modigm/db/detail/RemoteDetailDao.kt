@@ -319,4 +319,93 @@ class RemoteDetailDao {
         }
     }
 
+    // 사용자 FCM 토큰을 가져오는 메서드
+    suspend fun getUserFcmToken(userIdx: Int): String? = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "SELECT fcmToken FROM tb_user_fcm WHERE userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    val resultSet = statement.executeQuery()
+                    if (resultSet.next()) {
+                        return@withContext resultSet.getString("fcmToken")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDao", "Error fetching FCM token", e)
+        }
+        return@withContext null
+    }
+
+
+    // 알림 데이터를 데이터베이스에 삽입하는 메서드
+    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String, studyIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "INSERT INTO tb_notification (userIdx, notificationTitle, notificationContent, cover_photo_url, studyIdx) VALUES (?, ?, ?, ?, ?)"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.setString(2, title)
+                    statement.setString(3, content)
+                    statement.setString(4, coverPhotoUrl)
+                    statement.setInt(5, studyIdx) // studyIdx 저장
+                    val rowsAffected = statement.executeUpdate()
+                    Log.d(TAG, "insertNotification: rowsAffected=$rowsAffected")
+                    return@withContext rowsAffected > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error inserting notification", e)
+            return@withContext false
+        }
+    }
+
+
+
+    // 사용자 FCM 토큰을 삽입하거나 업데이트하는 메서드
+    suspend fun insertUserFcmToken(userIdx: Int, fcmToken: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                Log.d("RemoteDetailDao", "Preparing to insert FCM token for userIdx: $userIdx with token: $fcmToken")
+                val query = """
+                INSERT INTO tb_user_fcm (userIdx, fcmToken)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE fcmToken = VALUES(fcmToken)
+            """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.setString(2, fcmToken)
+                    val rowsUpdated = statement.executeUpdate()
+                    Log.d("RemoteDetailDao", "Rows updated/inserted: $rowsUpdated")
+                    return@withContext rowsUpdated > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDao", "Error inserting FCM token", e)
+            return@withContext false
+        }
+    }
+
+    // 특정 사용자가 이미 스터디에 신청했는지 확인하는 메서드
+    suspend fun checkExistingApplication(userIdx: Int, studyIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "SELECT COUNT(*) AS count FROM tb_study_request WHERE userIdx = ? AND studyIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.setInt(2, studyIdx)
+                    val resultSet = statement.executeQuery()
+                    if (resultSet.next()) {
+                        return@withContext resultSet.getInt("count") > 0
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking existing application", e)
+        }
+        return@withContext false
+    }
+
+
 }

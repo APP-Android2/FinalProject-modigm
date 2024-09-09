@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ui.study.FavoriteFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolBarNotification"
+            style="@style/CustomToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            app:title="알림"
+            app:titleTextAppearance="@style/toolbarText" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerviewNotification"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            tools:visibility="gone"/>
+
+
+        <LinearLayout
+            android:id="@+id/blankLayoutNotification"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="visible"
+            tools:visibility="visible">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="200dp"
+                android:src="@drawable/icon_notifications_24px"
+                app:tint="#ccc" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="알림이 없습니다"
+                android:textColor="@color/textGray"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

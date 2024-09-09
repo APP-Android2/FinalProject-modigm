@@ -158,4 +158,45 @@ class RemoteDetailDataSource {
         }
     }
 
+    // 사용자 FCM 토큰을 가져오는 메서드
+    suspend fun getUserFcmToken(userIdx: Int): String? {
+        return try {
+            studyDao.getUserFcmToken(userIdx)
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource", "Error fetching user FCM token", e)
+            null
+        }
+    }
+
+    // 알림 데이터를 삽입하는 메서드
+    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String, studyIdx: Int): Boolean {
+        return try {
+            studyDao.insertNotification(userIdx, title, content, coverPhotoUrl,studyIdx)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error inserting notification: ${e.message}")
+            false
+        }
+    }
+
+    // 사용자 FCM 토큰을 삽입하는 메서드
+    suspend fun insertUserFcmToken(userIdx: Int, fcmToken: String): Boolean {
+        return try {
+            studyDao.insertUserFcmToken(userIdx, fcmToken)
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource", "Error inserting FCM token", e)
+            false
+        }
+    }
+
+    // 사용자가 이미 신청했는지 확인하는 메서드
+    suspend fun checkExistingApplication(userIdx: Int, studyIdx: Int): Boolean {
+        return try {
+            studyDao.checkExistingApplication(userIdx, studyIdx)
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource Error", "Error checking existing application: ${e.message}")
+            false
+        }
+    }
+
+
 }

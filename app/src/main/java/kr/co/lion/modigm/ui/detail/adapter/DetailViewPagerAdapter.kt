@@ -6,7 +6,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import kr.co.lion.modigm.ui.detail.DetailApplyMemberFragment
 import kr.co.lion.modigm.ui.detail.DetailJoinMemberFragment
 
-class DetailViewPagerAdapter (fragment: Fragment, private val studyIdx: Int) : FragmentStateAdapter(fragment) {
+class DetailViewPagerAdapter (fragment: Fragment, private val studyIdx: Int,private val studyTitle: String) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 2
 
     override fun createFragment(position: Int): Fragment {
@@ -17,6 +17,7 @@ class DetailViewPagerAdapter (fragment: Fragment, private val studyIdx: Int) : F
         }
         fragment.arguments = Bundle().apply {
             putInt("studyIdx", studyIdx)
+            putString("studyTitle", studyTitle)
         }
         return fragment
     }

@@ -16,14 +16,16 @@ import kr.co.lion.modigm.util.FragmentName
 
 class DetailMemberFragment : VBBaseFragment<FragmentDetailMemberBinding>(FragmentDetailMemberBinding::inflate) {
 
-    // 현재 선택된 스터디 idx 번호를 담을 변수(임시)
+    // 현재 선택된 스터디 idx 번호를 담을 변수
     var studyIdx = 0
+    var studyTitle = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // 전달된 studyIdx 값을 저장
         studyIdx = arguments?.getInt("studyIdx") ?: 0
+        studyTitle = arguments?.getString("studyTitle") ?:""
 
         setupViewPagerAndTabs()
         setupToolbar()
@@ -31,7 +33,7 @@ class DetailMemberFragment : VBBaseFragment<FragmentDetailMemberBinding>(Fragmen
     }
 
     fun setupViewPagerAndTabs() {
-        val adapter = DetailViewPagerAdapter(this, studyIdx)
+        val adapter = DetailViewPagerAdapter(this, studyIdx,studyTitle)
         binding.viewPagerDetail.adapter = adapter
 
         TabLayoutMediator(binding.tabLayoutDetail, binding.viewPagerDetail) { tab, position ->

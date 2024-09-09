@@ -1,12 +1,16 @@
 package kr.co.lion.modigm.repository
 
+import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.detail.RemoteDetailDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
+import kr.co.lion.modigm.ui.notification.FCMService
 
 class DetailRepository {
     private val remoteDetailDataSource = RemoteDetailDataSource()
@@ -88,5 +92,32 @@ class DetailRepository {
 
     suspend fun updateStudyCanApplyField(studyIdx: Int, newState: String): Boolean {
         return remoteDetailDataSource.updateStudyCanApplyField(studyIdx, newState)
+    }
+
+    // 사용자 FCM 토큰을 가져오는 메서드
+    suspend fun getUserFcmToken(userIdx: Int): String? {
+        return remoteDetailDataSource.getUserFcmToken(userIdx)
+    }
+
+    // 알림 데이터를 삽입하는 메서드 추가
+    suspend fun insertNotification(userIdx: Int, title: String, content: String, coverPhotoUrl: String, studyIdx: Int): Boolean {
+        return remoteDetailDataSource.insertNotification(userIdx, title, content, coverPhotoUrl,studyIdx)
+    }
+
+    // FCM 토큰 등록 메서드
+    suspend fun registerFcmToken(userIdx: Int, fcmToken: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                remoteDetailDataSource.insertUserFcmToken(userIdx, fcmToken)
+            } catch (e: Exception) {
+                Log.e("DetailRepository", "Error registering FCM token", e)
+                false
+            }
+        }
+    }
+
+    // 특정 사용자가 이미 스터디에 신청했는지 확인하는 메서드
+    suspend fun isAlreadyApplied(userIdx: Int, studyIdx: Int): Boolean {
+        return remoteDetailDataSource.checkExistingApplication(userIdx, studyIdx)
     }
 }

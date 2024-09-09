@@ -1,16 +1,22 @@
 package kr.co.lion.modigm.ui.study
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.badge.BadgeDrawable
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentBottomNaviBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.chat.ChatFragment
+import kr.co.lion.modigm.ui.notification.NotificationFragment
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.ui.study.vm.BottomNaviViewModel
 import kr.co.lion.modigm.ui.write.WriteFragment
@@ -35,6 +41,8 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
     // FAB 가시성 상태를 위한 플래그
     private var isFabVisible = true
+
+    private lateinit var notificationBadge: BadgeDrawable
 
     // 스터디 목록 스크롤 시 FAB 동작
     override fun onRecyclerViewScrolled(dy: Int) {
@@ -100,6 +108,23 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // BadgeDrawable 초기화
+        setupNotificationBadge()
+
+        // 로컬 브로드캐스트 리스너 설정
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(notificationReceiver,
+            android.content.IntentFilter("ACTION_REFRESH_DATA"))
+
+        // hideBadgeReceiver 등록
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(hideBadgeReceiver,
+            android.content.IntentFilter("ACTION_HIDE_NOTIFICATION_BADGE"))
+
+        // 프래그먼트가 보일 때 배지 상태를 유지하기 위해 onResume에서 처리
+        if (savedInstanceState != null) {
+            val badgeVisible = savedInstanceState.getBoolean("badgeVisible", false)
+            showNotificationBadge(badgeVisible)
+        }
+
         // savedInstanceState에서 isSnackBarShown 값 복원
         savedInstanceState?.getBoolean("isSnackBarShown")?.let {
             viewModel.setSnackBarShown(it)
@@ -110,7 +135,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
             currentNavItemIndex = it
             binding.bottomNavigationView.selectedItemId = when (currentNavItemIndex) {
                 1 -> R.id.bottomNaviHeart
-                2 -> R.id.bottomNaviChat
+                2 -> R.id.bottomNaviNotification
                 3 -> R.id.bottomNaviMy
                 else -> R.id.bottomNaviStudy
             }
@@ -129,11 +154,15 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
         backButton()
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         // 백버튼 콜백 제거
         backPressedCallback.remove()
+
+        // 로컬 브로드캐스트 리스너 해제
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(notificationReceiver)
+
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(hideBadgeReceiver)
     }
 
     // --------------------------------- LC END ---------------------------------
@@ -186,7 +215,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 val newNavItemIndex = when (item.itemId) {
                     R.id.bottomNaviStudy -> 0
                     R.id.bottomNaviHeart -> 1
-                    R.id.bottomNaviChat -> 2
+                    R.id.bottomNaviNotification -> 2
                     R.id.bottomNaviMy -> 3
                     else -> currentNavItemIndex
                 }
@@ -213,18 +242,19 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             addToBackStack(FragmentName.FAVORITE.str)
                         }
                     }
-                    R.id.bottomNaviChat -> {
+                    R.id.bottomNaviNotification -> {
                         fabStudyWrite.hide()
-                        val chatFragment = ChatFragment().apply {
+                        val notificationFragment = NotificationFragment().apply {
                             arguments = Bundle().apply {
                                 putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
                             }
                         }
                         childFragmentManager.commit {
                             setReorderingAllowed(true)
-                            replace(R.id.containerBottomNavi, chatFragment)
-                            addToBackStack(FragmentName.CHAT.str)
+                            replace(R.id.containerBottomNavi, notificationFragment)
+                            addToBackStack(FragmentName.NOTI.str)
                         }
+
                     }
                     R.id.bottomNaviMy -> {
                         fabStudyWrite.hide()
@@ -254,4 +284,53 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
             requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
         }
     }
+
+
+//    -------------------------notification badge----------------------
+
+    // 브로드캐스트 리시버 추가
+    private val hideBadgeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "ACTION_HIDE_NOTIFICATION_BADGE") {
+                showNotificationBadge(false) // 알림 배지를 숨김
+            }
+        }
+    }
+
+    private fun setupNotificationBadge() {
+        val bottomNavigationView = binding.bottomNavigationView
+        notificationBadge = bottomNavigationView.getOrCreateBadge(R.id.bottomNaviNotification)
+        notificationBadge.backgroundColor = ContextCompat.getColor(requireContext(), R.color.redColor)
+        notificationBadge.isVisible = false // 초기에는 배지를 숨김
+    }
+
+    // 알림 상태를 보여주는 메서드
+    private val notificationReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val showBadge = intent?.getBooleanExtra("showBadge", true) ?: true
+            showNotificationBadge(showBadge)
+        }
+    }
+
+
+    private fun showNotificationBadge(show: Boolean) {
+        notificationBadge.isVisible = show
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 화면이 다시 보일 때 알림을 확인하지 않았다면 배지를 유지
+        if (shouldShowNotificationBadge()) {
+            showNotificationBadge(true)
+        } else {
+            showNotificationBadge(false)
+        }
+    }
+
+    // 알림을 확인했는지 여부를 확인
+    private fun shouldShowNotificationBadge(): Boolean {
+        // SharedPreferences 또는 ViewModel을 사용하여 알림 상태를 확인합니다.
+        return prefs.getBoolean("hasUnreadNotifications", false)
+    }
+
 }

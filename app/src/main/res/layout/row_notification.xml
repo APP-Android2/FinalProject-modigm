@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:layout_marginHorizontal="4dp"
+        android:backgroundTint="@color/cardview_light_background"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginVertical="16dp"
+                android:backgroundTint="@color/buttonGray"
+                app:strokeWidth="0dp"
+                android:elevation="0dp">
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imageViewNotificationIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/image_detail_2"/>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginVertical="14dp"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/textViewNotificationTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="제목"
+                            android:textColor="@color/black"
+                            android:textStyle="bold"
+                            android:textSize="18dp" />
+                        <!-- 빨간 점 배지 -->
+                        <ImageView
+                            android:id="@+id/badgeNewNotification"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/red_dot"
+                            android:visibility="gone"/> <!-- 초기에는 보이지 않도록 설정 -->
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/imageViewDeleteNotification"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/icon_close_24"
+                        app:tint="@color/black"
+                        android:padding="4dp"/>
+                </LinearLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewNotificationContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="내용"
+                    android:textColor="@color/textGray"
+                    android:textSize="14dp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewNotificationTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="시간"
+                    android:textColor="@color/textGray"
+                    android:textSize="12dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

@@ -7,11 +7,13 @@ import android.view.ViewTreeObserver
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.common.KakaoSdk
 import jp.wasabeef.glide.transformations.BlurTransformation
 import jp.wasabeef.glide.transformations.ColorFilterTransformation
@@ -19,6 +21,7 @@ import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
+import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
@@ -32,6 +35,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     // 뷰모델
     private val viewModel: LoginViewModel by viewModels()
+    private val detailViewModel: DetailViewModel by activityViewModels()
 
     // 태그
     private val logTag by lazy { LoginFragment::class.simpleName }
@@ -126,6 +130,13 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 hideLoginLoading()
                 Log.i(logTag, "카카오 로그인 성공")
                 val joinType = JoinType.KAKAO
+
+                // FCM 토큰 등록
+                val userIdx = prefs.getInt("currentUserIdx", 0)
+                if (userIdx > 0) {
+                    registerFcmTokenToServer(userIdx)
+                }
+
                 goToBottomNaviFragment(joinType)
             }
         }
@@ -135,6 +146,13 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 hideLoginLoading()
                 Log.i(logTag, "깃허브 로그인 성공")
                 val joinType = JoinType.GITHUB
+
+                // FCM 토큰 등록
+                val userIdx = prefs.getInt("currentUserIdx", 0)
+                if (userIdx > 0) {
+                    registerFcmTokenToServer(userIdx)
+                }
+
                 goToBottomNaviFragment(joinType)
             }
         }
@@ -163,6 +181,13 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 hideLoginLoading()
                 Log.i(logTag, "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
+
+                // FCM 토큰 등록
+                val userIdx = prefs.getInt("currentUserIdx", 0)
+                if (userIdx > 0) {
+                    registerFcmTokenToServer(userIdx)
+                }
+
                 goToBottomNaviFragment(joinType)
             }
         }
@@ -306,7 +331,6 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
             }
         })
     }
-
     // 로딩 화면 표시
     private fun showLoginLoading() {
         with(binding){
@@ -317,6 +341,20 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
     private fun hideLoginLoading() {
         with(binding){
             layoutLoginLoadingBackground.visibility = View.GONE
+        }
+    }
+
+    // FCM 토큰을 가져와 서버에 등록
+    private fun registerFcmTokenToServer(userIdx: Int) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            if (token != null) {
+                detailViewModel.registerFcmToken(userIdx, token)
+            }
         }
     }
 }
