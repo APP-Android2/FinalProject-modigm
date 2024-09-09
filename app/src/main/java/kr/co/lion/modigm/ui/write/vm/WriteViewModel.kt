@@ -24,9 +24,6 @@ class WriteViewModel : ViewModel() {
     private val writeRepository by lazy { WriteRepository() }
     private val studyRepository by lazy { StudyRepository() }
 
-    private val _isItemSelected = MutableLiveData<Boolean>()
-    val isItemSelected: LiveData<Boolean> get() = _isItemSelected
-
     // 글작성 데이터
     private val _writeDataMap = MutableLiveData<MutableMap<String, Any?>?>(mutableMapOf())
     val writeDataMap: LiveData<MutableMap<String, Any?>?> = _writeDataMap
@@ -36,7 +33,7 @@ class WriteViewModel : ViewModel() {
         Log.d(logTag, "updateWriteData: key=$key, value=$value")
         val currentMap = _writeDataMap.value ?: mutableMapOf()
         currentMap[key] = value
-        _writeDataMap.value = currentMap  // 변경된 값을 다시 할당하여 UI에 반영
+        _writeDataMap.postValue(currentMap)  // 변경된 값을 다시 할당하여 UI에 반영
     }
 
     // 현재 글작성 중인 데이터를 특정 키로 가져오는 함수
@@ -82,25 +79,36 @@ class WriteViewModel : ViewModel() {
         }
     }
 
-    private val _writeStudyError = MutableLiveData<Throwable?>()
-    val writeStudyError: LiveData<Throwable?> = _writeStudyError
+    // 스터디 데이터 업로드 에러
+    private val _writeStudyDataError = MutableLiveData<Throwable?>()
+    val writeStudyDataError: LiveData<Throwable?> = _writeStudyDataError
 
+    // 스터디 데이터 업로드
     suspend fun writeStudyData(): Int? {
         val userIdx = prefs.getInt("currentUserIdx", 0)
 
         // _writeDataMap에 저장된 데이터들을 추출하여 StudyData 객체로 변환
-        val studyTitle = _writeDataMap.value?.get("studyTitle") as? String ?: ""
-        val studyContent = _writeDataMap.value?.get("studyContent") as? String ?: ""
-        val studyType = _writeDataMap.value?.get("studyType") as? String ?: ""
-        val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String ?: ""
-        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String ?: ""
-        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String ?: ""
-        val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String ?: ""
-        val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int ?: 0
-        val studyPic = _writeDataMap.value?.get("studyPic") as? String ?: ""
+        val studyTitle = _writeDataMap.value?.get("studyTitle") as? String
+        val studyContent = _writeDataMap.value?.get("studyContent") as? String
+        val studyType = _writeDataMap.value?.get("studyType") as? String
+        val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String
+        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String
+        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String
+        val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String
+        val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int
+        val studyPic = _writeDataMap.value?.get("studyPic") as? String
         val studyTechStackList =
-            _writeDataMap.value?.get("studyTechStackList") as? List<Int> ?: listOf()
+            _writeDataMap.value?.get("studyTechStackList") as? List<Int>
+        // null 값이 존재하는지 검사하는 부분
+        if (studyTitle == null || studyContent == null || studyType == null || studyPeriod == null ||
+            studyOnOffline == null || studyPlace == null || studyDetailPlace == null ||
+            studyMaxMember == null || studyPic == null || studyTechStackList == null) {
 
+            val errorMessage = "필수 입력값 중 누락된 데이터가 있습니다."
+            Log.e(logTag, "writeStudyData: $errorMessage")
+            _writeStudyDataError.postValue(Throwable(errorMessage))  // 에러 전달
+            return null
+        }
         // StudyData 객체 생성
         val studyData = StudyData(
             studyTitle = studyTitle,
@@ -132,6 +140,7 @@ class WriteViewModel : ViewModel() {
         return result.getOrNull()
     }
 
+    // 이미지 업로드
     suspend fun uploadImageToS3(context: Context, uri: Uri): String {
         return withContext(Dispatchers.IO) {
             val result = writeRepository.uploadImageToS3(context, uri)
@@ -139,11 +148,13 @@ class WriteViewModel : ViewModel() {
         }
     }
 
+    // 글작성 데이터 초기화
     fun clearData() {
-        _writeDataMap.value = mutableMapOf()
-        _progressBarState.value = 20
-        _selectedTabPosition.value = 0
-        _isItemSelected.value = false
-        _writeStudyError.value = null
+        _writeDataMap.postValue(mutableMapOf())
+        _progressBarState.postValue(20)
+        _selectedTabPosition.postValue(0)
+        _writeStudyDataError.postValue(null)
+        _techStackData.postValue(emptyList())
+        Log.d(logTag, "clearData: 데이터 초기화 완료")
     }
 }

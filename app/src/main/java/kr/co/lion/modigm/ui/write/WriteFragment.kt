@@ -187,6 +187,7 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
             setTitle("뒤로가기")
             setMessage("작성을 취소하시겠습니까?")
             setPositiveButton("확인") {
+                viewModel.clearData()
                 parentFragmentManager.popBackStack(FragmentName.BOTTOM_NAVI.str,0)
             }
             setNegativeButton("취소") {
