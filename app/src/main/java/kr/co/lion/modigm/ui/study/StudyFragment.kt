@@ -62,28 +62,11 @@ class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding:
     private fun initView() {
         // 바인딩
         with(binding) {
-            // 탭 레이아웃 설정
-            val tabLayout: TabLayout = tabLayoutStudy
 
             // 탭 선택 리스너 설정
-            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            tabLayoutStudy.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
-
-                    // 선택된 탭에 따라 프래그먼트 교체
-                    val fragment = when (tab.position) {
-                        0 -> StudyAllFragment()
-                        1 -> StudyMyFragment()
-                        else -> StudyAllFragment()
-                    }
-
-                    // 뷰모델 데이터 초기화
-                    viewModel.clearData()
-
-                    // 프래그먼트 교체
-                    childFragmentManager.commit {
-                        setReorderingAllowed(true)
-                        replace(R.id.fragmentContainerStudy, fragment)
-                    }
+                    changeFragmentOnTab(tab)
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -91,9 +74,27 @@ class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding:
                 }
 
                 override fun onTabReselected(tab: TabLayout.Tab) {
-                    // 필요시 구현
+                    changeFragmentOnTab(tab)
                 }
             })
+        }
+    }
+
+    private fun changeFragmentOnTab(tab: TabLayout.Tab) {
+        // 선택된 탭에 따라 프래그먼트 교체
+        val fragment = when (tab.position) {
+            0 -> StudyAllFragment()
+            1 -> StudyMyFragment()
+            else -> StudyAllFragment()
+        }
+
+        // 뷰모델 데이터 초기화
+        viewModel.clearData()
+
+        // 프래그먼트 교체
+        childFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.fragmentContainerStudy, fragment)
         }
     }
 }

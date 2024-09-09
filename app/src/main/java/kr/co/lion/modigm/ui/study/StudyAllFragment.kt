@@ -10,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
@@ -150,7 +151,16 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
                     // 리사이클러뷰 스크롤 상태 변경 시 호출되는 메서드
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                         super.onScrollStateChanged(recyclerView, newState)
+                        // 스크롤 중일 때 Glide 이미지 로딩을 일시 중지
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            Glide.with(recyclerView.context).resumeRequests()
+                        } else {
+                            Glide.with(recyclerView.context).pauseRequests()
+                        }
+
                         scrollListener?.onRecyclerViewScrollStateChanged(newState)
+
+
                     }
                 })
 
@@ -173,7 +183,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
             }
 
             // 쓸어내려 새로고침 기능
-            with(swipeRefreshLayoutStudyAll){
+            with(swipeRefreshLayoutStudyAll) {
                 setOnRefreshListener {
                     viewModel.refreshAllStudyData()
                 }
@@ -182,20 +192,21 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
     }
 
     private fun observeViewModel() {
-
         // 스와이프 리프레시 로딩 상태 관찰
         viewModel.isRefreshing.observe(viewLifecycleOwner) { isRefreshing ->
-            binding.swipeRefreshLayoutStudyAll.isRefreshing = isRefreshing
+            with(binding) {
+                swipeRefreshLayoutStudyAll.isRefreshing = isRefreshing
+            }
         }
 
         // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            with(binding){
+            with(binding) {
                 if (isLoading) {
-                    Log.d(logTag,"로딩중")
+                    Log.d(logTag, "로딩중")
                     progressBarStudyAll.visibility = View.VISIBLE
                 } else {
-                    Log.d(logTag,"로딩완료")
+                    Log.d(logTag, "로딩완료")
                     progressBarStudyAll.visibility = View.GONE
                 }
             }
@@ -203,7 +214,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
         // 필터 적용 여부를 관찰하여, 필터가 적용된 경우와 그렇지 않은 경우를 구분
         viewModel.isFilterApplied.observe(viewLifecycleOwner) { isFilterApplied ->
-            with(binding){
+            with(binding) {
                 // 필터가 적용된 경우
                 if (isFilterApplied) {
 
@@ -266,7 +277,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
     // 오류 다이얼로그 표시
     private fun studyErrorDialog(message: String) {
         val dialog = CustomLoginErrorDialog(requireContext())
-        with(dialog){
+        with(dialog) {
             setTitle("오류")
             setMessage(message)
             setPositiveButton("확인") {
@@ -278,7 +289,7 @@ class StudyAllFragment : VBBaseFragment<FragmentStudyAllBinding>(FragmentStudyAl
 
     // 뱃지 설정
     @OptIn(ExperimentalBadgeUtils::class)
-    private fun setBadge(icon: ShapeableImageView, badgeColor: Int ) {
+    private fun setBadge(icon: ShapeableImageView, badgeColor: Int) {
         val setBadgeColor = ContextCompat.getColor(requireContext(), badgeColor)
         val badgeDrawable = BadgeDrawable.create(requireContext())
         BadgeUtils.attachBadgeDrawable(badgeDrawable, icon)

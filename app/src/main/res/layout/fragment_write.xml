@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -13,21 +12,21 @@
         android:id="@+id/toolbar_writeFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:navigationIcon="@drawable/arrow_back_24px"
-        android:title="@string/toolbarTitle_WriteFragment" />
+        android:title="모집 글 작성" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progressBar_writeFragment"
+        android:id="@+id/progressBarWrite"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="100"
         android:progress="20"
         android:progressTint="@color/pointColor"
-        app:trackColor="@color/white" />
+        app:trackColor="@color/white"
+        android:indeterminate="false"/>
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout_writeFragment"
+        android:id="@+id/tabLayoutWrite"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/white"
@@ -37,43 +36,33 @@
         app:tabSelectedTextColor="@color/pointColor"
         app:tabTextAppearance="@style/tab_text"
         app:tabTextColor="@color/textGray">
-
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="타입" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="기간" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="진행" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="기술" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="소개" />
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/container_writeFragment"
+        android:id="@+id/containerWrite"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:clickable="true"
         android:focusable="true"/>
-
-    <LinearLayout
-        android:id="@+id/buttonLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_write_next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:backgroundTint="@color/buttonGray"
-            android:text="다음"
-            android:textColor="@color/textGray"
-            android:textSize="14dp"
-
-            />
-    </LinearLayout>
 
 </LinearLayout>

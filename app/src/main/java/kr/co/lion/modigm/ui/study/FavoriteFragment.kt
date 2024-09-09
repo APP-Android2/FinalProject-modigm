@@ -6,6 +6,8 @@ import android.view.View
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentFavoriteBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
@@ -76,12 +78,25 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
         with(binding) {
 
             // 리사이클러뷰
-            with(recyclerviewFavorite) {
+            recyclerviewFavorite.apply {
                 // 리사이클러뷰 어답터
                 adapter = studyAdapter
 
                 // 리사이클러뷰 레이아웃
                 layoutManager = LinearLayoutManager(requireActivity())
+
+                addOnScrollListener(object : RecyclerView.OnScrollListener(){
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        super.onScrollStateChanged(recyclerView, newState)
+
+                        // 스크롤 중일 때 Glide 이미지 로딩을 일시 중지
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            Glide.with(recyclerView.context).resumeRequests()
+                        } else {
+                            Glide.with(recyclerView.context).pauseRequests()
+                        }
+                    }
+                })
 
             }
 

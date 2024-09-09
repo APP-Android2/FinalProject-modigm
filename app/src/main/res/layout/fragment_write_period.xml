@@ -1,57 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingHorizontal="16dp"
     android:background="#f7f7f7"
     android:transitionGroup="true">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/textViewWritePeriodQuestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="얼마나 진행 하실건가요?"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="18dp" />
 
-    <TextView
-        android:id="@+id/textView_writePeriod_question"
+        <TextView
+            android:id="@+id/textViewWritePeriodNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="자세한 기간과 모임시간은 소개글에 작성해주세요 :)"
+            android:textColor="@color/textGray"
+            android:textSize="16dp" />
+
+        <Spinner
+            android:id="@+id/spinnerWritePeriod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:background="@drawable/style_spinner"
+            android:spinnerMode="dialog" />
+    </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonWritePeriodNext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="164dp"
-
-        android:text="얼마나 진행 하실건가요?"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textSize="18dp"
-
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView_writePeriod_notice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="16dp"
-
-        android:text="자세한 기간과 모임시간은 소개글에 작성해주세요 :)"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/buttonGray"
+        android:text="다음"
         android:textColor="@color/textGray"
-        android:textSize="16dp"
+        android:textSize="14dp"/>
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_question" />
 
-    <Spinner
-        android:id="@+id/SpinnerWritePeriod"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="26dp"
-        android:background="@drawable/style_spinner"
-        android:spinnerMode="dialog"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView_writePeriod_notice"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

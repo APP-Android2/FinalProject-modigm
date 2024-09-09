@@ -2,23 +2,25 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#f7f7f7"
+    android:paddingHorizontal="16dp"
     android:transitionGroup="true">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#f7f7f7"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
@@ -41,7 +43,7 @@
                     app:strokeColor="@color/textGray"
                     app:strokeWidth="2dp">
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/cardview_writeIntro_cardCover"
                         style="@style/Widget.Material3.MaterialTimePicker.ImageButton"
                         android:layout_width="70dp"
@@ -64,7 +66,7 @@
                     app:strokeColor="@color/textGray"
                     app:strokeWidth="2dp">
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/imageViewCoverImageSelect"
                         android:layout_width="70dp"
                         android:layout_height="70dp"
@@ -75,7 +77,7 @@
 
             </LinearLayout>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -97,15 +99,15 @@
                     android:id="@+id/textInput_writeIntro_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="제목 입력"
+                    android:hint="제목 입력(최소 8자 이상)"
                     android:inputType="text"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ex.개발자 북클럽 모집(최소 8자 이상)"
+                android:text="ex.개발자 북클럽 모집"
                 android:textColor="@color/textGray"
                 android:textSize="14dp" />
 
@@ -124,22 +126,30 @@
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
                     android:gravity="top"
-                    android:hint="소개글 입력(최대한 자세히 입력해주세요)"
+                    android:hint="소개글 입력(최소 10자 이상)"
                     android:inputType="textMultiLine"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/textView_writeIntro_write_example"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:layout_marginBottom="30dp"
                 android:text="작성 예시보기"
                 android:textColor="@color/pointColor"
                 android:textSize="14dp" />
-
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-    </ScrollView>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonWriteIntroNext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="다음"
+        android:textColor="@color/white"
+        android:textSize="14dp" />
 
 </LinearLayout>

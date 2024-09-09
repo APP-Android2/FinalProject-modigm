@@ -13,20 +13,11 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.CannedAccessControlList
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.db.HikariCPDataSource
 import java.io.File
-import java.nio.file.Paths
-import java.sql.Connection
 import java.sql.PreparedStatement
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -42,8 +33,7 @@ class RemoteWriteStudyDao {
     }
 
     // 이미지 업로드 함수 (Amazon S3에 업로드)
-    suspend fun uploadImageToS3(uri: Uri): String {
-        val context = this.context ?: throw IllegalStateException("Context has not been initialized")
+    suspend fun uploadImageToS3(context: Context, uri: Uri): String {
         // URI로부터 실제 파일 경로를 얻음
         val filePath = getRealPathFromURI(context, uri) // URI로부터 실제 파일 경로를 얻음
         val file = File(filePath ?: throw IllegalArgumentException("Invalid file: $uri"))
@@ -52,7 +42,6 @@ class RemoteWriteStudyDao {
         val accessKey = BuildConfig.BK_ACCESSKEY
         val secretKey = BuildConfig.BK_SECRETKEY
         val bucketName = BuildConfig.BK_NAME
-//        val region = "AP_NORTHEAST_2"
 
         // AWS S3 클라이언트 초기화
         val credentials = BasicAWSCredentials(accessKey, secretKey)
@@ -104,14 +93,27 @@ class RemoteWriteStudyDao {
     private fun getRealPathFromURI(context: Context, uri: Uri): String? {
         var path: String? = null
         val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                path = it.getString(columnIndex)
-                Log.d(TAG, "Real path from URI: $path")
+
+        // API 29 (Android Q) 이상에서는 openInputStream을 통해 파일을 저장
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val file = File(context.cacheDir, "tempImage.jpg")
+                file.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                return file.absolutePath
+            }
+        } else {
+            val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                    path = it.getString(columnIndex)
+                    Log.d(TAG, "Real path from URI: $path")
+                }
             }
         }
+
         if (path == null) {
             Log.e(TAG, "Failed to get real path from URI: $uri")
         }

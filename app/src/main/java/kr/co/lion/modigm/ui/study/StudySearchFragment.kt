@@ -10,6 +10,8 @@ import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentStudySearchBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
@@ -89,8 +91,26 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
 
         with(binding) {
             // RecyclerView 설정
-            recyclerViewStudySearch.layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewStudySearch.adapter = studySearchAdapter
+            recyclerViewStudySearch.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+
+                adapter = studySearchAdapter
+
+                // 스크롤 리스너 설정
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    // 스크롤이 변경될 때 호출
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        super.onScrollStateChanged(recyclerView, newState)
+                        // 스크롤 중일 때 Glide 이미지 로딩을 일시 중지
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            Glide.with(recyclerView.context).resumeRequests()
+                        } else {
+                            Glide.with(recyclerView.context).pauseRequests()
+                        }
+                    }
+                })
+            }
+
 
             toolbarStudySearch.setNavigationOnClickListener {
                 parentFragmentManager.popBackStack()

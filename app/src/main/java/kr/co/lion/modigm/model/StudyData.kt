@@ -11,7 +11,7 @@ data class StudyData(
     val studyOnOffline: String = "",            // 진행 방식 (온라인, 오프라인, 온/오프 혼합)
     val studyDetailPlace: String = "",          // 오프라인 시 진행 장소 상세 주소
     val studyPlace: String = "",                // 오프라인 시 진행 장소
-    val studyApplyMethod: String = "",          // 신청 방식 (선착순, 신청제)
+    val studyApplyMethod: String = "",          // 신청 방식 (신청제) 선착순은 보류
     val studyCanApply: String = "",             // 모집 상태 (모집 중, 모집 완료)
     val studyPic: String = "",                  // 썸네일 사진
     val studyMaxMember: Int = 0,                // 최대 인원수

@@ -37,8 +37,6 @@ class StudyViewHolder(
             setStudyType(studyData.first.studyType)
             // 스터디 현재 인원수, 최대 인원수
             setStudyMembers(studyData)
-            // 신청 방식 (선착순, 신청제)
-            textViewStudyApplyMethod.text = studyData.first.studyApplyMethod
             // 찜 상태
             setFavoriteButton(studyData)
         }
@@ -46,7 +44,7 @@ class StudyViewHolder(
 
     private fun setupRootView(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
-            with(root){
+            root.apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
@@ -65,9 +63,10 @@ class StudyViewHolder(
             progressBarStudyPic.visibility = View.VISIBLE
             imageViewStudyPic.visibility = View.GONE
 
+            // Glide로 비동기 이미지 로딩
             val requestOptions = RequestOptions()
-                .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
-                .error(R.drawable.image_detail_1) // 이미지 로딩 실패 시 표시할 이미지
+                .placeholder(R.drawable.image_loading_gray) // 로딩 중일 때 표시할 이미지
+                .error(R.drawable.image_detail_1) // 오류 발생 시 표시할 이미지
 
             Glide.with(itemView.context)
                 .load(studyData.first.studyPic)
@@ -104,22 +103,24 @@ class StudyViewHolder(
 
     // 스터디 진행 방식 설정 (온라인/오프라인/혼합)
     private fun setStudyOnOffline(studyOnOffline: String) {
-        with(binding.textViewStudyOnOffline) {
-            // 스터디 진행 방식에 따라 텍스트와 텍스트 색상을 설정
-            text = studyOnOffline
-            when (studyOnOffline) {
-                "온라인" -> setTextColor(Color.parseColor("#0FA981"))
-                "오프라인" -> setTextColor(Color.parseColor("#EB9C58"))
-                "온오프혼합" -> setTextColor(Color.parseColor("#0096FF"))
+        with(binding) {
+            textViewStudyOnOffline.apply {
+                // 스터디 진행 방식에 따라 텍스트와 텍스트 색상을 설정
+                text = studyOnOffline
+                when (studyOnOffline) {
+                    "온라인" -> setTextColor(Color.parseColor("#0FA981"))
+                    "오프라인" -> setTextColor(Color.parseColor("#EB9C58"))
+                    "온오프혼합" -> setTextColor(Color.parseColor("#0096FF"))
+                }
             }
         }
     }
 
     private fun setStudyType(studyType: String) {
-        with(binding){
-            with(textViewStudyType) {
+        with(binding) {
+            textViewStudyType.apply {
                 text = studyType
-                with(imageViewStudyStudyTypeIcon){
+                with(imageViewStudyStudyTypeIcon) {
                     when (studyType) {
                         "스터디" -> setImageResource(R.drawable.icon_closed_book_24px)
                         "프로젝트" -> setImageResource(R.drawable.icon_code_box_24px)
@@ -132,24 +133,34 @@ class StudyViewHolder(
 
     private fun setStudyMembers(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
-            textViewStudyMaxMember.text = studyData.first.studyMaxMember.toString()
-            textViewStudyCurrentMember.text = studyData.second.toString()
+            textViewStudyMaxMember.apply {
+                text = studyData.first.studyMaxMember.toString()
+            }
+            textViewStudyCurrentMember.apply {
+                text = studyData.second.toString()
+            }
         }
     }
 
     private fun setFavoriteButton(studyData: Triple<StudyData, Int, Boolean>) {
-        with(binding.imageViewStudyFavorite) {
-            if (studyData.third) {
-                setImageResource(R.drawable.icon_favorite_full_24px)
-                setColorFilter(Color.parseColor("#D73333"))
-            } else {
-                setImageResource(R.drawable.icon_favorite_24px)
-                clearColorFilter()
-            }
+        with(binding) {
+            imageViewStudyFavorite.apply {
+                if (studyData.third) {
+                    setImageResource(R.drawable.icon_favorite_full_24px)
+                    setColorFilter(Color.parseColor("#D73333"))
+                    isEnabled = true
+                } else {
+                    setImageResource(R.drawable.icon_favorite_24px)
+                    clearColorFilter()
+                    isEnabled = true
+                }
 
-            setOnClickListener {
-                favoriteClickListener.invoke(studyData.first.studyIdx, studyData.third)
+                setOnClickListener {
+                    isEnabled = false
+                    favoriteClickListener.invoke(studyData.first.studyIdx, studyData.third)
+                }
             }
         }
+
     }
 }
