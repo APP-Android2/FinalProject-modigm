@@ -14,6 +14,7 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class EditProfileViewModel: ViewModel() {
     private val profileRepository = ProfileRepository()
+    var picChanged = false
 
     // 프로필 사진 Uri
     private val _editProfilePicUri = MutableStateFlow<Uri?>(null)
@@ -131,9 +132,6 @@ class EditProfileViewModel: ViewModel() {
 
         // 데이터베이스 업데이트
         profileRepository.updateUserData(user)
-
-        // 프로필 화면 재로드
-        profileFragment.updateViews()
     }
 
     fun updateUserLinkData(profileFragment: ProfileFragment) = viewModelScope.launch {
@@ -141,9 +139,6 @@ class EditProfileViewModel: ViewModel() {
 
         // 데이터베이스 업데이트
         profileRepository.updateUserLinkData(userIdx, _editProfileLinkList.value)
-
-        // 프로필 화면 재로드
-        profileFragment.updateViews()
     }
 
     // 링크 목록 순서 변경

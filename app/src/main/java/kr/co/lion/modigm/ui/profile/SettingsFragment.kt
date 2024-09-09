@@ -1,14 +1,17 @@
 package kr.co.lion.modigm.ui.profile
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.CustomLogoutDialogBinding
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
@@ -34,7 +37,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
         // 뒤로 가기 물리키
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                requireActivity().supportFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack()
             }
         })
     }
@@ -47,7 +50,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
             // 뒤로 가기
             setNavigationIcon(R.drawable.icon_arrow_back_24px)
             setNavigationOnClickListener {
-                requireActivity().supportFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack()
             }
         }
     }
@@ -57,7 +60,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .add(R.id.containerMain, EditProfileFragment(profileFragment))
+                    .replace(R.id.containerMain, EditProfileFragment(profileFragment))
                     .addToBackStack(FragmentName.EDIT_PROFILE.str)
                     .commit()
             }
@@ -80,7 +83,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
                 // 버튼 클릭 시
                 setOnClickListener {
                     parentFragmentManager.commit {
-                        add(R.id.containerMain, ChangePasswordEmailFragment())
+                        replace(R.id.containerMain, ChangePasswordEmailFragment())
                         addToBackStack(FragmentName.CHANGE_PASSWORD_EMAIL.str)
                     }
                 }
@@ -101,18 +104,27 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
                 openWebView(Links.TERMS.url)
             }
 
-            // 로그아웃 (오류뜸, clearBackStack 수정 필요)
+            // 로그아웃
             layoutSettingsLogout.setOnClickListener {
-                // SharedPreferences 초기화
-                prefs.clearAllPrefs()
-                prefs.setBoolean("autoLogin", false)
-                // 로그아웃 처리
-                Firebase.auth.signOut()
-                // 로그인 화면으로 돌아간다
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, LoginFragment())
-                    .addToBackStack(null)
-                    .commit()
+                // 로그아웃 확인 다이얼로그
+                val customDialogBinding = CustomLogoutDialogBinding.inflate(layoutInflater)
+                val builder = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
+                    .setView(customDialogBinding.root)
+                    .setPositiveButton("확인") { dialogInterface: DialogInterface, i: Int ->
+                        // SharedPreferences 초기화
+                        prefs.clearAllPrefs()
+                        prefs.setBoolean("autoLogin", false)
+
+                        // 로그아웃 처리
+                        Firebase.auth.signOut()
+
+                        // 로그인 화면으로 돌아간다
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.containerMain, LoginFragment())
+                            .addToBackStack(null)
+                            .commit()
+                    }.setNegativeButton("취소") { dialogInterface: DialogInterface, i: Int -> }
+                builder.show()
             }
         }
     }

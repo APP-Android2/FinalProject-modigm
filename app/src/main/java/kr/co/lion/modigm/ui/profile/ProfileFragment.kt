@@ -26,6 +26,7 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
+import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
@@ -55,7 +56,8 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
 
                 // Fragment 교체
                 requireActivity().supportFragmentManager.commit {
-                    add(R.id.containerMain, profileWebFragment)
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    replace(R.id.containerMain, profileWebFragment)
                     addToBackStack(FragmentName.PROFILE_WEB.str)
                 }
             }
@@ -80,7 +82,8 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 detailFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
-                    add(R.id.containerMain, detailFragment)
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    replace(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
             }
@@ -105,7 +108,8 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 detailFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
-                    add(R.id.containerMain, detailFragment)
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    replace(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
             }
@@ -129,14 +133,13 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         initView()
     }
 
-    fun updateViews() {
+    override fun onResume() {
+        super.onResume()
         setupUserInfo()
     }
 
     private fun initView() {
         setupToolbar()
-        //setupFab()
-        setupUserInfo()
         setupRecyclerViewLink()
         setupRecyclerViewPartStudy()
         setupRecyclerViewHostStudy()
@@ -157,7 +160,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                     R.id.menu_item_profile_setting -> {
                         requireActivity().supportFragmentManager.commit {
                             setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                            add(R.id.containerMain, SettingsFragment(this@ProfileFragment))
+                            replace(R.id.containerMain, SettingsFragment(this@ProfileFragment))
                             addToBackStack(FragmentName.SETTINGS.str)
                         }
                     }
@@ -191,38 +194,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
             }
         }
     }
-
-//    private fun setupFab() {
-//        fragmentProfileBinding.apply {
-//            fabProfile.apply {
-//                if (myProfile) {
-//                    // 본인의 프로필일 때
-//                    visibility = View.INVISIBLE
-//                }
-//                else {
-//                    // 1:1 채팅 방 찾기
-//                    lifecycleScope.launch {
-//                        chatRoomViewModel.findChatRoomIdx(ModigmApplication.prefs.getUserData("currentUserData")?.userUid!!, uid!!)
-//                    }
-//                    setOnClickListener {
-//                        chatRoomViewModel.chatRoomIdx.observe(viewLifecycleOwner, Observer { chatRoomIdx ->
-//                            // 채팅방 없음(생성 O)
-//                            if (chatRoomIdx == 0) {
-//                                CoroutineScope(Dispatchers.Main).launch {
-//                                    val thisChatRoomIdx = addChatRoomData()
-//                                    enterChatRoom(thisChatRoomIdx)
-//                                }
-//                            }
-//                            // 채팅방 있음(생성 X)
-//                            else {
-//                                enterChatRoom(chatRoomIdx)
-//                            }
-//                        })
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     private fun setupUserInfo() {
         profileViewModel.profileUserIdx.value = userIdx

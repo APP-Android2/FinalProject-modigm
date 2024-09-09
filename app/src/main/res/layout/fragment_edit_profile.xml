@@ -147,7 +147,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonEditProfilePhone"
-                        android:layout_width="match_parent"
+                        android:layout_width="380dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:layout_weight="3"
@@ -240,7 +240,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonEditProfileLink"
-                        android:layout_width="match_parent"
+                        android:layout_width="380dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:layout_weight="3"
