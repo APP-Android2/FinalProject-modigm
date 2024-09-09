@@ -4,13 +4,16 @@ import NotificationViewModel
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -49,6 +52,10 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
         viewModel.fetchNotifications(userIdx) // 알림 데이터 가져오기
+
+        // 데이터 새로고침 브로드캐스트 리시버 등록
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(dataRefreshReceiver, IntentFilter("ACTION_REFRESH_DATA"))
     }
 
     private fun initView() {
