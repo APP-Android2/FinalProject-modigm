@@ -73,4 +73,19 @@ class RemoteNotificationDao {
         }
     }
 
+    // 모든 알림을 읽음으로 표시하는 메서드 추가
+    suspend fun markAllNotificationsAsRead(userIdx: Int) = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "UPDATE tb_notification SET isNew = FALSE WHERE userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.executeUpdate()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error marking all notifications as read", e)
+        }
+    }
+
 }

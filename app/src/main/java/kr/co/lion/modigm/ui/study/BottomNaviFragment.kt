@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.study
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -114,6 +115,10 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(notificationReceiver,
             android.content.IntentFilter("ACTION_REFRESH_DATA"))
 
+        // hideBadgeReceiver 등록
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(hideBadgeReceiver,
+            android.content.IntentFilter("ACTION_HIDE_NOTIFICATION_BADGE"))
+
         // 프래그먼트가 보일 때 배지 상태를 유지하기 위해 onResume에서 처리
         if (savedInstanceState != null) {
             val badgeVisible = savedInstanceState.getBoolean("badgeVisible", false)
@@ -156,6 +161,8 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
         // 로컬 브로드캐스트 리스너 해제
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(notificationReceiver)
+
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(hideBadgeReceiver)
     }
 
     // --------------------------------- LC END ---------------------------------
@@ -280,6 +287,15 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
 
 //    -------------------------notification badge----------------------
+
+    // 브로드캐스트 리시버 추가
+    private val hideBadgeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "ACTION_HIDE_NOTIFICATION_BADGE") {
+                showNotificationBadge(false) // 알림 배지를 숨김
+            }
+        }
+    }
 
     private fun setupNotificationBadge() {
         val bottomNavigationView = binding.bottomNavigationView

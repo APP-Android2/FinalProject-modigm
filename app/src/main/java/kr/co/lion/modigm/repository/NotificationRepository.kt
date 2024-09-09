@@ -20,4 +20,9 @@ class NotificationRepository {
     suspend fun markNotificationAsRead(notificationIdx: Int): Boolean {
         return dataSource.markNotificationAsRead(notificationIdx)
     }
+
+    // 모든 알림을 읽음으로 표시하는 메서드 추가
+    suspend fun markAllNotificationsAsRead(userIdx: Int) {
+        dataSource.markAllNotificationsAsRead(userIdx)
+    }
 }

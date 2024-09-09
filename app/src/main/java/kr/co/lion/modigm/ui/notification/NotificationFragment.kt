@@ -81,9 +81,16 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
                 } else {
                     binding.blankLayoutNotification.visibility = View.VISIBLE
                     binding.recyclerviewNotification.visibility = View.GONE
+                    clearBadgeOnBottomNavigation() // 알림이 없을 때 배지를 지움
                 }
             }
         }
+    }
+
+    private fun clearBadgeOnBottomNavigation() {
+        // 모든 알림이 삭제된 경우, BottomNaviFragment에 배지를 숨기라는 브로드캐스트를 전송합니다.
+        val intent = Intent("ACTION_HIDE_NOTIFICATION_BADGE")
+        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
     }
 
     private fun deleteNotification(notification: NotificationData) {
@@ -94,8 +101,27 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
             if (result) {
                 viewModel.refreshNotifications(userIdx) // RecyclerView 갱신
+                checkAndUpdateAllReadStatus() // 모든 알림 삭제 후 상태 업데이트
             }
         }
+    }
+
+    private fun checkAndUpdateAllReadStatus() {
+        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val notifications = viewModel.getNotifications(userIdx) // 알림 목록 가져오기
+            if (notifications.isEmpty()) {
+                setAllNotificationsRead() // 알림이 없을 경우 모두 읽음으로 설정
+                clearBadgeOnBottomNavigation() // 알림이 없을 때 배지를 지움
+            }
+        }
+    }
+
+    private fun setAllNotificationsRead() {
+        // 모든 알림을 읽음 상태로 변경하는 로직 추가
+        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+        viewModel.markAllNotificationsAsRead(userIdx)
     }
 
     private fun settingToolbar() {

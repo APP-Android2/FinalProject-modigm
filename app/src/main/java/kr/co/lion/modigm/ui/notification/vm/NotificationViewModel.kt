@@ -26,6 +26,11 @@ class NotificationViewModel : ViewModel() {
         fetchNotifications(userIdx)
     }
 
+    // 알림 데이터를 반환하는 함수
+    suspend fun getNotifications(userIdx: Int): List<NotificationData> {
+        return repository.getNotifications(userIdx) // 데이터베이스에서 데이터를 가져오는 메서드
+    }
+
     suspend fun deleteNotification(notification: NotificationData): Boolean {
         return repository.deleteNotification(notification)
     }
@@ -33,5 +38,13 @@ class NotificationViewModel : ViewModel() {
     // 특정 알림을 읽음으로 표시하는 메서드
     suspend fun markNotificationAsRead(notificationIdx: Int): Boolean {
         return repository.markNotificationAsRead(notificationIdx)
+    }
+
+    // 모든 알림을 읽음으로 표시하는 메서드
+    fun markAllNotificationsAsRead(userIdx: Int) {
+        viewModelScope.launch {
+            repository.markAllNotificationsAsRead(userIdx)
+            refreshNotifications(userIdx) // 모든 알림 상태를 읽음으로 변경 후 데이터 갱신
+        }
     }
 }
