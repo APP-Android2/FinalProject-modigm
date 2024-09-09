@@ -120,8 +120,33 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
             viewModel.progressBarState.observe(viewLifecycleOwner) { progress ->
                 animateProgressBar(progressBarWrite, progressBarWrite.progress, progress)
             }
+
+            // writeDataMap 변경 사항을 관찰
+            viewModel.writeDataMap.observe(viewLifecycleOwner) { dataMap ->
+                updateTabEnabledState(dataMap)
+            }
         }
 
+    }
+
+    // 탭의 활성화/비활성화 상태를 업데이트하는 함수
+    private fun updateTabEnabledState(dataMap: MutableMap<String, Any?>?) {
+        with(binding.tabLayoutWrite) {
+            // 첫 번째 탭은 항상 활성화
+            getTabAt(0)?.view?.isEnabled = true
+
+            // 두 번째 탭은 첫 번째 탭에 해당하는 데이터가 있을 때 활성화
+            getTabAt(1)?.view?.isEnabled = dataMap?.get("studyType") != null
+
+            // 세 번째 탭은 두 번째 탭에 해당하는 데이터가 있을 때 활성화
+            getTabAt(2)?.view?.isEnabled = dataMap?.get("studyPeriod") != null
+
+            // 네 번째 탭은 세 번째 탭에 해당하는 데이터가 있을 때 활성화
+            getTabAt(3)?.view?.isEnabled = dataMap?.get("studyOnOffline") != null
+
+            // 다섯 번째 탭은 네 번째 탭에 해당하는 데이터가 있을 때 활성화
+            getTabAt(4)?.view?.isEnabled = dataMap?.get("studyTechStackList") != null
+        }
     }
 
     // 뒤로가기 버튼 처리

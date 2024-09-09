@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- 이미지뷰는 스크롤에 포함되지 않음 -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewTechStackBottomSheetClose"
         android:layout_width="24dp"
@@ -15,12 +16,13 @@
         app:tint="@color/black"
         android:src="@drawable/icon_close_24"/>
 
-    <ScrollView
-        android:id="@+id/ScrollViewTechStack"
+    <!-- 전체 레이아웃을 감싸는 NestedScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollViewMain"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginTop="16dp"
-        android:layout_weight="8"
         android:scrollbars="vertical">
 
         <LinearLayout
@@ -28,73 +30,89 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
+            <!-- 첫 번째 NestedScrollView -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/ScrollViewTechStack"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="기술스택"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="원하는 기술이 없는 경우 '기타'를 선택하고 소개글에 \n자세히 적어주세요 :)"
+                        android:textColor="#666"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupTechStack"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:chipSpacing="8dp"
+                        app:singleSelection="true" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/selected_category_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/subCategoryChipGroupTechStack"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        app:chipSpacing="8dp" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp" />
+
+            <!-- 두 번째 NestedScrollView -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/ScrollViewTechStackSelect"
+                android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="기술스택"
-                android:textSize="18dp"
-                android:textStyle="bold" />
+                android:layout_weight="2"
+                android:paddingHorizontal="16dp">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="원하는 기술이 없는 경우 '기타'를 선택하고 소개글에 \n자세히 적어주세요 :)"
-                android:textColor="#666"
-                android:textSize="14dp"
-                android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupTechStack"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:chipSpacing="8dp"
-                app:singleSelection="true" />
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupSelectedItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleLine="false" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/selected_category_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:textSize="18dp"
-                android:textStyle="bold" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/subCategoryChipGroupTechStack"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:chipSpacing="8dp" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp" />
-
-    <ScrollView
-        android:id="@+id/ScrollViewTechStackSelect"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_weight="2"
-        android:paddingHorizontal="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupSelectedItems"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:singleLine="false" />
-        </LinearLayout>
-    </ScrollView>
-
+    <!-- 버튼은 스크롤에 포함되지 않음 -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonComplete"
         style="@style/CustomButtonStyle"
