@@ -148,12 +148,15 @@ class StudyViewHolder(
                 if (studyData.third) {
                     setImageResource(R.drawable.icon_favorite_full_24px)
                     setColorFilter(Color.parseColor("#D73333"))
+                    isEnabled = true
                 } else {
                     setImageResource(R.drawable.icon_favorite_24px)
                     clearColorFilter()
+                    isEnabled = true
                 }
 
                 setOnClickListener {
+                    isEnabled = false
                     favoriteClickListener.invoke(studyData.first.studyIdx, studyData.third)
                 }
             }
