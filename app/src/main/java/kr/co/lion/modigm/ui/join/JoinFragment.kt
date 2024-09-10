@@ -31,6 +31,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.collectWhenStarted
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.setCurrentItemWithDuration
@@ -414,6 +415,9 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 if(joinType==JoinType.EMAIL){
                     // 이메일 계정 회원가입인 경우에는 로그아웃 처리
                     viewModel.signOut()
+                }else{
+                    // SNS 계정 회원가입인 경우에는 자동로그인값 preferences에 저장
+                    prefs.setBoolean("autoLogin", true)
                 }
                 val joinCompleteFragment = JoinCompleteFragment().apply {
                     arguments = Bundle().apply {
