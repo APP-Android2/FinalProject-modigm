@@ -65,6 +65,10 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         // 로그인 상태에서 회원가입 진입 후 다시 빠져나올때 로그인된 계정이 파이어베이스 인증에서 삭제될 수 있음
         viewModel.signOut()
 
+        // sms 인증 코드 발송 시 보여줄 프로그래스바 익명함수를 viewModelStep2에 전달
+        viewModelStep2.hideCallback.value = hideLoading
+        viewModelStep2.showCallback.value = showLoading
+
         return binding.root
     }
 
@@ -432,7 +436,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
     }
 
-    private fun showLoading(){
+    private val showLoading = fun(){
         requireActivity().hideSoftInput()
         binding.layoutLoadingJoin.visibility = View.VISIBLE
         requireActivity().window?.setFlags(
@@ -441,7 +445,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         )
     }
 
-    private fun hideLoading(){
+    private val hideLoading = fun(){
         binding.layoutLoadingJoin.visibility = View.GONE
         requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
