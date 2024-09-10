@@ -39,11 +39,7 @@ class ProfileStudyViewHolder(
             // 스터디 진행 방식
             textViewRowHostStudyLocation.text = data.studyOnOffline
             // 모집 중 / 모집 완료
-            if (data.studyState) {
-                textViewRowHostStudyMember.text = "모집중"
-            } else {
-                textViewRowHostStudyMember.text = "모집완료"
-            }
+            textViewRowHostStudyMember.text = data.studyCanApply
 
             // 항목에 대한 설정
             root.apply {
