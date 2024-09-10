@@ -129,6 +129,7 @@
                     android:hint="소개글 입력(최소 10자 이상)"
                     android:inputType="textMultiLine"
                     android:scrollbars="vertical"
+                    android:nestedScrollingEnabled="false"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 

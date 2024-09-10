@@ -13,6 +13,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
@@ -129,9 +130,36 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     private fun initView() {
         with(binding) {
 
-            // 텍스트 입력 변경 사항을 관찰
-            textInputWriteIntroTitle.addTextChangedListener(inputWatcher)
-            textInputWriteIntroContent.addTextChangedListener(inputWatcher)
+            // 스터디 제목 입력
+            textInputWriteIntroTitle.apply {
+                // 텍스트 입력 변경 사항을 관찰
+                addTextChangedListener(inputWatcher)
+            }
+
+            // 스터디 내용 입력
+            textInputWriteIntroContent.apply {
+                // 텍스트 변경 시 리스너 등록
+                addTextChangedListener(inputWatcher)
+
+                // 터치 이벤트 처리
+                setOnTouchListener { view, event ->
+
+                    // 포커스가 있을 때 부모의 스크롤 이벤트 가로채기 방지
+                    if (view.hasFocus()) {
+                        view.parent.requestDisallowInterceptTouchEvent(true)
+
+                        // 터치 끝나면 부모에게 이벤트 권한 반환
+                        if (event.action == MotionEvent.ACTION_UP) {
+                            view.parent.requestDisallowInterceptTouchEvent(false)
+                            view.performClick()  // 접근성을 위한 클릭 처리
+                        }
+                    }
+
+                    // false 반환하여 기본 동작 유지
+                    false
+                }
+            }
+
 
             // 이미지 추가 버튼
             setupImageButton()
