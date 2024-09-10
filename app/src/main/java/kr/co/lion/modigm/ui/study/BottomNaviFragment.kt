@@ -197,10 +197,12 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
     private fun initView() {
         with(binding){
             // 스터디 작성 버튼 클릭 시
-            fabStudyWrite.setOnClickListener {
-                requireActivity().supportFragmentManager.commit {
-                    add(R.id.containerMain, WriteFragment())
-                    addToBackStack(FragmentName.WRITE.str)
+            fabStudyWrite.apply {
+                setOnClickListener {
+                    requireActivity().supportFragmentManager.commit {
+                        add(R.id.containerMain, WriteFragment())
+                        addToBackStack(FragmentName.WRITE.str)
+                    }
                 }
             }
 
@@ -210,68 +212,84 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                     replace<StudyFragment>(R.id.containerBottomNavi)
                 }
             }
-            bottomNavigationView.setOnItemSelectedListener { item ->
+            bottomNavigationView.apply {
+                // 툴팁 비활성화 코드 추가 (각 아이템에 대해 처리)
+                for (i in 0 until menu.size()) {
+                    val item = menu.getItem(i)
 
-                val newNavItemIndex = when (item.itemId) {
-                    R.id.bottomNaviStudy -> 0
-                    R.id.bottomNaviHeart -> 1
-                    R.id.bottomNaviNotification -> 2
-                    R.id.bottomNaviMy -> 3
-                    else -> currentNavItemIndex
-                }
+                    // 아이템의 뷰를 가져와서 툴팁 비활성화
+                    findViewById<View>(item.itemId).apply {
 
-                // 현재 선택된 아이템과 동일하면 아무 동작도 하지 않음
-                if (newNavItemIndex == currentNavItemIndex) {
-                    return@setOnItemSelectedListener true
-                }
-
-                when(item.itemId) {
-                    R.id.bottomNaviStudy -> {
-                        fabStudyWrite.show()
-                        childFragmentManager.commit {
-                            setReorderingAllowed(true)
-                            replace<StudyFragment>(R.id.containerBottomNavi)
-                            addToBackStack(FragmentName.STUDY.str)
+                        // API 26 이상에서는 툴팁을 빈 문자열로 설정
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            tooltipText = ""  // 툴팁 비활성화
                         }
                     }
-                    R.id.bottomNaviHeart -> {
-                        fabStudyWrite.hide()
-                        childFragmentManager.commit {
-                            setReorderingAllowed(true)
-                            replace<FavoriteFragment>(R.id.containerBottomNavi)
-                            addToBackStack(FragmentName.FAVORITE.str)
-                        }
+                }
+
+                setOnItemSelectedListener { item ->
+
+                    val newNavItemIndex = when (item.itemId) {
+                        R.id.bottomNaviStudy -> 0
+                        R.id.bottomNaviHeart -> 1
+                        R.id.bottomNaviNotification -> 2
+                        R.id.bottomNaviMy -> 3
+                        else -> currentNavItemIndex
                     }
-                    R.id.bottomNaviNotification -> {
-                        fabStudyWrite.hide()
-                        val notificationFragment = NotificationFragment().apply {
-                            arguments = Bundle().apply {
-                                putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
+
+                    // 현재 선택된 아이템과 동일하면 아무 동작도 하지 않음
+                    if (newNavItemIndex == currentNavItemIndex) {
+                        return@setOnItemSelectedListener true
+                    }
+
+                    when(item.itemId) {
+                        R.id.bottomNaviStudy -> {
+                            fabStudyWrite.show()
+                            childFragmentManager.commit {
+                                setReorderingAllowed(true)
+                                replace<StudyFragment>(R.id.containerBottomNavi)
+                                addToBackStack(FragmentName.STUDY.str)
                             }
                         }
-                        childFragmentManager.commit {
-                            setReorderingAllowed(true)
-                            replace(R.id.containerBottomNavi, notificationFragment)
-                            addToBackStack(FragmentName.NOTI.str)
-                        }
-
-                    }
-                    R.id.bottomNaviMy -> {
-                        fabStudyWrite.hide()
-                        val profileFragment = ProfileFragment().apply {
-                            arguments = Bundle().apply {
-                                putInt("userIdx", prefs.getInt("currentUserIdx"))
+                        R.id.bottomNaviHeart -> {
+                            fabStudyWrite.hide()
+                            childFragmentManager.commit {
+                                setReorderingAllowed(true)
+                                replace<FavoriteFragment>(R.id.containerBottomNavi)
+                                addToBackStack(FragmentName.FAVORITE.str)
                             }
                         }
-                        childFragmentManager.commit {
-                            setReorderingAllowed(true)
-                            replace(R.id.containerBottomNavi, profileFragment)
-                            addToBackStack(FragmentName.PROFILE.str)
+                        R.id.bottomNaviNotification -> {
+                            fabStudyWrite.hide()
+                            val notificationFragment = NotificationFragment().apply {
+                                arguments = Bundle().apply {
+                                    putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
+                                }
+                            }
+                            childFragmentManager.commit {
+                                setReorderingAllowed(true)
+                                replace(R.id.containerBottomNavi, notificationFragment)
+                                addToBackStack(FragmentName.NOTI.str)
+                            }
+
+                        }
+                        R.id.bottomNaviMy -> {
+                            fabStudyWrite.hide()
+                            val profileFragment = ProfileFragment().apply {
+                                arguments = Bundle().apply {
+                                    putInt("userIdx", prefs.getInt("currentUserIdx"))
+                                }
+                            }
+                            childFragmentManager.commit {
+                                setReorderingAllowed(true)
+                                replace(R.id.containerBottomNavi, profileFragment)
+                                addToBackStack(FragmentName.PROFILE.str)
+                            }
                         }
                     }
+                    currentNavItemIndex = newNavItemIndex
+                    true
                 }
-                currentNavItemIndex = newNavItemIndex
-                true
             }
         }
 
