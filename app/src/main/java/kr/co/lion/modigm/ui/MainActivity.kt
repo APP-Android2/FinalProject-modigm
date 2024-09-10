@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -73,5 +76,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun isChromeOS(context: Context): Boolean {
         return context.packageManager.hasSystemFeature("org.chromium.arc.device_management")
+    }
+
+    //화면 아무곳이나 터치하면 소프트키가 사라짐
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (currentFocus != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+            currentFocus!!.clearFocus()
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }
