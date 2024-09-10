@@ -88,27 +88,35 @@ class WriteViewModel : ViewModel() {
         val userIdx = prefs.getInt("currentUserIdx", 0)
 
         // _writeDataMap에 저장된 데이터들을 추출하여 StudyData 객체로 변환
-        val studyTitle = _writeDataMap.value?.get("studyTitle") as? String
-        val studyContent = _writeDataMap.value?.get("studyContent") as? String
-        val studyType = _writeDataMap.value?.get("studyType") as? String
-        val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String
-        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String
-        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String
-        val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String
-        val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int
-        val studyPic = _writeDataMap.value?.get("studyPic") as? String
-        val studyTechStackList =
-            _writeDataMap.value?.get("studyTechStackList") as? List<Int>
-        // null 값이 존재하는지 검사하는 부분
-        if (studyTitle == null || studyContent == null || studyType == null || studyPeriod == null ||
-            studyOnOffline == null || studyPlace == null || studyDetailPlace == null ||
-            studyMaxMember == null || studyPic == null || studyTechStackList == null) {
-
-            val errorMessage = "필수 입력값 중 누락된 데이터가 있습니다."
-            Log.e(logTag, "writeStudyData: $errorMessage")
-            _writeStudyDataError.postValue(Throwable(errorMessage))  // 에러 전달
-            return null
+        val studyType = _writeDataMap.value?.get("studyType") as? String ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("스터디 타입을 입력해주세요!"))
         }
+        val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("스터디 기간을 입력해주세요!"))
+        }
+        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("온라인/오프라인 여부를 입력해주세요!"))
+        }
+        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("스터디 장소를 입력해주세요!"))
+        }
+        val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("스터디 상세 장소를 입력해주세요!"))
+        }
+        val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("최대 인원수를 입력해주세요!"))
+        }
+        val studyTechStackList = _writeDataMap.value?.get("studyTechStackList") as? List<Int> ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("기술 스택을 입력해주세요!"))
+        }
+        val studyPic = _writeDataMap.value?.get("studyPic") as? String ?: ""
+        val studyTitle = _writeDataMap.value?.get("studyTitle") as? String ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("스터디 제목을 입력해주세요!"))
+        }
+        val studyContent = _writeDataMap.value?.get("studyContent") as? String ?: return null.also {
+            _writeStudyDataError.postValue(Throwable("스터디 내용을 입력해주세요!"))
+        }
+
         // StudyData 객체 생성
         val studyData = StudyData(
             studyTitle = studyTitle,
@@ -133,8 +141,9 @@ class WriteViewModel : ViewModel() {
                 userIdx = userIdx,
                 study = studyData,
                 studyTechStack = studyTechStackList,
-                studyPicUrl = studyPic
+                studyPicUrl = _writeDataMap.value?.get("studyPic") as? String ?: ""
             )
+
         Log.d(logTag, "writeStudyData: 스터디 데이터 업로드 시작 - result: $result")
 
         return result.getOrNull()

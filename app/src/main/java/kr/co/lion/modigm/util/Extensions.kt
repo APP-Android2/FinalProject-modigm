@@ -26,12 +26,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import kr.co.lion.modigm.databinding.CustomSnackbarWithIconBinding
 import kr.co.lion.modigm.databinding.CustomSnackbarWithoutIconBinding
 import java.util.Locale

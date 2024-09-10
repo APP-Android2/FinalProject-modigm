@@ -34,7 +34,6 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.shake
 import java.io.File
 import kotlin.random.Random
 
@@ -204,7 +203,9 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
 
         viewModel.writeStudyDataError.observe(viewLifecycleOwner) { error ->
-            showErrorDialog()
+            if (error != null) {
+                showErrorDialog(error)
+            }
         }
     }
 
@@ -219,7 +220,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             fun showError(message: String) {
                 textInputLayoutWriteIntroTitle.error = message
                 textInputWriteIntroTitle.requestFocus()
-                textInputWriteIntroTitle.shake()
             }
             return when {
                 textInputWriteIntroTitle.text.toString().length < 8 -> {
@@ -240,7 +240,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             fun showError(message: String) {
                 textInputLayoutWriteIntroContent.error = message
                 textInputWriteIntroContent.requestFocus()
-                textInputWriteIntroContent.shake()
             }
             return when {
                 textInputWriteIntroContent.text.toString().length < 10 -> {
@@ -502,11 +501,11 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     // 오류 다이얼로그 표시
-    private fun showErrorDialog() {
+    private fun showErrorDialog(error: Throwable) {
         val dialog = CustomLoginErrorDialog(requireContext())
         with(dialog){
             setTitle("오류")
-            setMessage("모두 작성해 주세요!")
+            setMessage(error.message.toString())
             setPositiveButton("확인") {
                 dismiss()
             }
