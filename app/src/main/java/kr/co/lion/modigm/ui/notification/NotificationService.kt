@@ -57,6 +57,9 @@ class NotificationService : FirebaseMessagingService(){
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId = System.currentTimeMillis().toInt()
 
+        // 알림 그룹 ID 설정
+        val groupKey = "com.example.APP_NOTIFICATION_GROUP"
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
@@ -82,7 +85,7 @@ class NotificationService : FirebaseMessagingService(){
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // 플래그 수정
         )
-
+        // 개별 알림 생성
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(body)
@@ -90,8 +93,21 @@ class NotificationService : FirebaseMessagingService(){
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setGroup(groupKey) // 그룹 설정
+
+        // 그룹 요약 알림 생성
+        val summaryNotification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("스터디 알림")
+            .setContentText("새로운 알림이 있습니다.")
+            .setSmallIcon(R.drawable.logo_modigm)
+            .setStyle(NotificationCompat.InboxStyle()
+                .addLine(body)
+                .setSummaryText("스터디 알림"))
+            .setGroup(groupKey)
+            .setGroupSummary(true) // 요약 알림 설정
 
         notificationManager.notify(notificationId, notificationBuilder.build())
+        notificationManager.notify(0, summaryNotification.build()) // 요약 알림 ID는 고정된 값 사용
     }
 
     companion object {
