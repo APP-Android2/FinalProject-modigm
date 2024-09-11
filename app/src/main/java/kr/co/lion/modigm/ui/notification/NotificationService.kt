@@ -94,12 +94,6 @@ class NotificationService : FirebaseMessagingService(){
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
 
-
-    override fun onNewToken(token: String) {
-        Log.d(TAG, "Refreshed token: $token")
-        // 서버에 새 토큰을 전송하거나 처리하는 로직 추가
-    }
-
     companion object {
         private const val TAG = "MyFirebaseMessagingService"
         private const val CHANNEL_ID = "default_channel_id"

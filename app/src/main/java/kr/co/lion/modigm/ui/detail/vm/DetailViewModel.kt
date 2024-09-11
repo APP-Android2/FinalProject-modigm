@@ -253,6 +253,14 @@ class DetailViewModel: ViewModel() {
                 return@launch
             }
 
+            // 신청자의 사용자 정보 가져오기
+            val applyUserData = detailRepository.getUserById(userIdx).firstOrNull()
+
+            if (applyUserData == null) {
+                Log.e("DetailViewModel", "Failed to fetch applicant user data for userIdx: $userIdx")
+                return@launch
+            }
+
             // 기존 신청이 없는 경우 신청 진행
             val success = if (applyMethod == "선착순") {
                 detailRepository.addUserToStudy(studyIdx, userIdx)
@@ -274,7 +282,7 @@ class DetailViewModel: ViewModel() {
                     val writerFcmToken = detailRepository.getUserFcmToken(writerUserIdx)
                     if (writerFcmToken != null) {
                         val writerTitle = "새로운 스터디 신청"
-                        val writerBody = "${_userData.value?.userName}님이 ${studyData?.studyTitle} 스터디에 신청했습니다."
+                        val writerBody = "${applyUserData.userName}님이 ${studyData?.studyTitle} 스터디에 신청했습니다."
                         val result = FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody,studyIdx)
 
                         if (result) {
