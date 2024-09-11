@@ -1,20 +1,29 @@
 package kr.co.lion.modigm.ui
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.ActivityMainBinding
+import kr.co.lion.modigm.databinding.CustomDialogBinding
+import kr.co.lion.modigm.databinding.CustomDialogNotificationPermissionBinding
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.notification.CustomNotificationPermissionDialog
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -22,6 +31,19 @@ class MainActivity : AppCompatActivity() {
     // 바인딩
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
+
+    // 권한 요청 결과 처리기
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.d("MainActivity", "알림 권한이 허용되었습니다.")
+            // 푸시 알림을 수신하고 배지를 표시하는 로직 추가 가능
+        } else {
+            Log.d("MainActivity", "알림 권한이 거부되었습니다.")
+            // 알림 권한이 거부되었을 때의 처리 로직 추가 가능
+        }
+    }
 
     // --------------------------------- LC START ---------------------------------
 
@@ -47,6 +69,34 @@ class MainActivity : AppCompatActivity() {
             setReorderingAllowed(true)
             replace<LoginFragment>(R.id.containerMain)
         }
+
+        // 알림 권한 요청
+        checkNotificationPermission()
+    }
+
+    // 권한 요청 메서드
+    private fun checkNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("MainActivity", "Notification permission already granted.")
+        } else {
+            showCustomPermissionDialog()
+        }
+    }
+
+    private fun showCustomPermissionDialog() {
+        val dialog = CustomNotificationPermissionDialog(this)
+        dialog.show(
+            onAllowClicked = {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            },
+            onDenyClicked = {
+                Log.d("MainActivity", "User denied notification permission.")
+            }
+        )
     }
 
     override fun onDestroy() {
