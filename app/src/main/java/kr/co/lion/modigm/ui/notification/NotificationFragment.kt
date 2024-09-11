@@ -99,9 +99,8 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun deleteNotification(notification: NotificationData) {
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             val result = viewModel.deleteNotification(notification) // MySQL에서 삭제
-
             if (result) {
                 viewModel.refreshNotifications(userIdx) // RecyclerView 갱신
                 checkAndUpdateAllReadStatus() // 모든 알림 삭제 후 상태 업데이트
@@ -112,11 +111,11 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun checkAndUpdateAllReadStatus() {
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val notifications = viewModel.getNotifications(userIdx) // 알림 목록 가져오기
+        lifecycleScope.launch {
+            val notifications = viewModel.getNotifications(userIdx)
             if (notifications.isEmpty()) {
-                setAllNotificationsRead() // 알림이 없을 경우 모두 읽음으로 설정
-                clearBadgeOnBottomNavigation() // 알림이 없을 때 배지를 지움
+                setAllNotificationsRead()
+                clearBadgeOnBottomNavigation()
             }
         }
     }
@@ -170,14 +169,8 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun markNotificationAsRead(notification: NotificationData) {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val result = viewModel.markNotificationAsRead(notification.notificationIdx) // 서버에 읽음 상태 업데이트
-
-            if (result) {
-                viewModel.refreshNotifications(userIdx) // RecyclerView 갱신
-            }
+        lifecycleScope.launch {
+            viewModel.markNotificationAsRead(notification.notificationIdx) // 서버에 읽음 상태 업데이트
         }
     }
 

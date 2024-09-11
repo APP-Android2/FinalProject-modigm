@@ -47,8 +47,16 @@ class NotificationViewModel : ViewModel() {
     }
 
     // 특정 알림을 읽음으로 표시하는 메서드
-    suspend fun markNotificationAsRead(notificationIdx: Int): Boolean {
-        return repository.markNotificationAsRead(notificationIdx)
+    fun markNotificationAsRead(notificationIdx: Int) {
+        viewModelScope.launch {
+            val result = repository.markNotificationAsRead(notificationIdx)
+            if (result) {
+                // 읽음 상태 변경 후 상태 업데이트
+                _notifications.value = _notifications.value.map {
+                    if (it.notificationIdx == notificationIdx) it.copy(isNew = false) else it
+                }
+            }
+        }
     }
 
     // 모든 알림을 읽음으로 표시하는 메서드
