@@ -165,8 +165,14 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
             // 작성 버튼
             buttonWriteIntroNext.apply {
+
                 // 버튼 비활성화
                 isEnabled = false
+                // 입력 데이터가 모두 존재할 경우
+                if(textInputWriteIntroTitle.text.toString() != "" && textInputWriteIntroContent.text.toString() != "") {
+                    // 버튼 활성화
+                    isEnabled = true
+                }
                 // 클릭 시
                 setOnClickListener {
                     // 클릭 시 입력 유효성 검사
@@ -213,7 +219,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 글작성 소개 유효성 검사
     private fun checkAllInput(): Boolean {
-        return checkStudyTitle()&& checkStudyContent()
+        return checkStudyTitle() && checkStudyContent()
     }
 
     // 스터디 제목 유효성 검사
@@ -259,7 +265,22 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     // 유효성 검사 및 버튼 활성화/비활성화 업데이트
     private val inputWatcher = object : TextWatcher {
         // 입력 내용 변경 전
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            with(binding) {
+
+                // 스터디 제목 길이가 8자 이상일 경우
+                if (textInputWriteIntroTitle.text.toString().length >= 8) {
+                    // 스터디 제목 에러 메시지 초기화
+                    textInputLayoutWriteIntroTitle.error = null
+                }
+
+                // 스터디 내용 길이가 10자 이상일 경우
+                if (textInputWriteIntroContent.text.toString().length >= 10) {
+                    // 스터디 내용 에러 메시지 초기화
+                    textInputLayoutWriteIntroContent.error = null
+                }
+            }
+        }
 
         // 입력 내용 변경 시
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -294,7 +315,21 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             }
 
         }
-        override fun afterTextChanged(p0: Editable?) {}
+        override fun afterTextChanged(p0: Editable?) {
+            with(binding) {
+                // 스터디 제목 길이가 8자 이상일 경우
+                if (textInputWriteIntroTitle.text.toString().length >= 8) {
+                    // 스터디 제목 에러 메시지 초기화
+                    textInputLayoutWriteIntroTitle.error = null
+                }
+
+                // 스터디 내용 길이가 10자 이상일 경우
+                if (textInputWriteIntroContent.text.toString().length >= 10) {
+                    // 스터디 내용 에러 메시지 초기화
+                    textInputLayoutWriteIntroContent.error = null
+                }
+            }
+        }
     }
 
 
