@@ -74,10 +74,20 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     // 확인할 권한 목록
-    private val permissionList = arrayOf(
-        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-        android.Manifest.permission.ACCESS_MEDIA_LOCATION
-    )
+    private val permissionList: Array<String> by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // API 29 이상일 때만 ACCESS_MEDIA_LOCATION 권한 요청
+            arrayOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.ACCESS_MEDIA_LOCATION
+            )
+        } else {
+            // 그 이하에서는 ACCESS_MEDIA_LOCATION 제외
+            arrayOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+    }
 
     // 이미지를 첨부한 적이 있는지
     private var isAddPicture = false
@@ -97,6 +107,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         // 데이터 복원 함수 호출
         restoreInputData()
         // 초기 뷰 설정
+        Log.d(logTag,"이건가?")
         initView()
         // 뷰모델 관찰
         observeViewModel()
@@ -166,12 +177,14 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             // 작성 버튼
             buttonWriteIntroNext.apply {
 
-                // 버튼 비활성화
-                isEnabled = false
+
                 // 입력 데이터가 모두 존재할 경우
-                if(textInputWriteIntroTitle.text.toString() != "" && textInputWriteIntroContent.text.toString() != "") {
+                isEnabled = if(textInputWriteIntroTitle.text.toString() != "" && textInputWriteIntroContent.text.toString() != "") {
                     // 버튼 활성화
-                    isEnabled = true
+                    true
+                }else {
+                    // 버튼 비활성화
+                    false
                 }
                 // 클릭 시
                 setOnClickListener {
@@ -191,6 +204,16 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                     )
                     Log.d(logTag, "스터디 내용 저장됨: ${textInputWriteIntroContent.text.toString()}")
 
+                    // 글작성 전체 데이터 유효성 검사
+                    val hi = viewModel.checkAllData()
+                    if(hi != null) {
+                        Log.d(logTag, "${hi.message}")
+                        return@setOnClickListener
+                    } else {
+                        Log.d(logTag, "신난다")
+                        return@setOnClickListener
+                    }
+
                     // 이미지 업로드 및 데이터 저장
                     uploadImageAndSaveData { studyIdx ->
                         // 상세 프래그먼트로 이동
@@ -202,14 +225,8 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     private fun observeViewModel() {
-        // 이미지 URI 데이터 복원
-        (viewModel.getUpdateData("studyPic") as? String)?.let { uriString ->
-            contentUri = Uri.parse(uriString).also {
-                loadImageIntoImageView(it)
-                isAddPicture = true
-            }
-        }
 
+        // 글작성 에러
         viewModel.writeStudyDataError.observe(viewLifecycleOwner) { error ->
             if (error != null) {
                 showErrorDialog(error)
@@ -393,7 +410,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     // 이미지 회전 각도 가져오기
     private fun getDegree(uri: Uri): Int {
         val context = requireContext()
-        var exifInterface: ExifInterface? = null
+        val exifInterface: ExifInterface
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val inputStream = context.contentResolver.openInputStream(uri)!!
@@ -402,7 +419,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             exifInterface = ExifInterface(uri.path!!)
         }
 
-        exifInterface?.let {
+        exifInterface.let {
             val ori = it.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1)
             val degree = when (ori) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> 90
@@ -413,8 +430,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             Log.d(logTag, "getDegree: 이미지 회전 각도 - $degree")
             return degree
         }
-
-        return 0
     }
 
     // 비트맵 회전

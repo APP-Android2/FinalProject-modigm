@@ -79,8 +79,7 @@ class WriteViewModel : ViewModel() {
         }
     }
 
-    // 스터디 데이터 업로드 에러
-    private val _writeStudyDataError = MutableLiveData<Throwable?>()
+    private val _writeStudyDataError = MutableLiveData<Throwable?>(null)
     val writeStudyDataError: LiveData<Throwable?> = _writeStudyDataError
 
     // 스터디 데이터 업로드
@@ -88,34 +87,17 @@ class WriteViewModel : ViewModel() {
         val userIdx = prefs.getInt("currentUserIdx", 0)
 
         // _writeDataMap에 저장된 데이터들을 추출하여 StudyData 객체로 변환
-        val studyType = _writeDataMap.value?.get("studyType") as? String ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("스터디 타입을 입력해주세요!"))
-        }
-        val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("스터디 기간을 입력해주세요!"))
-        }
-        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("온라인/오프라인 여부를 입력해주세요!"))
-        }
-        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("스터디 장소를 입력해주세요!"))
-        }
-        val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("스터디 상세 장소를 입력해주세요!"))
-        }
-        val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("최대 인원수를 입력해주세요!"))
-        }
-        val studyTechStackList = _writeDataMap.value?.get("studyTechStackList") as? List<Int> ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("기술 스택을 입력해주세요!"))
-        }
+        val studyTitle = _writeDataMap.value?.get("studyTitle") as? String ?: ""
+        val studyContent = _writeDataMap.value?.get("studyContent") as? String ?: ""
+        val studyType = _writeDataMap.value?.get("studyType") as? String ?: ""
+        val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String ?: ""
+        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String ?: ""
+        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String ?: ""
+        val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String ?: ""
+        val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int ?: 0
         val studyPic = _writeDataMap.value?.get("studyPic") as? String ?: ""
-        val studyTitle = _writeDataMap.value?.get("studyTitle") as? String ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("스터디 제목을 입력해주세요!"))
-        }
-        val studyContent = _writeDataMap.value?.get("studyContent") as? String ?: return null.also {
-            _writeStudyDataError.postValue(Throwable("스터디 내용을 입력해주세요!"))
-        }
+        val studyTechStackList =
+            _writeDataMap.value?.get("studyTechStackList") as? List<Int> ?: listOf()
 
         // StudyData 객체 생성
         val studyData = StudyData(
@@ -164,6 +146,34 @@ class WriteViewModel : ViewModel() {
         _selectedTabPosition.postValue(0)
         _writeStudyDataError.postValue(null)
         _techStackData.postValue(emptyList())
+
         Log.d(logTag, "clearData: 데이터 초기화 완료")
+    }
+
+    fun checkAllData(): Throwable? {
+        val requiredFields = listOf(
+            "studyType" to "스터디 타입",
+            "studyPeriod" to "스터디 기간",
+            "studyOnOffline" to "스터디 온라인/오프라인 여부",
+            "studyPlace" to "스터디 장소",
+            "studyDetailPlace" to "스터디 상세 장소",
+            "studyMaxMember" to "스터디 최대 인원",
+            "studyTechStackList" to "스터디 기술 스택",
+            "studyTitle" to "스터디 제목",
+            "studyContent" to "스터디 내용"
+        )
+
+        // 필수 필드 중 값이 비어있거나 null인 경우 해당 메시지를 담은 Throwable 반환
+        requiredFields.forEach { (key, fieldName) ->
+            val value = _writeDataMap.value?.get(key)
+            when {
+                value == null -> return Throwable("$fieldName 값이 누락되었습니다.")
+                value is String && value.isBlank() -> return Throwable("$fieldName 값이 비어있습니다.")
+                value is List<*> && value.isEmpty() -> return Throwable("$fieldName 값이 비어있습니다.")
+                value is Int && value == 0 -> return Throwable("$fieldName 값이 0입니다.")
+            }
+        }
+
+        return null  // 모든 필드가 유효할 경우 null 반환
     }
 }

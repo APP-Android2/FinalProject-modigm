@@ -27,11 +27,6 @@ class RemoteWriteStudyDao {
     private val TAG = "RemoteWriteStudyDao"
     private var context: Context? = null
 
-    // Context 설정
-    fun setContext(context: Context) {
-        this.context = context
-    }
-
     // 이미지 업로드 함수 (Amazon S3에 업로드)
     suspend fun uploadImageToS3(context: Context, uri: Uri): String {
         // URI로부터 실제 파일 경로를 얻음
