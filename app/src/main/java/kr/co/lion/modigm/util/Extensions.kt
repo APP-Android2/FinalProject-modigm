@@ -93,7 +93,7 @@ fun Activity.showLoginSnackBar(message: String, iconResId: Int?) {
     // Snackbar 레이아웃 파라미터 설정
     (snackBar.view.layoutParams as FrameLayout.LayoutParams).apply {
         width = FrameLayout.LayoutParams.MATCH_PARENT
-        height = FrameLayout.LayoutParams.WRAP_CONTENT
+        height = 48.dp
         gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         bottomMargin = 80.dp
         snackBar.view.layoutParams = this
