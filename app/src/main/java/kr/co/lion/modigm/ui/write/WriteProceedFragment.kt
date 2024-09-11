@@ -67,7 +67,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                 removeAllViews()
 
                 // 이전에 저장한 값
-                val studyOnOffline = viewModel.getUpdateData("studyOnOffline")
+                val studyOnOffline = viewModel.getUpdateData("studyOnOffline") ?: "오프라인"  // studyOnOffline 값이 null이면 "오프라인"으로 설정
                 val studyPlace = viewModel.getUpdateData("studyPlace")
                 val studyDetailPlace = viewModel.getUpdateData("studyDetailPlace")
                 val studyMaxMember = viewModel.getUpdateData("studyMaxMember")
@@ -81,8 +81,8 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                 // 장소선택 가시성 설정
                 setPlaceSelectionListener()
 
-                // studyOnOffline 값에 따라 칩 선택. null이면 선택 안함
-                studyOnOffline?.let { selectedValue ->
+                // studyOnOffline 값에 따라 칩 선택. 기본값은 "오프라인"
+                studyOnOffline.let { selectedValue ->
                     children.forEach { view ->
                         if (view is Chip) {
                             if (view.text == selectedValue) {
@@ -191,7 +191,11 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
     private fun nextButton() {
         with(binding) {
             with(buttonWriteProceedNext) {
+
                 setOnClickListener {
+
+                    // 버튼 비활성화
+                    isEnabled = false
 
                     // 온오프라인 방식으로 분기
                     // 선택된 칩을 찾고, 그 텍스트를 studyOnOffline에 저장
@@ -203,8 +207,10 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                     val studyPlace = viewModel.getUpdateData("studyPlace")
                     val studyDetailPlace = viewModel.getUpdateData("studyDetailPlace")
 
-                    when (selectedChip?.text.toString()) {
+                    when (studyOnOffline) {
                         "온라인" -> {
+                            // 버튼 활성화
+                            isEnabled = true
 
                             if(!checkMaxMember()){
                                 requireActivity().showLoginSnackBar("입력되지 않은 항목이 있습니다.", null)
@@ -215,6 +221,8 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                             viewModel.updateSelectedTab(3)
                         }
                         "오프라인", "온·오프 혼합" -> {
+                            // 버튼 활성화
+                            isEnabled = true
 
                             if (!checkAllInput()) {
                                 requireActivity().showLoginSnackBar("입력되지 않은 항목이 있습니다.", null)
