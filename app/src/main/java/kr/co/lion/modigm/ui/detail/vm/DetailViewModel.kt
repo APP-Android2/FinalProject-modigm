@@ -7,9 +7,6 @@ import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,11 +20,7 @@ import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.DetailRepository
 import kr.co.lion.modigm.repository.StudyRepository
-import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.notification.FCMService
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 
 class DetailViewModel: ViewModel() {
 
@@ -282,7 +275,7 @@ class DetailViewModel: ViewModel() {
                     if (writerFcmToken != null) {
                         val writerTitle = "새로운 스터디 신청"
                         val writerBody = "${_userData.value?.userName}님이 ${studyData?.studyTitle} 스터디에 신청했습니다."
-                        val result = FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody)
+                        val result = FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody,studyIdx)
 
                         if (result) {
                             Log.d("DetailViewModel", "Notification sent successfully to writerUserIdx: $writerUserIdx")
@@ -321,7 +314,7 @@ class DetailViewModel: ViewModel() {
             val userFcmToken = detailRepository.getUserFcmToken(userIdx)
 
             if (userFcmToken != null) {
-                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
                 if (result) {
                     Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
 
@@ -351,7 +344,7 @@ class DetailViewModel: ViewModel() {
             if (userFcmToken != null) {
                 val title = "신청 거절"
                 val body = "귀하의 신청이 $studyTitle 스터디에서 거절되었습니다."
-                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
 
                 if (result) {
                     Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
@@ -381,7 +374,7 @@ class DetailViewModel: ViewModel() {
             if (userFcmToken != null) {
                 val title = "신청 승인"
                 val body = "귀하의 신청이 $studyTitle 스터디에서 승인되었습니다."
-                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
 
                 if (result) {
                     Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
@@ -410,7 +403,7 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
         if (userFcmToken != null) {
             val title = "스터디 탈퇴 알림"
             val body = "$studyTitle 스터디에서 내보내졌습니다."
-            val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body)
+            val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
 
             if (result) {
                 Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
