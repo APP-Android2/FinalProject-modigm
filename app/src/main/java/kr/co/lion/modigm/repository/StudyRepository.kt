@@ -16,9 +16,9 @@ class StudyRepository() {
      * 전체 스터디 목록을 가져오는 메소드 (좋아요 여부 포함)
      * @return Result<List<Triple<SqlStudyData, Int, Boolean>>> 조회된 스터디 데이터를 반환
      */
-    suspend fun getAllStudyData(): Result<List<Triple<StudyData, Int, Boolean>>> {
+    suspend fun getAllStudyData(userIdx: Int): Result<List<Triple<StudyData, Int, Boolean>>> {
         return runCatching {
-            remoteStudyDataSource.getAllStudyData().getOrThrow()
+            remoteStudyDataSource.getAllStudyData(userIdx).getOrThrow()
         }.onFailure { e ->
             Log.e(logTag, "전체 스터디 목록 조회 중 오류 발생: ${e.message}", e)
             Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
@@ -86,9 +86,9 @@ class StudyRepository() {
     /**
      * 필터링된 전체 스터디 목록 가져오기
      */
-    suspend fun getFilteredAllStudyList(filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
+    suspend fun getFilteredAllStudyList(userIdx: Int, filter: FilterStudyData): Result<List<Triple<StudyData, Int, Boolean>>> {
         return runCatching {
-            remoteStudyDataSource.getFilteredStudyList(filter).getOrThrow()
+            remoteStudyDataSource.getFilteredStudyList(userIdx, filter).getOrThrow()
         }.onFailure { e ->
             Log.e(logTag, "필터링된 스터디 목록 조회 중 오류 발생: ${e.message}", e)
             Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)

@@ -87,7 +87,7 @@ class StudyViewModel : ViewModel() {
     fun getAllStudyData() {
         viewModelScope.launch {
             _isLoading.postValue(true) // 로딩 시작
-            val result = studyRepository.getAllStudyData()
+            val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
             }.onFailure {
@@ -121,7 +121,7 @@ class StudyViewModel : ViewModel() {
     fun refreshAllStudyData() {
         viewModelScope.launch {
             _isRefreshing.postValue(true) // 스와이프 리프레시 로딩 시작
-            val result = studyRepository.getAllStudyData()
+            val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
             }.onFailure {
@@ -180,7 +180,7 @@ class StudyViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.postValue(true) // 로딩 시작
             newFilterData.let { filter ->
-                val result = studyRepository.getFilteredAllStudyList(filter)
+                val result = studyRepository.getFilteredAllStudyList(getCurrentUserIdx(), filter)
                 result.onSuccess {
                     _filterAllStudyData.postValue(it)
                     _isFilterApplied.postValue(true) // 필터가 적용되었음을 표시

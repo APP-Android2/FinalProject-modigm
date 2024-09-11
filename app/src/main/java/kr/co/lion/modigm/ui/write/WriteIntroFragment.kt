@@ -175,11 +175,14 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                         return@setOnClickListener
                     }
                     // 스터디 제목 업데이트
-                    viewModel.updateWriteData("studyTitle", textInputWriteIntroTitle.text.toString())
+                    viewModel.updateWriteData(
+                        key = "studyTitle",
+                        value = textInputWriteIntroTitle.text.toString())
                     // 스터디 내용 업데이트
-                    viewModel.updateWriteData("studyContent", System.lineSeparator().let {
-                        textInputWriteIntroContent.text.toString().replace(it, "\\n")
-                    })
+                    viewModel.updateWriteData(
+                        key = "studyContent",
+                        value = System.lineSeparator().let { textInputWriteIntroContent.text.toString().replace(it, "\\n") }
+                    )
                     Log.d(logTag, "스터디 내용 저장됨: ${textInputWriteIntroContent.text.toString()}")
 
                     // 이미지 업로드 및 데이터 저장
@@ -196,7 +199,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         // 이미지 URI 데이터 복원
         (viewModel.getUpdateData("studyPic") as? String)?.let { uriString ->
             contentUri = Uri.parse(uriString).also {
-                Log.d(logTag, "observeViewModel: 이미지 URI 복원 - $uriString")
                 loadImageIntoImageView(it)
                 isAddPicture = true
             }
