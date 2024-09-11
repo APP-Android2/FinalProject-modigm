@@ -13,11 +13,22 @@ class NotificationViewModel : ViewModel() {
     private val _notifications = MutableStateFlow<List<NotificationData>>(emptyList())
     val notifications: StateFlow<List<NotificationData>> get() = _notifications
 
+    // 로딩 상태를 관리하는 StateFlow
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     // 데이터를 가져오는 함수
     fun fetchNotifications(userIdx: Int) {
         viewModelScope.launch {
-            val data = repository.getNotifications(userIdx) // 데이터베이스에서 데이터를 가져오는 메서드
-            _notifications.value = data
+            _isLoading.value = true // 로딩 시작
+            try {
+                val data = repository.getNotifications(userIdx) // 데이터베이스에서 데이터를 가져오는 메서드
+                _notifications.value = data
+            } catch (e: Exception) {
+                // 에러 처리 로직
+            } finally {
+                _isLoading.value = false // 로딩 종료
+            }
         }
     }
 
