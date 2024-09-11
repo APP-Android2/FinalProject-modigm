@@ -2,6 +2,7 @@ package kr.co.lion.modigm.ui
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -22,6 +23,7 @@ import kr.co.lion.modigm.databinding.ActivityMainBinding
 import kr.co.lion.modigm.databinding.CustomDialogBinding
 import kr.co.lion.modigm.databinding.CustomDialogNotificationPermissionBinding
 import kr.co.lion.modigm.db.HikariCPDataSource
+import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.notification.CustomNotificationPermissionDialog
 
@@ -72,7 +74,49 @@ class MainActivity : AppCompatActivity() {
 
         // 알림 권한 요청
         checkNotificationPermission()
+
+        // 알림을 통해 진입한 경우 처리
+        handleNotificationIntent()
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent) // 인텐트를 업데이트하여 최신 데이터를 가져옴
+        handleNotificationIntent() // 알림에서 전달된 데이터를 처리
+    }
+
+    private fun handleNotificationIntent() {
+        if (intent.getBooleanExtra("fromNotification", false)) {
+            val studyIdx = intent.getIntExtra("studyIdx", -1)
+            Log.d("MainActivity", "handleNotificationIntent: Received studyIdx = $studyIdx")
+
+            if (studyIdx != -1) {
+                // 현재 활성화된 프래그먼트 확인
+                val currentFragment = supportFragmentManager.findFragmentById(R.id.containerMain)
+
+                // DetailFragment가 이미 표시되어 있는지 확인하고, 같은 studyIdx를 가리키는지 체크
+                if (currentFragment is DetailFragment && currentFragment.arguments?.getInt("studyIdx") == studyIdx) {
+                    Log.d("MainActivity", "DetailFragment already displayed with the same studyIdx.")
+                    return // 이미 같은 프래그먼트가 표시 중이므로 중복 이동 방지
+                }
+
+                // DetailFragment로 이동
+                val detailFragment = DetailFragment().apply {
+                    arguments = Bundle().apply {
+                        putInt("studyIdx", studyIdx)
+                    }
+                }
+
+                // 프래그먼트 트랜잭션 실행
+                supportFragmentManager.commit {
+                    setReorderingAllowed(true)
+                    replace(R.id.containerMain, detailFragment, "DetailFragment")
+                    addToBackStack("DetailFragment")
+                }
+            }
+        }
+    }
+
 
     // 권한 요청 메서드
     private fun checkNotificationPermission() {
