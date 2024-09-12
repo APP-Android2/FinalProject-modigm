@@ -61,8 +61,12 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         binding.textInputLayoutJoinUserPhone.error = ""
 
         binding.buttonJoinPhoneAuth.setOnClickListener {
+            joinStep2ViewModel.showLoading()
             // 전화번호 유효성 검사 먼저 한 후
-            if(!joinStep2ViewModel.checkPhoneValidation()) return@setOnClickListener
+            if(!joinStep2ViewModel.checkPhoneValidation()){
+                joinStep2ViewModel.hideLoading()
+                return@setOnClickListener
+            }
 
             // 응답한 전화번호로 인증번호 SMS 보내기
             joinStep2ViewModel.sendCode(requireActivity())
@@ -72,6 +76,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
     private fun settingCollector(){
         // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
         collectWhenStarted(joinStep2ViewModel.isCodeSent) {
+            joinStep2ViewModel.hideLoading()
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
                 binding.textinputJoinPhoneAuth.requestFocus()

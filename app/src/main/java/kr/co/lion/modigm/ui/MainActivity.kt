@@ -8,20 +8,18 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.ActivityMainBinding
-import kr.co.lion.modigm.databinding.CustomDialogBinding
-import kr.co.lion.modigm.databinding.CustomDialogNotificationPermissionBinding
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
@@ -167,5 +165,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun isChromeOS(context: Context): Boolean {
         return context.packageManager.hasSystemFeature("org.chromium.arc.device_management")
+    }
+
+    //화면 아무곳이나 터치하면 소프트키가 사라짐
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (currentFocus != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+            currentFocus!!.clearFocus()
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }
