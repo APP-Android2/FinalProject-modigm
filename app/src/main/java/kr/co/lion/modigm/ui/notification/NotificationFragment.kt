@@ -6,24 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.badge.BadgeUtils
-import com.google.android.material.badge.ExperimentalBadgeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentNotificationBinding
@@ -85,6 +74,20 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
                 }
             }
         }
+
+        // 로딩 상태 관찰
+        lifecycleScope.launchWhenStarted {
+            viewModel.isLoading.collect { isLoading ->
+                showLoading(isLoading)
+            }
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        // 로딩 중에는 프로그래스 바만 표시하고, 다른 모든 뷰는 숨김
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.recyclerviewNotification.visibility = if (isLoading) View.GONE else View.VISIBLE
+        binding.blankLayoutNotification.visibility = if (isLoading) View.GONE else View.VISIBLE // 로딩 중에는 빈 레이아웃 숨김
     }
 
     private fun clearBadgeOnBottomNavigation() {
@@ -96,9 +99,8 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun deleteNotification(notification: NotificationData) {
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             val result = viewModel.deleteNotification(notification) // MySQL에서 삭제
-
             if (result) {
                 viewModel.refreshNotifications(userIdx) // RecyclerView 갱신
                 checkAndUpdateAllReadStatus() // 모든 알림 삭제 후 상태 업데이트
@@ -109,11 +111,11 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun checkAndUpdateAllReadStatus() {
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val notifications = viewModel.getNotifications(userIdx) // 알림 목록 가져오기
+        lifecycleScope.launch {
+            val notifications = viewModel.getNotifications(userIdx)
             if (notifications.isEmpty()) {
-                setAllNotificationsRead() // 알림이 없을 경우 모두 읽음으로 설정
-                clearBadgeOnBottomNavigation() // 알림이 없을 때 배지를 지움
+                setAllNotificationsRead()
+                clearBadgeOnBottomNavigation()
             }
         }
     }
@@ -167,14 +169,8 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun markNotificationAsRead(notification: NotificationData) {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val result = viewModel.markNotificationAsRead(notification.notificationIdx) // 서버에 읽음 상태 업데이트
-
-            if (result) {
-                viewModel.refreshNotifications(userIdx) // RecyclerView 갱신
-            }
+        lifecycleScope.launch {
+            viewModel.markNotificationAsRead(notification.notificationIdx) // 서버에 읽음 상태 업데이트
         }
     }
 

@@ -36,6 +36,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomSnackbarWithIconBinding
 import kr.co.lion.modigm.databinding.CustomSnackbarWithoutIconBinding
@@ -100,7 +101,7 @@ fun Activity.showLoginSnackBar(message: String, iconResId: Int?) {
     // Snackbar 레이아웃 파라미터 설정
     (snackBar.view.layoutParams as FrameLayout.LayoutParams).apply {
         width = FrameLayout.LayoutParams.MATCH_PARENT
-        height = 48.dp
+        height = FrameLayout.LayoutParams.WRAP_CONTENT
         gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         bottomMargin = 80.dp
         snackBar.view.layoutParams = this
@@ -144,7 +145,7 @@ fun View.shake() {
 }
 
 // StateFlow값 collect하는 확장함수
-fun <T> LifecycleOwner.collectWhenStarted(flow: Flow<T>, action: suspend (value: T) -> Unit) {
+fun <T> LifecycleOwner.collectWhenStarted(flow: StateFlow<T>, action: suspend (value: T) -> Unit) {
     lifecycleScope.launch {
         flow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect(action)
     }

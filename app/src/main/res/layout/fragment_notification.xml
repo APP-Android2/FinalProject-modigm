@@ -8,6 +8,15 @@
     android:background="@color/white"
     tools:context=".ui.study.FavoriteFragment">
 
+    <!-- ProgressBar 추가 -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/pointColor"
+        android:visibility="gone" /> <!-- 기본적으로 감춰둠 -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

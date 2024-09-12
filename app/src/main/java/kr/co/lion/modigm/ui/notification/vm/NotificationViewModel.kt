@@ -13,11 +13,22 @@ class NotificationViewModel : ViewModel() {
     private val _notifications = MutableStateFlow<List<NotificationData>>(emptyList())
     val notifications: StateFlow<List<NotificationData>> get() = _notifications
 
+    // 로딩 상태를 관리하는 StateFlow
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     // 데이터를 가져오는 함수
     fun fetchNotifications(userIdx: Int) {
         viewModelScope.launch {
-            val data = repository.getNotifications(userIdx) // 데이터베이스에서 데이터를 가져오는 메서드
-            _notifications.value = data
+            _isLoading.value = true // 로딩 시작
+            try {
+                val data = repository.getNotifications(userIdx) // 데이터베이스에서 데이터를 가져오는 메서드
+                _notifications.value = data
+            } catch (e: Exception) {
+                // 에러 처리 로직
+            } finally {
+                _isLoading.value = false // 로딩 종료
+            }
         }
     }
 
@@ -36,8 +47,16 @@ class NotificationViewModel : ViewModel() {
     }
 
     // 특정 알림을 읽음으로 표시하는 메서드
-    suspend fun markNotificationAsRead(notificationIdx: Int): Boolean {
-        return repository.markNotificationAsRead(notificationIdx)
+    fun markNotificationAsRead(notificationIdx: Int) {
+        viewModelScope.launch {
+            val result = repository.markNotificationAsRead(notificationIdx)
+            if (result) {
+                // 읽음 상태 변경 후 상태 업데이트
+                _notifications.value = _notifications.value.map {
+                    if (it.notificationIdx == notificationIdx) it.copy(isNew = false) else it
+                }
+            }
+        }
     }
 
     // 모든 알림을 읽음으로 표시하는 메서드
