@@ -208,7 +208,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         viewModel.autoLoginError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
                 hideLoginLoading()
-                requireActivity().showLoginSnackBar(e.message.toString(), null)
+//                requireActivity().showLoginSnackBar(e.message.toString(), null)
             }
         }
     }
