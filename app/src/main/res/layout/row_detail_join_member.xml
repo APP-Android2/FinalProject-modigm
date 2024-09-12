@@ -40,15 +40,27 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textViewDetailJoinKick"
+    <!-- 클릭 영역을 넓히기 위해 FrameLayout으로 감싸기 -->
+    <FrameLayout
+        android:id="@+id/layoutDetailJoinKick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14dp"
-        android:textColor="#EC6B6B"
-        android:textStyle="bold"
+        android:padding="14dp"
         android:layout_marginStart="16dp"
         android:layout_gravity="center"
-        android:text=""/>
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- 실제 TextView -->
+        <TextView
+            android:id="@+id/textViewDetailJoinKick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:textColor="#EC6B6B"
+            android:textStyle="bold"
+            android:text="cccccccc" />
+
+    </FrameLayout>
 
 </LinearLayout>
