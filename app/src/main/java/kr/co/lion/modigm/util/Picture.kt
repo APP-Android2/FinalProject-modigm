@@ -4,11 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.widget.ImageView
 import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.io.FileOutputStream
 

@@ -58,6 +58,10 @@ class LoginViewModel : ViewModel() {
     private val _emailLoginError = MutableLiveData<Throwable?>()
     val emailLoginError: LiveData<Throwable?> = _emailLoginError
 
+    // 자동 로그인 에러를 담는 LiveData
+    private val _autoLoginError = MutableLiveData<Throwable?>()
+    val autoLoginError: LiveData<Throwable?> = _autoLoginError
+
     // 현재 사용자의 인덱스를 가져오는 함수
     private fun getCurrentUserIdx(): Int {
         return prefs.getInt("currentUserIdx")
@@ -194,6 +198,7 @@ class LoginViewModel : ViewModel() {
                         JoinType.KAKAO.provider  -> _kakaoLoginResult.postValue(false)
                         JoinType.EMAIL.provider  -> _emailAutoLoginResult.postValue(false)
                     }
+                    _autoLoginError.postValue(e)
                 }
             }
         }
