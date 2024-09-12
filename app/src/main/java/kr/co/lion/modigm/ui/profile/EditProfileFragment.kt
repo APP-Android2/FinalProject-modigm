@@ -11,9 +11,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
@@ -92,10 +96,46 @@ class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseF
     }
 
     private fun setupButtonChangePic() {
-        binding.imageEditProfileChangePic.setOnClickListener {
+        binding.imageEditProfileChangePic.setOnClickListener { view ->
+            // 드롭다운 표시
+            showDropdownPhotoOrAlbum(view)
+
             // 사진 및 앨범을 선택하는 바텀시트
-            val bottomSheet = ProfilepicBottomSheetFragment(this)
-            bottomSheet.show(childFragmentManager, bottomSheet.tag)
+//            val bottomSheet = ProfilepicBottomSheetFragment(this)
+//            bottomSheet.show(childFragmentManager, bottomSheet.tag)
+        }
+    }
+
+    private fun showDropdownPhotoOrAlbum(anchorView: View) {
+        // 팝업 윈도우의 레이아웃을 설정
+        val popupView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_profilepic_dropdown, null)
+
+        // 팝업 윈도우 객체 생성
+        val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        // 배경을 설정해야 그림자가 적용됨 (반드시 배경이 있어야 함)
+        popupWindow.setBackgroundDrawable(AppCompatResources.getDrawable(requireContext(), android.R.drawable.dialog_holo_light_frame))
+
+        // 팝업 윈도우 외부를 터치하면 닫히도록 설정
+        popupWindow.isOutsideTouchable = true
+        popupWindow.isFocusable = true
+
+        // 팝업 윈도우를 anchorView 아래에 표시
+        popupWindow.showAsDropDown(anchorView, -20, 0)
+        popupWindow.elevation = 10f
+
+        // 팝업 안의 아이템 클릭 리스너 설정
+        val item1: LinearLayout = popupView.findViewById(R.id.layoutDropdownPhoto)
+        val item2: LinearLayout = popupView.findViewById(R.id.layoutDropdownAlbum)
+
+        item1.setOnClickListener {
+            // 아이템 1이 클릭되었을 때의 처리
+            popupWindow.dismiss()
+        }
+
+        item2.setOnClickListener {
+            // 아이템 2가 클릭되었을 때의 처리
+            popupWindow.dismiss()
         }
     }
 
