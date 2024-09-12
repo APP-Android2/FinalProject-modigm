@@ -70,7 +70,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
         // 기본 이미지로 초기화
-        binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+        binding.imageViewDetailUserPic.setImageResource(R.drawable.image_default_profile)
 
         viewModel.clearData() // ViewModel 데이터 초기화
 
@@ -209,7 +209,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                     // 데이터가 없을 경우 기본 설정
                     binding.textViewDetailUserName.text = "알수없는 사용자"
                     Glide.with(this@DetailFragment)
-                        .load(R.drawable.icon_account_circle)
+                        .load(R.drawable.image_default_profile)
                         .into(binding.imageViewDetailUserPic)
                     Log.e("DetailFragment", "No user data available")
                 }
@@ -271,13 +271,13 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                     .apply(
                         RequestOptions()
                             .placeholder(R.drawable.image_loading_gray)
-                            .error(R.drawable.icon_account_circle)
+                            .error(R.drawable.image_default_profile)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .skipMemoryCache(true)
                     )
                     .into(binding.imageViewDetailUserPic)
             } else {
-                binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+                binding.imageViewDetailUserPic.setImageResource(R.drawable.image_default_profile)
                 binding.imageViewDetailUserPic.invalidate()
                 binding.imageViewDetailUserPic.requestLayout()
             }

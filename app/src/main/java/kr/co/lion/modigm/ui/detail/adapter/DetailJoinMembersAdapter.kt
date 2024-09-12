@@ -77,14 +77,14 @@ class DetailJoinMembersAdapter(
                     .apply(
                         RequestOptions()
                             .placeholder(R.drawable.image_loading_gray)
-                            .error(R.drawable.icon_account_circle)
+                            .error(R.drawable.image_default_profile)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .skipMemoryCache(true)
                     )
                     .into(binding.imageViewDetailJoinMember)
             } else {
                 // 이미지 URL이 없을 때 기본 이미지 설정
-                binding.imageViewDetailJoinMember.setImageResource(R.drawable.icon_account_circle)
+                binding.imageViewDetailJoinMember.setImageResource(R.drawable.image_default_profile)
             }
         }
 
