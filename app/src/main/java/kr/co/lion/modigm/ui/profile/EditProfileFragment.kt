@@ -166,7 +166,7 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
     private fun setupToolbar() {
         binding.toolbarEditProfile.apply {
             setNavigationOnClickListener {
-                requireActivity().supportFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack()
             }
         }
     }
@@ -267,14 +267,14 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
                     when (currentUserProvider) {
                         // 이메일 로그인인 경우
                         JoinType.EMAIL.provider -> {
-                            requireActivity().supportFragmentManager.commit {
+                            parentFragmentManager.commit {
                                 add(R.id.containerMain, ChangePhoneEmailFragment())
                                 addToBackStack(FragmentName.CHANGE_PHONE_EMAIL.str)
                             }
                         }
                         // 소셜 로그인인 경우
                         else -> {
-                            requireActivity().supportFragmentManager.commit {
+                            parentFragmentManager.commit {
                                 add(R.id.containerMain, ChangePhoneSocialFragment())
                                 addToBackStack(FragmentName.CHANGE_PHONE_SOCIAL.str)
                             }
@@ -324,7 +324,7 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
             snackbar.show()
 
             // 이전 프래그먼트로 돌아간다
-            requireActivity().supportFragmentManager.popBackStack()
+            parentFragmentManager.popBackStack()
         }
     }
 
