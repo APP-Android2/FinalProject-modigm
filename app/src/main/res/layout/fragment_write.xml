@@ -23,7 +23,8 @@
         android:progress="20"
         android:progressTint="@color/pointColor"
         app:trackColor="@color/white"
-        android:indeterminate="false"/>
+        android:indeterminate="false"
+        app:trackStopIndicatorSize="0dp"/>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutWrite"

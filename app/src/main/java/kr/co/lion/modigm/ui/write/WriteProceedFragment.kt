@@ -38,6 +38,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initView()
 
@@ -65,6 +66,11 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
         with(binding) {
             with(chipGroupWriteType) {
                 removeAllViews()
+                // 처음 접근 시 값이 없을 경우 오프라인으로 설정
+                if(viewModel.getUpdateData("studyOnOffline") == null || viewModel.getUpdateData("studyOnOffline").toString() == ""){
+                    viewModel.updateWriteData("studyOnOffline", "오프라인")
+                }
+
 
                 // 이전에 저장한 값
                 val studyOnOffline = viewModel.getUpdateData("studyOnOffline") ?: "오프라인"  // studyOnOffline 값이 null이면 "오프라인"으로 설정
@@ -254,8 +260,8 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                     viewModel.updateWriteData("studyOnOffline", studyOnOffline)
 
                     if (studyOnOffline == "온라인") { // "온라인"이 선택된 경우
-                        viewModel.updateWriteData("studyPlace", "")
-                        viewModel.updateWriteData("studyDetailPlace", "")
+                        viewModel.updateWriteData("studyPlace", null)
+                        viewModel.updateWriteData("studyDetailPlace", null)
                     }
                     updateButtonColor()
                 }

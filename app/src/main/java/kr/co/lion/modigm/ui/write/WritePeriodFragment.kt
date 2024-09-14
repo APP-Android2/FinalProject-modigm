@@ -25,9 +25,6 @@ class WritePeriodFragment :
         observeViewModel()
     }
 
-    // 선택된 기간
-    private var selectPeriod: String? = null
-
     private fun initView() {
         with(binding) {
             // 스피너 설정
@@ -57,15 +54,11 @@ class WritePeriodFragment :
                         position: Int,
                         id: Long
                     ) {
-                        if (position == 0) {
-                            selectPeriod = null
-                        } else {
-                            selectPeriod = spinnerItemList[position]
-                            selectPeriod?.let {
-                                val selectPeriodItem = it.replace(" ", "")
-                                // 선택된 값을 ViewModel에 저장
-                                viewModel.updateWriteData("studyPeriod", selectPeriodItem)
-                            }
+                        val selectedPeriod = if (position == 0) null else spinnerItemList[position]
+                        // ViewModel에 선택한 기간 저장
+                        selectedPeriod?.let {
+                            val selectPeriodItem = it.replace(" ", "")
+                            viewModel.updateWriteData("studyPeriod", selectPeriodItem)
                         }
                         updateButtonColor()
                     }
@@ -80,7 +73,7 @@ class WritePeriodFragment :
             with(buttonWritePeriodNext) {
                 setOnClickListener {
                     // 유효성 검사
-                    if (selectPeriod == "기간 선택"){
+                    if (viewModel.getUpdateData("studyPeriod") == null) {
                         return@setOnClickListener
                     }
                     viewModel.updateSelectedTab(2)
@@ -91,51 +84,53 @@ class WritePeriodFragment :
 
     // 버튼의 색상을 업데이트하는 함수
     private fun updateButtonColor() {
-        with(binding){
-            val colorResId = if (selectPeriod != null) R.color.pointColor else R.color.buttonGray
+        val isPeriodSelected = viewModel.getUpdateData("studyPeriod") != null
+        val colorResId = if (isPeriodSelected) R.color.pointColor else R.color.buttonGray
+        with(binding) {
             buttonWritePeriodNext.apply {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             }
-
         }
 
     }
 
     // ViewModel의 데이터를 관찰하는 함수
     private fun observeViewModel() {
-        // studyPeriod 데이터가 변경되면 스피너의 선택값을 갱신
-        val savedPeriod = viewModel.getUpdateData("studyPeriod")?.toString()
-        selectPeriod = when (savedPeriod) {
-            "1개월이하" -> "1개월 이하"
-            "2개월이하" -> "2개월 이하"
-            "3개월이하" -> "3개월 이하"
-            "4개월이하" -> "4개월 이하"
-            "5개월이하" -> "5개월 이하"
-            "6개월미만" -> "6개월 미만"
-            "6개월이상" -> "6개월 이상"
-            else -> null
-        }
 
-        // 스피너를 ViewModel에서 가져온 데이터로 업데이트
-        updateSpinnerSelection(selectPeriod)
+
+        viewModel.writeDataMap.observe(viewLifecycleOwner) { dataMap ->
+            val savedPeriod = dataMap?.get("studyPeriod")?.toString()
+            val period = when (savedPeriod) {
+                "1개월이하" -> "1개월 이하"
+                "2개월이하" -> "2개월 이하"
+                "3개월이하" -> "3개월 이하"
+                "4개월이하" -> "4개월 이하"
+                "5개월이하" -> "5개월 이하"
+                "6개월미만" -> "6개월 미만"
+                "6개월이상" -> "6개월 이상"
+                else -> null
+            }
+            // 스피너 값을 ViewModel 데이터에 따라 초기화
+            updateSpinnerSelection(period)
+        }
     }
 
     // 스피너 선택값을 업데이트하는 함수
     private fun updateSpinnerSelection(period: String?) {
+        val periodList = listOf(
+            "기간 선택",
+            "1개월 이하",
+            "2개월 이하",
+            "3개월 이하",
+            "4개월 이하",
+            "5개월 이하",
+            "6개월 미만",
+            "6개월 이상"
+        )
         with(binding) {
-            spinnerWritePeriod.apply {
-                when (period) {
-                    "1개월 이하" -> setSelection(1)
-                    "2개월 이하" -> setSelection(2)
-                    "3개월 이하" -> setSelection(3)
-                    "4개월 이하" -> setSelection(4)
-                    "5개월 이하" -> setSelection(5)
-                    "6개월 미만" -> setSelection(6)
-                    "6개월 이상" -> setSelection(7)
-                    else -> setSelection(0)
-                }
-            }
+            val selectedPosition = periodList.indexOf(period).takeIf { it >= 0 } ?: 0
+            spinnerWritePeriod.setSelection(selectedPosition)
         }
     }
 }

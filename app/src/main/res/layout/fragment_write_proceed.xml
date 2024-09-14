@@ -61,6 +61,9 @@
                         android:focusable="false"
                         android:hint="장소 입력"
                         android:inputType="textMultiLine"
+                        android:maxLines="5"
+                        android:minLines="1"
+                        android:ellipsize="end"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 

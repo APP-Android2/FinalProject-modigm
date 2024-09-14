@@ -34,7 +34,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kr.co.lion.modigm.R
