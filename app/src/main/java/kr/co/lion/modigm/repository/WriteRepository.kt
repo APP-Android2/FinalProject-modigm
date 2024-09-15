@@ -9,9 +9,9 @@ import kr.co.lion.modigm.model.StudyData
 class WriteRepository {
     private val writeStudyDataSource = RemoteWriteStudyDataSource()
 
-    suspend fun uploadStudyData(userIdx: Int, study: StudyData, studyTechStack: List<Int>, studyPicUrl: String?): Result<Int?> {
+    suspend fun uploadStudyData(studyData: StudyData, studyTechStack: List<Int>): Result<Int?> {
         return runCatching {
-            writeStudyDataSource.uploadStudyData(userIdx, study, studyTechStack, studyPicUrl).getOrThrow()
+            writeStudyDataSource.uploadStudyData(studyData, studyTechStack).getOrThrow()
         }.onFailure { e ->
             Log.e("WriteStudyRepository Error", "Error uploadStudyData: ${e.message}")
             Result.failure<Int?>(e)

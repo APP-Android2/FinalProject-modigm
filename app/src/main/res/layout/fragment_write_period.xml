@@ -48,7 +48,7 @@
         android:layout_marginBottom="20dp"
         android:backgroundTint="@color/buttonGray"
         android:text="다음"
-        android:textColor="@color/textGray"
+        android:textColor="@color/white"
         android:textSize="14dp"/>
 
 

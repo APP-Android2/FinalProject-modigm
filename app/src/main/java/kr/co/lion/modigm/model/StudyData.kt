@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.model
 
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 data class StudyData(
@@ -75,6 +76,22 @@ data class StudyData(
                 resultSet.getBoolean("studyState"),
                 resultSet.getInt("userIdx"),
             )
+        }
+
+        // StudyData 객체를 PreparedStatement에 매핑하는 함수
+        fun setPreparedStatement(statement: PreparedStatement, studyData: StudyData) {
+            // StudyData 객체의 데이터를 Map 형태로 변환
+            val params = studyData.toMap().values.toList()
+
+            // 각 데이터를 PreparedStatement에 할당
+            params.forEachIndexed { index, value ->
+                when (value) {
+                    is String -> statement.setString(index + 1, value)
+                    is Int -> statement.setInt(index + 1, value)
+                    is Boolean -> statement.setBoolean(index + 1, value)
+                    else -> throw IllegalArgumentException("Unsupported type: ${value::class.simpleName}")
+                }
+            }
         }
     }
 }

@@ -61,6 +61,9 @@
                         android:focusable="false"
                         android:hint="장소 입력"
                         android:inputType="textMultiLine"
+                        android:maxLines="5"
+                        android:minLines="1"
+                        android:ellipsize="end"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -101,7 +104,7 @@
         android:layout_marginBottom="20dp"
         android:backgroundTint="@color/buttonGray"
         android:text="다음"
-        android:textColor="@color/textGray"
+        android:textColor="@color/white"
         android:textSize="14dp" />
 
 </LinearLayout>

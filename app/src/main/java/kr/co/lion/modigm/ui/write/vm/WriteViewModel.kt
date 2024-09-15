@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.TechStackData
 import kr.co.lion.modigm.repository.StudyRepository
@@ -18,15 +17,44 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class WriteViewModel : ViewModel() {
 
-    private val logTag = "WriteViewModel"  // 로그 태그
+    // --------------------------------------- 초기화 ---------------------------------------
+    //태그
+    private val logTag by lazy { WriteViewModel::class.simpleName } // 로그 태그
 
     // 스터디 Repository
     private val writeRepository by lazy { WriteRepository() }
     private val studyRepository by lazy { StudyRepository() }
+    // --------------------------------------- 초기화 ---------------------------------------
+
+    // --------------------------------------- 공통 ---------------------------------------
+    // 현재 사용자의 인덱스를 가져오는 함수
+    private fun getCurrentUserIdx(): Int {
+        return prefs.getInt("currentUserIdx")
+    }
+    // --------------------------------------- 공통 ---------------------------------------
+
+    // --------------------------------------- 글작성 ---------------------------------------
 
     // 글작성 데이터
     private val _writeDataMap = MutableLiveData<MutableMap<String, Any?>?>(mutableMapOf())
     val writeDataMap: LiveData<MutableMap<String, Any?>?> = _writeDataMap
+
+    // 글작성 에러
+    private val _writeStudyDataError = MutableLiveData<Throwable?>(null)
+    val writeStudyDataError: LiveData<Throwable?> = _writeStudyDataError
+
+    // studyIdx를 관찰하기 위한 LiveData
+    private val _writeStudyIdx = MutableLiveData<Int?>()
+    val writeStudyIdx: LiveData<Int?> = _writeStudyIdx
+
+    // 카메라 촬영, 앨범 사진에서 가져은 Uri
+    private val _contentUri = MutableLiveData<Uri?>()
+    val contentUri: LiveData<Uri?> = _contentUri
+
+    // Uri 업데이트 함수
+    fun updateContentUri(uri: Uri?) {
+        _contentUri.postValue(uri)
+    }
 
     // 글작성 데이터를 업데이트하는 함수
     fun updateWriteData(key: String, value: Any?) {
@@ -43,12 +71,123 @@ class WriteViewModel : ViewModel() {
         return data
     }
 
-    // ---------------------------------------탭 설정---------------------------------------
+    // 스터디 데이터 업로드
+    fun writeStudyData(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userIdx = getCurrentUserIdx()
+
+            // 스터디 기본 정보 추출
+            val studyTitle = _writeDataMap.value?.get("studyTitle") as? String ?: ""
+            val studyContent = _writeDataMap.value?.get("studyContent") as? String ?: ""
+            val studyType = _writeDataMap.value?.get("studyType") as? String ?: ""
+            val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String ?: ""
+            val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String ?: ""
+            val studyPlace = _writeDataMap.value?.get("studyPlace") as? String ?: ""
+            val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String ?: ""
+            val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int ?: 2
+            val studyTechStackList = _writeDataMap.value?.get("studyTechStackList") as? List<Int> ?: listOf()
+
+            // studyPic URI 확인 및 변환
+            val studyPicString = _writeDataMap.value?.get("studyPic") as? String
+            val studyPicUri = studyPicString?.let { Uri.parse(it) }
+
+            // 이미지가 있을 경우 S3에 업로드
+            val studyS3Url = if (studyPicUri != null) {
+                try {
+                    // 이미지 업로드
+                    val uploadResult = writeRepository.uploadImageToS3(context, studyPicUri)
+                    uploadResult.getOrThrow()  // 성공하면 이미지 URL 반환
+                } catch (e: Exception) {
+                    Log.e(logTag, "writeStudyData: 이미지 업로드 실패", e)
+                    _writeStudyDataError.postValue(e)
+                    return@launch  // 실패 시 함수 종료
+                }
+            } else {
+                listOf(
+                    "https://modigm-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_1.jpg",
+                    "https://modigm-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_2.jpg"
+                ).random()
+            }
+
+            // StudyData 객체 생성
+            val studyData = StudyData(
+                studyTitle = studyTitle,
+                studyContent = studyContent,
+                studyType = studyType,
+                studyPeriod = studyPeriod,
+                studyOnOffline = studyOnOffline,
+                studyPlace = studyPlace,
+                studyDetailPlace = studyDetailPlace,
+                studyApplyMethod = "신청제",
+                studyCanApply = "모집중",
+                studyPic = studyS3Url,  // S3에서 업로드된 이미지 URL 사용
+                studyMaxMember = studyMaxMember,
+                studyState = true,
+                userIdx = userIdx
+            )
+
+            Log.d(logTag, "writeStudyData: 스터디 데이터 변환 완료 - studyData: $studyData")
+
+            // 스터디 데이터 업로드
+            val result = writeRepository.uploadStudyData(
+                studyData = studyData,
+                studyTechStack = studyTechStackList
+            )
+
+            result.onSuccess {
+                Log.d(logTag, "writeStudyData: 스터디 데이터 업로드 성공 - studyIdx: $it")
+                _writeStudyIdx.postValue(it)
+            }.onFailure { e ->
+                Log.e(logTag, "writeStudyData: 스터디 데이터 업로드 실패", e)
+                _writeStudyDataError.postValue(e)
+            }
+        }
+    }
+
+    // 전체 데이터 유효성 검사
+    fun checkAllData(): Throwable? {
+        val requiredFields = listOf(
+            "studyType" to "스터디 타입",
+            "studyPeriod" to "스터디 기간",
+            "studyOnOffline" to "스터디 온라인/오프라인 여부",
+            "studyMaxMember" to "스터디 최대 인원",
+            "studyTechStackList" to "스터디 기술 스택",
+            "studyTitle" to "스터디 제목",
+            "studyContent" to "스터디 내용"
+        )
+
+        // 필수 필드 중 값이 비어있거나 null인 경우 해당 메시지를 담은 Throwable 반환
+        requiredFields.forEach { (key, fieldName) ->
+            val value = _writeDataMap.value?.get(key)
+            when {
+                value == null -> return Throwable("$fieldName 을/를 지정해주세요!")
+                value is String && value.isBlank() -> return Throwable("$fieldName 을/를 지정해주세요!")
+                value is List<*> && value.isEmpty() -> return Throwable("$fieldName 을/를 지정해주세요!")
+                value is Int && (value == 0||value == 1) -> return Throwable("$fieldName 이 ${value}명 입니다.")
+            }
+        }
+
+        // 스터디 온/오프라인 여부에 따른 스터디 장소 검증
+        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String
+        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String
+
+        when (studyOnOffline) {
+            "오프라인", "온·오프 혼합" -> {
+                if (studyPlace.isNullOrBlank()) {
+                    return Throwable("스터디 장소를 지정해주세요!")
+                }
+            }
+        }
+        return null  // 모든 필드가 유효할 경우 null 반환
+    }
+    // --------------------------------------- 글작성 ---------------------------------------
+
+    // --------------------------------------- 탭설정 ---------------------------------------
     private val _selectedTabPosition = MutableLiveData(0)
-    val selectedTabPosition: LiveData<Int> get() = _selectedTabPosition
+    val selectedTabPosition: LiveData<Int> = _selectedTabPosition
 
     private val _progressBarState = MutableLiveData(20)
-    val progressBarState: LiveData<Int> get() = _progressBarState
+    val progressBarState: LiveData<Int> = _progressBarState
 
     // 탭 선택 상태 업데이트
     fun updateSelectedTab(position: Int) {
@@ -56,9 +195,9 @@ class WriteViewModel : ViewModel() {
         _selectedTabPosition.value = position
         _progressBarState.value = (position + 1) * 20  // 탭 위치에 따라 프로그래스바 업데이트
     }
+    // --------------------------------------- 탭설정 ---------------------------------------
 
-    // ---------------------------------------탭 설정 끝---------------------------------------
-
+    // -------------------------------------- 바텀 시트 설정 --------------------------------------
     // 기술 스택 데이터 LiveData
     private val _techStackData = MutableLiveData<List<TechStackData>>()
     val techStackData: LiveData<List<TechStackData>> = _techStackData
@@ -78,75 +217,7 @@ class WriteViewModel : ViewModel() {
             }
         }
     }
-
-    // 스터디 데이터 업로드 에러
-    private val _writeStudyDataError = MutableLiveData<Throwable?>()
-    val writeStudyDataError: LiveData<Throwable?> = _writeStudyDataError
-
-    // 스터디 데이터 업로드
-    suspend fun writeStudyData(): Int? {
-        val userIdx = prefs.getInt("currentUserIdx", 0)
-
-        // _writeDataMap에 저장된 데이터들을 추출하여 StudyData 객체로 변환
-        val studyTitle = _writeDataMap.value?.get("studyTitle") as? String
-        val studyContent = _writeDataMap.value?.get("studyContent") as? String
-        val studyType = _writeDataMap.value?.get("studyType") as? String
-        val studyPeriod = _writeDataMap.value?.get("studyPeriod") as? String
-        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String
-        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String
-        val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String
-        val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int
-        val studyPic = _writeDataMap.value?.get("studyPic") as? String
-        val studyTechStackList =
-            _writeDataMap.value?.get("studyTechStackList") as? List<Int>
-        // null 값이 존재하는지 검사하는 부분
-        if (studyTitle == null || studyContent == null || studyType == null || studyPeriod == null ||
-            studyOnOffline == null || studyPlace == null || studyDetailPlace == null ||
-            studyMaxMember == null || studyPic == null || studyTechStackList == null) {
-
-            val errorMessage = "필수 입력값 중 누락된 데이터가 있습니다."
-            Log.e(logTag, "writeStudyData: $errorMessage")
-            _writeStudyDataError.postValue(Throwable(errorMessage))  // 에러 전달
-            return null
-        }
-        // StudyData 객체 생성
-        val studyData = StudyData(
-            studyTitle = studyTitle,
-            studyContent = studyContent,
-            studyType = studyType,
-            studyPeriod = studyPeriod,
-            studyOnOffline = studyOnOffline,
-            studyPlace = studyPlace,
-            studyDetailPlace = studyDetailPlace,
-            studyApplyMethod = "신청제",
-            studyCanApply = "모집중",
-            studyPic = studyPic,
-            studyMaxMember = studyMaxMember,
-            studyState = true,
-            userIdx = userIdx
-        )
-        Log.d(logTag, "writeStudyData: 스터디 데이터 변환 완료 - studyData: $studyData")
-
-        // runCatching으로 업로드 처리
-        val result =
-            writeRepository.uploadStudyData(
-                userIdx = userIdx,
-                study = studyData,
-                studyTechStack = studyTechStackList,
-                studyPicUrl = studyPic
-            )
-        Log.d(logTag, "writeStudyData: 스터디 데이터 업로드 시작 - result: $result")
-
-        return result.getOrNull()
-    }
-
-    // 이미지 업로드
-    suspend fun uploadImageToS3(context: Context, uri: Uri): String {
-        return withContext(Dispatchers.IO) {
-            val result = writeRepository.uploadImageToS3(context, uri)
-            result.getOrThrow() // 성공 시 String 값 반환
-        }
-    }
+    // -------------------------------------- 바텀 시트 설정 --------------------------------------
 
     // 글작성 데이터 초기화
     fun clearData() {
@@ -155,6 +226,9 @@ class WriteViewModel : ViewModel() {
         _selectedTabPosition.postValue(0)
         _writeStudyDataError.postValue(null)
         _techStackData.postValue(emptyList())
+        _writeStudyIdx.postValue(null)
+        _contentUri.postValue(null)
+
         Log.d(logTag, "clearData: 데이터 초기화 완료")
     }
 }

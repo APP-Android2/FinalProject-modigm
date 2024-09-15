@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:text="커버 사진을 선해주세요(필수)"
+                android:text="커버 사진을 선택해주세요 (선택)"
                 android:textSize="18dp"
                 android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
                     app:strokeWidth="2dp">
 
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/cardview_writeIntro_cardCover"
+                        android:id="@+id/imageButtonWriteIntroCoverImage"
                         style="@style/Widget.Material3.MaterialTimePicker.ImageButton"
                         android:layout_width="70dp"
                         android:layout_height="70dp"
@@ -55,7 +55,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardViewCoverImageSelect"
+                    android:id="@+id/cardViewWriteIntroCoverImageSelect"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
                     android:layout_marginStart="10dp"
@@ -67,7 +67,7 @@
                     app:strokeWidth="2dp">
 
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/imageViewCoverImageSelect"
+                        android:id="@+id/imageViewWriteIntroCoverImageSelect"
                         android:layout_width="70dp"
                         android:layout_height="70dp"
                         android:scaleType="centerCrop"
@@ -128,6 +128,8 @@
                     android:gravity="top"
                     android:hint="소개글 입력(최소 10자 이상)"
                     android:inputType="textMultiLine"
+                    android:scrollbars="vertical"
+                    android:nestedScrollingEnabled="false"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -148,7 +150,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:text="다음"
+        android:backgroundTint="@color/buttonGray"
+        android:text="완료"
         android:textColor="@color/white"
         android:textSize="14dp" />
 

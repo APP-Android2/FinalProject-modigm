@@ -1,12 +1,11 @@
 package kr.co.lion.modigm.ui.login
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
+import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
@@ -20,6 +19,7 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.shake
+import kr.co.lion.modigm.util.showSoftInput
 
 class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
 
@@ -40,12 +40,9 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
 
     override fun onResume() {
         super.onResume()
-
         // 이메일 텍스트 필드 포커싱 및 소프트키보드 보여주기
-        with(binding.textInputEditOtherEmail) {
-            requestFocus()
-            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+        with(binding) {
+            requireActivity().showSoftInput(textInputEditOtherEmail)
         }
     }
 
@@ -61,8 +58,49 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
         with(binding){
 
             // 실시간 텍스트 변경 감지 설정
-            textInputEditOtherEmail.addTextChangedListener(inputWatcher)
-            textInputEditOtherPassword.addTextChangedListener(inputWatcher)
+            textInputEditOtherEmail.apply{
+                // 텍스트 변경 시
+                addTextChangedListener(inputWatcher)
+
+                // 포커스 변경 시
+                setOnFocusChangeListener { _, hasFocus ->
+                    if (hasFocus) {
+                        // 이메일 필드가 포커스를 받을 때 해당 필드로 스크롤
+                        otherLoginScrollView.smoothScrollTo(0, textViewOtherTitle.top)
+                        requireActivity().showSoftInput(this)
+                    } else {
+                        // 이메일 필드가 포커스를 잃으면 키보드 숨기기
+                        requireActivity().hideSoftInput()
+                    }
+                }
+            }
+            // 비밀번호 입력
+            textInputEditOtherPassword.apply {
+                // 텍스트 변경 시
+                addTextChangedListener(inputWatcher)
+                // 에디터 액션 설정
+                setOnEditorActionListener { _, actionId, _ ->
+                    // 엔터키 입력 시 로그인 시도
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        buttonOtherLogin.performClick() // 로그인 버튼 클릭
+                        true
+                    } else {
+                        false
+                    }
+                }
+                // 포커스 변경 시
+                setOnFocusChangeListener { _, hasFocus ->
+                    if (hasFocus) {
+                        // 비밀번호 필드가 포커스를 받을 때 해당 필드로 스크롤
+                        otherLoginScrollView.smoothScrollTo(0, textViewOtherSecondTitle.top)
+                        requireActivity().showSoftInput(this)
+                    }
+                    if(!hasFocus){
+                        // 비밀번호 필드가 포커스를 잃으면 키보드 숨기기
+                        requireActivity().hideSoftInput()
+                    }
+                }
+            }
 
             // 로그인 버튼 초기값을 비활성화 상태로 설정
             buttonOtherLogin.isEnabled = false
@@ -193,27 +231,23 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
 
     private fun checkEmail(): Boolean {
         with(binding){
-            val emailEditText = textInputEditOtherEmail
-            val emailInputLayout = textInputLayoutOtherEmail
-            val emailText = emailEditText.text.toString()
-
             // 에러 메시지를 설정하고 포커스와 흔들기 동작을 수행하는 함수
             fun showError(message: String) {
-                emailInputLayout.error = message
-                emailEditText.requestFocus()
-                emailEditText.shake()
+                textInputLayoutOtherEmail.error = message
+                textInputEditOtherEmail.requestFocus()
+                textInputEditOtherEmail.shake()
             }
             return when {
-                emailText.isEmpty() -> {
+                textInputEditOtherEmail.text.toString().isEmpty() -> {
                     showError("이메일을 입력해주세요.")
                     false
                 }
-                !isEmailValid(emailText) -> {
+                !isEmailValid(textInputEditOtherEmail.text.toString()) -> {
                     showError("올바른 이메일을 입력해주세요.")
                     false
                 }
                 else -> {
-                    emailInputLayout.error = null
+                    textInputLayoutOtherEmail.error = null
                     true
                 }
             }
@@ -222,27 +256,24 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
 
     private fun checkPassword(): Boolean {
         with(binding) {
-            val passwordEditText = textInputEditOtherPassword
-            val passwordInputLayout = textInputLayoutOtherPassword
-            val passwordText = passwordEditText.text.toString()
 
             // 에러 메시지를 설정하고 포커스와 흔들기 동작을 수행하는 함수
             fun showError(message: String) {
-                passwordInputLayout.error = message
-                passwordEditText.requestFocus()
-                passwordEditText.shake()
+                textInputLayoutOtherPassword.error = message
+                textInputEditOtherPassword.requestFocus()
+                textInputEditOtherPassword.shake()
             }
             return when {
-                passwordText.isEmpty() -> {
+                textInputEditOtherPassword.text.toString().isEmpty() -> {
                     showError("비밀번호를 입력해주세요.")
                     false
                 }
-                !isPasswordValid(passwordText) -> {
+                !isPasswordValid(textInputEditOtherPassword.text.toString()) -> {
                     showError("올바른 비밀번호를 입력해주세요.")
                     false
                 }
                 else -> {
-                    passwordInputLayout.error = null
+                    textInputLayoutOtherPassword.error = null
                     true
                 }
             }
@@ -270,7 +301,8 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
                     !textInputEditOtherEmail.text.isNullOrEmpty() && !textInputEditOtherPassword.text.isNullOrEmpty()
             }
         }
-        override fun afterTextChanged(p0: Editable?) { }
+        override fun afterTextChanged(p0: Editable?) {
+        }
     }
 
     // 로딩 화면 표시
@@ -285,4 +317,5 @@ class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOth
             layoutLoginLoadingBackground.visibility = View.GONE
         }
     }
+
 }

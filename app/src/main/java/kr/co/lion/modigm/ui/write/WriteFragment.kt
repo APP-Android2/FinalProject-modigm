@@ -87,7 +87,7 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
     // 프로그래스바 애니메이션 함수
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
         ObjectAnimator.ofInt(progressBar, "progress", from, to).apply {
-            duration = 200 // 애니메이션 지속 시간 (500ms)
+            duration = 500 // 애니메이션 지속 시간 (500ms)
             interpolator = DecelerateInterpolator() // 자연스러운 감속 애니메이션
             start()
         }
@@ -98,22 +98,7 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
             // 탭 선택 상태 관찰
             viewModel.selectedTabPosition.observe(viewLifecycleOwner) { position ->
                 // 해당 포지션의 탭을 선택
-                val tab = tabLayoutWrite.getTabAt(position)
-                tab?.select()
-
-                // 탭에 따른 프래그먼트 교체
-                val fragment = when (position) {
-                    0 -> WriteTypeFragment()
-                    1 -> WritePeriodFragment()
-                    2 -> WriteProceedFragment()
-                    3 -> WriteTechStackFragment()
-                    4 -> WriteIntroFragment()
-                    else -> WriteTypeFragment()
-                }
-
-                childFragmentManager.commit {
-                    replace(R.id.containerWrite, fragment)
-                }
+                tabLayoutWrite.getTabAt(position)?.select()
             }
 
             // 프로그래스바 상태 관찰
