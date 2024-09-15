@@ -41,8 +41,10 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.profile.ProfileFragment
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Skill
+import kr.co.lion.modigm.util.openWebView
 
 class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBinding::inflate) {
 
@@ -552,6 +554,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             popupView.findViewById<LinearLayout>(R.id.layoutDetailReport)?.visibility = View.VISIBLE
             popupView.findViewById<TextView>(R.id.menuItem4).setOnClickListener {
                 // 신고하기 기능
+                // 고객센터 구글폼 띄우기로 수정 by ms.
+                openWebView(viewLifecycleOwner, parentFragmentManager, Links.SERVICE.url)
                 popupWindow.dismiss()
             }
         }

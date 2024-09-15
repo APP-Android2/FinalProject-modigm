@@ -50,7 +50,7 @@ class StudySearchViewModel : ViewModel() {
     fun getSearchStudyData() {
         viewModelScope.launch {
             _isLoading.postValue(true) // 로딩 시작
-            val result = studyRepository.getAllStudyData()
+            val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _searchStudyData.postValue(it)
             }.onFailure {

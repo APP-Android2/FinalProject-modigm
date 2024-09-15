@@ -24,6 +24,17 @@ class JoinStep2ViewModel @Inject constructor(
     private val _db: JoinUserRepository,
     private val _auth: FirebaseAuth
 ): ViewModel() {
+    // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================
+    val showCallback = MutableStateFlow<(() -> Unit)?>(null)
+    fun showLoading(){
+        showCallback.value?.invoke()
+    }
+
+    val hideCallback = MutableStateFlow<(() -> Unit)?>(null)
+    fun hideLoading(){
+        hideCallback.value?.invoke()
+    }
+
     // ================1. 유효성 검사 관련==============================================================
 
     // 이름

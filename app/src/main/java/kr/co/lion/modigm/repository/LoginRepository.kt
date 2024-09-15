@@ -9,7 +9,7 @@ import kr.co.lion.modigm.db.login.RemoteLoginDataSource
 import kr.co.lion.modigm.model.UserData
 
 class LoginRepository {
-    private val tag by lazy { LoginRepository::class.simpleName }
+    private val logTag by lazy { LoginRepository::class.simpleName }
 
     private val loginDataSource by lazy { RemoteLoginDataSource() }
 
@@ -23,7 +23,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.emailLogin(email, password).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "이메일 로그인 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "이메일 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
         }
     }
@@ -37,7 +37,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.githubLogin(context).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "깃허브 로그인 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "깃허브 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
         }
     }
@@ -51,7 +51,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.kakaoLogin(context).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "카카오 로그인 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "카카오 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
         }
     }
@@ -65,7 +65,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.autoLogin(userIdx).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "자동 로그인 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "자동 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
         }
     }
@@ -79,7 +79,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.getUserDataByUserPhone(userPhone).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "전화번호로 유저 이름과 이메일 조회 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "전화번호로 유저 이름과 이메일 조회 중 오류 발생: ${e.message}", e)
             Result.failure<UserData>(e)
         }
     }
@@ -93,7 +93,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.getUserDataByUserEmail(userEmail).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "이메일로 유저 이름과 전화번호 조회 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "이메일로 유저 이름과 전화번호 조회 중 오류 발생: ${e.message}", e)
             Result.failure<UserData>(e)
         }
     }
@@ -108,7 +108,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.sendPhoneAuthCode(activity, userPhone).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "전화 인증 코드 발송 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "전화 인증 코드 발송 중 오류 발생: ${e.message}", e)
             Result.failure<Triple<String, Any, Any>>(e)
         }
     }
@@ -123,7 +123,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.getEmailByAuthCode(verificationId, authCode).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<String>(e)
         }
     }
@@ -138,7 +138,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.signInByAuthCode(verificationId, authCode).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "인증 코드로 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Boolean>(e)
         }
     }
@@ -152,7 +152,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.updatePassword(newPassword).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "비밀번호 변경 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "비밀번호 변경 중 오류 발생: ${e.message}", e)
             Result.failure<Boolean>(e)
         }
     }
@@ -164,7 +164,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.checkPassword(userPassword).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "비밀번호 재인증 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "비밀번호 재인증 중 오류 발생: ${e.message}", e)
             Result.failure<String>(e)
         }
     }
@@ -176,7 +176,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.reAuthenticateWithKakao(context).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "카카오 재인증 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "카카오 재인증 중 오류 발생: ${e.message}", e)
             Result.failure<String>(e)
         }
     }
@@ -188,7 +188,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.reAuthenticateWithGithub(context).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "깃허브 재인증 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "깃허브 재인증 중 오류 발생: ${e.message}", e)
             Result.failure<String>(e)
         }
     }
@@ -200,7 +200,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.updatePhone(userIdx, currentUserPhone, newUserPhone, verificationId, authCode).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "전화번호 변경 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "전화번호 변경 중 오류 발생: ${e.message}", e)
             Result.failure<Boolean>(e)
         }
     }
@@ -212,7 +212,7 @@ class LoginRepository {
         return runCatching {
             loginDataSource.authLogout().getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "로그아웃 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "로그아웃 중 오류 발생: ${e.message}", e)
             Result.failure<Boolean>(e)
         }
     }

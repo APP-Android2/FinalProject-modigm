@@ -321,8 +321,6 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
                 val snackbar = Snackbar.make(binding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
                 snackbar.show()
 
-                // 프로그래스바 숨기기
-
                 // 이전 프래그먼트로 돌아간다
                 parentFragmentManager.popBackStack()
             }

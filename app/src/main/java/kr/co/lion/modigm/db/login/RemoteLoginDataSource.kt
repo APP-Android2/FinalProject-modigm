@@ -21,7 +21,7 @@ import kotlin.coroutines.resumeWithException
 
 class RemoteLoginDataSource {
 
-    private val tag by lazy { RemoteLoginDataSource::class.simpleName }
+    private val logTag by lazy { RemoteLoginDataSource::class.simpleName }
     private val dao by lazy { RemoteLoginDao() }
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val functions by lazy { FirebaseFunctions.getInstance("asia-northeast3") }
@@ -40,7 +40,7 @@ class RemoteLoginDataSource {
             }
             handleKakaoResponse(token).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "카카오로 로그인 중 오류 발생", e)
+            Log.e(logTag, "카카오로 로그인 중 오류 발생", e)
             Result.failure<Int>(e)
         }
     }
@@ -54,13 +54,13 @@ class RemoteLoginDataSource {
         suspendCancellableCoroutine { cont ->
             UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
                 if (error != null) {
-                    Log.e(tag, "카카오톡 로그인 실패", error)
+                    Log.e(logTag, "카카오톡 로그인 실패", error)
                     cont.resumeWithException(IllegalStateException("카카오톡 로그인 실패: ${error.message}"))
                 } else if (token != null) {
-                    Log.d(tag, "카카오톡 로그인 성공")
+                    Log.d(logTag, "카카오톡 로그인 성공")
                     cont.resume(token)
                 } else {
-                    Log.e(tag, "카카오톡 로그인 실패: 알 수 없는 오류")
+                    Log.e(logTag, "카카오톡 로그인 실패: 알 수 없는 오류")
                     cont.resumeWithException(IllegalStateException("카카오톡 로그인 실패: 알 수 없는 오류"))
                 }
             }
@@ -75,13 +75,13 @@ class RemoteLoginDataSource {
         suspendCancellableCoroutine { cont ->
             UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
                 if (error != null) {
-                    Log.e(tag, "카카오 계정 로그인 실패", error)
+                    Log.e(logTag, "카카오 계정 로그인 실패", error)
                     cont.resumeWithException(IllegalStateException("카카오 계정 로그인 실패: ${error.message}"))
                 } else if (token != null) {
-                    Log.d(tag, "카카오 계정 로그인 성공")
+                    Log.d(logTag, "카카오 계정 로그인 성공")
                     cont.resume(token)
                 } else {
-                    Log.e(tag, "카카오 계정 로그인 실패: 알 수 없는 오류")
+                    Log.e(logTag, "카카오 계정 로그인 실패: 알 수 없는 오류")
                     cont.resumeWithException(IllegalStateException("카카오 계정 로그인 실패: 알 수 없는 오류"))
                 }
             }
@@ -101,11 +101,11 @@ class RemoteLoginDataSource {
                 val uid = user.uid
                 getUserIdxByUserUid(uid).fold(
                     onSuccess = { userIdx ->
-                        Log.d(tag, "카카오 로그인 성공. uid: $uid")
+                        Log.d(logTag, "카카오 로그인 성공. uid: $uid")
                         userIdx
                     },
                     onFailure = { e ->
-                        Log.d(tag, "데이터베이스에 없는 사용자", e)
+                        Log.d(logTag, "데이터베이스에 없는 사용자", e)
                         if (e.message == "해당 유저를 찾을 수 없습니다.") 0 else throw e
                     }
                 )
@@ -113,7 +113,7 @@ class RemoteLoginDataSource {
                 throw IllegalStateException("유효하지 않은 카카오 토큰입니다.")
             }
         }.onFailure { e ->
-            Log.e(tag, "카카오 로그인 응답 처리 중 오류 발생", e)
+            Log.e(logTag, "카카오 로그인 응답 처리 중 오류 발생", e)
             Result.failure<Int>(e)
         }
     }
@@ -128,10 +128,10 @@ class RemoteLoginDataSource {
         return runCatching {
             val result = functions.getHttpsCallable("getKakaoCustomAuth").call(data).await()
             val customToken = result.data as Map<*, *>
-            Log.d(tag, "카카오 커스텀 토큰 획득 성공.")
+            Log.d(logTag, "카카오 커스텀 토큰 획득 성공.")
             customToken["custom_token"] as String
         }.onFailure { e ->
-            Log.e(tag, "카카오 커스텀 토큰 획득 중 오류 발생", e)
+            Log.e(logTag, "카카오 커스텀 토큰 획득 중 오류 발생", e)
             Result.failure<String>(e)
         }
     }
@@ -147,12 +147,12 @@ class RemoteLoginDataSource {
             val result = auth.startActivityForSignInWithProvider(context, provider.build()).await()
             val user = result.user ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             val uid = user.uid
-            Log.d(tag, "Github 로그인 성공. uid: $uid")
+            Log.d(logTag, "Github 로그인 성공. uid: $uid")
             val isNewUser = result.additionalUserInfo?.isNewUser
-            Log.d(tag, "isNewUser: $isNewUser")
+            Log.d(logTag, "isNewUser: $isNewUser")
             if (isNewUser != null && isNewUser == true) 0 else getUserIdxByUserUid(uid).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "깃허브로 로그인 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "깃허브로 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
         }
     }
@@ -167,10 +167,10 @@ class RemoteLoginDataSource {
         return runCatching {
             val result = auth.signInWithEmailAndPassword(email, password).await()
             val uid = result.user?.uid ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
-            Log.d(tag, "Firebase 로그인 성공. uid: $uid")
+            Log.d(logTag, "Firebase 로그인 성공. uid: $uid")
             getUserIdxByUserUid(uid).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "이메일과 비밀번호로 로그인 중 오류 발생", e)
+            Log.e(logTag, "이메일과 비밀번호로 로그인 중 오류 발생", e)
             Result.failure<Int>(e)
         }
     }
@@ -185,13 +185,13 @@ class RemoteLoginDataSource {
             val authUserUid = auth.currentUser?.uid ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             val prefsUserUid = getUserUidByUserIdx(userIdx).getOrThrow()
             if (authUserUid == prefsUserUid) {
-                Log.d(tag, "자동 로그인 성공")
+                Log.d(logTag, "자동 로그인 성공")
                 userIdx
             } else {
                 throw IllegalStateException("사용자 ID가 일치하지 않습니다.")
             }
         }.onFailure { e ->
-            Log.e(tag, "자동 로그인 중 오류 발생", e)
+            Log.e(logTag, "자동 로그인 중 오류 발생", e)
             Result.failure<Int>(e)
         }
     }
@@ -205,7 +205,7 @@ class RemoteLoginDataSource {
         return runCatching {
             dao.selectUserDataByUserIdx(userIdx).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "userIdx로 유저 데이터 조회 중 오류 발생", e)
+            Log.e(logTag, "userIdx로 유저 데이터 조회 중 오류 발생", e)
             Result.failure<UserData>(e)
         }
     }
@@ -219,7 +219,7 @@ class RemoteLoginDataSource {
         return runCatching {
             dao.selectUserIdxByUserUid(userUid).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "userUid로 userIdx 조회 중 오류 발생", e)
+            Log.e(logTag, "userUid로 userIdx 조회 중 오류 발생", e)
             Result.failure<Int>(e)
         }
     }
@@ -233,7 +233,7 @@ class RemoteLoginDataSource {
         return runCatching {
             dao.selectUserDataByUserUid(userUid).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "userUid로 유저 데이터 조회 중 오류 발생", e)
+            Log.e(logTag, "userUid로 유저 데이터 조회 중 오류 발생", e)
             Result.failure<UserData>(e)
         }
     }
@@ -247,7 +247,7 @@ class RemoteLoginDataSource {
         return runCatching {
             dao.selectUserUidByUserIdx(userIdx).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "userIdx로 userUid 조회 중 오류 발생", e)
+            Log.e(logTag, "userIdx로 userUid 조회 중 오류 발생", e)
             Result.failure<String>(e)
         }
     }
@@ -261,7 +261,7 @@ class RemoteLoginDataSource {
         return runCatching {
             dao.selectUserDataByUserPhone(userPhone).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "전화번호로 유저 데이터 조회 중 오류 발생", e)
+            Log.e(logTag, "전화번호로 유저 데이터 조회 중 오류 발생", e)
             Result.failure<UserData>(e)
         }
     }
@@ -275,7 +275,7 @@ class RemoteLoginDataSource {
         return runCatching {
             dao.selectUserDataByUserEmail(userEmail).getOrThrow()
         }.onFailure { e ->
-            Log.e(tag, "이메일로 유저 데이터 조회 중 오류 발생", e)
+            Log.e(logTag, "이메일로 유저 데이터 조회 중 오류 발생", e)
             Result.failure<UserData>(e)
         }
     }
@@ -298,14 +298,14 @@ class RemoteLoginDataSource {
                     .setActivity(activity)
                     .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                            Log.d(tag, "전화번호 인증 완료. credential: $credential")
+                            Log.d(logTag, "전화번호 인증 완료. credential: $credential")
                             if (cont.isActive) {
                                 cont.resume(Triple("", credential, null))
                             }
                         }
 
                         override fun onVerificationFailed(e: com.google.firebase.FirebaseException) {
-                            Log.e(tag, "전화번호 인증코드 발송 중 오류 발생", e)
+                            Log.e(logTag, "전화번호 인증코드 발송 중 오류 발생", e)
                             if (cont.isActive) {
                                 cont.resumeWithException(e)
                             }
@@ -315,7 +315,7 @@ class RemoteLoginDataSource {
                             verificationId: String,
                             token: PhoneAuthProvider.ForceResendingToken
                         ) {
-                            Log.d(tag, "인증 코드 발송. verificationId: $verificationId")
+                            Log.d(logTag, "인증 코드 발송. verificationId: $verificationId")
                             if (cont.isActive) {
                                 cont.resume(Triple(verificationId, null, token))
                             }
@@ -326,7 +326,7 @@ class RemoteLoginDataSource {
                 PhoneAuthProvider.verifyPhoneNumber(options)
             }
         }.onFailure { e ->
-            Log.e(tag, "전화번호 인증코드 발송 중 오류 발생", e)
+            Log.e(logTag, "전화번호 인증코드 발송 중 오류 발생", e)
             Result.failure<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>>(e)
         }
     }
@@ -345,7 +345,7 @@ class RemoteLoginDataSource {
             auth.signOut()
             email
         }.onFailure { e ->
-            Log.e(tag, "인증번호 확인 중 오류 발생", e)
+            Log.e(logTag, "인증번호 확인 중 오류 발생", e)
             Result.failure<String>(e)
         }
     }
@@ -362,7 +362,7 @@ class RemoteLoginDataSource {
             auth.signInWithCredential(credential).await()
             true
         }.onFailure { e ->
-            Log.e(tag, "인증번호 확인 중 오류 발생", e)
+            Log.e(logTag, "인증번호 확인 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
     }
@@ -378,11 +378,11 @@ class RemoteLoginDataSource {
 
             // 비밀번호 변경
             user.updatePassword(newPassword).await()
-            Log.d(tag, "비밀번호 변경 성공")
+            Log.d(logTag, "비밀번호 변경 성공")
 
             true
         }.onFailure { e ->
-            Log.e(tag, "비밀번호 변경 중 오류 발생", e)
+            Log.e(logTag, "비밀번호 변경 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
     }
@@ -399,11 +399,11 @@ class RemoteLoginDataSource {
             // 비밀번호 재인증
             val credential = currentUser.email?.let { EmailAuthProvider.getCredential(it, password) } ?: throw IllegalStateException("로그인한 사용자가 없습니다.")
             currentUser.reauthenticate(credential).await()
-            Log.d(tag, "재인증 성공")
+            Log.d(logTag, "재인증 성공")
             // 현재 로그인한 사용자의 전화번호 가져오기
             currentUser.phoneNumber ?: throw IllegalStateException("로그인한 사용자의 전화번호가 없습니다.")
         }.onFailure { e ->
-            Log.e(tag, "재인증 중 오류 발생", e)
+            Log.e(logTag, "재인증 중 오류 발생", e)
             Result.failure<String>(e)
         }
     }
@@ -423,7 +423,7 @@ class RemoteLoginDataSource {
             val user = auth.currentUser ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             user.phoneNumber ?: throw IllegalStateException("로그인한 사용자의 전화번호가 없습니다.")
         }.onFailure { e ->
-            Log.e(tag, "카카오 재인증 중 오류 발생", e)
+            Log.e(logTag, "카카오 재인증 중 오류 발생", e)
             Result.failure<String>(e)
         }
     }
@@ -437,13 +437,13 @@ class RemoteLoginDataSource {
                 val authResult = auth.signInWithCustomToken(customToken).await()
                 // 로그인한 사용자 가져오기
                 authResult.user ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
-                Log.d(tag, "카카오 재인증 성공.")
+                Log.d(logTag, "카카오 재인증 성공.")
                 true
             } else {
                 throw IllegalStateException("유효하지 않은 카카오 토큰입니다.")
             }
         }.onFailure { e ->
-            Log.e(tag, "카카오 재인증 처리 중 오류 발생", e)
+            Log.e(logTag, "카카오 재인증 처리 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
     }
@@ -459,12 +459,12 @@ class RemoteLoginDataSource {
             val provider = OAuthProvider.newBuilder("github.com")
             // 깃허브 재인증
             auth.currentUser?.startActivityForReauthenticateWithProvider(context, provider.build())?.await()
-            Log.d(tag, "깃허브 재인증 성공.")
+            Log.d(logTag, "깃허브 재인증 성공.")
             // 현재 로그인한 사용자의 전화번호 가져오기
             val user = auth.currentUser ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             user.phoneNumber ?: throw IllegalStateException("로그인한 사용자의 전화번호가 없습니다.")
         }.onFailure { e ->
-            Log.e(tag, "깃허브 재인증 중 오류 발생: ${e.message}", e)
+            Log.e(logTag, "깃허브 재인증 중 오류 발생: ${e.message}", e)
             Result.failure<String>(e)
         }
     }
@@ -494,7 +494,7 @@ class RemoteLoginDataSource {
 
             // 전화번호 변경
             user.updatePhoneNumber(phoneCredential).await()
-            Log.d(tag, "전화번호 변경 성공")
+            Log.d(logTag, "전화번호 변경 성공")
 
             // 전화번호 변경 성공 시 데이터베이스 전화번호 업데이트
             dao.updatePhoneByUserIdx(userIdx, newUserPhone).getOrThrow()
@@ -502,7 +502,7 @@ class RemoteLoginDataSource {
         }.onFailure { e ->
             // 전화번호 변경 실패 시 원래 전화번호로 복구
             dao.updatePhoneByUserIdx(userIdx, currentUserPhone)
-            Log.e(tag, "전화번호 변경 중 오류 발생", e)
+            Log.e(logTag, "전화번호 변경 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
     }
@@ -517,7 +517,7 @@ class RemoteLoginDataSource {
             auth.signOut()
             true
         }.onFailure { e ->
-            Log.e(tag, "로그아웃 중 오류 발생", e)
+            Log.e(logTag, "로그아웃 중 오류 발생", e)
             Result.failure<Boolean>(e)
         }
     }

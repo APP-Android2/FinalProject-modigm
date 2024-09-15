@@ -128,6 +128,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.functions.ktx)
+    implementation(libs.firebase.messaging.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -187,4 +188,9 @@ dependencies {
     // notification
     implementation("com.google.firebase:firebase-messaging:23.1.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.16.0")
+
+    // lottie 애니메이션
+    implementation("com.airbnb.android:lottie:6.5.2")
+
+
 }

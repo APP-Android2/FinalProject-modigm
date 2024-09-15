@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.join
 
 import android.content.Context
-import android.graphics.Paint.Join
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -11,6 +10,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.addCallback
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -30,9 +30,8 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
 import kr.co.lion.modigm.ui.login.LoginFragment
-import kr.co.lion.modigm.ui.study.BottomNaviFragment
-import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.collectWhenStarted
 import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.setCurrentItemWithDuration
@@ -64,6 +63,10 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         // 로그인 상태인 경우 미리 로그아웃 처리해주기
         // 로그인 상태에서 회원가입 진입 후 다시 빠져나올때 로그인된 계정이 파이어베이스 인증에서 삭제될 수 있음
         viewModel.signOut()
+
+        // sms 인증 코드 발송 시 보여줄 프로그래스바 익명함수를 viewModelStep2에 전달
+        viewModelStep2.hideCallback.value = hideLoading
+        viewModelStep2.showCallback.value = showLoading
 
         return binding.root
     }
@@ -404,35 +407,34 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             }
         }
 
-        // 회원가입 완료 시 다음 화면으로 이동
+        // 회원가입 완료 시 완료 화면으로 이동
         collectWhenStarted(viewModel.joinCompleted) { isCompleted ->
             hideLoading()
 
             if(isCompleted){
-                when(viewModel.userProvider.value){
-                    // 이메일 계정 회원가입인 경우에는 로그인 화면으로 돌아오기
-                    JoinType.EMAIL.provider ->{
-                        // 로그아웃 처리
-                        viewModel.signOut()
-                        parentFragmentManager.popBackStack()
-                    }
-                    // SNS 계정인 경우에는 메인으로 넘어가기
-                    else -> {
-                        val bottomNaviFragment = BottomNaviFragment().apply {
-                            arguments = Bundle().apply {
-                                putString("joinType", joinType?.provider)
-                            }
-                        }
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, bottomNaviFragment)
-                            .commit()
+                if(joinType==JoinType.EMAIL){
+                    // 이메일 계정 회원가입인 경우에는 로그아웃 처리
+                    viewModel.signOut()
+                }else{
+                    // SNS 계정 회원가입인 경우에는 자동로그인값 preferences에 저장
+                    prefs.setBoolean("autoLogin", true)
+                }
+                val joinCompleteFragment = JoinCompleteFragment().apply {
+                    arguments = Bundle().apply {
+                        putString("joinType", joinType?.provider)
                     }
                 }
+                // popBackStack에서 name값을 null로 넣어주면 기존의 backstack을 모두 없애준다.
+                parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                // 회원가입 완료 프래그먼트로 이동
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, joinCompleteFragment)
+                    .commit()
             }
         }
     }
 
-    private fun showLoading(){
+    private val showLoading = fun(){
         requireActivity().hideSoftInput()
         binding.layoutLoadingJoin.visibility = View.VISIBLE
         requireActivity().window?.setFlags(
@@ -441,7 +443,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         )
     }
 
-    private fun hideLoading(){
+    private val hideLoading = fun(){
         binding.layoutLoadingJoin.visibility = View.GONE
         requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }

@@ -8,6 +8,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.os.Build
+import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -19,21 +20,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
+import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomSnackbarWithIconBinding
 import kr.co.lion.modigm.databinding.CustomSnackbarWithoutIconBinding
+import kr.co.lion.modigm.ui.profile.ProfileWebFragment
 import java.util.Locale
 
 // dp값으로 변환하는 확장함수
@@ -138,7 +144,7 @@ fun View.shake() {
 }
 
 // StateFlow값 collect하는 확장함수
-fun <T> LifecycleOwner.collectWhenStarted(flow: Flow<T>, action: suspend (value: T) -> Unit) {
+fun <T> LifecycleOwner.collectWhenStarted(flow: StateFlow<T>, action: suspend (value: T) -> Unit) {
     lifecycleScope.launch {
         flow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect(action)
     }
@@ -186,4 +192,40 @@ fun ViewPager2.setCurrentItemWithDuration(
     animator.interpolator = interpolator
     animator.duration = duration
     animator.start()
+}
+
+// 웹뷰 띄워주는 함수
+fun openWebView(viewLifecycleOwner: LifecycleOwner, parentFragmentManager: FragmentManager, url: String){
+    viewLifecycleOwner.lifecycleScope.launch {
+        // bundle 에 필요한 정보를 담는다
+        val bundle = Bundle()
+        bundle.putString("link", url)
+
+        // 이동할 프래그먼트로 bundle을 넘긴다
+        val profileWebFragment = ProfileWebFragment()
+        profileWebFragment.arguments = bundle
+
+        // Fragment 교체
+        parentFragmentManager.commit {
+            add(R.id.containerMain, profileWebFragment)
+            addToBackStack(FragmentName.PROFILE_WEB.str)
+        }
+    }
+}
+
+// 키보드 내림 + 포커스 제거
+fun Activity.hideSoftInput() {
+    // 포커스 있는지 체크
+    window.currentFocus?.let { view ->
+        val inputMethodManager = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager // 키보드 관리 객체 가져옴
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0) // 키보드 내리기
+        view.clearFocus() // 포커스 제거
+    }
+}
+
+// 키보드 올림 + 포커스 설정
+fun Activity.showSoftInput(view: View) {
+    view.requestFocus() // 포커스 설정
+    val inputMethodManager = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager // 키보드 관리 객체 가져옴
+    inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT) // 키보드 올리기
 }
