@@ -24,7 +24,6 @@ import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
-import kotlin.system.exitProcess
 
 class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBottomNaviBinding::inflate), OnRecyclerViewScrollListener {
 
@@ -75,8 +74,8 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 with(binding){
                     if(bottomNavigationView.selectedItemId == R.id.bottomNaviStudy){
                         if (doubleBackToExitPressedOnce) {
-                            requireActivity().finishAffinity()
-                            exitProcess(0) // 앱 프로세스를 완전히 종료
+                            // 여기 광고 띄우기
+                            showExitDialog()
                         } else {
                             doubleBackToExitPressedOnce = true
                             // Snackbar를 표시하여 사용자에게 알림
@@ -94,7 +93,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         }
     }
 
-    // --------------------------------- LC START ---------------------------------
+    // --------------------------------- Lifecycle Start ---------------------------------
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -165,7 +164,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(hideBadgeReceiver)
     }
 
-    // --------------------------------- LC END ---------------------------------
+    // --------------------------------- Lifecycle End ---------------------------------
 
     // 로그인 스낵바를 표시하는 함수
     private fun showLoginSnackBar() {
@@ -305,7 +304,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
     }
 
     // 알림 상태를 보여주는 메서드
-    private val notificationReceiver = object : android.content.BroadcastReceiver() {
+    private val notificationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val showBadge = intent?.getBooleanExtra("showBadge", true) ?: true
             showNotificationBadge(showBadge)
@@ -333,4 +332,8 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         return prefs.getBoolean("hasUnreadNotifications", false)
     }
 
+    private fun showExitDialog() {
+        val dialog = CustomExitDialogFragment()
+        dialog.show(parentFragmentManager, "CustomExitDialog")
+    }
 }

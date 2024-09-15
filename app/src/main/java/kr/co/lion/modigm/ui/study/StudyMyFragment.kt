@@ -60,7 +60,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
     // 스크롤 리스너 인터페이스
     private var scrollListener: OnRecyclerViewScrollListener? = null
 
-    // --------------------------------- LC START ---------------------------------
+    // --------------------------------- Lifecycle Start ---------------------------------
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -98,7 +98,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         scrollListener = null
     }
 
-    // --------------------------------- LC END ---------------------------------
+    // --------------------------------- Lifecycle End ---------------------------------
 
     // 초기 뷰 세팅
     private fun initView() {

@@ -191,5 +191,6 @@ dependencies {
     // lottie 애니메이션
     implementation("com.airbnb.android:lottie:6.5.2")
 
+    implementation("com.google.android.gms:play-services-ads:23.3.0")
 
 }

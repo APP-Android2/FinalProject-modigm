@@ -21,7 +21,7 @@ class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding:
     // 태그
     private val logTag by lazy { StudyFragment::class.simpleName }
 
-    // --------------------------------- LC START ---------------------------------
+    // --------------------------------- Lifecycle Start ---------------------------------
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -49,7 +49,7 @@ class StudyFragment : VBBaseFragment<FragmentStudyBinding>(FragmentStudyBinding:
         }
     }
 
-    // --------------------------------- LC END ---------------------------------
+    // --------------------------------- Lifecycle End ---------------------------------
 
     override fun onRecyclerViewScrolled(dy: Int) {
         scrollListener?.onRecyclerViewScrolled(dy)
