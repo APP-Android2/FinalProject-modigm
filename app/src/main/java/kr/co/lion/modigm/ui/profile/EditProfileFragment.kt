@@ -71,8 +71,6 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
         binding.editProfileViewModel = editProfileViewModel
         binding.lifecycleOwner = this
 
-
-
         return binding.root
     }
 
@@ -181,10 +179,6 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
         binding.imageEditProfileChangePic.setOnClickListener { view ->
             // 드롭다운 표시
             showDropdownPhotoOrAlbum(view)
-
-            // 사진 및 앨범을 선택하는 바텀시트
-//            val bottomSheet = ProfilepicBottomSheetFragment(this)
-//            bottomSheet.show(childFragmentManager, bottomSheet.tag)
         }
     }
 
@@ -315,16 +309,23 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
 
     private fun setupButtonDone() {
         binding.buttonEditProfileDone.setOnClickListener {
+            // 프로그래스바 띄우기
+            binding.layoutEditProfileProgressBar.visibility = View.VISIBLE
+
             // 데이터베이스 업데이트
-            editProfileViewModel.updateUserData(editProfileViewModel.picChanged, requireContext())
-            editProfileViewModel.updateUserLinkData()
+            lifecycleScope.launch {
+                editProfileViewModel.updateUserData(editProfileViewModel.picChanged, requireContext())
+                editProfileViewModel.updateUserLinkData()
 
-            // 스낵바 띄우기
-            val snackbar = Snackbar.make(binding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
-            snackbar.show()
+                // 스낵바 띄우기
+                val snackbar = Snackbar.make(binding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
+                snackbar.show()
 
-            // 이전 프래그먼트로 돌아간다
-            parentFragmentManager.popBackStack()
+                // 프로그래스바 숨기기
+
+                // 이전 프래그먼트로 돌아간다
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 
