@@ -43,9 +43,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     // 태그
     private val logTag by lazy { WriteIntroFragment::class.simpleName }
 
-    // 촬영된 사진이 저장된 경로 정보를 가지고 있는 Uri 객체
-//    private lateinit var contentUri: Uri
-
     // 카메라 실행을 위한 런처
     private val cameraLauncher: ActivityResultLauncher<Intent> by lazy {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -138,6 +135,13 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     private fun initView() {
         with(binding) {
 
+            // 이미지 추가 버튼
+            imageButtonWriteIntroCoverImage.apply {
+                setOnClickListener {
+                    showPopupWindow(it)
+                }
+            }
+
             // 스터디 제목 입력
             textInputWriteIntroTitle.apply {
                 // 텍스트 입력 변경 사항을 관찰
@@ -168,12 +172,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 }
             }
 
-            // 이미지 추가 버튼
-            imageButtonWriteIntroCoverImage.apply {
-                setOnClickListener {
-                    showPopupWindow(it)
-                }
-            }
+
 
             // 작성 예시 버튼
             textViewWriteIntroWriteExample.apply {
@@ -182,6 +181,19 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                     dialog.show()
                 }
             }
+
+            // 오픈채팅 링크 입력
+            textInputWriteIntroLink.apply {
+                // 텍스트 입력 변경 사항을 관찰
+                addTextChangedListener(inputWatcher)
+
+                // 클릭 시
+                setOnClickListener {
+
+                }
+            }
+
+
 
             // 작성 버튼
             buttonWriteIntroNext.apply {
@@ -207,6 +219,11 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                     viewModel.updateWriteData(
                         key = "studyContent",
                         value = System.lineSeparator().let { textInputWriteIntroContent.text.toString().replace(it, "\\n") }
+                    )
+                    // 오픈채팅 링크 업데이트
+                    viewModel.updateWriteData(
+                        key = "studyChatLink",
+                        value = textInputWriteIntroLink.text.toString()
                     )
                     Log.d(logTag, "스터디 내용 저장됨: ${textInputWriteIntroContent.text.toString()}")
 
@@ -240,7 +257,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 showErrorDialog(error)
             }
         }
-
     }
 
     // 글작성 소개 유효성 검사

@@ -86,6 +86,7 @@ class WriteViewModel : ViewModel() {
             val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String ?: ""
             val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int ?: 2
             val studyTechStackList = _writeDataMap.value?.get("studyTechStackList") as? List<Int> ?: listOf()
+            val studyChatLink = _writeDataMap.value?.get("studyChatLink") as? String ?: ""
 
             // studyPic URI 확인 및 변환
             val studyPicString = _writeDataMap.value?.get("studyPic") as? String
@@ -123,6 +124,7 @@ class WriteViewModel : ViewModel() {
                 studyPic = studyS3Url,  // S3에서 업로드된 이미지 URL 사용
                 studyMaxMember = studyMaxMember,
                 studyState = true,
+                studyChatLink = studyChatLink,
                 userIdx = userIdx
             )
 
@@ -153,7 +155,7 @@ class WriteViewModel : ViewModel() {
             "studyMaxMember" to "스터디 최대 인원",
             "studyTechStackList" to "스터디 기술 스택",
             "studyTitle" to "스터디 제목",
-            "studyContent" to "스터디 내용"
+            "studyContent" to "스터디 내용",
         )
 
         // 필수 필드 중 값이 비어있거나 null인 경우 해당 메시지를 담은 Throwable 반환

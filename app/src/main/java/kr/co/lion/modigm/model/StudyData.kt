@@ -17,6 +17,7 @@ data class StudyData(
     val studyPic: String = "",                  // 썸네일 사진
     val studyMaxMember: Int = 0,                // 최대 인원수
     val studyState: Boolean = true,             // 삭제 여부 (존재함, 삭제됨)
+    val studyChatLink: String = "",             // 오픈 채팅 링크
     val userIdx: Int = -1,                      // 사용자 번호
 
 ){
@@ -34,6 +35,7 @@ data class StudyData(
         map["studyPic"] = this.studyPic
         map["studyMaxMember"] = this.studyMaxMember
         map["studyState"] = this.studyState
+        map["studyChatLink"] = this.studyChatLink
         map["userIdx"] = this.userIdx
         return map
     }
@@ -55,6 +57,7 @@ data class StudyData(
                 studyPic = map["studyPic"] as String,
                 studyMaxMember = map["studyMaxMember"] as Int,
                 studyState = map["studyState"] as Boolean,
+                studyChatLink = map["studyChatLink"] as String,
                 userIdx = map["userIdx"] as Int
             )
         }
@@ -74,6 +77,7 @@ data class StudyData(
                 resultSet.getString("studyPic"),
                 resultSet.getInt("studyMaxMember"),
                 resultSet.getBoolean("studyState"),
+                resultSet.getString("studyChatLink"),
                 resultSet.getInt("userIdx"),
             )
         }
