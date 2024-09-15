@@ -20,9 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
@@ -31,8 +33,8 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.launch
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomSnackbarWithIconBinding
@@ -209,4 +211,21 @@ fun openWebView(viewLifecycleOwner: LifecycleOwner, parentFragmentManager: Fragm
             addToBackStack(FragmentName.PROFILE_WEB.str)
         }
     }
+}
+
+// 키보드 내림 + 포커스 제거
+fun Activity.hideSoftInput() {
+    // 포커스 있는지 체크
+    window.currentFocus?.let { view ->
+        val inputMethodManager = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager // 키보드 관리 객체 가져옴
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0) // 키보드 내리기
+        view.clearFocus() // 포커스 제거
+    }
+}
+
+// 키보드 올림 + 포커스 설정
+fun Activity.showSoftInput(view: View) {
+    view.requestFocus() // 포커스 설정
+    val inputMethodManager = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager // 키보드 관리 객체 가져옴
+    inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT) // 키보드 올리기
 }

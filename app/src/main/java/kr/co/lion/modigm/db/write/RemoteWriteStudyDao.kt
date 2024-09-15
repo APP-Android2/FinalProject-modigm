@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.db.HikariCPDataSource
+import kr.co.lion.modigm.model.StudyData
 import java.io.File
 import java.sql.PreparedStatement
 import kotlin.coroutines.resume
@@ -24,13 +25,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class RemoteWriteStudyDao {
-    private val TAG = "RemoteWriteStudyDao"
-    private var context: Context? = null
-
-    // Context 설정
-    fun setContext(context: Context) {
-        this.context = context
-    }
+    private val logTag by lazy { RemoteWriteStudyDao::class.simpleName }
 
     // 이미지 업로드 함수 (Amazon S3에 업로드)
     suspend fun uploadImageToS3(context: Context, uri: Uri): String {
@@ -109,75 +104,48 @@ class RemoteWriteStudyDao {
                 if (it.moveToFirst()) {
                     val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
                     path = it.getString(columnIndex)
-                    Log.d(TAG, "Real path from URI: $path")
+                    Log.d(logTag, "Real path from URI: $path")
                 }
             }
         }
 
         if (path == null) {
-            Log.e(TAG, "Failed to get real path from URI: $uri")
+            Log.e(logTag, "Failed to get real path from URI: $uri")
         }
         return path
     }
 
-    // study 데이터를 삽입하는 함수
-    suspend fun insertStudyData(model: Map<String, Any>, studyPicUrl: String?): Int? {
-        var preparedStatement: PreparedStatement? = null
-        val columns = model.keys.toMutableList()
-        val values = model.values.toMutableList()
-        var idx: Int? = null
-
-        // 이미지 URL을 studyPic 컬럼에 추가
-        if (studyPicUrl != null) {
-            if (columns.contains("studyPic")) {
-                val index = columns.indexOf("studyPic")
-                values[index] = studyPicUrl
-            } else {
-                columns.add("studyPic")
-                values.add(studyPicUrl)
-            }
-        }
-
-        try {
-            // SQL 쿼리 문자열 생성
-            val columnsString = columns.joinToString(",")
-            val valuesString = values.joinToString(",") { "?" }
-            val sql = "INSERT INTO tb_study ($columnsString) VALUES ($valuesString)"
-
-            Log.d(TAG, "SQL: $sql")
-            Log.d(TAG, "Values: $values")
-
-            // 데이터베이스에 연결하여 데이터 삽입
-            withContext(Dispatchers.IO) {
+    // study 테이블에 데이터를 삽입
+    suspend fun insertStudyData(studyData: StudyData): Result<Int> =
+        withContext(Dispatchers.IO) {
+            runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
-                    preparedStatement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)
-                    values.forEachIndexed { index, value ->
-                        // 값의 타입에 따라 PreparedStatement 설정
-                        when (value) {
-                            is String -> preparedStatement?.setString(index + 1, value)
-                            is Int -> preparedStatement?.setInt(index + 1, value)
-                            is Boolean -> preparedStatement?.setBoolean(index + 1, value)
-                            is ByteArray -> {
-                                preparedStatement?.setBytes(index + 1, value)
-                                Log.d(TAG, "Setting byte array for index ${index + 1}")
-                                Log.d(TAG, "Byte array length: ${value.size}")
-                            }
+                    val query = """
+                    INSERT INTO tb_study (studyTitle, studyContent, studyType, studyPeriod, studyOnOffline, 
+                    studyDetailPlace, studyPlace, studyApplyMethod, studyCanApply, studyPic, studyMaxMember, 
+                    studyState, userIdx)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent()
+
+                    connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS).use { statement ->
+                        // StudyData 객체의 데이터를 PreparedStatement에 매핑
+                        StudyData.setPreparedStatement(statement, studyData)
+                        // SQL 쿼리 실행
+                        statement.executeUpdate()
+                        // 생성된 스터디 데이터의 studyIdx를 반환
+                        val resultSet = statement.generatedKeys
+                        if (resultSet.next()) {
+                            resultSet.getInt(1)
+                        } else {
+                            throw IllegalArgumentException("스터디 데이터 삽입 실패")
                         }
                     }
-                    preparedStatement?.executeUpdate()
-                    val resultSet = preparedStatement?.generatedKeys
-                    if (resultSet?.next() == true) {
-                        idx = resultSet.getInt(1) // 삽입된 데이터의 ID를 반환
-                    }
                 }
+            }.onFailure {
+                Log.e(logTag, "스터디 데이터 삽입 중 오류 발생", it)
+                Result.failure<Int>(it)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in insertStudyData", e)
-        } finally {
-            preparedStatement?.close() // PreparedStatement 닫기
         }
-        return idx
-    }
 
     // study 테이블에 tech stack 데이터를 삽입
     suspend fun insertStudyTechStack(studyIdx: Int, techStack: List<Int>) {
@@ -213,7 +181,7 @@ class RemoteWriteStudyDao {
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error in executeBatchUpdate", e)
+            Log.e(logTag, "Error in executeBatchUpdate", e)
         } finally {
             preparedStatement?.close() // PreparedStatement 닫기
         }

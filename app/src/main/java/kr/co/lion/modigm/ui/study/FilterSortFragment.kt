@@ -16,9 +16,9 @@ import kr.co.lion.modigm.model.FilterStudyData
 import kr.co.lion.modigm.model.TechStackData
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.study.vm.StudyViewModel
-import kr.co.lion.modigm.util.FilterSort
-import kr.co.lion.modigm.util.FilterSort.Category
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.study.FilterSort
+import kr.co.lion.modigm.util.study.FilterSort.Category
 
 class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFilterSortBinding::inflate) {
 

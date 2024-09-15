@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.util
+package kr.co.lion.modigm.util.study
 
 import android.util.Log
 
@@ -47,9 +47,9 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     CLOUD_INFRA(7, "클라우드 및 인프라", Category.TECH_STACK),
     GAME_DEV(8, "게임개발", Category.TECH_STACK),
     SECURITY(9, "보안", Category.TECH_STACK),
-    AI(10,"인공지능",Category.TECH_STACK),
-    UI_UX(11,"UI/UX 디자인",Category.TECH_STACK),
-    BIG_DATA(12,"빅데이터",Category.TECH_STACK),
+    AI(10,"인공지능", Category.TECH_STACK),
+    UI_UX(11,"UI/UX 디자인", Category.TECH_STACK),
+    BIG_DATA(12,"빅데이터", Category.TECH_STACK),
 
 
 
@@ -73,7 +73,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_PROGRAMMING(63, "기타", Category.PROGRAMMING),
 
     // 프론트엔드
-    ALL_FRONT_END(0,"전체",Category.FRONT_END),
+    ALL_FRONT_END(0,"전체", Category.FRONT_END),
     HTML(14, "HTML", Category.FRONT_END),
     CSS(15, "CSS", Category.FRONT_END),
     JAVASCRIPT_FRONT(16, "JavaScript", Category.FRONT_END),
@@ -86,7 +86,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_FRONT_END(64, "기타", Category.FRONT_END),
 
     // 백엔드
-    ALL_BACK_END(0,"전체",Category.BACK_END),
+    ALL_BACK_END(0,"전체", Category.BACK_END),
     JAVA_BACKEND(23, "Java", Category.BACK_END),
     PYTHON_BACKEND(24, "Python", Category.BACK_END),
     RUBY_BACKEND(25, "Ruby", Category.BACK_END),
@@ -105,7 +105,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_BACKEND(65, "기타", Category.BACK_END),
 
     // 모바일 개발
-    ALL_MOBILE_END(0,"전체",Category.MOBILE),
+    ALL_MOBILE_END(0,"전체", Category.MOBILE),
     SWIFT_IOS(38, "Swift(iOS)", Category.MOBILE),
     KOTLIN_ANDROID(39, "Kotlin(Android)", Category.MOBILE),
     REACT_NATIVE(40, "React Native", Category.MOBILE),
@@ -114,7 +114,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_MOBILE(66, "기타", Category.MOBILE),
 
     // 데이터 사이언스
-    ALL_DATA_SCIENCE(0,"전체",Category.DATA_SCIENCE),
+    ALL_DATA_SCIENCE(0,"전체", Category.DATA_SCIENCE),
     PANDAS(43, "Pandas", Category.DATA_SCIENCE),
     NUMPY(44, "NumPy", Category.DATA_SCIENCE),
     SCIPY(45, "SciPy", Category.DATA_SCIENCE),
@@ -126,7 +126,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_DATA_SCIENCE(67, "기타", Category.DATA_SCIENCE),
 
     // 데브옵스 및 시스템 관리
-    ALL_DEVOPS(0,"전체",Category.DEVOPS),
+    ALL_DEVOPS(0,"전체", Category.DEVOPS),
     JENKINS(51, "Jenkins", Category.DEVOPS),
     ANSIBLE(52, "Ansible", Category.DEVOPS),
     TERRAFORM(53, "Terraform", Category.DEVOPS),
@@ -138,7 +138,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_DEVOPS(68, "기타", Category.DEVOPS),
 
     // 클라우드 및 인프라
-    ALL_CLOUD(0,"전체",Category.CLOUD),
+    ALL_CLOUD(0,"전체", Category.CLOUD),
     AWS(59, "AWS", Category.CLOUD),
     GOOGLE_CLOUD(60, "Google Cloud", Category.CLOUD),
     AZURE(61, "Azure", Category.CLOUD),
@@ -148,7 +148,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_CLOUD(69, "기타", Category.CLOUD),
 
     // 게임 개발
-    ALL_GAME_DEV(0,"전체",Category.GAME_DEVELOPMENT),
+    ALL_GAME_DEV(0,"전체", Category.GAME_DEVELOPMENT),
     UNITY(70, "Unity", Category.GAME_DEVELOPMENT),
     UNREAL_ENGINE(71, "Unreal Engine", Category.GAME_DEVELOPMENT),
     BLENDER(72, "Blender", Category.GAME_DEVELOPMENT),
@@ -156,7 +156,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_GAME_DEV(74, "기타", Category.GAME_DEVELOPMENT),
 
     // 보안
-    ALL_SECURITY(0,"전체",Category.SECURITY),
+    ALL_SECURITY(0,"전체", Category.SECURITY),
     WIRESHARK(75, "Wireshark", Category.SECURITY),
     METASPLOIT(76, "Metasploit", Category.SECURITY),
     AUTHENTICATION(77, "인증", Category.SECURITY),
@@ -166,7 +166,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
     OTHER_SECURITY(81, "기타", Category.SECURITY),
 
     // 인공지능
-    ALL_AI(0,"전체",Category.AI),
+    ALL_AI(0,"전체", Category.AI),
     AI_PYTHON(82, "Python", Category.AI),
     AI_R(83, "R", Category.AI),
     MACHINE_LEARNING(84, "머신러닝", Category.AI),
@@ -176,7 +176,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
 
 
     // UI/UX 디자인
-    ALL_UI_UX(0,"전체",Category.UI_UX),
+    ALL_UI_UX(0,"전체", Category.UI_UX),
     SKETCH(88, "Sketch", Category.UI_UX),
     ADOBE_XD(89, "Adobe XD", Category.UI_UX),
     FIGMA(90, "Figma", Category.UI_UX),
@@ -187,7 +187,7 @@ enum class FilterSort(val value: Int, val displayName: String, val category: Cat
 
 
     // 빅데이터
-    ALL_BIG_DATA(0,"전체",Category.BIG_DATA),
+    ALL_BIG_DATA(0,"전체", Category.BIG_DATA),
     HADOOP(94, "Hadoop", Category.BIG_DATA),
     SPARK(95, "Spark", Category.BIG_DATA),
     HDFS(96, "HDFS", Category.BIG_DATA),
