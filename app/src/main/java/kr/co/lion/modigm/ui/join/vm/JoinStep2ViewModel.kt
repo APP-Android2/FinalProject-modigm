@@ -174,14 +174,9 @@ class JoinStep2ViewModel @Inject constructor(
             try{
                 _errorMessage.value = ""
                 val phoneCredential = PhoneAuthProvider.getCredential(_verificationId.value, inputSmsCode.value)
-                val linkedProviders = _auth.currentUser?.providerData?.map { it.providerId }
+                val linkedProviders = _auth.currentUser?.providerData?.find { it.providerId == PhoneAuthProvider.PROVIDER_ID }
                 if (linkedProviders != null) {
-                    for(provider in linkedProviders){
-                        if(provider == "phone"){
-                            _auth.currentUser?.unlink("phone")
-                            break
-                        }
-                    }
+                    _auth.currentUser?.unlink(PhoneAuthProvider.PROVIDER_ID)
                 }
                 _auth.currentUser?.linkWithCredential(phoneCredential)?.await()
             }catch (e: FirebaseAuthException){

@@ -44,7 +44,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     private val viewModelStep2: JoinStep2ViewModel by activityViewModels()
     private val viewModelStep3: JoinStep3ViewModel by activityViewModels()
 
-    private val joinType: JoinType? by lazy {
+    private val joinType: JoinType by lazy {
         JoinType.getType(arguments?.getString("joinType")?:"")
     }
 
@@ -60,9 +60,16 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         settingToolBar()
         settingCollector()
 
-        // 로그인 상태인 경우 미리 로그아웃 처리해주기
-        // 로그인 상태에서 회원가입 진입 후 다시 빠져나올때 로그인된 계정이 파이어베이스 인증에서 삭제될 수 있음
-        viewModel.signOut()
+        /**
+         * SNS계정은 자동로그인이 강제되기때문에 앱을 껏다 켜도 로그아웃을 직접 하지 않는 이상 회원가입 화면에 진입할 수 없음
+         * 이메일 계정은 자동로그인을 안하고 로그인을 할 수 있기 때문에 앱을 끄고 다시 켜면 회원가입 화면으로 진입할 수 있음
+         * 이 때 앱의 파이어베이스인증 객체에서는 로그아웃을 직접 하지 않는 이상 아직 이메일 계정으로 로그인된 상태로 인식함
+         * 따라서 이메일 회원가입인 경우에만 signOut을 한번 더 회원가입 진입 시 처리해줌
+         * 안그러면 이미 로그인된 계정이 있을 때 회원가입 화면에서 나갈 때 계정이 파이어베이스 인증 등록에서 삭제될 수 있음
+         */
+        if(joinType==JoinType.EMAIL){
+            viewModel.signOut()
+        }
 
         // sms 인증 코드 발송 시 보여줄 프로그래스바 익명함수를 viewModelStep2에 전달
         viewModelStep2.hideCallback.value = hideLoading
