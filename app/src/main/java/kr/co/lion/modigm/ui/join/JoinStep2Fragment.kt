@@ -25,13 +25,15 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState)
         binding.viewModel = joinStep2ViewModel
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         settingTextInputLayoutError()
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
         settingCollector()
-
-        return binding.root
     }
 
     // 에러 메시지 설정
