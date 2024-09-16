@@ -181,6 +181,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 viewPagerAdapter.addFragments(
                     arrayListOf(
                         JoinStep1Fragment(),
+                        JoinEmailVerificationFragment(),
                         JoinStep2Fragment(),
                         JoinStep3Fragment()
                     )
@@ -205,7 +206,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             // 터치로 스크롤 막기
             viewPagerJoin.isUserInputEnabled = false
             // 현재 인덱스 기준으로 프래그먼트 생성,소멸 기준수
-            viewPagerJoin.offscreenPageLimit = 2
+            viewPagerJoin.offscreenPageLimit = 3
 
             // 프로그래스바 설정
             progressBarJoin.max = 100
@@ -228,10 +229,12 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                         when(viewPagerJoin.currentItem){
                             // 이메일, 비밀번호 화면
                             0 -> step1Process()
+                            // 이메일 인증 화면
+                            1 -> checkEmailVerified()
                             // 이름, 전화번호 인증 화면
-                            1 -> step2Process()
+                            2 -> step2Process()
                             // 관심 분야 선택 화면
-                            2 -> step3Process()
+                            3 -> step3Process()
                         }
                     }
                     // SNS계정으로 회원가입할 때
@@ -269,6 +272,8 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 if(viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty()){
                     // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
                     viewModel.deleteCurrentUser()
+                    // 이메일 인증 여부 초기화
+                    viewModelStep1.resetEmailVerified()
                 }
                 // 계정 중복 확인
                 val isDup = viewModel.createEmailUser()
@@ -280,11 +285,32 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             }
             hideLoading()
             // 다음 화면으로 이동
-            binding.viewPagerJoin.setCurrentItemWithDuration(1, 300)
+            if(viewModelStep1.isEmailVerified.value){
+                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+            }else{
+                binding.viewPagerJoin.setCurrentItemWithDuration(1, 300)
+                // 인증 이메일 발송
+                viewModelStep1.sendEmailVerification()
+            }
+        }
+    }
+
+    private fun checkEmailVerified(){
+        showLoading()
+        viewModelStep1.checkEmailValidation{ isVerified ->
+            hideLoading()
+            if (isVerified) {
+                // 인증이 되었으면 다음으로 이동
+                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+            }else{
+                // 인증이 안되었으면 스낵바 표시
+                showSnackBar(emailNotVerifiedMessage)
+            }
         }
     }
 
     private fun step2Process(){
+        Log.d("test1234","${viewModel.user.value?.isEmailVerified}")
         // 유효성 검사
         val validation = viewModelStep2.validate()
         if(!validation) return
@@ -339,7 +365,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         val handler = CoroutineExceptionHandler { _, throwable ->
             Log.e("JoinError", "${throwable.message}")
             hideLoading()
-            showSnackBar()
+            showSnackBar(networkErrorMessage)
         }
 
         // 회원가입 완료 처리
@@ -349,10 +375,13 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
     }
 
-    private fun showSnackBar() {
+    private val networkErrorMessage = "통신 에러, 잠시 후 다시 시도해주세요."
+    private val emailNotVerifiedMessage = "이메일 인증이 완료되지 않았습니다."
+
+    private fun showSnackBar(message: String) {
 
         val snackbar =
-            Snackbar.make(binding.root, "통신 에러, 잠시 후 다시 시도해주세요.", Snackbar.LENGTH_SHORT)
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
 
         // 스낵바의 뷰를 가져옵니다.
         val snackbarView = snackbar.view
@@ -375,13 +404,18 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
     // 회원가입 절차 StateFlow값 collect 세팅
     private fun settingCollector() {
-        // 인증이 확인 되었을 때
+        // 전화번호 인증이 확인 되었을 때
         collectWhenStarted(viewModel.phoneVerification) { isVerified ->
             hideLoading()
             if(isVerified){
                 // 인증이 되었으면 다음으로 이동
                 viewModelStep2.cancelTimer()
-                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+                if(joinType==JoinType.EMAIL){
+                    binding.viewPagerJoin.setCurrentItemWithDuration(3, 300)
+                }else{
+                    binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+                }
+
             }
         }
 
