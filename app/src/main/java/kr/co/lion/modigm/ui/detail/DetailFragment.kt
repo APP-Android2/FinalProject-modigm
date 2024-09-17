@@ -293,6 +293,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             val profileFragment = ProfileFragment().apply {
                 arguments = Bundle().apply {
                     putInt("userIdx", currentStudyData?.userIdx.toString().toInt())
+                    putBoolean("isBottomNavi", false)
                 }
             }
 
