@@ -15,12 +15,13 @@ import kr.co.lion.modigm.databinding.CustomLogoutDialogBinding
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.profile.popup.LogoutAdDialog
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
-class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
+class SettingsFragment(): DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
@@ -105,25 +106,31 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
 
             // 로그아웃
             layoutSettingsLogout.setOnClickListener {
+                val logoutAdDialog = LogoutAdDialog()
+                // 알림창이 띄워져있는 동안 배경 클릭 막기
+                //logoutAdDialog.isCancelable = false
+                logoutAdDialog.show(parentFragmentManager, "LogoutAdDialog")
+
+
                 // 로그아웃 확인 다이얼로그
-                val customDialogBinding = CustomLogoutDialogBinding.inflate(layoutInflater)
-                val builder = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
-                    .setView(customDialogBinding.root)
-                    .setPositiveButton("확인") { dialogInterface: DialogInterface, i: Int ->
-                        // SharedPreferences 초기화
-                        prefs.clearAllPrefs()
-                        prefs.setBoolean("autoLogin", false)
-
-                        // 로그아웃 처리
-                        Firebase.auth.signOut()
-
-                        // 로그인 화면으로 돌아간다
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, LoginFragment())
-                            .addToBackStack(null)
-                            .commit()
-                    }.setNegativeButton("취소") { dialogInterface: DialogInterface, i: Int -> }
-                builder.show()
+//                val customDialogBinding = CustomLogoutDialogBinding.inflate(layoutInflater)
+//                val builder = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
+//                    .setView(customDialogBinding.root)
+//                    .setPositiveButton("확인") { dialogInterface: DialogInterface, i: Int ->
+//                        // SharedPreferences 초기화
+//                        prefs.clearAllPrefs()
+//                        prefs.setBoolean("autoLogin", false)
+//
+//                        // 로그아웃 처리
+//                        Firebase.auth.signOut()
+//
+//                        // 로그인 화면으로 돌아간다
+//                        parentFragmentManager.beginTransaction()
+//                            .replace(R.id.containerMain, LoginFragment())
+//                            .addToBackStack(null)
+//                            .commit()
+//                    }.setNegativeButton("취소") { dialogInterface: DialogInterface, i: Int -> }
+//                builder.show()
             }
         }
     }

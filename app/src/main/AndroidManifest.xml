@@ -46,6 +46,12 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
 
+        <!-- 변수 이름 중복으로 인한 충돌 해결 -->
+        <property
+            android:name="android.adservices.AD_SERVICES_CONFIG"
+            tools:replace="android:resource"
+            android:resource="@xml/ga_ad_services_config" />
+
         <activity
             android:name=".ui.login.SplashScreenActivity"
             android:exported="true"
