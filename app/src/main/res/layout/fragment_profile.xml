@@ -155,7 +155,8 @@
                                 android:id="@+id/textViewHostStudyMore"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="더보기" />
+                                android:text="더보기"
+                                android:textSize="14dp"/>
 
                             <ImageView
                                 android:id="@+id/iconHostStudyMore"
@@ -223,7 +224,8 @@
                                 android:id="@+id/textViewPartStudyMore"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="더보기" />
+                                android:text="더보기"
+                                android:textSize="14dp"/>
 
                             <ImageView
                                 android:id="@+id/iconPartStudyMore"

@@ -59,7 +59,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, EditProfileFragment(profileFragment))
+                    .replace(R.id.containerMain, EditProfileFragment())
                     .addToBackStack(FragmentName.EDIT_PROFILE.str)
                     .commit()
             }
