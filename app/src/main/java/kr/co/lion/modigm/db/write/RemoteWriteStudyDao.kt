@@ -21,14 +21,13 @@ import kr.co.lion.modigm.model.StudyData
 import java.io.File
 import java.sql.PreparedStatement
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class RemoteWriteStudyDao {
     private val logTag by lazy { RemoteWriteStudyDao::class.simpleName }
 
     // 이미지 업로드 함수 (Amazon S3에 업로드)
-    suspend fun uploadImageToS3(context: Context, uri: Uri): String {
+    suspend fun uploadImageToS3(context: Context, uri: Uri): Result<String> {
         // URI로부터 실제 파일 경로를 얻음
         val filePath = getRealPathFromURI(context, uri) // URI로부터 실제 파일 경로를 얻음
         val file = File(filePath ?: throw IllegalArgumentException("Invalid file: $uri"))
@@ -60,15 +59,17 @@ class RemoteWriteStudyDao {
 
         // 코루틴을 사용하여 업로드 완료를 기다림
         return suspendCoroutine { continuation ->
+            var isResumed = false  // 이미 완료되었는지 체크할 플래그
+
             uploadObserver.setTransferListener(object : TransferListener {
                 override fun onStateChanged(id: Int, state: TransferState) {
-                    if (state == TransferState.COMPLETED) {
-                        // 업로드 완료 시 URL 반환
+                    if (state == TransferState.COMPLETED && !isResumed) {
                         val url = s3Client.getUrl(bucketName, fileName).toString()
-                        continuation.resume(url)
-                    } else if (state == TransferState.FAILED) {
-                        // 업로드 실패 시 예외 발생
-                        continuation.resumeWithException(Exception("Upload failed")) // 업로드 실패 시 예외 발생
+                        continuation.resume(Result.success(url))  // 성공 시 Result.success로 리턴
+                        isResumed = true  // 코루틴 완료 상태로 설정
+                    } else if (state == TransferState.FAILED && !isResumed) {
+                        continuation.resume(Result.failure(Exception("Upload failed")))  // 실패 시 Result.failure로 리턴
+                        isResumed = true  // 코루틴 완료 상태로 설정
                     }
                 }
 
@@ -78,11 +79,15 @@ class RemoteWriteStudyDao {
 
                 override fun onError(id: Int, ex: Exception) {
                     // 오류 발생 시 예외 처리
-                    continuation.resumeWithException(ex)
+                    if (!isResumed) {
+                        continuation.resume(Result.failure(ex))  // 실패 시 Result.failure로 리턴
+                        isResumed = true  // 코루틴 완료 상태로 설정
+                    }
                 }
             })
         }
     }
+
 
     // URI로부터 실제 파일 경로를 얻는 함수
     private fun getRealPathFromURI(context: Context, uri: Uri): String? {

@@ -39,6 +39,10 @@ class WriteViewModel : ViewModel() {
     private val _writeDataMap = MutableLiveData<MutableMap<String, Any?>?>(mutableMapOf())
     val writeDataMap: LiveData<MutableMap<String, Any?>?> = _writeDataMap
 
+    // 글작성 로딩
+    private val _writeStudyDataLoading = MutableLiveData(false)
+    val writeStudyDataLoading: LiveData<Boolean> = _writeStudyDataLoading
+
     // 글작성 에러
     private val _writeStudyDataError = MutableLiveData<Throwable?>(null)
     val writeStudyDataError: LiveData<Throwable?> = _writeStudyDataError
@@ -73,7 +77,11 @@ class WriteViewModel : ViewModel() {
 
     // 스터디 데이터 업로드
     fun writeStudyData(context: Context) {
+
         viewModelScope.launch(Dispatchers.IO) {
+            // 로딩 시작
+            _writeStudyDataLoading.postValue(true)
+
             val userIdx = getCurrentUserIdx()
 
             // 스터디 기본 정보 추출
@@ -137,11 +145,18 @@ class WriteViewModel : ViewModel() {
             )
 
             result.onSuccess {
+                // 로딩 종료
+                _writeStudyDataLoading.postValue(false)
+
                 Log.d(logTag, "writeStudyData: 스터디 데이터 업로드 성공 - studyIdx: $it")
                 _writeStudyIdx.postValue(it)
             }.onFailure { e ->
+                // 로딩 종료
+                _writeStudyDataLoading.postValue(false)
+
                 Log.e(logTag, "writeStudyData: 스터디 데이터 업로드 실패", e)
                 _writeStudyDataError.postValue(e)
+
             }
         }
     }
@@ -174,7 +189,7 @@ class WriteViewModel : ViewModel() {
         val studyPlace = _writeDataMap.value?.get("studyPlace") as? String
 
         when (studyOnOffline) {
-            "오프라인", "온·오프 혼합" -> {
+            "오프라인", "온오프혼합" -> {
                 if (studyPlace.isNullOrBlank()) {
                     return Throwable("스터디 장소를 지정해주세요!")
                 }

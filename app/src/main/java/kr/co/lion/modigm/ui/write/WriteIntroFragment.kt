@@ -32,7 +32,6 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.showLoginSnackBar
 import java.io.File
 
 class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWriteIntroBinding::inflate) {
@@ -228,14 +227,8 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                     Log.d(logTag, "스터디 내용 저장됨: ${textInputWriteIntroContent.text.toString()}")
 
 
-                    // 글작성 전체 데이터 유효성 검사
-                    val hi = viewModel.checkAllData()
-                    if(hi != null) {
-                        requireActivity().showLoginSnackBar(hi.message.toString(), null)
-                        return@setOnClickListener
-                    } else {
-                        viewModel.writeStudyData(requireContext())
-                    }
+                    viewModel.writeStudyData(requireContext())
+
                 }
             }
         }
@@ -257,6 +250,12 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 showErrorDialog(error)
             }
         }
+
+        // 로딩 상태에 따른 UI 업데이트
+        viewModel.writeStudyDataLoading.observe(viewLifecycleOwner) { isLoading ->
+            showLoading(isLoading)
+        }
+
     }
 
     // 글작성 소개 유효성 검사
@@ -559,6 +558,22 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             }
 
         }
+    }
+
+    // ProgressBar와 Overlay 제어 함수
+    private fun showLoading(isLoading: Boolean) {
+        with(binding) {
+            if (isLoading) {
+                overlayView.visibility = View.VISIBLE
+                writeIntroProgressBar.visibility = View.VISIBLE
+                buttonWriteIntroNext.isEnabled = false
+            } else {
+                overlayView.visibility = View.GONE
+                writeIntroProgressBar.visibility = View.GONE
+                buttonWriteIntroNext.isEnabled = true
+            }
+        }
+
     }
 
 }
