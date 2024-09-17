@@ -17,11 +17,11 @@
         android:textStyle="bold" />
 
     <com.google.android.gms.ads.AdView
-        android:id="@+id/dialog_native_ad"
+        android:id="@+id/adViewLogoutDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         ads:adSize="280x250"
-        ads:adUnitId="@string/native_ad_unit_id" />
+        ads:adUnitId="ca-app-pub-3940256099942544~3347511713" />
 
     <LinearLayout
         android:layout_width="match_parent"
