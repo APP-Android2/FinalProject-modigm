@@ -1,19 +1,11 @@
 package kr.co.lion.modigm.ui.profile
 
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
@@ -33,11 +25,11 @@ import kr.co.lion.modigm.databinding.FragmentEditProfileBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.profile.adapter.ItemTouchHelperCallback
 import kr.co.lion.modigm.ui.profile.adapter.LinkAddAdapter
+import kr.co.lion.modigm.ui.profile.popup.InterestBottomSheetFragment
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
-import kr.co.lion.modigm.util.Picture
 
 class EditProfileFragment(private val profileFragment: ProfileFragment): DBBaseFragment<FragmentEditProfileBinding>(R.layout.fragment_edit_profile) {
     private val editProfileViewModel: EditProfileViewModel by activityViewModels()
