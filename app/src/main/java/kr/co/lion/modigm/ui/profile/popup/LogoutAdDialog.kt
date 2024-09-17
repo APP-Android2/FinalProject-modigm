@@ -14,11 +14,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.databinding.CustomDialogLogoutAdBinding
 
-class LogoutAdDialog: DialogFragment() {
-    lateinit var binding: CustomDialogLogoutAdBinding
+open class LogoutAdDialog: DialogFragment() {
+    private var _binding: CustomDialogLogoutAdBinding? = null
+    val binding get() = _binding!!
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        binding = CustomDialogLogoutAdBinding.inflate(layoutInflater)
+        _binding = CustomDialogLogoutAdBinding.inflate(layoutInflater)
 
         CoroutineScope(Dispatchers.IO).launch {
             MobileAds.initialize(requireContext())
@@ -34,7 +35,7 @@ class LogoutAdDialog: DialogFragment() {
     fun setupAdMob() {
         // Start loading the ad in the background.
         val adRequest = AdRequest.Builder().build()
-        binding.adViewLogoutDialog.loadAd(adRequest)
+        _binding?.adViewLogoutDialog?.loadAd(adRequest)
 
     }
 
@@ -44,5 +45,11 @@ class LogoutAdDialog: DialogFragment() {
 
     fun setupButtonQuit() {
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        _binding = null
     }
 }
