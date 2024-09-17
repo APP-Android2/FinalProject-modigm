@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -191,7 +192,7 @@ class RemoteProfileDao {
         TransferNetworkLossHandler.getInstance(context)
 
         // 파일명을 현재 시간 기준으로 설정
-        val fileName = "${System.currentTimeMillis()}hw.jpg"
+        val fileName = "${System.currentTimeMillis()}.jpg"
         val uploadObserver = transferUtility.upload(
             bucketName,
             fileName,
@@ -229,14 +230,26 @@ class RemoteProfileDao {
     private fun getRealPathFromURI(context: Context, uri: Uri): String? {
         var path: String? = null
         val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                path = it.getString(columnIndex)
-                Log.d("RemoteProfileDao", "Real path from URI: $path")
+
+        // API 29 (Android Q) 이상에서는 openInputStream을 통해 파일을 저장
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val file = File(context.cacheDir, "tempImage.jpg")
+                file.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                return file.absolutePath
+            }
+        } else {
+            val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                    path = it.getString(columnIndex)
+                }
             }
         }
+
         if (path == null) {
             Log.e("RemoteProfileDao", "Failed to get real path from URI: $uri")
         }

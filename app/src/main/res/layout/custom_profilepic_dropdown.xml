@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:id="@+id/layoutDropdownPhoto"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/profilepicDropdownPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="사진 촬영"
+            android:textColor="@color/textGray"
+            android:textSize="16dp" />
+    </LinearLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:id="@+id/layoutDropdownAlbum"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/profilepicDropdownAlbum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="앨범에서 선택"
+            android:textColor="@color/textGray"
+            android:textSize="16dp" />
+    </LinearLayout>
+
+    <!-- 추가 아이템을 여기에 추가할 수 있음 -->
+</LinearLayout>
