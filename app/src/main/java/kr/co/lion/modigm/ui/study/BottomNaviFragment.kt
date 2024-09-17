@@ -264,7 +264,6 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             val notificationFragment = NotificationFragment().apply {
                                 arguments = Bundle().apply {
                                     putInt("currentUserIdx", prefs.getInt("currentUserIdx"))
-                                    putBoolean("isBottomNavi", true)
                                 }
                             }
                             childFragmentManager.commit {
@@ -279,6 +278,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             val profileFragment = ProfileFragment().apply {
                                 arguments = Bundle().apply {
                                     putInt("userIdx", prefs.getInt("currentUserIdx"))
+                                    putBoolean("isBottomNavi", true)
                                 }
                             }
                             childFragmentManager.commit {
