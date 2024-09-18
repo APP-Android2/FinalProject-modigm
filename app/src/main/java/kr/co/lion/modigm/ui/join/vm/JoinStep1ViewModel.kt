@@ -2,10 +2,13 @@ package kr.co.lion.modigm.ui.join.vm
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -91,9 +94,15 @@ class JoinStep1ViewModel @Inject constructor(
 
     // 메일 인증 여부 체크
     fun checkEmailValidation(moveNext: (boolean: Boolean) -> Unit) {
-        _auth.currentUser?.reload()
-        _isEmailVerified.value = _auth.currentUser?.isEmailVerified == true
-        moveNext(_isEmailVerified.value)
+        viewModelScope.launch {
+            _auth.currentUser?.let { user ->
+                user.reload().await()
+                (user.isEmailVerified).let { result ->
+                    _isEmailVerified.value = result
+                    moveNext(result)
+                }
+            }
+        }
     }
 
     // 인증 메일 발송

@@ -298,7 +298,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     private fun checkEmailVerified(){
         showLoading()
         viewModelStep1.checkEmailValidation{ isVerified ->
-            hideLoading()
             if (isVerified) {
                 // 인증이 되었으면 다음으로 이동
                 binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
@@ -306,6 +305,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 // 인증이 안되었으면 스낵바 표시
                 showSnackBar(emailNotVerifiedMessage)
             }
+            hideLoading()
         }
     }
 
