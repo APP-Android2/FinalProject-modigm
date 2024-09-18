@@ -594,12 +594,32 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         if (currentStudyData?.userIdx == userIdx) {
             setupOwnerView(textViewState)
-            // 버튼 클릭 비활성화
-            binding.buttonDetailApply.isEnabled = false
+            // "멤버관리"로 텍스트 설정
+            binding.buttonDetailApply.text = "멤버관리"
+            binding.buttonDetailApply.isEnabled = true
+            binding.buttonDetailApply.setOnClickListener {
+                navigateToMemberFragment()
+            }
         } else {
             setupNonOwnerView(textViewState)
         }
     }
+
+    fun navigateToMemberFragment() {
+        val detailMemberFragment = DetailMemberFragment().apply {
+            arguments = Bundle().apply {
+                putInt("studyIdx", currentStudyData?.studyIdx ?: 0)
+                putString("studyTitle", currentStudyData?.studyTitle ?: "")
+            }
+        }
+
+        // 화면 이동 로직
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.containerMain, detailMemberFragment)
+            .addToBackStack(FragmentName.DETAIL_MEMBER.str)
+            .commit()
+    }
+
 
     private fun setupOwnerView(textViewState: TextView) {
         textViewState.setCompoundDrawablesWithIntrinsicBounds(
