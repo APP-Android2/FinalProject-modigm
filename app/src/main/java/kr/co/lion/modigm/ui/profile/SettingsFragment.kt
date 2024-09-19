@@ -104,27 +104,6 @@ class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragmen
                 // 알림창이 띄워져있는 동안 배경 클릭 막기
                 //logoutAdDialog.isCancelable = false
                 logoutAdDialog.show(parentFragmentManager, "LogoutAdDialog")
-
-
-                // 로그아웃 확인 다이얼로그
-//                val customDialogBinding = CustomLogoutDialogBinding.inflate(layoutInflater)
-//                val builder = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
-//                    .setView(customDialogBinding.root)
-//                    .setPositiveButton("확인") { dialogInterface: DialogInterface, i: Int ->
-//                        // SharedPreferences 초기화
-//                        prefs.clearAllPrefs()
-//                        prefs.setBoolean("autoLogin", false)
-//
-//                        // 로그아웃 처리
-//                        Firebase.auth.signOut()
-//
-//                        // 로그인 화면으로 돌아간다
-//                        parentFragmentManager.beginTransaction()
-//                            .replace(R.id.containerMain, LoginFragment())
-//                            .addToBackStack(null)
-//                            .commit()
-//                    }.setNegativeButton("취소") { dialogInterface: DialogInterface, i: Int -> }
-//                builder.show()
             }
         }
     }
