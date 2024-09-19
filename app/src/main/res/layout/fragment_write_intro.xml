@@ -87,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="모집 소개글을 작성해주세요"
+                    android:text="모집 소개글을 작성해주세요 *"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
@@ -153,7 +153,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="오픈채팅 링크를 입력해주세요"
+                    android:text="오픈채팅 링크를 입력해주세요 *"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
@@ -182,7 +182,7 @@
                     android:layout_height="400dp"
                     android:layout_marginTop="20dp"
                     android:background="@color/clearColor"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

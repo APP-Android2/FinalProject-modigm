@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="필요한 기술스택을 선택해주세요"
+            android:text="필요한 기술스택을 선택해주세요 *"
             android:textSize="18dp"
             android:textStyle="bold" />
 

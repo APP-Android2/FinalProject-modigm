@@ -161,42 +161,6 @@ class WriteViewModel : ViewModel() {
         }
     }
 
-    // 전체 데이터 유효성 검사
-    fun checkAllData(): Throwable? {
-        val requiredFields = listOf(
-            "studyType" to "스터디 타입",
-            "studyPeriod" to "스터디 기간",
-            "studyOnOffline" to "스터디 온라인/오프라인 여부",
-            "studyMaxMember" to "스터디 최대 인원",
-            "studyTechStackList" to "스터디 기술 스택",
-            "studyTitle" to "스터디 제목",
-            "studyContent" to "스터디 내용",
-        )
-
-        // 필수 필드 중 값이 비어있거나 null인 경우 해당 메시지를 담은 Throwable 반환
-        requiredFields.forEach { (key, fieldName) ->
-            val value = _writeDataMap.value?.get(key)
-            when {
-                value == null -> return Throwable("$fieldName 을/를 지정해주세요!")
-                value is String && value.isBlank() -> return Throwable("$fieldName 을/를 지정해주세요!")
-                value is List<*> && value.isEmpty() -> return Throwable("$fieldName 을/를 지정해주세요!")
-                value is Int && (value == 0||value == 1) -> return Throwable("$fieldName 이 ${value}명 입니다.")
-            }
-        }
-
-        // 스터디 온/오프라인 여부에 따른 스터디 장소 검증
-        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String
-        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String
-
-        when (studyOnOffline) {
-            "오프라인", "온오프혼합" -> {
-                if (studyPlace.isNullOrBlank()) {
-                    return Throwable("스터디 장소를 지정해주세요!")
-                }
-            }
-        }
-        return null  // 모든 필드가 유효할 경우 null 반환
-    }
     // --------------------------------------- 글작성 ---------------------------------------
 
     // --------------------------------------- 탭설정 ---------------------------------------
@@ -236,6 +200,8 @@ class WriteViewModel : ViewModel() {
     }
     // -------------------------------------- 바텀 시트 설정 --------------------------------------
 
+    var isDataCleared: Boolean = false // 데이터 초기화 플래그
+
     // 글작성 데이터 초기화
     fun clearData() {
         _writeDataMap.postValue(mutableMapOf())
@@ -245,6 +211,9 @@ class WriteViewModel : ViewModel() {
         _techStackData.postValue(emptyList())
         _writeStudyIdx.postValue(null)
         _contentUri.postValue(null)
+        _writeStudyDataLoading.postValue(false)
+
+        isDataCleared = true // 데이터가 초기화되었음을 표시
 
         Log.d(logTag, "clearData: 데이터 초기화 완료")
     }
