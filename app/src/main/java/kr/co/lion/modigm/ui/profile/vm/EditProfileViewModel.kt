@@ -115,7 +115,7 @@ class EditProfileViewModel: ViewModel() {
         _editProfileLinkList.value = updatedList
     }
 
-    fun updateUserData(profileFragment: ProfileFragment, picChanged: Boolean, context: Context) = viewModelScope.launch {
+    fun updateUserData(picChanged: Boolean, context: Context) = viewModelScope.launch {
         if (picChanged) {
             profileRepository.uploadProfilePic(_editProfilePicUri.value!!, context).collect { profileUrl ->
                 _editProfilePicUrl.value = profileUrl
@@ -134,7 +134,7 @@ class EditProfileViewModel: ViewModel() {
         profileRepository.updateUserData(user)
     }
 
-    fun updateUserLinkData(profileFragment: ProfileFragment) = viewModelScope.launch {
+    fun updateUserLinkData() = viewModelScope.launch {
         val userIdx = prefs.getInt("currentUserIdx")
 
         // 데이터베이스 업데이트

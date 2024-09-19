@@ -20,11 +20,10 @@ import java.util.Properties
 object FCMService {
     private const val TAG = "FCMService"
     private const val FCM_ENDPOINT = "https://fcm.googleapis.com/v1/projects/modigm-4afde/messages:send"
-    private const val SERVER_KEY = "AIzaSyBhtMRcNXcMdCGIbJqzCFqS8Q-dpr-ga74" // Replace this with your actual server key
 
     private val client = OkHttpClient()
 
-    suspend fun sendNotificationToToken(context: Context, token: String, title: String, body: String): Boolean {
+    suspend fun sendNotificationToToken(context: Context, token: String, title: String, body: String, studyIdx: Int): Boolean {
         return withContext(Dispatchers.IO) {
             try {
                 val accessToken = getAccessToken(context) // 올바른 Access Token을 가져옵니다.
@@ -36,9 +35,11 @@ object FCMService {
                 val jsonBody = JSONObject().apply {
                     put("message", JSONObject().apply {
                         put("token", token)
-                        put("notification", JSONObject().apply {
-                            put("title", title)
-                            put("body", body)
+
+                        put("data", JSONObject().apply {
+                            put("title", title)  // 제목을 data 페이로드에 추가
+                            put("body", body)    // 내용을 data 페이로드에 추가
+                            put("studyIdx", studyIdx.toString()) // studyIdx를 data 페이로드에 추가
                         })
                     })
                 }
@@ -53,7 +54,9 @@ object FCMService {
                     .build()
 
                 client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                    if (!response.isSuccessful) {
+                        throw IOException("Unexpected code $response")
+                    }
                     Log.d(TAG, "Notification sent successfully: ${response.body?.string()}")
                     return@withContext true
                 }

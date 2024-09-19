@@ -26,7 +26,6 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
-import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
@@ -35,7 +34,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
 
     // onCreateView에서 초기화
     var userIdx: Int? = null
-    var myProfile: Boolean = true
+    var isBottomNavi: Boolean? = null
 
     // 어댑터 선언
     val linkAdapter: LinkAdapter = LinkAdapter(
@@ -123,7 +122,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         binding.lifecycleOwner = this.viewLifecycleOwner
 
         userIdx = arguments?.getInt("userIdx")
-        myProfile = userIdx == prefs.getInt("currentUserIdx")
+        isBottomNavi = arguments?.getBoolean("isBottomNavi")
 
         return binding.root
     }
@@ -177,20 +176,22 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
             menu.findItem(R.id.menu_item_profile_setting).isVisible = false
             menu.findItem(R.id.menu_item_profile_more).isVisible = false
 
-            // 본인의 프로필일 때: 설정 아이콘
-            if (myProfile) {
+            // BottomNavigation 으로 접근했을 때: 설정 아이콘
+            if (isBottomNavi == true) {
                 // 설정 아이콘 표시
                 menu.findItem(R.id.menu_item_profile_setting).isVisible = true
             } else {
-                // 타인의 프로필일 때: 뒤로 가기, 더보기 아이콘
+                // 스터디 상세 화면의 프로필로 접근했을 때: 뒤로 가기, 더보기 아이콘
                 // 뒤로 가기
                 setNavigationIcon(R.drawable.icon_arrow_back_24px)
                 setNavigationOnClickListener {
                     parentFragmentManager.popBackStack()
                 }
 
-                // 더보기 아이콘 표시
-                menu.findItem(R.id.menu_item_profile_more).isVisible = true
+                // 더보기 아이콘: 신고 기능이므로 타인의 프로필일 때만 표시
+                if (userIdx != prefs.getInt("currentUserIdx")) {
+                    menu.findItem(R.id.menu_item_profile_more).isVisible = true
+                }
             }
         }
     }

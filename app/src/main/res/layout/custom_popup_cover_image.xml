@@ -16,13 +16,13 @@
         android:paddingVertical="4dp"
         android:orientation="horizontal"
         android:visibility="visible">
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageViewCamera"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/icon_camera_alt_24"
             android:layout_gravity="center"/>
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/textView_cameraLauncher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,13 +43,13 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:visibility="visible">
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageView_Album"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/icon_photo_plus_24px"
             android:layout_gravity="center"/>
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/textView_albumLauncher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
