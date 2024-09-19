@@ -12,7 +12,7 @@
         android:background="@color/pointColor"
         android:gravity="center"
         android:padding="10dp"
-        android:text="앱을 종료할까요?"
+        android:text="로그아웃하시겠습니까?"
         android:textColor="@color/white"
         android:textStyle="bold" />
 
@@ -29,21 +29,21 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/dialog_button_app_quit"
-            android:layout_width="wrap_content"
+            android:id="@+id/buttonAdDialogLogout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:padding="10dp"
-            android:text="종료" />
+            android:text="로그아웃" />
 
         <TextView
-            android:id="@+id/dialog_button_app_quit_cancel"
-            android:layout_width="wrap_content"
+            android:id="@+id/buttonAdDialogQuit"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="10dp"
+            android:padding="16dp"
             android:text="취소" />
     </LinearLayout>
 </LinearLayout>

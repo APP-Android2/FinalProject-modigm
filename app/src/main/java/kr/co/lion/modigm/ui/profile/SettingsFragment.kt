@@ -1,27 +1,21 @@
 package kr.co.lion.modigm.ui.profile
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.CustomLogoutDialogBinding
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
-import kr.co.lion.modigm.ui.login.LoginFragment
 import kr.co.lion.modigm.ui.profile.popup.LogoutAdDialog
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
-class SettingsFragment(): DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
+class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
