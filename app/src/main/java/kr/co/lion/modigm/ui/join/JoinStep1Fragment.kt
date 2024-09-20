@@ -22,10 +22,12 @@ class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.frag
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState)
         binding.viewModel = joinStep1ViewModel
-
-        settingTextInputLayoutError()
-
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        settingTextInputLayoutError()
     }
 
     // 에러 메시지 설정
