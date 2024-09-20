@@ -1,10 +1,23 @@
 package kr.co.lion.modigm.ui.join.vm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.regex.Pattern
+import javax.inject.Inject
 
-class JoinStep1ViewModel: ViewModel() {
+@HiltViewModel
+class JoinStep1ViewModel @Inject constructor(
+    private val _auth: FirebaseAuth
+): ViewModel() {
+
+    // ================1. 유효성 검사 관련==============================================================
 
     // 이메일
     val userEmail = MutableStateFlow("")
@@ -66,6 +79,40 @@ class JoinStep1ViewModel: ViewModel() {
         pwValidation.value = ""
         userPasswordCheck.value = ""
         pwCheckValidation.value = ""
+        _isEmailVerified.value = false
+    }
+
+
+
+    // ================2. 이메일 인증 관련==============================================================
+
+    private val _isEmailVerified = MutableStateFlow(false)
+    val isEmailVerified: StateFlow<Boolean> = _isEmailVerified
+    fun resetEmailVerified(){
+        _isEmailVerified.value = false
+    }
+
+    // 메일 인증 여부 체크
+    fun checkEmailValidation(moveNext: (boolean: Boolean) -> Unit) {
+        viewModelScope.launch {
+            _auth.currentUser?.let { user ->
+                user.reload().await()
+                (user.isEmailVerified).let { result ->
+                    _isEmailVerified.value = result
+                    moveNext(result)
+                }
+            }
+        }
+    }
+
+    // 인증 메일 발송
+    fun sendEmailVerification(){
+        try {
+            _auth.currentUser?.sendEmailVerification()
+        }catch (e: Exception){
+            Log.e("sendEmailAuth", "${e.message}")
+            emailValidation.value = "인증 메일 발송 실패"
+        }
     }
 
 }
