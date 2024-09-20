@@ -55,15 +55,30 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
 
         setupRecyclerView()
 
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                viewModel.studyMembers.collect { members ->
+//                    Log.d("DetailJoinMembersAdapter", "Members list size: ${members.size}")
+//                    adapter.submitList(members)
+//                    adapter.notifyDataSetChanged()
+//                }
+//            }
+//        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.studyMembers.collect { members ->
                     Log.d("DetailJoinMembersAdapter", "Members list size: ${members.size}")
                     adapter.submitList(members)
-                    adapter.notifyDataSetChanged()
+
+                    // 새로운 항목이 추가될 때 RecyclerView를 맨 아래로 스크롤
+                    if (members.isNotEmpty()) {
+                        binding.recyclerviewDetailJoin.scrollToPosition(members.size - 1)
+                    }
                 }
             }
         }
+
 
         viewModel.fetchMembersInfo(studyIdx)
 
