@@ -1,24 +1,18 @@
-package kr.co.lion.modigm.ui.profile
+package kr.co.lion.modigm.ui.profile.popup
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentInterestBottomSheetBinding
-import kr.co.lion.modigm.databinding.FragmentSkillBottomSheetBinding
 import kr.co.lion.modigm.ui.VBBaseBottomSheetFragment
-import kr.co.lion.modigm.ui.detail.OnSkillSelectedListener
 import kr.co.lion.modigm.ui.profile.vm.EditProfileViewModel
 import kr.co.lion.modigm.util.Interest
 
