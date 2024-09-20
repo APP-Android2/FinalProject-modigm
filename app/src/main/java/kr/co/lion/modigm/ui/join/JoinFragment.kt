@@ -310,7 +310,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     }
 
     private fun step2Process(){
-        Log.d("test1234","${viewModel.user.value?.isEmailVerified}")
         // 유효성 검사
         val validation = viewModelStep2.validate()
         if(!validation) return
