@@ -149,9 +149,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
 
     private fun setupToolbar() {
         binding.toolbarProfile.apply {
-            // title
-            title = "프로필"
-
             // 툴바 메뉴
             inflateMenu(R.menu.menu_profile)
             setOnMenuItemClickListener {
