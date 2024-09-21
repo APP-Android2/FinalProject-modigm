@@ -71,6 +71,7 @@ class StudyViewModel : ViewModel() {
             val result = studyRepository.getAllStudyData(getCurrentUserIdx())
             result.onSuccess {
                 _allStudyData.postValue(it)
+                _isFilterApplied.postValue(false)
             }.onFailure {
                 Log.e(logTag, "Error refreshAllStudyData", it)
                 _allStudyError.postValue(it)
