@@ -153,6 +153,22 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
         backButton()
     }
+
+    override fun onResume() {
+        super.onResume()
+        // 화면이 다시 보일 때 현재 보여지는 프래그먼트를 기준으로 FAB 상태를 업데이트
+        updateFabVisibilityBasedOnCurrentFragment()
+
+        // 화면이 다시 보일 때 알림을 확인하지 않았다면 배지를 유지
+        if (shouldShowNotificationBadge()) {
+            showNotificationBadge(true)
+        } else {
+            showNotificationBadge(false)
+        }
+
+
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         // 백버튼 콜백 제거
@@ -165,6 +181,20 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
     }
 
     // --------------------------------- Lifecycle End ---------------------------------
+
+    // 현재 프래그먼트를 확인하고 FAB 가시성 업데이트
+    private fun updateFabVisibilityBasedOnCurrentFragment() {
+        val currentFragment = childFragmentManager.findFragmentById(R.id.containerBottomNavi)
+        if (currentFragment is StudyFragment) {
+            // StudyFragment가 보일 때만 FAB를 보이도록 함
+            binding.fabStudyWrite.show()
+            isFabVisible = true
+        } else {
+            // 그 외의 프래그먼트일 때는 FAB를 숨김
+            binding.fabStudyWrite.hide()
+            isFabVisible = false
+        }
+    }
 
     // 로그인 스낵바를 표시하는 함수
     private fun showLoginSnackBar() {
@@ -243,6 +273,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
                     when(item.itemId) {
                         R.id.bottomNaviStudy -> {
+                            // FAB 보이기
                             fabStudyWrite.show()
                             childFragmentManager.commit {
                                 setReorderingAllowed(true)
@@ -251,6 +282,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             }
                         }
                         R.id.bottomNaviHeart -> {
+                            // FAB 숨기기
                             fabStudyWrite.hide()
                             childFragmentManager.commit {
                                 setReorderingAllowed(true)
@@ -259,6 +291,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             }
                         }
                         R.id.bottomNaviNotification -> {
+                            // FAB 숨기기
                             fabStudyWrite.hide()
                             val notificationFragment = NotificationFragment().apply {
                                 arguments = Bundle().apply {
@@ -273,6 +306,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
                         }
                         R.id.bottomNaviMy -> {
+                            // FAB 숨기기
                             fabStudyWrite.hide()
                             val profileFragment = ProfileFragment().apply {
                                 arguments = Bundle().apply {
@@ -333,16 +367,6 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
 
     private fun showNotificationBadge(show: Boolean) {
         notificationBadge.isVisible = show
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // 화면이 다시 보일 때 알림을 확인하지 않았다면 배지를 유지
-        if (shouldShowNotificationBadge()) {
-            showNotificationBadge(true)
-        } else {
-            showNotificationBadge(false)
-        }
     }
 
     // 알림을 확인했는지 여부를 확인
