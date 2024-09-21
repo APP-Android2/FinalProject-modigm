@@ -74,7 +74,7 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                 with(binding){
                     if(bottomNavigationView.selectedItemId == R.id.bottomNaviStudy){
                         if (doubleBackToExitPressedOnce) {
-                            // 여기 광고 띄우기
+                            // 종료 다이얼로그 표시
                             showExitDialog()
                         } else {
                             doubleBackToExitPressedOnce = true
