@@ -247,6 +247,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 profileStudyFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, profileStudyFragment)
                     addToBackStack(FragmentName.PROFILE_STUDY.str)
                 }
@@ -263,6 +264,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 profileStudyFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, profileStudyFragment)
                     addToBackStack(FragmentName.PROFILE_STUDY.str)
                 }
