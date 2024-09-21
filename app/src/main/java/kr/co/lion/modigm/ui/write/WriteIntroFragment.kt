@@ -47,7 +47,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == AppCompatActivity.RESULT_OK) {
                 viewModel.contentUri.value?.let { uri ->
-                    Log.d(logTag, "카메라 이미지 수신됨: uri = $uri")
                     // 이미지 로드
                     processImageFromUri(uri)
                     // 뷰모델에 업데이트
@@ -62,7 +61,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == AppCompatActivity.RESULT_OK) {
                 result.data?.data?.let { selectedUri ->
-                    Log.d(logTag, "앨범 이미지 수신됨: uri = $selectedUri")
                     // 뷰모델에 contentUri 업데이트
                     viewModel.updateContentUri(selectedUri)
                     processImageFromUri(selectedUri)
@@ -93,7 +91,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(logTag, "onCreate 호출됨")
         // onCreate에서 런처들 미리 초기화
         cameraLauncher
         albumLauncher
@@ -101,7 +98,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(logTag, "onViewCreated 호출됨")
 
         // 권한 요청
         requestPermissions(permissionList, 0)
@@ -117,45 +113,38 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 데이터 복원 함수
     private fun restoreInputData() {
-        Log.d(logTag, "restoreInputData 호출됨")
         val writeDataMap = viewModel.writeDataMap.value ?: return  // 로컬 변수에 저장
 
         with(binding) {
             // 이미지 복원
             viewModel.contentUri.value?.let {
-                Log.d(logTag, "이미지 복원: uri = $it")
                 loadImageIntoImageView(it)
                 isAddPicture = true
             }
 
             // 제목 복원
             (writeDataMap["studyTitle"] as? String)?.let {
-                Log.d(logTag, "제목 복원: studyTitle = $it")
                 textInputWriteIntroTitle.setText(it)
             }
 
             // 내용 복원
             (writeDataMap["studyContent"] as? String)?.let {
-                Log.d(logTag, "내용 복원: studyContent = $it")
                 textInputWriteIntroContent.setText(it.replace("\\n", System.lineSeparator()))
             }
 
             // 링크 복원
             (writeDataMap["studyChatLink"] as? String)?.let {
-                Log.d(logTag, "링크 복원: studyChatLink = $it")
                 textInputWriteIntroLink.setText(it)
             }
         }
     }
 
     private fun initView() {
-        Log.d(logTag, "initView 호출됨")
         with(binding) {
 
             // 이미지 추가 버튼
             imageButtonWriteIntroCoverImage.apply {
                 setOnClickListener {
-                    Log.d(logTag, "이미지 추가 버튼 클릭됨")
                     showPopupWindow(it)
                 }
             }
@@ -193,7 +182,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             // 작성 예시 버튼
             textViewWriteIntroWriteExample.apply {
                 setOnClickListener {
-                    Log.d(logTag, "작성 예시 버튼 클릭됨")
                     val dialog = CustomIntroDialog(requireContext())
                     dialog.show()
                 }
@@ -204,9 +192,9 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 // 텍스트 입력 변경 사항을 관찰
                 addTextChangedListener(inputWatcher)
 
-                // 클릭 시
+                // 클릭 시 (추후 클릭으로 웹뷰를 통한 링크 받아오기 구현 예정)
                 setOnClickListener {
-                    Log.d(logTag, "오픈채팅 링크 입력 클릭됨")
+
                 }
             }
 
@@ -216,7 +204,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 && textInputWriteIntroLink.text.toString() != ""
             ) {
                 buttonWriteIntroNext.isEnabled = true
-                Log.d(logTag, "처음 접근 시 버튼 활성화 조건 충족")
                 updateButtonColor()
             }
 
@@ -224,11 +211,9 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             buttonWriteIntroNext.apply {
                 // 클릭 시
                 setOnClickListener {
-                    Log.d(logTag, "작성 버튼 클릭됨")
                     // 클릭 시 입력 유효성 검사
                     if(!checkAllInput()) {
                         // 유효하지 않은 경우 리턴
-                        Log.d(logTag, "유효성 검사 실패")
                         return@setOnClickListener
                     }
                     // 스터디 커버 이미지 업데이트
@@ -252,7 +237,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                         key = "studyChatLink",
                         value = textInputWriteIntroLink.text.toString()
                     )
-                    Log.d(logTag, "스터디 내용 저장됨: ${textInputWriteIntroContent.text.toString()}")
 
                     // 스터디 데이터 업로드
                     viewModel.writeStudyData(requireContext())
@@ -262,10 +246,8 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     private fun observeViewModel() {
-        Log.d(logTag, "observeViewModel 호출됨")
         // 글작성 완료 후 화면전환
         viewModel.writeStudyIdx.observe(viewLifecycleOwner){ studyIdx ->
-            Log.d(logTag, "writeStudyIdx 변경됨: studyIdx = $studyIdx")
             if (studyIdx != null) {
                 // 글 상세 프래그먼트로 이동
                 navigateToDetailFragment(studyIdx)
@@ -274,7 +256,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
         // 글작성 에러
         viewModel.writeStudyDataError.observe(viewLifecycleOwner) { error ->
-            Log.d(logTag, "writeStudyDataError 변경됨: error = $error")
             if (error != null) {
                 showErrorDialog(error)
             }
@@ -282,7 +263,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
         // 로딩 상태에 따른 UI 업데이트
         viewModel.writeStudyDataLoading.observe(viewLifecycleOwner) { isLoading ->
-            Log.d(logTag, "writeStudyDataLoading 변경됨: isLoading = $isLoading")
             with(binding) {
                 if (isLoading) {
                     overlayView.visibility = View.VISIBLE
@@ -300,18 +280,15 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 글작성 소개 유효성 검사
     private fun checkAllInput(): Boolean {
-        Log.d(logTag, "checkAllInput 호출됨")
         return checkStudyTitle() && checkStudyContent() && checkStudyLink()
     }
 
     // 스터디 제목 유효성 검사
     private fun checkStudyTitle(): Boolean {
-        Log.d(logTag, "checkStudyTitle 호출됨")
         with(binding) {
             fun showError(message: String) {
                 textInputLayoutWriteIntroTitle.error = message
                 textInputWriteIntroTitle.requestFocus()
-                Log.d(logTag, "스터디 제목 에러: message = $message")
             }
             return when {
                 textInputWriteIntroTitle.text.toString().length < 8 -> {
@@ -328,12 +305,10 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 스터디 내용 유효성 검사
     private fun checkStudyContent(): Boolean {
-        Log.d(logTag, "checkStudyContent 호출됨")
         with(binding) {
             fun showError(message: String) {
                 textInputLayoutWriteIntroContent.error = message
                 textInputWriteIntroContent.requestFocus()
-                Log.d(logTag, "스터디 내용 에러: message = $message")
             }
             return when {
                 textInputWriteIntroContent.text.toString().length < 10 -> {
@@ -349,12 +324,10 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     }
 
     private fun checkStudyLink(): Boolean {
-        Log.d(logTag, "checkStudyLink 호출됨")
         with(binding) {
             fun showError(message: String) {
                 textInputLayoutWriteIntroLink.error = message
                 textInputWriteIntroLink.requestFocus()
-                Log.d(logTag, "스터디 링크 에러: message = $message")
             }
 
             // 카카오톡 오픈채팅방 링크 정규식
@@ -381,7 +354,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
     private val inputWatcher = object : TextWatcher {
         // 입력 내용 변경 전
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            Log.d(logTag, "beforeTextChanged 호출됨: s = $s, start = $start, count = $count, after = $after")
             with(binding) {
                 buttonWriteIntroNext.apply {
                     // 입력 데이터가 모두 존재할 경우
@@ -421,7 +393,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
         // 입력 내용 변경 시
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            Log.d(logTag, "onTextChanged 호출됨: s = $s, start = $start, before = $before, count = $count")
             with(binding) {
 
                 // 스터디 제목 입력 시 ViewModel에 저장
@@ -472,7 +443,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
         // 입력 내용 변경 후
         override fun afterTextChanged(p0: Editable?) {
-            Log.d(logTag, "afterTextChanged 호출됨: p0 = $p0")
             with(binding) {
                 // 스터디 제목 길이가 8자 이상일 경우
                 if (textInputWriteIntroTitle.text.toString().length >= 8) {
@@ -497,11 +467,9 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 이미지 로드 및 ImageView에 표시하는 함수
     private fun loadImageIntoImageView(uri: Uri?) {
-        Log.d(logTag, "loadImageIntoImageView 호출됨: uri = $uri")
         uri?.let{
             val processedBitmap = loadAndProcessBitmap(uri)
             processedBitmap?.let {
-                Log.d(logTag, "이미지 로드 완료: uri = $uri")
                 with(binding) {
                     cardViewWriteIntroCoverImageSelect.visibility = View.VISIBLE
                     imageViewWriteIntroCoverImageSelect.setImageBitmap(it)
@@ -512,7 +480,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 이미지 로드, 회전, 크기 조정 및 View에 반영하는 함수
     private fun processImageFromUri(uri: Uri?) {
-        Log.d(logTag, "processImageFromUri 호출됨: uri = $uri")
         uri?.let {
             val processedBitmap = loadAndProcessBitmap(it)
             processedBitmap?.let {
@@ -527,7 +494,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 이미지 로드, 회전, 크기 조정 작업을 처리하는 공통 함수
     private fun loadAndProcessBitmap(uri: Uri?): Bitmap? {
-        Log.d(logTag, "loadAndProcessBitmap 호출됨: uri = $uri")
         return try {
             uri?.let {
                 // 이미지 로드
@@ -568,7 +534,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 이미지 선택 팝업창 표시
     private fun showPopupWindow(anchorView: View) {
-        Log.d(logTag, "showPopupWindow 호출됨")
         val layoutInflater = LayoutInflater.from(requireContext())
         val popupBinding = CustomPopupCoverImageBinding.inflate(layoutInflater)
 
@@ -584,7 +549,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             // 카메라 선택 버튼
             textViewCameraLauncher.apply {
                 setOnClickListener {
-                    Log.d(logTag, "카메라 선택 클릭됨")
                     // 임시 파일 생성
                     val file = File(requireContext().getExternalFilesDir(null), "tempImage.jpg")
                     val uri = FileProvider.getUriForFile(requireContext(), "kr.co.lion.modigm.file_provider", file)
@@ -605,7 +569,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
             textViewAlbumLauncher.apply {
                 // 클릭 시
                 setOnClickListener {
-                    Log.d(logTag, "앨범 선택 클릭됨")
                     val albumIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
                         type = "image/*"
                         putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*"))
@@ -619,7 +582,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 글 상세 프래그먼트로 이동
     private fun navigateToDetailFragment(studyIdx: Int) {
-        Log.d(logTag, "navigateToDetailFragment 호출됨: studyIdx = $studyIdx")
         // 데이터 초기화
         viewModel.clearData()
 
@@ -637,7 +599,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 오류 다이얼로그 표시
     private fun showErrorDialog(error: Throwable) {
-        Log.d(logTag, "showErrorDialog 호출됨: error = ${error.message}")
         val dialog = CustomLoginErrorDialog(requireContext())
         with(dialog){
             setTitle("오류")
@@ -651,7 +612,6 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
 
     // 버튼의 색상을 업데이트하는 함수
     private fun updateButtonColor() {
-        Log.d(logTag, "updateButtonColor 호출됨")
         with(binding) {
             val colorResId = if (textInputWriteIntroTitle.text.toString() != ""
                 && textInputWriteIntroContent.text.toString() != ""
