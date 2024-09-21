@@ -7,6 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -27,6 +31,7 @@ import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_profile) {
@@ -162,7 +167,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                     }
 
                     R.id.menu_item_profile_more -> {
-                        // TODO("신고하기 기능")
+                        showDropdownReport(this.findViewById(R.id.menu_item_profile_more))
                     }
                 }
                 true
@@ -189,6 +194,55 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 if (userIdx != prefs.getInt("currentUserIdx")) {
                     menu.findItem(R.id.menu_item_profile_more).isVisible = true
                 }
+            }
+        }
+    }
+
+    private fun showDropdownReport(anchorView: View) {
+        // 팝업 윈도우의 레이아웃을 설정
+        val popupView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_profile_report_dropdown, null)
+
+        // 팝업 윈도우 객체 생성
+        val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        // 배경을 설정해야 그림자가 적용됨 (반드시 배경이 있어야 함)
+        popupWindow.setBackgroundDrawable(AppCompatResources.getDrawable(requireContext(), android.R.drawable.dialog_holo_light_frame))
+
+        // 팝업 윈도우 외부를 터치하면 닫히도록 설정
+        popupWindow.isOutsideTouchable = true
+        popupWindow.isFocusable = true
+
+        // 팝업 윈도우를 anchorView 아래에 표시
+        popupWindow.showAsDropDown(anchorView, -200, -30)
+        popupWindow.elevation = 10f
+
+        // 팝업 안의 아이템 클릭 리스너 설정
+        val item1: LinearLayout = popupView.findViewById(R.id.layoutProfileReport)
+        item1.isClickable = true
+
+        popupView.findViewById<TextView>(R.id.menuItem3).setOnClickListener {
+            Log.d("zunione", "touched")
+            // 아이템 1이 클릭되었을 때의 처리
+            openWebView(Links.SERVICE.url)
+            popupWindow.dismiss()
+        }
+    }
+
+    private fun openWebView(url: String){
+        viewLifecycleOwner.lifecycleScope.launch {
+            // bundle 에 필요한 정보를 담는다
+            val bundle = Bundle()
+            bundle.putString("link", url)
+
+            // 이동할 프래그먼트로 bundle을 넘긴다
+            val profileWebFragment = ProfileWebFragment()
+            profileWebFragment.arguments = bundle
+
+            // Fragment 교체
+            parentFragmentManager.commit {
+                //setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                replace(R.id.containerMain, profileWebFragment)
+                addToBackStack(FragmentName.PROFILE_WEB.str)
             }
         }
     }
