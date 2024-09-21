@@ -175,7 +175,7 @@
                         android:id="@+id/layoutBlankProfileHostStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="30dp"
+                        android:paddingVertical="30dp"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp">
@@ -244,7 +244,7 @@
                         android:id="@+id/layoutBlankProfilePartStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="30dp"
+                        android:paddingVertical="30dp"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp">
