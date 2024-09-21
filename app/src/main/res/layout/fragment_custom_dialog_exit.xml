@@ -1,90 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="30dp">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:strokeWidth="0dp"
-        android:elevation="4dp">
+        android:elevation="4dp"
+        app:strokeWidth="0dp">
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:background="@color/white">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewDialogTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="종료하기"
-                android:textColor="@color/black"
-                android:textSize="20dp"
-                android:textStyle="bold" />
-
-            <com.google.android.gms.ads.AdView
-                android:id="@+id/exitDialogAdView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="20dp"
-                app:adSize="BANNER"
-                app:adUnitId="ca-app-pub-7493119982793962/1062136620" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/textViewDialogMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="24dp"
-                android:text="정말로 종료하시겠습니까?"
-                android:textColor="@color/black"
-                android:textSize="16dp" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end|bottom">
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonDialogNegative"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:insetLeft="0dp"
-                    android:insetTop="0dp"
-                    android:insetRight="0dp"
-                    android:insetBottom="0dp"
-                    android:padding="0dp"
-                    android:text="종료"
-                    android:textColor="@color/redColor"
-                    android:textSize="16dp"
-                    app:rippleColor="#00FFFFFF" />
+                android:layout_marginBottom="24dp"
+                android:background="@color/pointColor"
+                android:orientation="vertical">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonDialogPositive"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/textViewDialogTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginVertical="10dp"
+                    android:text="종료하시겠습니까?"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="16dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+                <com.google.android.gms.ads.AdView
+                    android:id="@+id/exitDialogAdView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:insetLeft="0dp"
-                    android:insetTop="0dp"
-                    android:insetRight="0dp"
-                    android:insetBottom="0dp"
-                    android:padding="0dp"
-                    android:text="돌아가기"
-                    android:textColor="@color/pointColor"
-                    android:textSize="16dp"
-                    app:rippleColor="#00FFFFFF" />
+                    android:layout_gravity="center"
+                    android:layout_marginVertical="20dp"
+                    ads:adSize="BANNER"
+                    ads:adUnitId="ca-app-pub-3940256099942544/9214589741" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="12dp"
+                    android:gravity="end|bottom"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonDialogNegative"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:padding="0dp"
+                        android:text="종료"
+                        android:textColor="@color/redColor"
+                        android:textSize="16dp"
+                        app:rippleColor="#00FFFFFF" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonDialogPositive"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:padding="0dp"
+                        android:text="돌아가기"
+                        android:textColor="@color/pointColor"
+                        android:textSize="16dp"
+                        app:rippleColor="#00FFFFFF" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
