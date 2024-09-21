@@ -2,6 +2,8 @@ package kr.co.lion.modigm.db.detail
 
 import android.util.Log
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
@@ -318,6 +320,31 @@ class RemoteDetailDao {
             return@withContext 0
         }
     }
+
+    // RemoteDetailDao에 이미 참여 중인지 확인하는 메서드 추가
+    suspend fun isUserAlreadyMember(studyIdx: Int, userIdx: Int): Flow<Boolean> = flow {
+        val query = "SELECT COUNT(*) FROM tb_study_member WHERE studyIdx = ? AND userIdx = ?"
+        var isMember = false
+        withContext(Dispatchers.IO) {
+            try {
+                HikariCPDataSource.getConnection().use { connection ->
+                    connection.prepareStatement(query).use { statement ->
+                        statement.setInt(1, studyIdx)
+                        statement.setInt(2, userIdx)
+                        val resultSet = statement.executeQuery()
+                        if (resultSet.next()) {
+                            isMember = resultSet.getInt(1) > 0 // 사용자가 스터디에 참여 중인지 확인
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("RemoteDetailDao", "Error checking if user is already a member", e)
+            }
+        }
+        emit(isMember) // 결과를 Flow로 반환
+
+    }
+
 
     // 사용자 FCM 토큰을 가져오는 메서드
     suspend fun getUserFcmToken(userIdx: Int): String? = withContext(Dispatchers.IO) {

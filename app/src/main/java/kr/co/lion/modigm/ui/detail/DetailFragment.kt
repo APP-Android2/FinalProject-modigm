@@ -676,17 +676,27 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // applyMethod를 currentStudyData의 studyApplyMethod 값으로 설정
         val applyMethod = currentStudyData?.studyApplyMethod ?: "선착순"  // 기본값을 "선착순"으로 설정
 
-        val method = currentStudyData?.studyApplyMethod
-        Log.d("DetailFragment", "Button clicked, method: $method")
+        // 사용자가 이미 참여 중인지 확인
+        viewModel.checkIfUserAlreadyMember(studyIdx, userIdx)
 
-        if (method != null && currentStudyData?.userIdx != userIdx) {
-            Log.d("DetailFragment", "Button clicked, method: $method")
+        // 참여 여부를 관찰하여 처리
+        lifecycleScope.launch {
+            viewModel.isUserAlreadyMember.collect { isAlreadyMember ->
+                if (isAlreadyMember) {
+                    // 이미 참여 중이면 스낵바로 알림 표시 후 리턴
+                    showSnackbar(view, "이미 참여중인 스터디입니다.")
+                    return@collect
+                }
 
-            val studyTitle = currentStudyData?.studyTitle ?: ""
-            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext(), requireView(), studyTitle)
-
-        } else {
-            Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+                // 스터디에 참여 중이 아니면 신청 로직을 계속 진행
+                val method = currentStudyData?.studyApplyMethod
+                if (method != null && currentStudyData?.userIdx != userIdx) {
+                    val studyTitle = currentStudyData?.studyTitle ?: ""
+                    viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext(), requireView(), studyTitle)
+                } else {
+                    Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+                }
+            }
         }
     }
 

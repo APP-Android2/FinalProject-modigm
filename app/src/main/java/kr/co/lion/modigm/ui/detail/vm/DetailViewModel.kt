@@ -76,6 +76,9 @@ class DetailViewModel: ViewModel() {
     private val _notificationResult = MutableSharedFlow<Boolean>()
     val notificationResult: SharedFlow<Boolean> = _notificationResult
 
+    private val _isUserAlreadyMember = MutableStateFlow(false)
+    val isUserAlreadyMember: StateFlow<Boolean> = _isUserAlreadyMember
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
@@ -216,6 +219,23 @@ class DetailViewModel: ViewModel() {
         }
     }
 
+    // 사용자가 이미 스터디에 참여 중인지 확인하는 함수
+    fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int) {
+        viewModelScope.launch {
+            try {
+                // DetailRepository를 통해 해당 사용자가 스터디 멤버인지 체크
+                val isMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
+                _isUserAlreadyMember.value = isMember
+            } catch (e: Exception) {
+                Log.e("DetailViewModel", "Error checking if user is already a member", e)
+                _isUserAlreadyMember.value = false
+            }
+        }
+    }
+
+
+
+
     // FCM 토큰을 서버에 등록
     fun registerFcmToken(userIdx: Int, fcmToken: String) {
         viewModelScope.launch {
@@ -231,23 +251,39 @@ class DetailViewModel: ViewModel() {
     // 사용자가 신청할 때 알림을 전송하고 데이터를 저장하는 메서드
     fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View, studyTitle: String) {
         viewModelScope.launch {
-            // 기존 신청 여부 확인
+            // 사용자가 이미 참여 중인지 확인
+            val isAlreadyMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
+
+            // 이미 신청된 상태인지 확인
             val isAlreadyApplied = detailRepository.isAlreadyApplied(userIdx, studyIdx)
+
+            if (isAlreadyMember) {
+                // 이미 스터디에 참여 중인 경우
+                withContext(Dispatchers.Main) {
+                    val snackbar = Snackbar.make(
+                        view,
+                        "이미 참여중인 스터디입니다.",
+                        Snackbar.LENGTH_LONG
+                    )
+                    val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                    val textSizeInPx = dpToPx(context, 14f)
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+                    snackbar.show()
+                }
+                return@launch
+            }
 
             if (isAlreadyApplied) {
                 // 이미 신청한 경우
                 withContext(Dispatchers.Main) {
-                    // 스낵바 생성
                     val snackbar = Snackbar.make(
                         view,
                         "이미 신청한 스터디입니다.",
                         Snackbar.LENGTH_LONG
                     )
-                    // 텍스트 뷰의 글씨 크기를 dp로 변환하여 설정
                     val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                    val textSizeInPx = dpToPx(context, 14f) // 원하는 글씨 크기를 dp로 설정
+                    val textSizeInPx = dpToPx(context, 14f)
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
                     snackbar.show()
                 }
                 return@launch
@@ -255,7 +291,6 @@ class DetailViewModel: ViewModel() {
 
             // 신청자의 사용자 정보 가져오기
             val applyUserData = detailRepository.getUserById(userIdx).firstOrNull()
-
             if (applyUserData == null) {
                 Log.e("DetailViewModel", "Failed to fetch applicant user data for userIdx: $userIdx")
                 return@launch
@@ -269,47 +304,32 @@ class DetailViewModel: ViewModel() {
             }
 
             if (success) {
-                // 신청 사용자에게 알림 전송
+                // 신청 성공 시, 알림 전송 로직 진행
                 val title = "신청 완료"
                 val body = "${studyTitle}스터디 신청이 성공적으로 완료되었습니다."
-                sendPushNotification(context, userIdx, title, body, studyIdx) // 신청한 사용자에게 알림
+                sendPushNotification(context, userIdx, title, body, studyIdx)
 
-                // 글 작성자의 FCM 토큰 가져오기
-                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull() // study 데이터 가져오기
+                // 글 작성자에게도 알림 전송
+                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull()
                 val writerUserIdx = studyData?.userIdx
-
-                if (writerUserIdx != null && writerUserIdx != userIdx) { // 글 작성자가 신청자와 다른 경우에만
+                if (writerUserIdx != null && writerUserIdx != userIdx) {
                     val writerFcmToken = detailRepository.getUserFcmToken(writerUserIdx)
                     if (writerFcmToken != null) {
                         val writerTitle = "새로운 스터디 신청"
                         val writerBody = "${applyUserData.userName}님이 ${studyData?.studyTitle} 스터디에 신청했습니다."
-                        val result = FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody,studyIdx)
-
-                        if (result) {
-                            Log.d("DetailViewModel", "Notification sent successfully to writerUserIdx: $writerUserIdx")
-
-                            // 알림 저장
-                            val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
-                            val saveResult = detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl,studyIdx)
-                            if (saveResult) {
-                                Log.d("DetailViewModel", "Notification saved successfully to database for writerUserIdx: $writerUserIdx")
-                            } else {
-                                Log.e("DetailViewModel", "Failed to save notification to database for writerUserIdx: $writerUserIdx")
-                            }
-                        } else {
-                            Log.e("DetailViewModel", "Failed to send notification to writerUserIdx: $writerUserIdx")
-                        }
-                    } else {
-                        Log.e("DetailViewModel", "Failed to retrieve FCM token for writerUserIdx: $writerUserIdx")
+                        FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody, studyIdx)
+                        // 알림 저장
+                        val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                        detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl, studyIdx)
                     }
                 }
-
                 _addUserResult.emit(true)
             } else {
                 _addUserResult.emit(false)
             }
         }
     }
+
 
     // dp를 px로 변환하는 함수
     private fun dpToPx(context: Context, dp: Float): Float {

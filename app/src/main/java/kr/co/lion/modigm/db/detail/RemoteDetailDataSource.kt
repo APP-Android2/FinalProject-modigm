@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.db.detail
 
 import android.util.Log
+import kotlinx.coroutines.flow.Flow
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 
@@ -177,6 +178,11 @@ class RemoteDetailDataSource {
             false
         }
     }
+
+    suspend fun isUserAlreadyMember(studyIdx: Int, userIdx: Int): Flow<Boolean> {
+        return studyDao.isUserAlreadyMember(studyIdx, userIdx)
+    }
+
 
     // 사용자 FCM 토큰을 삽입하는 메서드
     suspend fun insertUserFcmToken(userIdx: Int, fcmToken: String): Boolean {
