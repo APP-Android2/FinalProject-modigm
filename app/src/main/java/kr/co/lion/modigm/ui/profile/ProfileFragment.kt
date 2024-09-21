@@ -275,10 +275,21 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
 
     // 데이터 변경 관찰
     fun observeData() {
+        // 자기소개
+        lifecycleScope.launch {
+            profileViewModel.profileIntro.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { intro ->
+                if (intro.isNullOrEmpty()) {
+                    binding.textViewProfileIntro.visibility = View.GONE
+                } else {
+                    binding.textViewProfileIntro.visibility = View.VISIBLE
+                }
+
+            }
+        }
+
         // 프로필 사진
         lifecycleScope.launch {
             profileViewModel.profileUserImage.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { image ->
-                Log.d("ProfileFragment", "Profile Image: $image")
                 if (!image.isNullOrEmpty()) {
                     val requestOptions = RequestOptions()
                         .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
@@ -312,7 +323,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 관심 분야 chipGroup
         lifecycleScope.launch {
             profileViewModel.profileInterests.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { interests ->
-                Log.d("ProfileFragment", "Interests: $interests")
                 // 기존 칩들 제거
                 binding.chipGroupProfile.removeAllViews()
 
@@ -340,13 +350,12 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 링크 리스트
         lifecycleScope.launch {
             profileViewModel.profileLinkList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profileLinkList ->
-                Log.d("ProfileFragment", "Profile Link List: $profileLinkList")
                 linkAdapter.updateData(profileLinkList)
 
                 if (profileLinkList.isEmpty()) {
-                    binding.textView4.visibility = View.GONE
+                    binding.layoutProfileLink.visibility = View.GONE
                 } else {
-                    binding.textView4.visibility = View.VISIBLE
+                    binding.layoutProfileLink.visibility = View.VISIBLE
                 }
             }
         }
@@ -354,7 +363,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 진행한 스터디 리스트
         lifecycleScope.launch {
             profileViewModel.profileHostStudyList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profileHostStudyList ->
-                Log.d("ProfileFragment", "Profile Host Study List: $profileHostStudyList")
                 if (profileHostStudyList != null) {
                     hostStudyAdapter.updateData(profileHostStudyList)
                 }
@@ -380,7 +388,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 참여한 스터디 리스트
         lifecycleScope.launch {
             profileViewModel.profilePartStudyList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profilePartStudyList ->
-                Log.d("ProfileFragment", "Profile Part Study List: $profilePartStudyList")
                 if (profilePartStudyList != null) {
                     partStudyAdapter.updateData(profilePartStudyList)
                 }
