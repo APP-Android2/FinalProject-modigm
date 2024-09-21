@@ -23,8 +23,8 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
+import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -403,52 +403,4 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
             }
         }
     }
-
-//    // 1:1 채팅 방 데이터 생성
-//    suspend fun addChatRoomData(): Int {
-//        var chatIdx = 0
-//        val job1 = CoroutineScope(Dispatchers.Main).launch {
-//
-//            val chatRoomSequence = ChatRoomDataSource.getChatRoomSequence()
-//            ChatRoomDataSource.updateChatRoomSequence(chatRoomSequence - 1)
-//
-//            chatIdx = chatRoomSequence - 1
-//            val chatTitle = "1:1 채팅방"
-//            val chatRoomImage = ""
-//            val chatMemberList = listOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, uid)
-//            val participantCount = 2
-//            val groupChat = false
-//            val lastChatMessage = ""
-//            val lastChatFullTime = 0L
-//            val lastChatTime = ""
-//
-//            val chatRoomData = ChatRoomData(chatIdx, chatTitle, chatRoomImage, chatMemberList, participantCount, groupChat, lastChatMessage, lastChatFullTime, lastChatTime)
-//
-//            // 채팅 방 생성
-//            ChatRoomDataSource.insertChatRoomData(chatRoomData)
-//            Log.d("chatLog5", "ProfileFragment - 1:1 채팅방 생성")
-//        }
-//        job1.join()
-//
-//        return chatIdx
-//    }
-//
-//    // 해당 채팅 방으로 입장
-//    fun enterChatRoom(chatRoomIdx: Int){
-//        val chatRoomFragment = ChatRoomFragment().apply {
-//            arguments = Bundle().apply {
-//                putInt("chatIdx", chatRoomIdx)
-//                putString("chatTitle", "1:1")
-//                putStringArrayList("chatMemberList", arrayListOf(ModigmApplication.prefs.getUserData("currentUserData")?.userUid, uid))
-//                putInt("participantCount", 2)
-//                putBoolean("groupChat", false)
-//            }
-//        }
-//        requireActivity().supportFragmentManager.commit {
-//            setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-//            replace(R.id.containerMain, chatRoomFragment)
-//            addToBackStack(FragmentName.CHAT_ROOM.str)
-//        }
-//        Log.d("chatLog5", "ProfileFragment - ${chatRoomIdx}번 채팅방 입장")
-//    }
 }
