@@ -110,7 +110,9 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // ViewModel에서 데이터 요청
-        viewModel.getStudy(studyIdx) // ViewModel을 통해 데이터 요청
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getStudy(studyIdx)
+        } // ViewModel을 통해 데이터 요청
 
         observeViewModel() // ViewModel 관찰
 
@@ -124,7 +126,9 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         logFragmentBackStack(parentFragmentManager)
 
         // 스킬 데이터를 로드
-        viewModel.getTechIdxByStudyIdx(studyIdx)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getTechIdxByStudyIdx(studyIdx)
+        }
 
         // 입력값 검증 로직 메서드 호출
 //        setupMemberInputWatcher()

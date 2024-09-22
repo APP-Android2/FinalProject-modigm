@@ -74,6 +74,24 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         viewModel.clearData() // ViewModel 데이터 초기화
 
+        val progressBar = binding.progressBar
+
+        lifecycleScope.launch {
+            // 모든 데이터 로딩 상태를 관찰하여 ProgressBar 제어
+            viewModel.isLoading
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isLoading ->
+                    if (isLoading) {
+                        progressBar.visibility = View.VISIBLE
+                    } else {
+                        progressBar.visibility = View.GONE
+                    }
+                }
+        }
+
+        // 스터디 데이터 및 기타 데이터 로드
+        viewModel.loadStudyData(studyIdx, userIdx)
+
         // 초기 데이터 로드
         viewModel.fetchUserProfile(userIdx)
 

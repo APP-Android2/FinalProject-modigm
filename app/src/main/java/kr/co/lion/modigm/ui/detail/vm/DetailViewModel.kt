@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -79,6 +81,20 @@ class DetailViewModel: ViewModel() {
     private val _isUserAlreadyMember = MutableStateFlow(false)
     val isUserAlreadyMember: StateFlow<Boolean> = _isUserAlreadyMember
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
+    // 각각의 데이터 로딩 상태를 저장하는 변수들
+    private val _isStudyDataLoaded = MutableStateFlow(false)
+    private val _isMemberCountLoaded = MutableStateFlow(false)
+    private val _isUserDataLoaded = MutableStateFlow(false)
+    private val _isStudyPicLoaded = MutableStateFlow(false)
+    private val _isTechListLoaded = MutableStateFlow(false)
+
+    private fun checkAllDataLoaded() {
+        _isLoading.value = !_isStudyDataLoaded.value || !_isMemberCountLoaded.value || !_isUserDataLoaded.value || !_isStudyPicLoaded.value || !_isTechListLoaded.value
+    }
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
@@ -88,32 +104,89 @@ class DetailViewModel: ViewModel() {
         _studyMembers.value = emptyList()
     }
 
-    // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
-    fun getStudy(studyIdx: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                detailRepository.getStudyById(studyIdx).collect { data ->
-                    _studyData.value = data
-                    data?.let { getStudyPic(it.studyIdx) } // 데이터 가져온 후 이미지 로드
-                }
-            } catch (throwable: Throwable) {
-                Log.e("DetailViewModel", "Error fetching study data", throwable)
+    fun loadStudyData(studyIdx: Int, userIdx: Int) {
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            // 1. 스터디 데이터 로드
+            launch {
+                getStudy(studyIdx)
+            }
+
+            // 2. 멤버 수 로드
+            launch {
+                countMembersByStudyIdx(studyIdx)
+            }
+
+            // 3. 글 작성자 데이터 로드
+            launch {
+                getUserById(userIdx)
+            }
+
+            // 4. 스터디 이미지 로드
+            launch {
+                getStudyPic(studyIdx)
+            }
+
+            // 5. 스터디 기술 목록 로드
+            launch {
+                getTechIdxByStudyIdx(studyIdx)
             }
         }
     }
 
-    // 특정 studyIdx에 대한 스터디 멤버 수를 가져오는 메소드
-    fun countMembersByStudyIdx(studyIdx: Int) {
-        viewModelScope.launch {
-            try {
-                detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
-                    _memberCount.value = count
-                }
-            } catch (throwable: Throwable) {
-                Log.e("DetailViewModel", "Error counting members", throwable)
+    // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
+//    fun getStudy(studyIdx: Int) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                detailRepository.getStudyById(studyIdx).collect { data ->
+//                    _studyData.value = data
+//                    data?.let { getStudyPic(it.studyIdx) } // 데이터 가져온 후 이미지 로드
+//                }
+//            } catch (throwable: Throwable) {
+//                Log.e("DetailViewModel", "Error fetching study data", throwable)
+//            }
+//        }
+//    }
+
+    suspend fun getStudy(studyIdx: Int) {
+        try {
+            detailRepository.getStudyById(studyIdx).collect { data ->
+                _studyData.value = data
+                _isStudyDataLoaded.value = true
+                checkAllDataLoaded()
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching study data", throwable)
         }
     }
+
+    // 특정 studyIdx에 대한 스터디 멤버 수를 가져오는 메소드
+//    fun countMembersByStudyIdx(studyIdx: Int) {
+//        viewModelScope.launch {
+//            try {
+//                detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
+//                    _memberCount.value = count
+//                }
+//            } catch (throwable: Throwable) {
+//                Log.e("DetailViewModel", "Error counting members", throwable)
+//            }
+//        }
+//    }
+
+    suspend fun countMembersByStudyIdx(studyIdx: Int) {
+        try {
+            detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
+                _memberCount.value = count
+                _isMemberCountLoaded.value = true
+                checkAllDataLoaded()
+            }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error counting members", throwable)
+        }
+    }
+
+
     fun fetchMembersInfo(studyIdx: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -150,37 +223,73 @@ class DetailViewModel: ViewModel() {
 
 
     // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
-    fun getStudyPic(studyIdx: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+//    fun getStudyPic(studyIdx: Int) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            detailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
+//                _studyPic.value = pic
+//            }
+//        }
+//    }
+
+    suspend fun getStudyPic(studyIdx: Int) {
+        try {
             detailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
                 _studyPic.value = pic
+                _isStudyPicLoaded.value = true
+                checkAllDataLoaded()
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching study pic", throwable)
         }
     }
 
-    fun getUserById(userIdx: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _userData.value = null  // 데이터 로드 전에 null로 초기화
-            try {
-                detailRepository.getUserById(userIdx).collect { user ->
-                    if (user != null) {
-                        _userData.value = user
-                        Log.d("DetailViewModel", "User data fetched successfully: $user")
-                    } else {
-                        Log.e("DetailViewModel", "No user data found for userIdx: $userIdx")
-                    }
-                }
-            } catch (throwable: Throwable) {
-                Log.e("DetailViewModel", "Error fetching user data", throwable)
+//    fun getUserById(userIdx: Int) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            _userData.value = null  // 데이터 로드 전에 null로 초기화
+//            try {
+//                detailRepository.getUserById(userIdx).collect { user ->
+//                    if (user != null) {
+//                        _userData.value = user
+//                        Log.d("DetailViewModel", "User data fetched successfully: $user")
+//                    } else {
+//                        Log.e("DetailViewModel", "No user data found for userIdx: $userIdx")
+//                    }
+//                }
+//            } catch (throwable: Throwable) {
+//                Log.e("DetailViewModel", "Error fetching user data", throwable)
+//            }
+//        }
+//    }
+
+    suspend fun getUserById(userIdx: Int) {
+        try {
+            detailRepository.getUserById(userIdx).collect { user ->
+                _userData.value = user
+                _isUserDataLoaded.value = true
+                checkAllDataLoaded()
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching user data", throwable)
         }
     }
 
-    fun getTechIdxByStudyIdx(studyIdx: Int) {
-        viewModelScope.launch {
+//    fun getTechIdxByStudyIdx(studyIdx: Int) {
+//        viewModelScope.launch {
+//            detailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
+//                _studyTechList.value = techList
+//            }
+//        }
+//    }
+
+    suspend fun getTechIdxByStudyIdx(studyIdx: Int) {
+        try {
             detailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
                 _studyTechList.value = techList
+                _isTechListLoaded.value = true
+                checkAllDataLoaded()
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching tech list", throwable)
         }
     }
 
