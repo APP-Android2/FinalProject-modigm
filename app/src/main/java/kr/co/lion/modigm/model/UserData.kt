@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.model
 
 import java.sql.ResultSet
+import java.util.Date
 
 data class UserData(
     val userIdx: Int = -1,              // 회원 고유번호
@@ -12,6 +13,7 @@ data class UserData(
     val userEmail: String = "",         // 사용자 이메일
     val userProvider: String = "",      // Firebase Auth에 등록된 계정 Provider
     val userInterests: String = "",     // 관심 분야 목록
+    val userJoinDate: Date = Date(System.currentTimeMillis()), // 회원가입 일자
 ) {
     fun toMap(): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
@@ -23,6 +25,7 @@ data class UserData(
         map["userEmail"] = this.userEmail
         map["userProvider"] = this.userProvider
         map["userInterests"] = this.userInterests
+        map["userJoinDate"] = this.userJoinDate
         return map
     }
 
@@ -37,7 +40,8 @@ data class UserData(
                 resultSet.getString("userIntro") ?: "",
                 resultSet.getString("userEmail") ?: "",
                 resultSet.getString("userProvider") ?: "",
-                resultSet.getString("userInterests") ?: ""
+                resultSet.getString("userInterests") ?: "",
+                resultSet.getDate("userJoinDate") ?: Date(System.currentTimeMillis()),
             )
         }
     }
