@@ -31,6 +31,8 @@ import androidx.core.content.FileProvider
 import androidx.core.view.children
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
@@ -155,7 +157,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     fun observeViewModel() {
         // studyData 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyData.collect { data ->
+            viewModel.studyData.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { data ->
                 data?.let {
                     currentStudyData = it // 여기서 데이터를 업데이트합니다.
                     Log.d("DetailEditFragment", "Received study data: $it")
@@ -173,7 +175,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // updateResult 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.updateResult.collect { isSuccess ->
+            viewModel.updateResult.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { isSuccess ->
                 isSuccess?.let {
                     val message = if (it) "정보가 업데이트되었습니다." else "업데이트 실패"
                     val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
@@ -197,7 +199,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // studyPic 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyPic.collect { uri ->
+            viewModel.studyPic.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { uri ->
                 safeContext()?.let { context ->
                     binding.cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
 
@@ -211,7 +213,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // 최소 인원 수 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.memberCount.collect { count ->
+            viewModel.memberCount.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { count ->
                 minMembers = count
                 Log.d("DetailEditFragment", "Minimum members: $minMembers")
             }
@@ -219,7 +221,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // 스킬 데이터 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyTechList.collect { techList ->
+            viewModel.studyTechList.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { techList ->
                 Log.d("DetailEditFragment", "Received techList from ViewModel: $techList")
                 val skills = techList.map { Skill.fromNum(it) }  // techIdx를 Skill 객체로 변환
                 addChipsToGroup(binding.ChipGroupDetailEdit, skills)
