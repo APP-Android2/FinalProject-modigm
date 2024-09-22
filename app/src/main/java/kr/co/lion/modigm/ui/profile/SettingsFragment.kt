@@ -1,27 +1,21 @@
 package kr.co.lion.modigm.ui.profile
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.CustomLogoutDialogBinding
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
-import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.profile.popup.LogoutAdDialog
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
-class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
-
+class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
@@ -59,10 +53,11 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
         binding.apply {
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, EditProfileFragment())
-                    .addToBackStack(FragmentName.EDIT_PROFILE.str)
-                    .commit()
+                parentFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    replace(R.id.containerMain, EditProfileFragment())
+                    addToBackStack(FragmentName.EDIT_PROFILE.str)
+                }
             }
 
             // 비밀번호 변경 메뉴
@@ -83,6 +78,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
                 // 버튼 클릭 시
                 setOnClickListener {
                     parentFragmentManager.commit {
+                        setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                         replace(R.id.containerMain, ChangePasswordEmailFragment())
                         addToBackStack(FragmentName.CHANGE_PASSWORD_EMAIL.str)
                     }
@@ -106,25 +102,10 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
 
             // 로그아웃
             layoutSettingsLogout.setOnClickListener {
-                // 로그아웃 확인 다이얼로그
-                val customDialogBinding = CustomLogoutDialogBinding.inflate(layoutInflater)
-                val builder = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
-                    .setView(customDialogBinding.root)
-                    .setPositiveButton("확인") { dialogInterface: DialogInterface, i: Int ->
-                        // SharedPreferences 초기화
-                        prefs.clearAllPrefs()
-                        prefs.setBoolean("autoLogin", false)
-
-                        // 로그아웃 처리
-                        Firebase.auth.signOut()
-
-                        // 로그인 화면으로 돌아간다
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.containerMain, LoginFragment())
-                            .addToBackStack(null)
-                            .commit()
-                    }.setNegativeButton("취소") { dialogInterface: DialogInterface, i: Int -> }
-                builder.show()
+                val logoutAdDialog = LogoutAdDialog()
+                // 알림창이 띄워져있는 동안 배경 클릭 막기
+                //logoutAdDialog.isCancelable = false
+                logoutAdDialog.show(parentFragmentManager, "LogoutAdDialog")
             }
         }
     }
@@ -141,6 +122,7 @@ class SettingsFragment(private val profileFragment: ProfileFragment): DBBaseFrag
 
             // Fragment 교체
             parentFragmentManager.commit {
+                setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                 add(R.id.containerMain, profileWebFragment)
                 addToBackStack(FragmentName.PROFILE_WEB.str)
             }
