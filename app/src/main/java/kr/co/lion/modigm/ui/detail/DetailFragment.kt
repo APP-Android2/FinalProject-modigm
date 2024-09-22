@@ -480,7 +480,10 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     fun settingToolbar(data: StudyData) {
         with(binding) {
             (activity as AppCompatActivity).setSupportActionBar(toolbar)
-            (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+            // 커스텀 네비게이션 아이콘 설정
+            toolbar.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.custom_back_icon)
+
 
             // 콜랩싱 툴바의 타이틀 설정
             collapsingToolbarDetail.title = data.studyTitle
@@ -500,15 +503,13 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 val context = context ?: return@OnOffsetChangedListener // context가 null이면 반환
 
                 val scrollRange = appBarLayout.totalScrollRange
-                val drawable = ContextCompat.getDrawable(context, R.drawable.icon_arrow_back_24px)
-
                 if (scrollRange + verticalOffset == 0) {
-                    drawable?.setTint(ContextCompat.getColor(context, R.color.black))
+                    // 스크롤이 완료된 상태 - 기본 아이콘 사용
+                    toolbar.navigationIcon = ContextCompat.getDrawable(context, R.drawable.icon_arrow_back_24px)
                 } else {
-                    drawable?.setTint(ContextCompat.getColor(context, R.color.white))
+                    // 스크롤이 진행 중이거나 완료되지 않은 상태 - 커스텀 아이콘 사용
+                    toolbar.navigationIcon = ContextCompat.getDrawable(context, R.drawable.custom_back_icon)
                 }
-
-                toolbar.navigationIcon = drawable
             })
         }
     }
