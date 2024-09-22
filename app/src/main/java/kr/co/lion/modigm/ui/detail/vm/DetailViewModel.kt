@@ -14,8 +14,11 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
@@ -91,9 +94,16 @@ class DetailViewModel: ViewModel() {
     private val _isStudyPicLoaded = MutableStateFlow(false)
     private val _isTechListLoaded = MutableStateFlow(false)
 
-    private fun checkAllDataLoaded() {
-        _isLoading.value = !_isStudyDataLoaded.value || !_isMemberCountLoaded.value || !_isUserDataLoaded.value || !_isStudyPicLoaded.value || !_isTechListLoaded.value
-    }
+    // 모든 데이터를 로드했는지 확인하는 플래그
+    val isDataFullyLoaded: StateFlow<Boolean> = combine(
+        _isStudyDataLoaded,
+        _isMemberCountLoaded,
+        _isUserDataLoaded,
+        _isStudyPicLoaded,
+        _isTechListLoaded
+    ) { studyLoaded, memberCountLoaded, userLoaded, picLoaded, techLoaded ->
+        studyLoaded && memberCountLoaded && userLoaded && picLoaded && techLoaded
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     fun clearData() {
         _studyData.value = null
@@ -104,33 +114,50 @@ class DetailViewModel: ViewModel() {
         _studyMembers.value = emptyList()
     }
 
-    fun loadStudyData(studyIdx: Int, userIdx: Int) {
+    fun clearLoadingState() {
+        _isLoading.value = true
+        _isStudyDataLoaded.value = false
+        _isMemberCountLoaded.value = false
+        _isUserDataLoaded.value = false
+        _isStudyPicLoaded.value = false
+        _isTechListLoaded.value = false
+    }
+
+
+    fun loadStudyData(studyIdx: Int) {
         _isLoading.value = true
 
         viewModelScope.launch {
-            // 1. 스터디 데이터 로드
-            launch {
-                getStudy(studyIdx)
-            }
+            try {
+                // 1. 스터디 데이터 로드
+                detailRepository.getStudyById(studyIdx).collect { studyData ->
+                    _studyData.value = studyData
+                    _isStudyDataLoaded.value = true
 
-            // 2. 멤버 수 로드
-            launch {
-                countMembersByStudyIdx(studyIdx)
-            }
+                    // studyData에서 userIdx를 가져옵니다.
+                    studyData?.let { study ->
+                        val userIdx = study.userIdx
 
-            // 3. 글 작성자 데이터 로드
-            launch {
-                getUserById(userIdx)
-            }
+                        // 2. 글 작성자 데이터 로드
+                        val userDeferred = async { getUserById(userIdx) }
 
-            // 4. 스터디 이미지 로드
-            launch {
-                getStudyPic(studyIdx)
-            }
+                        // 3. 멤버 수 로드
+                        val memberCountDeferred = async { countMembersByStudyIdx(studyIdx) }
 
-            // 5. 스터디 기술 목록 로드
-            launch {
-                getTechIdxByStudyIdx(studyIdx)
+                        // 4. 스터디 이미지 로드
+                        val studyPicDeferred = async { getStudyPic(studyIdx) }
+
+                        // 5. 스터디 기술 목록 로드
+                        val techDeferred = async { getTechIdxByStudyIdx(studyIdx) }
+
+                        // 모든 데이터 로드 완료까지 대기
+                        awaitAll(userDeferred, memberCountDeferred, studyPicDeferred, techDeferred)
+                    }
+                }
+            }catch (throwable: Throwable) {
+                Log.e("DetailViewModel", "Error loading study data", throwable)
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -141,7 +168,6 @@ class DetailViewModel: ViewModel() {
             detailRepository.getStudyById(studyIdx).collect { data ->
                 _studyData.value = data
                 _isStudyDataLoaded.value = true
-                checkAllDataLoaded()
             }
         } catch (throwable: Throwable) {
             Log.e("DetailViewModel", "Error fetching study data", throwable)
@@ -154,7 +180,6 @@ class DetailViewModel: ViewModel() {
             detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
                 _memberCount.value = count
                 _isMemberCountLoaded.value = true
-                checkAllDataLoaded()
             }
         } catch (throwable: Throwable) {
             Log.e("DetailViewModel", "Error counting members", throwable)
@@ -203,7 +228,6 @@ class DetailViewModel: ViewModel() {
             detailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
                 _studyPic.value = pic
                 _isStudyPicLoaded.value = true
-                checkAllDataLoaded()
             }
         } catch (throwable: Throwable) {
             Log.e("DetailViewModel", "Error fetching study pic", throwable)
@@ -215,7 +239,6 @@ class DetailViewModel: ViewModel() {
             detailRepository.getUserById(userIdx).collect { user ->
                 _userData.value = user
                 _isUserDataLoaded.value = true
-                checkAllDataLoaded()
             }
         } catch (throwable: Throwable) {
             Log.e("DetailViewModel", "Error fetching user data", throwable)
@@ -228,7 +251,6 @@ class DetailViewModel: ViewModel() {
             detailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
                 _studyTechList.value = techList
                 _isTechListLoaded.value = true
-                checkAllDataLoaded()
             }
         } catch (throwable: Throwable) {
             Log.e("DetailViewModel", "Error fetching tech list", throwable)

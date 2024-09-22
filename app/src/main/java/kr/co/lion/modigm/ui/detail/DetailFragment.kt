@@ -72,25 +72,28 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // 기본 이미지로 초기화
         binding.imageViewDetailUserPic.setImageResource(R.drawable.image_default_profile)
 
+        // 처음에는 글 작성자 이름을 숨김
+        binding.textViewDetailUserName.visibility = View.GONE
+
         viewModel.clearData() // ViewModel 데이터 초기화
 
-        val progressBar = binding.progressBar
-
+        // ProgressBar 제어
         lifecycleScope.launch {
-            // 모든 데이터 로딩 상태를 관찰하여 ProgressBar 제어
-            viewModel.isLoading
+            viewModel.isDataFullyLoaded
                 .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                .collect { isLoading ->
-                    if (isLoading) {
-                        progressBar.visibility = View.VISIBLE
+                .collect { isLoaded ->
+                    if (isLoaded) {
+                        binding.progressBar.visibility = View.GONE
+                        binding.coordinatorLayoutDetail.visibility = View.VISIBLE
                     } else {
-                        progressBar.visibility = View.GONE
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.coordinatorLayoutDetail.visibility = View.GONE
                     }
                 }
         }
 
         // 스터디 데이터 및 기타 데이터 로드
-        viewModel.loadStudyData(studyIdx, userIdx)
+        viewModel.loadStudyData(studyIdx)
 
         // 초기 데이터 로드
         viewModel.fetchUserProfile(userIdx)
@@ -192,6 +195,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
     override fun onResume() {
         super.onResume()
+        // ViewModel의 로딩 상태 초기화
+        viewModel.clearLoadingState()
+
         fetchDataAndUpdateUI()
     }
 
@@ -220,16 +226,18 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         lifecycleScope.launch {
             viewModel.userData.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { user ->
                 if (user != null) {
+                    // 작성자 데이터가 있으면 이름을 보여줌
+                    binding.textViewDetailUserName.visibility = View.VISIBLE
                     // 데이터가 있을 경우 UI 업데이트
                     binding.textViewDetailUserName.text = user.userName
                     loadUserImage(user.userProfilePic)
+
                 } else {
                     // 데이터가 없을 경우 기본 설정
-                    binding.textViewDetailUserName.text = "알수없는 사용자"
+                    binding.textViewDetailUserName.visibility = View.GONE // 데이터가 없을 때는 이름을 숨김
                     Glide.with(this@DetailFragment)
                         .load(R.drawable.image_default_profile)
                         .into(binding.imageViewDetailUserPic)
-                    Log.e("DetailFragment", "No user data available")
                 }
             }
         }
