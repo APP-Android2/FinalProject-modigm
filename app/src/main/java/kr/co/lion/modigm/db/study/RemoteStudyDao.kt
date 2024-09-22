@@ -22,7 +22,7 @@ class RemoteStudyDao {
         withContext(Dispatchers.IO) {
             runCatching {
                 HikariCPDataSource.getConnection().use { connection ->
-                    val query = "SELECT * FROM tb_study WHERE studyState = true"
+                    val query = "SELECT * FROM tb_study"  // studyState 필터 제거
                     connection.prepareStatement(query).use { statement ->
                         val resultSet = statement.executeQuery()
                         val result = mutableListOf<StudyData>()
