@@ -690,32 +690,50 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     }
 
     fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
-        // 기존의 칩들을 삭제
+        // 기존의 칩들을 모두 제거
         chipGroup.removeAllViews()
         selectedSkillList.clear()
 
-        // 전달받은 스킬 리스트를 이용하여 칩을 생성 및 추가
-        for (skill in skills) {
-            selectedSkillList.add(skill.num)  // 초기 스킬 목록을 selectedSkillList에 추가
-            val chip = Chip(context).apply {
-                text = skill.displayName
-                isClickable = true
-                isCheckable = true
-                isCloseIconVisible=true
-                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
-                setTextColor(ContextCompat.getColor(context, R.color.black))
-                setTextAppearance(R.style.ChipTextStyle)
-                id = View.generateViewId()
-                tag = skill.num
+        var addedOtherChip = false // "기타" 칩이 이미 추가됐는지 여부
 
-                // 'X' 아이콘 클릭시 해당 칩을 ChipGroup에서 제거
-                setOnCloseIconClickListener {
-                    chipGroup.removeView(this)  // 'this'는 현재 클릭된 Chip 인스턴스를 참조
-                    selectedSkillList.remove(skill.num)  // 선택된 스킬 목록에서 해당 스킬 제거
+        // "기타" 칩들을 하나로 그룹화해서 처리하기 위한 리스트
+        val groupedSkills = skills.groupBy { if (it.displayName == "기타") "기타" else it.displayName }
+
+        groupedSkills.forEach { (displayName, skillGroup) ->
+            // "기타" 칩은 한 번만 UI에 추가하되, 다른 카테고리의 "기타"도 선택된 상태는 유지
+            if (displayName == "기타") {
+                if (!addedOtherChip) {
+                    addedOtherChip = true // 한 번만 추가
+                    addSingleChip(chipGroup, skillGroup.first()) // UI에 "기타" 칩 하나만 추가
                 }
+            } else {
+                addSingleChip(chipGroup, skillGroup.first()) // 기타 외의 칩들은 그대로 추가
             }
-            chipGroup.addView(chip)
+            // 선택된 상태는 데이터로 유지
+            selectedSkillList.addAll(skillGroup.map { it.num })
         }
+    }
+
+    fun addSingleChip(chipGroup: ChipGroup, skill: Skill) {
+        val chip = Chip(context).apply {
+            text = skill.displayName
+            isClickable = true
+            isCheckable = true
+            isChecked = selectedSkillList.contains(skill.num) // 선택 상태 유지
+            isCloseIconVisible = true
+            chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
+            setTextColor(ContextCompat.getColor(context, R.color.black))
+            setTextAppearance(R.style.ChipTextStyle)
+            id = View.generateViewId()
+            tag = skill.num
+
+            // 'X' 아이콘 클릭 시 해당 칩을 ChipGroup에서 제거
+            setOnCloseIconClickListener {
+                chipGroup.removeView(this)
+                selectedSkillList.remove(skill.num) // 선택된 스킬 목록에서 제거
+            }
+        }
+        chipGroup.addView(chip)
     }
 
     fun setupBottomSheet() {
