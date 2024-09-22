@@ -136,19 +136,6 @@ class DetailViewModel: ViewModel() {
     }
 
     // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
-//    fun getStudy(studyIdx: Int) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                detailRepository.getStudyById(studyIdx).collect { data ->
-//                    _studyData.value = data
-//                    data?.let { getStudyPic(it.studyIdx) } // 데이터 가져온 후 이미지 로드
-//                }
-//            } catch (throwable: Throwable) {
-//                Log.e("DetailViewModel", "Error fetching study data", throwable)
-//            }
-//        }
-//    }
-
     suspend fun getStudy(studyIdx: Int) {
         try {
             detailRepository.getStudyById(studyIdx).collect { data ->
@@ -162,18 +149,6 @@ class DetailViewModel: ViewModel() {
     }
 
     // 특정 studyIdx에 대한 스터디 멤버 수를 가져오는 메소드
-//    fun countMembersByStudyIdx(studyIdx: Int) {
-//        viewModelScope.launch {
-//            try {
-//                detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
-//                    _memberCount.value = count
-//                }
-//            } catch (throwable: Throwable) {
-//                Log.e("DetailViewModel", "Error counting members", throwable)
-//            }
-//        }
-//    }
-
     suspend fun countMembersByStudyIdx(studyIdx: Int) {
         try {
             detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
@@ -223,14 +198,6 @@ class DetailViewModel: ViewModel() {
 
 
     // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
-//    fun getStudyPic(studyIdx: Int) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            detailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
-//                _studyPic.value = pic
-//            }
-//        }
-//    }
-
     suspend fun getStudyPic(studyIdx: Int) {
         try {
             detailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
@@ -242,24 +209,6 @@ class DetailViewModel: ViewModel() {
             Log.e("DetailViewModel", "Error fetching study pic", throwable)
         }
     }
-
-//    fun getUserById(userIdx: Int) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            _userData.value = null  // 데이터 로드 전에 null로 초기화
-//            try {
-//                detailRepository.getUserById(userIdx).collect { user ->
-//                    if (user != null) {
-//                        _userData.value = user
-//                        Log.d("DetailViewModel", "User data fetched successfully: $user")
-//                    } else {
-//                        Log.e("DetailViewModel", "No user data found for userIdx: $userIdx")
-//                    }
-//                }
-//            } catch (throwable: Throwable) {
-//                Log.e("DetailViewModel", "Error fetching user data", throwable)
-//            }
-//        }
-//    }
 
     suspend fun getUserById(userIdx: Int) {
         try {
@@ -273,13 +222,6 @@ class DetailViewModel: ViewModel() {
         }
     }
 
-//    fun getTechIdxByStudyIdx(studyIdx: Int) {
-//        viewModelScope.launch {
-//            detailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
-//                _studyTechList.value = techList
-//            }
-//        }
-//    }
 
     suspend fun getTechIdxByStudyIdx(studyIdx: Int) {
         try {
