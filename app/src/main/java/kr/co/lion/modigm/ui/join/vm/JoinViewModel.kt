@@ -152,8 +152,8 @@ class JoinViewModel @Inject constructor(
     }
 
     // 회원 가입 완료
-    fun completeJoinUser(){
-        viewModelScope.launch {
+    fun completeJoinUser(handler: CoroutineExceptionHandler){
+        viewModelScope.launch(handler) {
             _user.value = _auth.currentUser
 
             val user = createUserInfoData()
