@@ -61,10 +61,10 @@ class DetailJoinMembersAdapter(
                 binding.textViewDetailJoinKick.text = "스터디장"
                 binding.textViewDetailJoinKick.setTextColor(Color.BLACK) // 글씨 색상을 검은색으로 설정
                 binding.textViewDetailJoinKick.isClickable = false // 클릭 비활성화
-                binding.textViewDetailJoinKick.setOnClickListener(null)
+                binding.layoutDetailJoinKick.setOnClickListener(null)
             } else {
                 binding.textViewDetailJoinKick.text = "내보내기"
-                binding.textViewDetailJoinKick.setOnClickListener {
+                binding.layoutDetailJoinKick.setOnClickListener {
                     showKickDialog(user, studyIdx) // 강퇴 다이얼로그 표시
                 }
             }
@@ -77,14 +77,14 @@ class DetailJoinMembersAdapter(
                     .apply(
                         RequestOptions()
                             .placeholder(R.drawable.image_loading_gray)
-                            .error(R.drawable.icon_account_circle)
+                            .error(R.drawable.image_default_profile)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .skipMemoryCache(true)
                     )
                     .into(binding.imageViewDetailJoinMember)
             } else {
                 // 이미지 URL이 없을 때 기본 이미지 설정
-                binding.imageViewDetailJoinMember.setImageResource(R.drawable.icon_account_circle)
+                binding.imageViewDetailJoinMember.setImageResource(R.drawable.image_default_profile)
             }
         }
 

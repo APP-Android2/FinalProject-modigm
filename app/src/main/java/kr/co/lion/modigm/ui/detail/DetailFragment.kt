@@ -1,7 +1,9 @@
 package kr.co.lion.modigm.ui.detail
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -70,9 +72,33 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
 
         // 기본 이미지로 초기화
-        binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+        binding.imageViewDetailUserPic.setImageResource(R.drawable.image_default_profile)
+
+        // 처음에는 글 작성자 이름을 숨김
+        binding.textViewDetailUserName.visibility = View.GONE
 
         viewModel.clearData() // ViewModel 데이터 초기화
+
+        // ProgressBar 제어
+        lifecycleScope.launch {
+            viewModel.isDataFullyLoaded
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { isLoaded ->
+                    if (isLoaded) {
+                        binding.progressBar.visibility = View.GONE
+                        binding.coordinatorLayoutDetail.visibility = View.VISIBLE
+                    } else {
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.coordinatorLayoutDetail.visibility = View.GONE
+                    }
+                }
+        }
+
+        // ViewModel 상태 초기화 및 데이터 로드
+        viewModel.clearLoadingState()  // 새로운 항목 선택 시 상태 초기화
+
+        // 스터디 데이터 및 기타 데이터 로드
+        viewModel.loadStudyData(studyIdx)
 
         // 초기 데이터 로드
         viewModel.fetchUserProfile(userIdx)
@@ -172,8 +198,17 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         }
     }
 
+
     override fun onResume() {
         super.onResume()
+        // ViewModel의 로딩 상태 초기화
+//        viewModel.clearLoadingState()
+
+        // 이미 데이터가 로드된 상태라면 로딩을 다시 하지 않음
+        if (!viewModel.isDataFullyLoaded.value) {
+            viewModel.loadStudyData(studyIdx)
+        }
+
         fetchDataAndUpdateUI()
     }
 
@@ -186,6 +221,18 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                     // 스터디 데이터를 수신한 후 사용자 데이터를 요청
                     viewModel.getUserById(it.userIdx)
                     updateUI(it)
+
+                    // 링크 데이터 설정
+                    val link = it.studyChatLink ?: ""
+                    binding.textviewDetailFragmentLink.text = link
+
+                    // 링크에 따른 아이콘 업데이트
+                    updateLinkIcon(link)
+
+                    // 링크 클릭 시 웹뷰로 열기
+                    binding.textviewDetailFragmentLink.setOnClickListener {
+                        openWebView(viewLifecycleOwner, parentFragmentManager, link)
+                    }
                 }
             }
         }
@@ -202,16 +249,18 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         lifecycleScope.launch {
             viewModel.userData.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collect { user ->
                 if (user != null) {
+                    // 작성자 데이터가 있으면 이름을 보여줌
+                    binding.textViewDetailUserName.visibility = View.VISIBLE
                     // 데이터가 있을 경우 UI 업데이트
                     binding.textViewDetailUserName.text = user.userName
                     loadUserImage(user.userProfilePic)
+
                 } else {
                     // 데이터가 없을 경우 기본 설정
-                    binding.textViewDetailUserName.text = "알수없는 사용자"
+                    binding.textViewDetailUserName.visibility = View.GONE // 데이터가 없을 때는 이름을 숨김
                     Glide.with(this@DetailFragment)
-                        .load(R.drawable.icon_account_circle)
+                        .load(R.drawable.image_default_profile)
                         .into(binding.imageViewDetailUserPic)
-                    Log.e("DetailFragment", "No user data available")
                 }
             }
         }
@@ -253,6 +302,26 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
     }
 
+    fun updateLinkIcon(link: String) {
+        if (link.isEmpty()) {
+            // 링크가 없으면 아이콘과 텍스트뷰 모두 숨김
+            binding.imageViewDetailLink.visibility = View.GONE
+            binding.textviewDetailFragmentLink.visibility = View.GONE
+        } else {
+            val iconResource = when {
+                link.contains("kakao", ignoreCase = true) -> R.drawable.kakaotalk_sharing_btn_small
+                link.contains("google.com/forms", ignoreCase = true) -> R.drawable.icon_googleforms
+                else -> R.drawable.icon_link
+            }
+
+            // 이미지 아이콘 설정
+            binding.imageViewDetailLink.setImageResource(iconResource)
+            binding.imageViewDetailLink.visibility = View.VISIBLE
+            binding.textviewDetailFragmentLink.visibility = View.VISIBLE
+        }
+    }
+
+
     private fun updateLikeButton(isLiked: Boolean) {
         if (isLiked) {
             binding.buttonDetailLike.setImageResource(R.drawable.icon_favorite_full_24px)
@@ -271,13 +340,13 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                     .apply(
                         RequestOptions()
                             .placeholder(R.drawable.image_loading_gray)
-                            .error(R.drawable.icon_account_circle)
+                            .error(R.drawable.image_default_profile)
                             .diskCacheStrategy(DiskCacheStrategy.NONE)
                             .skipMemoryCache(true)
                     )
                     .into(binding.imageViewDetailUserPic)
             } else {
-                binding.imageViewDetailUserPic.setImageResource(R.drawable.icon_account_circle)
+                binding.imageViewDetailUserPic.setImageResource(R.drawable.image_default_profile)
                 binding.imageViewDetailUserPic.invalidate()
                 binding.imageViewDetailUserPic.requestLayout()
             }
@@ -299,6 +368,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
             // 화면이동 로직 추가
             parentFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
                 .replace(R.id.containerMain, profileFragment)
                 .addToBackStack(FragmentName.DETAIL_MEMBER.str)
                 .commit()
@@ -393,6 +463,22 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 textViewDetailState.text = "모집 마감"
                 setupStatePopup()
             }
+
+            // 링크 데이터 반영 및 클릭 리스너 추가
+            if (data.studyChatLink.isNullOrEmpty()) {
+                textviewDetailFragmentLink.text = "링크 없음"
+            } else {
+                val link = data.studyChatLink
+                textviewDetailFragmentLink.text = link
+
+                // 링크에 따라 아이콘 설정
+                updateLinkIcon(link)
+
+                // 링크 클릭 시 웹뷰에서 열기
+                textviewDetailFragmentLink.setOnClickListener {
+                    openWebView(viewLifecycleOwner, parentFragmentManager, link)
+                }
+            }
         }
     }
 
@@ -400,11 +486,31 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     fun updateTechChips(techList: List<Int>) {
         val chipGroup = binding.chipGroupJoinInterest
         chipGroup.removeAllViews()
-        techList.forEach { techId ->
-            val chip = createSkillChip(techId)
-            chipGroup.addView(chip)
+
+        // "기타" 칩은 하나만 추가되도록 필터링
+        val filteredTechList = techList.distinctBy { skillId ->
+            Skill.fromNum(skillId).displayName // 스킬의 displayName으로 중복 필터링
+        }
+
+        var hasAddedEtc = false // "기타" 칩이 추가되었는지 확인
+
+        filteredTechList.forEach { techId ->
+            val skill = Skill.fromNum(techId)
+
+            // "기타" 칩은 한 번만 추가되도록
+            if (skill.displayName == "기타") {
+                if (!hasAddedEtc) {
+                    val chip = createSkillChip(techId)
+                    chipGroup.addView(chip)
+                    hasAddedEtc = true // "기타" 칩이 추가되었음을 표시
+                }
+            } else {
+                val chip = createSkillChip(techId)
+                chipGroup.addView(chip)
+            }
         }
     }
+
 
     // 칩 생성 함수
     fun createSkillChip(skillId: Int): Chip {
@@ -424,7 +530,10 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     fun settingToolbar(data: StudyData) {
         with(binding) {
             (activity as AppCompatActivity).setSupportActionBar(toolbar)
-            (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+            // 커스텀 네비게이션 아이콘 설정
+            toolbar.navigationIcon = ContextCompat.getDrawable(requireContext(), R.drawable.custom_back_icon)
+
 
             // 콜랩싱 툴바의 타이틀 설정
             collapsingToolbarDetail.title = data.studyTitle
@@ -444,15 +553,13 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 val context = context ?: return@OnOffsetChangedListener // context가 null이면 반환
 
                 val scrollRange = appBarLayout.totalScrollRange
-                val drawable = ContextCompat.getDrawable(context, R.drawable.icon_arrow_back_24px)
-
                 if (scrollRange + verticalOffset == 0) {
-                    drawable?.setTint(ContextCompat.getColor(context, R.color.black))
+                    // 스크롤이 완료된 상태 - 기본 아이콘 사용
+                    toolbar.navigationIcon = ContextCompat.getDrawable(context, R.drawable.icon_arrow_back_24px)
                 } else {
-                    drawable?.setTint(ContextCompat.getColor(context, R.color.white))
+                    // 스크롤이 진행 중이거나 완료되지 않은 상태 - 커스텀 아이콘 사용
+                    toolbar.navigationIcon = ContextCompat.getDrawable(context, R.drawable.custom_back_icon)
                 }
-
-                toolbar.navigationIcon = drawable
             })
         }
     }
@@ -508,6 +615,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
                 // 화면이동 로직 추가
                 parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
                     .replace(R.id.containerMain, detailMemberFragment)
                     .addToBackStack(FragmentName.DETAIL_MEMBER.str)
                     .commit()
@@ -526,6 +634,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
                 // 화면이동 로직 추가
                 parentFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
                     .replace(R.id.containerMain, detailEditFragment)
                     .addToBackStack(FragmentName.DETAIL_EDIT.str)
                     .commit()
@@ -595,12 +704,33 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         if (currentStudyData?.userIdx == userIdx) {
             setupOwnerView(textViewState)
-            // 버튼 클릭 비활성화
-            binding.buttonDetailApply.isEnabled = false
+            // "멤버관리"로 텍스트 설정
+            binding.buttonDetailApply.text = "멤버관리"
+            binding.buttonDetailApply.isEnabled = true
+            binding.buttonDetailApply.setOnClickListener {
+                navigateToMemberFragment()
+            }
         } else {
             setupNonOwnerView(textViewState)
         }
     }
+
+    fun navigateToMemberFragment() {
+        val detailMemberFragment = DetailMemberFragment().apply {
+            arguments = Bundle().apply {
+                putInt("studyIdx", currentStudyData?.studyIdx ?: 0)
+                putString("studyTitle", currentStudyData?.studyTitle ?: "")
+            }
+        }
+
+        // 화면 이동 로직
+        parentFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
+            .replace(R.id.containerMain, detailMemberFragment)
+            .addToBackStack(FragmentName.DETAIL_MEMBER.str)
+            .commit()
+    }
+
 
     private fun setupOwnerView(textViewState: TextView) {
         textViewState.setCompoundDrawablesWithIntrinsicBounds(
@@ -656,17 +786,27 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         // applyMethod를 currentStudyData의 studyApplyMethod 값으로 설정
         val applyMethod = currentStudyData?.studyApplyMethod ?: "선착순"  // 기본값을 "선착순"으로 설정
 
-        val method = currentStudyData?.studyApplyMethod
-        Log.d("DetailFragment", "Button clicked, method: $method")
+        // 사용자가 이미 참여 중인지 확인
+        viewModel.checkIfUserAlreadyMember(studyIdx, userIdx)
 
-        if (method != null && currentStudyData?.userIdx != userIdx) {
-            Log.d("DetailFragment", "Button clicked, method: $method")
+        // 참여 여부를 관찰하여 처리
+        lifecycleScope.launch {
+            viewModel.isUserAlreadyMember.collect { isAlreadyMember ->
+                if (isAlreadyMember) {
+                    // 이미 참여 중이면 스낵바로 알림 표시 후 리턴
+                    showSnackbar(view, "이미 참여중인 스터디입니다.")
+                    return@collect
+                }
 
-            val studyTitle = currentStudyData?.studyTitle ?: ""
-            viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext(), requireView(), studyTitle)
-
-        } else {
-            Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+                // 스터디에 참여 중이 아니면 신청 로직을 계속 진행
+                val method = currentStudyData?.studyApplyMethod
+                if (method != null && currentStudyData?.userIdx != userIdx) {
+                    val studyTitle = currentStudyData?.studyTitle ?: ""
+                    viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext(), requireView(), studyTitle)
+                } else {
+                    Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+                }
+            }
         }
     }
 

@@ -31,6 +31,8 @@ import androidx.core.content.FileProvider
 import androidx.core.view.children
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
@@ -110,7 +112,9 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // ViewModel에서 데이터 요청
-        viewModel.getStudy(studyIdx) // ViewModel을 통해 데이터 요청
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getStudy(studyIdx)
+        } // ViewModel을 통해 데이터 요청
 
         observeViewModel() // ViewModel 관찰
 
@@ -124,7 +128,9 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         logFragmentBackStack(parentFragmentManager)
 
         // 스킬 데이터를 로드
-        viewModel.getTechIdxByStudyIdx(studyIdx)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getTechIdxByStudyIdx(studyIdx)
+        }
 
         // 입력값 검증 로직 메서드 호출
 //        setupMemberInputWatcher()
@@ -151,12 +157,12 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     fun observeViewModel() {
         // studyData 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyData.collect { data ->
+            viewModel.studyData.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { data ->
                 data?.let {
                     currentStudyData = it // 여기서 데이터를 업데이트합니다.
                     Log.d("DetailEditFragment", "Received study data: $it")
                     updateUIIfReady() // UI 업데이트 체크
-//                    preselectChips() // 칩 선택 사전 설정
+                    preselectChips() // 칩 선택 사전 설정
 
                     if (it.studyPic.isNotEmpty()) {
                         viewModel.getStudyPic(it.studyIdx) // 파일 이름을 사용하여 스터디 이미지 로드
@@ -169,7 +175,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // updateResult 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.updateResult.collect { isSuccess ->
+            viewModel.updateResult.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { isSuccess ->
                 isSuccess?.let {
                     val message = if (it) "정보가 업데이트되었습니다." else "업데이트 실패"
                     val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
@@ -193,7 +199,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // studyPic 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyPic.collect { uri ->
+            viewModel.studyPic.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { uri ->
                 safeContext()?.let { context ->
                     binding.cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
 
@@ -207,7 +213,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // 최소 인원 수 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.memberCount.collect { count ->
+            viewModel.memberCount.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { count ->
                 minMembers = count
                 Log.d("DetailEditFragment", "Minimum members: $minMembers")
             }
@@ -215,7 +221,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // 스킬 데이터 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyTechList.collect { techList ->
+            viewModel.studyTechList.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { techList ->
                 Log.d("DetailEditFragment", "Received techList from ViewModel: $techList")
                 val skills = techList.map { Skill.fromNum(it) }  // techIdx를 Skill 객체로 변환
                 addChipsToGroup(binding.ChipGroupDetailEdit, skills)
@@ -242,6 +248,9 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
             // 인원수
             editTextDetailEditMember.setText(data.studyMaxMember.toString())
+
+            // 참여신청 링크
+            editTextDetailEditLink.setText(data.studyChatLink ?: "") // studyChatLink 값을 설정
         }
     }
 
@@ -540,7 +549,6 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         // 초기화 전에 기존 칩을 모두 제거하여 ID 충돌 방지
         binding.chipGroupDetailEditType.removeAllViews()
         binding.chipGroupDetailEditPlace.removeAllViews()
-        binding.chipGroupDetailEditApply.removeAllViews()
 
         Log.d("DetailEditFragment", "Setting up study type chips")
         setupChipGroup(
@@ -552,15 +560,8 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         Log.d("DetailEditFragment", "Setting up on/offline chips")
         setupChipGroup(
             binding.chipGroupDetailEditPlace,
-            listOf("오프라인", "온라인", "온·오프 혼합"),
-            mapOf("온라인" to "온라인", "오프라인" to "오프라인", "온·오프 혼합" to "온·오프 혼합") // tag 값을 지정
-        )
-
-        Log.d("DetailEditFragment", "Setting up apply method chips")
-        setupChipGroup(
-            binding.chipGroupDetailEditApply,
-            listOf("신청제", "선착순"),
-            mapOf("신청제" to "신청제", "선착순" to "선착순") // tag 값을 지정
+            listOf("오프라인", "온라인", "온오프혼합"),
+            mapOf("온라인" to "온라인", "오프라인" to "오프라인", "온오프혼합" to "온오프혼합") // tag 값을 지정
         )
 
         // 장소선택 가시성 설정
@@ -631,7 +632,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
                     ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
                 setTextColor(ContextCompat.getColor(context, R.color.black))
                 setTextAppearance(R.style.ChipTextStyle)
-                tag = chipTags?.get(name) ?: index + 1
+                tag = chipTags?.get(name) ?: (index + 1).toString()  // 여기를 수정
             }
             Log.d("DetailEditFragment", "Adding chip: $name with tag: ${chip.tag}")
             // 칩을 칩그룹에 추가
@@ -639,6 +640,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
             setupChipListener(chip, chipGroup)
         }
     }
+
 
     // 개별 칩에 클릭리스너 설정
     fun setupChipListener(chip: Chip, chipGroup: ChipGroup) {
@@ -690,32 +692,50 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     }
 
     fun addChipsToGroup(chipGroup: ChipGroup, skills: List<Skill>) {
-        // 기존의 칩들을 삭제
+        // 기존의 칩들을 모두 제거
         chipGroup.removeAllViews()
         selectedSkillList.clear()
 
-        // 전달받은 스킬 리스트를 이용하여 칩을 생성 및 추가
-        for (skill in skills) {
-            selectedSkillList.add(skill.num)  // 초기 스킬 목록을 selectedSkillList에 추가
-            val chip = Chip(context).apply {
-                text = skill.displayName
-                isClickable = true
-                isCheckable = true
-                isCloseIconVisible=true
-                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
-                setTextColor(ContextCompat.getColor(context, R.color.black))
-                setTextAppearance(R.style.ChipTextStyle)
-                id = View.generateViewId()
-                tag = skill.num
+        var addedOtherChip = false // "기타" 칩이 이미 추가됐는지 여부
 
-                // 'X' 아이콘 클릭시 해당 칩을 ChipGroup에서 제거
-                setOnCloseIconClickListener {
-                    chipGroup.removeView(this)  // 'this'는 현재 클릭된 Chip 인스턴스를 참조
-                    selectedSkillList.remove(skill.num)  // 선택된 스킬 목록에서 해당 스킬 제거
+        // "기타" 칩들을 하나로 그룹화해서 처리하기 위한 리스트
+        val groupedSkills = skills.groupBy { if (it.displayName == "기타") "기타" else it.displayName }
+
+        groupedSkills.forEach { (displayName, skillGroup) ->
+            // "기타" 칩은 한 번만 UI에 추가하되, 다른 카테고리의 "기타"도 선택된 상태는 유지
+            if (displayName == "기타") {
+                if (!addedOtherChip) {
+                    addedOtherChip = true // 한 번만 추가
+                    addSingleChip(chipGroup, skillGroup.first()) // UI에 "기타" 칩 하나만 추가
                 }
+            } else {
+                addSingleChip(chipGroup, skillGroup.first()) // 기타 외의 칩들은 그대로 추가
             }
-            chipGroup.addView(chip)
+            // 선택된 상태는 데이터로 유지
+            selectedSkillList.addAll(skillGroup.map { it.num })
         }
+    }
+
+    fun addSingleChip(chipGroup: ChipGroup, skill: Skill) {
+        val chip = Chip(context).apply {
+            text = skill.displayName
+            isClickable = true
+            isCheckable = true
+            isChecked = selectedSkillList.contains(skill.num) // 선택 상태 유지
+            isCloseIconVisible = true
+            chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
+            setTextColor(ContextCompat.getColor(context, R.color.black))
+            setTextAppearance(R.style.ChipTextStyle)
+            id = View.generateViewId()
+            tag = skill.num
+
+            // 'X' 아이콘 클릭 시 해당 칩을 ChipGroup에서 제거
+            setOnCloseIconClickListener {
+                chipGroup.removeView(this)
+                selectedSkillList.remove(skill.num) // 선택된 스킬 목록에서 제거
+            }
+        }
+        chipGroup.addView(chip)
     }
 
     fun setupBottomSheet() {
@@ -778,25 +798,54 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     fun getSelectedStudyType(): String {
         val chipGroup = binding.chipGroupDetailEditType
         val selectedChipId = chipGroup.checkedChipId
+
+        // 선택된 Chip이 없을 경우 처리
+        if (selectedChipId == View.NO_ID) {
+            Log.d("DetailEditFragment", "No chip selected in chipGroupDetailEditStudyType")
+            return ""
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip ID: $selectedChipId")
+
+        // Chip 객체를 가져오기
         val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment", "chipGroupDetailEditType = ${selectedChip.tag}")
-        return selectedChip?.tag as? String ?: ""
+
+        // Chip이 null인지 체크
+        if (selectedChip == null) {
+            Log.e("DetailEditFragment", "Selected chip is null. ID: $selectedChipId")
+            return ""
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip Tag: ${selectedChip.tag}")
+
+        // 선택된 Chip의 Tag 반환
+        return selectedChip.tag as? String ?: ""
     }
 
     fun getSelectedStudyOnOffline(): String {
         val chipGroup = binding.chipGroupDetailEditPlace
         val selectedChipId = chipGroup.checkedChipId
-        val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment", "chipGroupDetailEditPlace = ${selectedChip.tag}")
-        return selectedChip?.tag as? String ?: ""
-    }
+        // 선택된 Chip이 없을 경우 처리
+        if (selectedChipId == View.NO_ID) {
+            Log.d("DetailEditFragment", "No chip selected in chipGroupDetailEditPlace")
+            return ""
+        }
 
-    fun getSelectedStudyApplyMethod(): String {
-        val chipGroup = binding.chipGroupDetailEditApply
-        val selectedChipId = chipGroup.checkedChipId
+        Log.d("DetailEditFragment", "Selected Chip ID: $selectedChipId")
+
+        // Chip 객체를 가져오기
         val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment", "chipGroupDetailEditApply = ${selectedChip.tag}")
-        return selectedChip?.tag as? String ?: ""
+
+        // Chip이 null인지 체크
+        if (selectedChip == null) {
+            Log.e("DetailEditFragment", "Selected chip is null. ID: $selectedChipId")
+            return ""
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip Tag: ${selectedChip.tag}")
+
+        // 선택된 Chip의 Tag 반환
+        return selectedChip.tag as? String ?: ""
     }
 
     fun uploadImageAndSaveData() {
@@ -831,7 +880,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         val studyType = getSelectedStudyType()
         val studyOnOffline = getSelectedStudyOnOffline()
-        val studyApplyMethod = getSelectedStudyApplyMethod()
+        val studyApplyMethod = "신청제"
 //        val studySkills = if (selectedSkills.isNotEmpty()) selectedSkills else currentStudyData?.studySkillList ?: listOf()
 
         // EditText로부터 텍스트를 가져와 줄바꿈 문자를 \n으로 변환
@@ -924,52 +973,41 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         return true
     }
 
-    // 사용자가 이전에 선택한 내용 선택(나중에 DB에서가져올 예정)
+    // 사용자가 이전에 선택한 내용 선택
     fun preselectChips() {
         // 스터디 타입 칩 선택
-        val studyTypeText = when (currentStudyData?.studyType) {
-            "스터디" -> "스터디"
-            "프로젝트" -> "프로젝트"
-            "공모전" -> "공모전"
-            else -> ""
-        }
-        findChipByText(binding.chipGroupDetailEditType, studyTypeText)?.let {
+        val studyTypeTag = currentStudyData?.studyType ?: "" // 기본값 설정
+        Log.d("DetailEditFragment", "studyTypeTag: $studyTypeTag")
+        val studyTypeChip = findChipByText(binding.chipGroupDetailEditType, studyTypeTag)
+
+        studyTypeChip?.let {
             it.isChecked = true
             updateChipStyle(it, true)
-        }
+            Log.d("DetailEditFragment", "Study type chip selected: ${it.text}")
+        } ?: Log.d("DetailEditFragment", "No matching chip found for studyTypeTag: $studyTypeTag")
 
         // 온오프라인 타입 칩 선택
-        val onOfflineText = when (currentStudyData?.studyOnOffline) {
-            "온라인" -> "온라인"
-            "오프라인" -> "오프라인"
-            "온·오프 혼합" -> "온·오프 혼합"
-            else -> ""
-        }
-        findChipByText(binding.chipGroupDetailEditPlace, onOfflineText)?.let {
+        val onOfflineTag = currentStudyData?.studyOnOffline ?: "" // 기본값 설정
+        val onOfflineChip = findChipByText(binding.chipGroupDetailEditPlace, onOfflineTag)
+
+        onOfflineChip?.let {
             it.isChecked = true
             updateChipStyle(it, true)
             updatePlaceVisibility(it) // UI 가시성 설정
-        }
-
-        // 신청 방법 칩 선택
-        val applyMethodText = when (currentStudyData?.studyApplyMethod) {
-            "신청제" -> "신청제"
-            "선착순" -> "선착순"
-            else -> ""
-        }
-        findChipByText(binding.chipGroupDetailEditApply, applyMethodText)?.let {
-            it.isChecked = true
-            updateChipStyle(it, true)
-        }
-
+            Log.d("DetailEditFragment", "On/Offline chip selected: ${it.text}")
+        } ?: Log.d("DetailEditFragment", "No matching chip found for onOfflineTag: $onOfflineTag")
     }
 
+
     // 특정 텍스트를 가진 칩을 찾는 함수
-    fun findChipByText(chipGroup: ChipGroup, text: String): Chip? {
-        // 해당 텍스트를 가진 첫 번째 칩 반환, 없으면 null 반환
-        val chip = chipGroup.children.firstOrNull { (it as Chip).text == text } as? Chip
-        Log.d("DetailEditFragment", "Found chip for text '$text': ${chip?.text}")
-        return chip
+    fun findChipByText(chipGroup: ChipGroup, tag: String): Chip? {
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as? Chip
+            if (chip?.tag?.toString() == tag) {
+                return chip
+            }
+        }
+        return null
     }
 
 }

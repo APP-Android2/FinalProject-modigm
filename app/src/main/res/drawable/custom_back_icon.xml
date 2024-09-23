@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- 회색 원 배경 -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#80ffffff" /> <!-- 회색 배경 -->
+            <size
+                android:width="36dp"
+                android:height="36dp" /> <!-- 배경 크기 명시적으로 설정 -->
+        </shape>
+    </item>
+
+    <!-- 중앙의 아이콘 -->
+    <item
+        android:drawable="@drawable/icon_arrow_back_24px"
+        android:gravity="center">
+
+    </item>
+</layer-list>
