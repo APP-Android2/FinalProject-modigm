@@ -212,6 +212,18 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                     // 스터디 데이터를 수신한 후 사용자 데이터를 요청
                     viewModel.getUserById(it.userIdx)
                     updateUI(it)
+
+                    // 링크 데이터 설정
+                    val link = it.studyChatLink ?: ""
+                    binding.textviewDetailFragmentLink.text = link
+
+                    // 링크에 따른 아이콘 업데이트
+                    updateLinkIcon(link)
+
+                    // 링크 클릭 시 웹뷰로 열기
+                    binding.textviewDetailFragmentLink.setOnClickListener {
+                        openWebView(viewLifecycleOwner, parentFragmentManager, link)
+                    }
                 }
             }
         }
@@ -280,6 +292,18 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         }
 
     }
+
+    fun updateLinkIcon(link: String) {
+        val iconResource = when {
+            link.contains("kakao", ignoreCase = true) -> R.drawable.kakaotalk_sharing_btn_small
+            link.contains("google.com/forms", ignoreCase = true) -> R.drawable.icon_googleforms
+            else -> R.drawable.icon_link
+        }
+
+        // 이미지 아이콘 설정
+        binding.imageViewDetailLink.setImageResource(iconResource)
+    }
+
 
     private fun updateLikeButton(isLiked: Boolean) {
         if (isLiked) {
@@ -427,36 +451,21 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             if (data.studyChatLink.isNullOrEmpty()) {
                 textviewDetailFragmentLink.text = "링크 없음"
             } else {
-                textviewDetailFragmentLink.text = data.studyChatLink
+                val link = data.studyChatLink
+                textviewDetailFragmentLink.text = link
+
+                // 링크에 따라 아이콘 설정
+                updateLinkIcon(link)
+
+                // 링크 클릭 시 웹뷰에서 열기
                 textviewDetailFragmentLink.setOnClickListener {
-                    val link = currentStudyData?.studyChatLink ?: "https://www.example.com"
                     openWebView(viewLifecycleOwner, parentFragmentManager, link)
                 }
             }
         }
     }
 
-    // 외부 브라우저에서 링크 열기
-    fun openWebLink(link: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
-            startActivity(intent)
-        } catch (e: Exception) {
-            Log.e("DetailFragment", "Error opening link: $link", e)
-            Snackbar.make(binding.root, "유효하지 않은 링크입니다.", Snackbar.LENGTH_LONG).show()
-        }
-    }
-
     // 칩 업데이트 함수
-//    fun updateTechChips(techList: List<Int>) {
-//        val chipGroup = binding.chipGroupJoinInterest
-//        chipGroup.removeAllViews()
-//        techList.forEach { techId ->
-//            val chip = createSkillChip(techId)
-//            chipGroup.addView(chip)
-//        }
-//    }
-
     fun updateTechChips(techList: List<Int>) {
         val chipGroup = binding.chipGroupJoinInterest
         chipGroup.removeAllViews()
