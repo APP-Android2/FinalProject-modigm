@@ -248,6 +248,9 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
             // 인원수
             editTextDetailEditMember.setText(data.studyMaxMember.toString())
+
+            // 참여신청 링크
+            editTextDetailEditLink.setText(data.studyChatLink ?: "") // studyChatLink 값을 설정
         }
     }
 

@@ -255,7 +255,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="10dp"
-                                    android:layout_marginBottom="80dp"
                                     android:orientation="horizontal">
 
                                     <ImageView
@@ -284,6 +283,37 @@
                                             android:layout_marginStart="10dp"
                                             android:text=""
                                             android:textSize="16dp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_marginBottom="80dp"
+                                    android:orientation="horizontal">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/icon_link"
+                                        app:tint="@color/black" />
+
+                                    <LinearLayout
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:id="@+id/textviewDetailFragmentLink"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginStart="10dp"
+                                            android:text=""
+                                            android:textSize="16dp"
+                                            android:textColor="@color/pointColor"
+                                            android:clickable="true"
+                                            android:focusable="true"/>
                                     </LinearLayout>
                                 </LinearLayout>
 

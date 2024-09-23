@@ -1,7 +1,9 @@
 package kr.co.lion.modigm.ui.detail
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -420,6 +422,28 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 textViewDetailState.text = "모집 마감"
                 setupStatePopup()
             }
+
+            // 링크 데이터 반영 및 클릭 리스너 추가
+            if (data.studyChatLink.isNullOrEmpty()) {
+                textviewDetailFragmentLink.text = "링크 없음"
+            } else {
+                textviewDetailFragmentLink.text = data.studyChatLink
+                textviewDetailFragmentLink.setOnClickListener {
+                    val link = currentStudyData?.studyChatLink ?: "https://www.example.com"
+                    openWebView(viewLifecycleOwner, parentFragmentManager, link)
+                }
+            }
+        }
+    }
+
+    // 외부 브라우저에서 링크 열기
+    fun openWebLink(link: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("DetailFragment", "Error opening link: $link", e)
+            Snackbar.make(binding.root, "유효하지 않은 링크입니다.", Snackbar.LENGTH_LONG).show()
         }
     }
 
