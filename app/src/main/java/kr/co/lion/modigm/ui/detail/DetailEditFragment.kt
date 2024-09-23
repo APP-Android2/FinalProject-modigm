@@ -162,7 +162,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
                     currentStudyData = it // 여기서 데이터를 업데이트합니다.
                     Log.d("DetailEditFragment", "Received study data: $it")
                     updateUIIfReady() // UI 업데이트 체크
-//                    preselectChips() // 칩 선택 사전 설정
+                    preselectChips() // 칩 선택 사전 설정
 
                     if (it.studyPic.isNotEmpty()) {
                         viewModel.getStudyPic(it.studyIdx) // 파일 이름을 사용하여 스터디 이미지 로드
@@ -558,8 +558,8 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         Log.d("DetailEditFragment", "Setting up on/offline chips")
         setupChipGroup(
             binding.chipGroupDetailEditPlace,
-            listOf("오프라인", "온라인", "온·오프 혼합"),
-            mapOf("온라인" to "온라인", "오프라인" to "오프라인", "온·오프 혼합" to "온·오프 혼합") // tag 값을 지정
+            listOf("오프라인", "온라인", "온오프혼합"),
+            mapOf("온라인" to "온라인", "오프라인" to "오프라인", "온오프혼합" to "온오프혼합") // tag 값을 지정
         )
 
         Log.d("DetailEditFragment", "Setting up apply method chips")
@@ -637,7 +637,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
                     ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white))
                 setTextColor(ContextCompat.getColor(context, R.color.black))
                 setTextAppearance(R.style.ChipTextStyle)
-                tag = chipTags?.get(name) ?: index + 1
+                tag = chipTags?.get(name) ?: (index + 1).toString()  // 여기를 수정
             }
             Log.d("DetailEditFragment", "Adding chip: $name with tag: ${chip.tag}")
             // 칩을 칩그룹에 추가
@@ -645,6 +645,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
             setupChipListener(chip, chipGroup)
         }
     }
+
 
     // 개별 칩에 클릭리스너 설정
     fun setupChipListener(chip: Chip, chipGroup: ChipGroup) {
@@ -802,25 +803,78 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
     fun getSelectedStudyType(): String {
         val chipGroup = binding.chipGroupDetailEditType
         val selectedChipId = chipGroup.checkedChipId
+
+        // 선택된 Chip이 없을 경우 처리
+        if (selectedChipId == View.NO_ID) {
+            Log.d("DetailEditFragment", "No chip selected in chipGroupDetailEditStudyType")
+            return ""
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip ID: $selectedChipId")
+
+        // Chip 객체를 가져오기
         val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment", "chipGroupDetailEditType = ${selectedChip.tag}")
-        return selectedChip?.tag as? String ?: ""
+
+        // Chip이 null인지 체크
+        if (selectedChip == null) {
+            Log.e("DetailEditFragment", "Selected chip is null. ID: $selectedChipId")
+            return ""
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip Tag: ${selectedChip.tag}")
+
+        // 선택된 Chip의 Tag 반환
+        return selectedChip.tag as? String ?: ""
     }
 
     fun getSelectedStudyOnOffline(): String {
         val chipGroup = binding.chipGroupDetailEditPlace
         val selectedChipId = chipGroup.checkedChipId
+        // 선택된 Chip이 없을 경우 처리
+        if (selectedChipId == View.NO_ID) {
+            Log.d("DetailEditFragment", "No chip selected in chipGroupDetailEditPlace")
+            return ""
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip ID: $selectedChipId")
+
+        // Chip 객체를 가져오기
         val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment", "chipGroupDetailEditPlace = ${selectedChip.tag}")
-        return selectedChip?.tag as? String ?: ""
+
+        // Chip이 null인지 체크
+        if (selectedChip == null) {
+            Log.e("DetailEditFragment", "Selected chip is null. ID: $selectedChipId")
+            return ""
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip Tag: ${selectedChip.tag}")
+
+        // 선택된 Chip의 Tag 반환
+        return selectedChip.tag as? String ?: ""
     }
 
     fun getSelectedStudyApplyMethod(): String {
         val chipGroup = binding.chipGroupDetailEditApply
         val selectedChipId = chipGroup.checkedChipId
+        // 선택된 Chip이 없을 경우 처리
+        if (selectedChipId == View.NO_ID) {
+            Log.d("DetailEditFragment", "No chip selected in chipGroupDetailEditApply")
+            return "" // 선택된 칩이 없으면 빈 문자열 반환
+        }
+
+        // Chip 객체를 가져오기
         val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
-        Log.d("DetailEditFragment", "chipGroupDetailEditApply = ${selectedChip.tag}")
-        return selectedChip?.tag as? String ?: ""
+
+        // Chip이 null인지 체크
+        if (selectedChip == null) {
+            Log.e("DetailEditFragment", "Selected chip is null. ID: $selectedChipId")
+            return "" // Chip이 없을 경우에도 빈 문자열 반환
+        }
+
+        Log.d("DetailEditFragment", "Selected Chip Tag: ${selectedChip.tag}")
+
+        // 선택된 Chip의 Tag 반환
+        return selectedChip.tag as? String ?: ""
     }
 
     fun uploadImageAndSaveData() {
@@ -948,52 +1002,51 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         return true
     }
 
-    // 사용자가 이전에 선택한 내용 선택(나중에 DB에서가져올 예정)
+    // 사용자가 이전에 선택한 내용 선택
     fun preselectChips() {
         // 스터디 타입 칩 선택
-        val studyTypeText = when (currentStudyData?.studyType) {
-            "스터디" -> "스터디"
-            "프로젝트" -> "프로젝트"
-            "공모전" -> "공모전"
-            else -> ""
-        }
-        findChipByText(binding.chipGroupDetailEditType, studyTypeText)?.let {
+        val studyTypeTag = currentStudyData?.studyType ?: "" // 기본값 설정
+        Log.d("DetailEditFragment", "studyTypeTag: $studyTypeTag")
+        val studyTypeChip = findChipByText(binding.chipGroupDetailEditType, studyTypeTag)
+
+        studyTypeChip?.let {
             it.isChecked = true
             updateChipStyle(it, true)
-        }
+            Log.d("DetailEditFragment", "Study type chip selected: ${it.text}")
+        } ?: Log.d("DetailEditFragment", "No matching chip found for studyTypeTag: $studyTypeTag")
 
         // 온오프라인 타입 칩 선택
-        val onOfflineText = when (currentStudyData?.studyOnOffline) {
-            "온라인" -> "온라인"
-            "오프라인" -> "오프라인"
-            "온·오프 혼합" -> "온·오프 혼합"
-            else -> ""
-        }
-        findChipByText(binding.chipGroupDetailEditPlace, onOfflineText)?.let {
+        val onOfflineTag = currentStudyData?.studyOnOffline ?: "" // 기본값 설정
+        val onOfflineChip = findChipByText(binding.chipGroupDetailEditPlace, onOfflineTag)
+
+        onOfflineChip?.let {
             it.isChecked = true
             updateChipStyle(it, true)
             updatePlaceVisibility(it) // UI 가시성 설정
-        }
+            Log.d("DetailEditFragment", "On/Offline chip selected: ${it.text}")
+        } ?: Log.d("DetailEditFragment", "No matching chip found for onOfflineTag: $onOfflineTag")
 
         // 신청 방법 칩 선택
-        val applyMethodText = when (currentStudyData?.studyApplyMethod) {
-            "신청제" -> "신청제"
-            "선착순" -> "선착순"
-            else -> ""
-        }
-        findChipByText(binding.chipGroupDetailEditApply, applyMethodText)?.let {
+        val applyMethodTag = currentStudyData?.studyApplyMethod ?: "" // 기본값 설정
+        val applyMethodChip = findChipByText(binding.chipGroupDetailEditApply, applyMethodTag)
+
+        applyMethodChip?.let {
             it.isChecked = true
             updateChipStyle(it, true)
-        }
-
+            Log.d("DetailEditFragment", "Apply method chip selected: ${it.text}")
+        } ?: Log.d("DetailEditFragment", "No matching chip found for applyMethodTag: $applyMethodTag")
     }
 
+
     // 특정 텍스트를 가진 칩을 찾는 함수
-    fun findChipByText(chipGroup: ChipGroup, text: String): Chip? {
-        // 해당 텍스트를 가진 첫 번째 칩 반환, 없으면 null 반환
-        val chip = chipGroup.children.firstOrNull { (it as Chip).text == text } as? Chip
-        Log.d("DetailEditFragment", "Found chip for text '$text': ${chip?.text}")
-        return chip
+    fun findChipByText(chipGroup: ChipGroup, tag: String): Chip? {
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as? Chip
+            if (chip?.tag?.toString() == tag) {
+                return chip
+            }
+        }
+        return null
     }
 
 }

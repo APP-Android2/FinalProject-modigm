@@ -130,6 +130,7 @@ class RemoteDetailDao {
                         studyPic = ?, 
                         studyMaxMember = ?, 
                         studyState = ?, 
+                        studyChatLink = ?, 
                         userIdx = ? 
                     WHERE studyIdx = ?
                 """
@@ -146,8 +147,9 @@ class RemoteDetailDao {
                     statement.setString(10, studyData.studyPic)
                     statement.setInt(11, studyData.studyMaxMember)
                     statement.setBoolean(12, studyData.studyState)
-                    statement.setInt(13, studyData.userIdx)
-                    statement.setInt(14, studyData.studyIdx)
+                    statement.setString(13, studyData.studyChatLink) // 새 필드 설정
+                    statement.setInt(14, studyData.userIdx)
+                    statement.setInt(15, studyData.studyIdx)
                     return@withContext statement.executeUpdate()
                 }
             }
