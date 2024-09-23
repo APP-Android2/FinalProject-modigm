@@ -303,14 +303,22 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     }
 
     fun updateLinkIcon(link: String) {
-        val iconResource = when {
-            link.contains("kakao", ignoreCase = true) -> R.drawable.kakaotalk_sharing_btn_small
-            link.contains("google.com/forms", ignoreCase = true) -> R.drawable.icon_googleforms
-            else -> R.drawable.icon_link
-        }
+        if (link.isEmpty()) {
+            // 링크가 없으면 아이콘과 텍스트뷰 모두 숨김
+            binding.imageViewDetailLink.visibility = View.GONE
+            binding.textviewDetailFragmentLink.visibility = View.GONE
+        } else {
+            val iconResource = when {
+                link.contains("kakao", ignoreCase = true) -> R.drawable.kakaotalk_sharing_btn_small
+                link.contains("google.com/forms", ignoreCase = true) -> R.drawable.icon_googleforms
+                else -> R.drawable.icon_link
+            }
 
-        // 이미지 아이콘 설정
-        binding.imageViewDetailLink.setImageResource(iconResource)
+            // 이미지 아이콘 설정
+            binding.imageViewDetailLink.setImageResource(iconResource)
+            binding.imageViewDetailLink.visibility = View.VISIBLE
+            binding.textviewDetailFragmentLink.visibility = View.VISIBLE
+        }
     }
 
 
