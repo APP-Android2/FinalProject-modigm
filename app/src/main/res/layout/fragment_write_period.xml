@@ -20,9 +20,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="얼마나 진행 하실건가요?"
+            android:text="얼마나 진행 하실건가요? *"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textSize="18dp" />
+            android:textSize="18dp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textViewWritePeriodNotice"

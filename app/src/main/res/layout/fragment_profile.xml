@@ -22,8 +22,12 @@
             style="@style/CustomToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="10dp"
+            android:elevation="4dp"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
+            app:title="프로필"
             app:titleTextAppearance="@style/toolbarText" />
 
         <androidx.core.widget.NestedScrollView
@@ -66,7 +70,7 @@
                         android:id="@+id/textViewProfileIntro"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
+                        android:paddingBottom="20dp"
                         android:text="@={profileViewModel.profileIntro}"
                         android:textColor="@color/textGray"
                         android:textSize="14dp" />
@@ -75,7 +79,7 @@
                         android:id="@+id/textView3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:paddingBottom="10dp"
                         android:text="관심분야"
                         android:textSize="16dp" />
 
@@ -87,6 +91,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/layoutProfileLink"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
@@ -105,7 +110,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginBottom="20dp"
+                        android:paddingBottom="20dp"
                         android:overScrollMode="never"/>
                 </LinearLayout>
 
@@ -170,7 +175,7 @@
                         android:id="@+id/layoutBlankProfileHostStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="30dp"
+                        android:paddingVertical="30dp"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp">
@@ -239,7 +244,7 @@
                         android:id="@+id/layoutBlankProfilePartStudy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginVertical="30dp"
+                        android:paddingVertical="30dp"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp">

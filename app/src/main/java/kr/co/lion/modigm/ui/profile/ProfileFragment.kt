@@ -7,6 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -27,6 +31,7 @@ import kr.co.lion.modigm.ui.profile.adapter.LinkAdapter
 import kr.co.lion.modigm.ui.profile.adapter.ProfileStudyAdapter
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_profile) {
@@ -149,9 +154,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
 
     private fun setupToolbar() {
         binding.toolbarProfile.apply {
-            // title
-            title = "프로필"
-
             // 툴바 메뉴
             inflateMenu(R.menu.menu_profile)
             setOnMenuItemClickListener {
@@ -165,7 +167,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                     }
 
                     R.id.menu_item_profile_more -> {
-                        // TODO("신고하기 기능")
+                        showDropdownReport(this.findViewById(R.id.menu_item_profile_more))
                     }
                 }
                 true
@@ -192,6 +194,55 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 if (userIdx != prefs.getInt("currentUserIdx")) {
                     menu.findItem(R.id.menu_item_profile_more).isVisible = true
                 }
+            }
+        }
+    }
+
+    private fun showDropdownReport(anchorView: View) {
+        // 팝업 윈도우의 레이아웃을 설정
+        val popupView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_profile_report_dropdown, null)
+
+        // 팝업 윈도우 객체 생성
+        val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        // 배경을 설정해야 그림자가 적용됨 (반드시 배경이 있어야 함)
+        popupWindow.setBackgroundDrawable(AppCompatResources.getDrawable(requireContext(), android.R.drawable.dialog_holo_light_frame))
+
+        // 팝업 윈도우 외부를 터치하면 닫히도록 설정
+        popupWindow.isOutsideTouchable = true
+        popupWindow.isFocusable = true
+
+        // 팝업 윈도우를 anchorView 아래에 표시
+        popupWindow.showAsDropDown(anchorView, -200, -30)
+        popupWindow.elevation = 10f
+
+        // 팝업 안의 아이템 클릭 리스너 설정
+        val item1: LinearLayout = popupView.findViewById(R.id.layoutProfileReport)
+        item1.isClickable = true
+
+        popupView.findViewById<TextView>(R.id.menuItem3).setOnClickListener {
+            Log.d("zunione", "touched")
+            // 아이템 1이 클릭되었을 때의 처리
+            openWebView(Links.SERVICE.url)
+            popupWindow.dismiss()
+        }
+    }
+
+    private fun openWebView(url: String){
+        viewLifecycleOwner.lifecycleScope.launch {
+            // bundle 에 필요한 정보를 담는다
+            val bundle = Bundle()
+            bundle.putString("link", url)
+
+            // 이동할 프래그먼트로 bundle을 넘긴다
+            val profileWebFragment = ProfileWebFragment()
+            profileWebFragment.arguments = bundle
+
+            // Fragment 교체
+            parentFragmentManager.commit {
+                //setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                replace(R.id.containerMain, profileWebFragment)
+                addToBackStack(FragmentName.PROFILE_WEB.str)
             }
         }
     }
@@ -250,6 +301,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 profileStudyFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, profileStudyFragment)
                     addToBackStack(FragmentName.PROFILE_STUDY.str)
                 }
@@ -266,6 +318,7 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 profileStudyFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                     add(R.id.containerMain, profileStudyFragment)
                     addToBackStack(FragmentName.PROFILE_STUDY.str)
                 }
@@ -275,10 +328,21 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
 
     // 데이터 변경 관찰
     fun observeData() {
+        // 자기소개
+        lifecycleScope.launch {
+            profileViewModel.profileIntro.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { intro ->
+                if (intro.isNullOrEmpty()) {
+                    binding.textViewProfileIntro.visibility = View.GONE
+                } else {
+                    binding.textViewProfileIntro.visibility = View.VISIBLE
+                }
+
+            }
+        }
+
         // 프로필 사진
         lifecycleScope.launch {
             profileViewModel.profileUserImage.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { image ->
-                Log.d("ProfileFragment", "Profile Image: $image")
                 if (!image.isNullOrEmpty()) {
                     val requestOptions = RequestOptions()
                         .placeholder(R.drawable.image_loading_gray) // 필요 시 기본 플레이스홀더 설정
@@ -312,7 +376,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 관심 분야 chipGroup
         lifecycleScope.launch {
             profileViewModel.profileInterests.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { interests ->
-                Log.d("ProfileFragment", "Interests: $interests")
                 // 기존 칩들 제거
                 binding.chipGroupProfile.removeAllViews()
 
@@ -340,13 +403,12 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 링크 리스트
         lifecycleScope.launch {
             profileViewModel.profileLinkList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profileLinkList ->
-                Log.d("ProfileFragment", "Profile Link List: $profileLinkList")
                 linkAdapter.updateData(profileLinkList)
 
                 if (profileLinkList.isEmpty()) {
-                    binding.textView4.visibility = View.GONE
+                    binding.layoutProfileLink.visibility = View.GONE
                 } else {
-                    binding.textView4.visibility = View.VISIBLE
+                    binding.layoutProfileLink.visibility = View.VISIBLE
                 }
             }
         }
@@ -354,7 +416,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 진행한 스터디 리스트
         lifecycleScope.launch {
             profileViewModel.profileHostStudyList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profileHostStudyList ->
-                Log.d("ProfileFragment", "Profile Host Study List: $profileHostStudyList")
                 if (profileHostStudyList != null) {
                     hostStudyAdapter.updateData(profileHostStudyList)
                 }
@@ -380,7 +441,6 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         // 참여한 스터디 리스트
         lifecycleScope.launch {
             profileViewModel.profilePartStudyList.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { profilePartStudyList ->
-                Log.d("ProfileFragment", "Profile Part Study List: $profilePartStudyList")
                 if (profilePartStudyList != null) {
                     partStudyAdapter.updateData(profilePartStudyList)
                 }

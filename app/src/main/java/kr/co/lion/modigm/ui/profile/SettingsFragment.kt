@@ -53,10 +53,11 @@ class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragmen
         binding.apply {
             // 회원 정보 수정
             layoutSettingsEditInfo.setOnClickListener {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.containerMain, EditProfileFragment())
-                    .addToBackStack(FragmentName.EDIT_PROFILE.str)
-                    .commit()
+                parentFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    replace(R.id.containerMain, EditProfileFragment())
+                    addToBackStack(FragmentName.EDIT_PROFILE.str)
+                }
             }
 
             // 비밀번호 변경 메뉴
@@ -77,6 +78,7 @@ class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragmen
                 // 버튼 클릭 시
                 setOnClickListener {
                     parentFragmentManager.commit {
+                        setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                         replace(R.id.containerMain, ChangePasswordEmailFragment())
                         addToBackStack(FragmentName.CHANGE_PASSWORD_EMAIL.str)
                     }
@@ -120,6 +122,7 @@ class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragmen
 
             // Fragment 교체
             parentFragmentManager.commit {
+                setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                 add(R.id.containerMain, profileWebFragment)
                 addToBackStack(FragmentName.PROFILE_WEB.str)
             }

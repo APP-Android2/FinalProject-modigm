@@ -129,6 +129,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.functions.ktx)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.play.services.ads.lite)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -191,7 +192,4 @@ dependencies {
 
     // lottie 애니메이션
     implementation("com.airbnb.android:lottie:6.5.2")
-
-    // Google AdMob
-    implementation("com.google.android.gms:play-services-ads:23.3.0")
 }
