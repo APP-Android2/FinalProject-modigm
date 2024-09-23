@@ -94,6 +94,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 }
         }
 
+        // ViewModel 상태 초기화 및 데이터 로드
+        viewModel.clearLoadingState()  // 새로운 항목 선택 시 상태 초기화
+
         // 스터디 데이터 및 기타 데이터 로드
         viewModel.loadStudyData(studyIdx)
 
@@ -199,7 +202,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     override fun onResume() {
         super.onResume()
         // ViewModel의 로딩 상태 초기화
-        viewModel.clearLoadingState()
+//        viewModel.clearLoadingState()
 
         // 이미 데이터가 로드된 상태라면 로딩을 다시 하지 않음
         if (!viewModel.isDataFullyLoaded.value) {
@@ -357,7 +360,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
             // 화면이동 로직 추가
             parentFragmentManager.beginTransaction()
-//                .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
+                .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
                 .replace(R.id.containerMain, profileFragment)
                 .addToBackStack(FragmentName.DETAIL_MEMBER.str)
                 .commit()
@@ -604,7 +607,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
                 // 화면이동 로직 추가
                 parentFragmentManager.beginTransaction()
-//                    .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
+                    .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
                     .replace(R.id.containerMain, detailMemberFragment)
                     .addToBackStack(FragmentName.DETAIL_MEMBER.str)
                     .commit()
@@ -623,7 +626,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
                 // 화면이동 로직 추가
                 parentFragmentManager.beginTransaction()
-//                    .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
+                    .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
                     .replace(R.id.containerMain, detailEditFragment)
                     .addToBackStack(FragmentName.DETAIL_EDIT.str)
                     .commit()
@@ -714,7 +717,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
         // 화면 이동 로직
         parentFragmentManager.beginTransaction()
-//            .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
+            .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out) // 애니메이션 추가
             .replace(R.id.containerMain, detailMemberFragment)
             .addToBackStack(FragmentName.DETAIL_MEMBER.str)
             .commit()

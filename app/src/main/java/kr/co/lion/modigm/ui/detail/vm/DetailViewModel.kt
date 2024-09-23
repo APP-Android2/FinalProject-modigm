@@ -115,19 +115,18 @@ class DetailViewModel: ViewModel() {
     }
 
     fun clearLoadingState() {
-        if (!_isStudyDataLoaded.value) {
-            _isLoading.value = true
-            _isStudyDataLoaded.value = false
-            _isMemberCountLoaded.value = false
-            _isUserDataLoaded.value = false
-            _isStudyPicLoaded.value = false
-            _isTechListLoaded.value = false
-        }
+        _isLoading.value = true
+        _isStudyDataLoaded.value = false
+        _isMemberCountLoaded.value = false
+        _isUserDataLoaded.value = false
+        _isStudyPicLoaded.value = false
+        _isTechListLoaded.value = false
     }
 
 
 
     fun loadStudyData(studyIdx: Int) {
+        clearLoadingState()  // 새로운 데이터를 로드하기 전에 상태 초기화
         _isLoading.value = true
 
         viewModelScope.launch {
