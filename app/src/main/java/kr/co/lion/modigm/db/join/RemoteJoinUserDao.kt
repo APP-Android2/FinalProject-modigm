@@ -5,6 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.HikariCPDataSource
 import java.sql.PreparedStatement
+import java.sql.Timestamp
+import java.util.Date
 import javax.inject.Inject
 
 class RemoteJoinUserDao @Inject constructor() {
@@ -41,6 +43,9 @@ class RemoteJoinUserDao @Inject constructor() {
                         }
                         if(value is Boolean){
                             preparedStatement?.setBoolean(index+1, value)
+                        }
+                        if(value is Date){
+                            preparedStatement?.setTimestamp(index+1, Timestamp(value.time))
                         }
                     }
                     preparedStatement?.executeUpdate() // 쿼리 실행
