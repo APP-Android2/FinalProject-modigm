@@ -1,10 +1,8 @@
 package kr.co.lion.modigm.ui.profile.popup
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import com.google.android.gms.ads.AdRequest
+import android.view.View
+import android.view.ViewGroup
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -13,35 +11,55 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogLogoutAdBinding
+import kr.co.lion.modigm.ui.VBBaseDialogFragment
 import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
-open class LogoutAdDialog: DialogFragment() {
-    private var _binding: CustomDialogLogoutAdBinding? = null
-    val binding get() = _binding!!
+class LogoutAdDialog: VBBaseDialogFragment<CustomDialogLogoutAdBinding>(CustomDialogLogoutAdBinding::inflate) {
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        _binding = CustomDialogLogoutAdBinding.inflate(layoutInflater)
+    override fun onStart() {
+        super.onStart()
+
+        // 다이얼로그의 크기 설정
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent) // 투명 배경 설정 (필요한 경우)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         CoroutineScope(Dispatchers.IO).launch {
             MobileAds.initialize(requireContext())
+
         }
 
         setupAdMob()
         setupButtonLogout()
         setupButtonQuit()
-
-        return AlertDialog.Builder(requireContext()).setView(binding.root).create()
     }
 
+
     fun setupAdMob() {
-        // Start loading the ad in the background.
-        val adRequest = AdRequest.Builder().build()
-        _binding?.adViewLogoutDialog?.loadAd(adRequest)
+        // 사전 로드된 AdView를 설정
+        val adView = ModigmApplication.preloadedAdView
+
+        // 광고가 이미 다른 부모 뷰에 추가되어 있을 경우 제거
+        adView.parent?.let { parent ->
+            (parent as ViewGroup).removeView(adView)
+        }
+
+        // 광고가 로드되어 있으면 바로 다이얼로그에 표시
+        binding.adViewLogoutDialog.addView(adView)
+        adView.visibility = View.VISIBLE
     }
 
     fun setupButtonLogout() {
-        _binding?.buttonAdDialogLogout?.setOnClickListener {
+        binding.buttonAdDialogLogout.setOnClickListener {
             // SharedPreferences 초기화
             prefs.clearAllPrefs()
             prefs.setBoolean("autoLogin", false)
@@ -60,14 +78,8 @@ open class LogoutAdDialog: DialogFragment() {
     }
 
     fun setupButtonQuit() {
-        _binding?.buttonAdDialogQuit?.setOnClickListener {
+        binding.buttonAdDialogQuit.setOnClickListener {
             dismiss()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        _binding = null
     }
 }

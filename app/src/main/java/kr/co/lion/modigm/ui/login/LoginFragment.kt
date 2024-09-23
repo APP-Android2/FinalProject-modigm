@@ -25,11 +25,11 @@ import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
+import kr.co.lion.modigm.ui.study.CustomExitDialogFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
-import kotlin.system.exitProcess
 
 class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
 
@@ -39,6 +39,27 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     // 태그
     private val logTag by lazy { LoginFragment::class.simpleName }
+
+    // 백버튼 콜백
+    private val backPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            private var doubleBackToExitPressedOnce = false
+
+            override fun handleOnBackPressed() {
+                // 백버튼을 두 번 눌렀을 때 앱 종료
+                if (doubleBackToExitPressedOnce) {
+                    // 종료 다이얼로그 표시
+                    showExitDialog()
+                } else {
+                    doubleBackToExitPressedOnce = true
+                    // Snackbar를 표시하여 사용자에게 알림
+                    requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
+                    // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
+                    view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
+                }
+            }
+        }
+    }
 
     // --------------------------------- LC START ---------------------------------
 
@@ -66,6 +87,9 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     override fun onDestroyView() {
         super.onDestroyView()
+        // 백버튼 콜백 제거
+        backPressedCallback.remove()
+
         viewModel.clearData() // ViewModel 데이터 초기화
     }
 
@@ -317,26 +341,6 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         }
     }
 
-    // 백버튼 동작 설정 함수
-    private fun backButton(){
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            private var doubleBackToExitPressedOnce = false
-
-            override fun handleOnBackPressed() {
-                // 백버튼을 두 번 눌렀을 때 앱 종료
-                if (doubleBackToExitPressedOnce) {
-                    requireActivity().finishAffinity()
-                    exitProcess(0) // 앱 프로세스를 완전히 종료
-                } else {
-                    doubleBackToExitPressedOnce = true
-                    // Snackbar를 표시하여 사용자에게 알림
-                    requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
-                    // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
-                    view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-                }
-            }
-        })
-    }
     // 로딩 화면 표시
     private fun showLoginLoading() {
         with(binding){
@@ -362,5 +366,18 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
                 detailViewModel.registerFcmToken(userIdx, token)
             }
         }
+    }
+
+    // 백버튼 종료 동작
+    private fun backButton() {
+        // 백버튼 콜백을 안전하게 추가
+        backPressedCallback.let { callback ->
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+        }
+    }
+
+    private fun showExitDialog() {
+        val dialog = CustomExitDialogFragment()
+        dialog.show(parentFragmentManager, "CustomExitDialog")
     }
 }

@@ -38,10 +38,10 @@ class RemoteWriteStudyDataSource {
 
     suspend fun uploadImageToS3(context: Context, uri: Uri): Result<String> {
         return runCatching {
-            dao.uploadImageToS3(context, uri)
+            dao.uploadImageToS3(context, uri).getOrThrow()
         }.onFailure { e ->
             Log.e("RemoteWriteStudyDataSource Error", "Error uploadImageToS3: ${e.message}")
-            Result.failure<Uri>(e)
+            Result.failure<String>(e)
         }
 
     }

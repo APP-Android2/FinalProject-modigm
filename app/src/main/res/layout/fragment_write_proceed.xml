@@ -20,11 +20,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:text="진행할 장소를 입력해주세요"
+                android:text="진행할 방식을 선택해주세요 *"
                 android:textSize="18dp"
                 android:textStyle="bold" />
 
@@ -71,7 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="몇 명이서 진행할까요?(최대 30명)"
+                    android:text="몇 명이서 진행할까요?(최대 30명) *"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
