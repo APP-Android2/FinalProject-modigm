@@ -80,8 +80,8 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
 
                 setupChipGroup(
                     chipGroupWriteType,
-                    listOf("오프라인", "온라인", "온·오프 혼합"),
-                    mapOf("온라인" to 1, "오프라인" to 2, "온·오프 혼합" to 3)
+                    listOf("오프라인", "온라인", "온오프혼합"),
+                    mapOf("온라인" to 1, "오프라인" to 2, "온오프혼합" to 3)
                 )
 
                 // 장소선택 가시성 설정
@@ -102,7 +102,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                                             textInputEditProceedMaxMember.setText(studyMaxMember.toString())
                                         }
                                     }
-                                    "오프라인", "온·오프 혼합" -> {
+                                    "오프라인", "온오프혼합" -> {
                                         if(studyMaxMember != null) {
                                             textInputEditProceedMaxMember.setText(studyMaxMember.toString())
                                         }
@@ -226,7 +226,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                             viewModel.updateWriteData("studyPlace", "")
                             viewModel.updateSelectedTab(3)
                         }
-                        "오프라인", "온·오프 혼합" -> {
+                        "오프라인", "온오프혼합" -> {
                             // 버튼 활성화
                             isEnabled = true
 

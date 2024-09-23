@@ -50,7 +50,7 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
         )
     }
 
-    // --------------------------------- LC START ---------------------------------
+    // --------------------------------- Lifecycle Start ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,7 +70,7 @@ class FavoriteFragment : VBBaseFragment<FragmentFavoriteBinding>(FragmentFavorit
         viewModel.clearData() // ViewModel 데이터 초기화
     }
 
-    // --------------------------------- LC END ---------------------------------
+    // --------------------------------- Lifecycle End ---------------------------------
 
     // 초기 뷰 세팅
     private fun initView() {

@@ -36,7 +36,7 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
     private val selectedTechIdxs = mutableListOf<Int>()
     private lateinit var techStackData: List<TechStackData>
 
-    // --------------------------------- LC START ---------------------------------
+    // --------------------------------- Lifecycle Start ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,7 +46,7 @@ class FilterSortFragment : VBBaseFragment<FragmentFilterSortBinding>(FragmentFil
         backButton()
     }
 
-    // --------------------------------- LC END ---------------------------------
+    // --------------------------------- Lifecycle End ---------------------------------
 
     // 초기 뷰 세팅
     private fun initView() {

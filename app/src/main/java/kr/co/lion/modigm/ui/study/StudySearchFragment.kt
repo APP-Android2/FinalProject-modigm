@@ -63,7 +63,7 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
         )
     }
 
-    // --------------------------------- LC START ---------------------------------
+    // --------------------------------- Lifecycle Start ---------------------------------
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -85,7 +85,7 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
         viewModel.clearData() // ViewModel 데이터 초기화
     }
 
-    // --------------------------------- LC END ---------------------------------
+    // --------------------------------- Lifecycle End ---------------------------------
 
     private fun initView() {
 

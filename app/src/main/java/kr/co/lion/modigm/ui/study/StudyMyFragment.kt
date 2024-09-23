@@ -60,7 +60,10 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
     // 스크롤 리스너 인터페이스
     private var scrollListener: OnRecyclerViewScrollListener? = null
 
-    // --------------------------------- LC START ---------------------------------
+    // 뱃지 객체를 클래스 변수로 관리
+    private var badgeDrawable: BadgeDrawable? = null
+
+    // --------------------------------- Lifecycle Start ---------------------------------
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -98,7 +101,7 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         scrollListener = null
     }
 
-    // --------------------------------- LC END ---------------------------------
+    // --------------------------------- Lifecycle End ---------------------------------
 
     // 초기 뷰 세팅
     private fun initView() {
@@ -212,6 +215,10 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
                     }
                 // 필터가 적용되지 않은 경우
                 } else {
+                    // 필터 뱃지 제거
+                    removeBadge(imageViewStudyMyFilter)
+                    // 필터 아이콘 색상 원래대로 변경
+                    imageViewStudyMyFilter.clearColorFilter()
                     // 내 스터디 데이터 관찰 (필터링이 없을 때)
                     viewModel.myStudyData.observe(viewLifecycleOwner) { studyList ->
                         studyAdapter.updateData(studyList)
@@ -271,11 +278,22 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
 
     // 뱃지 설정
     @OptIn(ExperimentalBadgeUtils::class)
-    private fun setBadge(icon: ShapeableImageView, badgeColor: Int ) {
+    private fun setBadge(icon: ShapeableImageView, badgeColor: Int) {
         val setBadgeColor = ContextCompat.getColor(requireContext(), badgeColor)
-        val badgeDrawable = BadgeDrawable.create(requireContext())
-        BadgeUtils.attachBadgeDrawable(badgeDrawable, icon)
-        badgeDrawable.badgeGravity = BadgeDrawable.TOP_END
-        badgeDrawable.backgroundColor = setBadgeColor
+        if (badgeDrawable == null) {
+            badgeDrawable = BadgeDrawable.create(requireContext())
+        }
+        badgeDrawable?.let { badge ->
+            badge.backgroundColor = setBadgeColor
+            BadgeUtils.attachBadgeDrawable(badge, icon)
+        }
+    }
+
+    // 뱃지 제거 메서드
+    @OptIn(ExperimentalBadgeUtils::class)
+    private fun removeBadge(icon: ShapeableImageView) {
+        badgeDrawable?.let { badge ->
+            BadgeUtils.detachBadgeDrawable(badge, icon)
+        }
     }
 }

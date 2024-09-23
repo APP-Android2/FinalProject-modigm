@@ -128,12 +128,24 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
                 setOnCloseIconClickListener {
                     chipGroup.removeView(this)  // 현재 클릭된 Chip 인스턴스를 ChipGroup에서 제거
                     selectedTechStackList.remove(techStack.techIdx)  // 선택된 스킬 목록에서 해당 스킬 제거
-                    viewModel.updateWriteData("studyTechStackList", selectedTechStackList)  // ViewModel에 선택된 스킬 목록 업데이트
+
+                    // 선택된 스킬 목록이 비어 있으면 ViewModel 데이터를 null로 업데이트
+                    if (selectedTechStackList.isEmpty()) {
+                        viewModel.updateWriteData("studyTechStackList", null)  // ViewModel에 데이터를 null로 설정
+                    } else {
+                        viewModel.updateWriteData("studyTechStackList", selectedTechStackList)  // ViewModel에 선택된 스킬 목록 업데이트
+                    }
+
+                    // 버튼 색상 업데이트
+                    updateButtonColor()
                 }
             }
             chipGroup.addView(chip)  // ChipGroup에 칩을 추가
         }
+        // 버튼 색상 초기 업데이트
+        updateButtonColor()
     }
+
     private fun bottomSheetTechStack() {
         // 바텀 시트 띄우기
         val bottomSheet = TechStackBottomSheetFragment().apply {

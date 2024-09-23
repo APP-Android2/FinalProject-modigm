@@ -39,6 +39,10 @@ class WriteViewModel : ViewModel() {
     private val _writeDataMap = MutableLiveData<MutableMap<String, Any?>?>(mutableMapOf())
     val writeDataMap: LiveData<MutableMap<String, Any?>?> = _writeDataMap
 
+    // 글작성 로딩
+    private val _writeStudyDataLoading = MutableLiveData(false)
+    val writeStudyDataLoading: LiveData<Boolean> = _writeStudyDataLoading
+
     // 글작성 에러
     private val _writeStudyDataError = MutableLiveData<Throwable?>(null)
     val writeStudyDataError: LiveData<Throwable?> = _writeStudyDataError
@@ -73,7 +77,11 @@ class WriteViewModel : ViewModel() {
 
     // 스터디 데이터 업로드
     fun writeStudyData(context: Context) {
+
         viewModelScope.launch(Dispatchers.IO) {
+            // 로딩 시작
+            _writeStudyDataLoading.postValue(true)
+
             val userIdx = getCurrentUserIdx()
 
             // 스터디 기본 정보 추출
@@ -86,6 +94,7 @@ class WriteViewModel : ViewModel() {
             val studyDetailPlace = _writeDataMap.value?.get("studyDetailPlace") as? String ?: ""
             val studyMaxMember = _writeDataMap.value?.get("studyMaxMember") as? Int ?: 2
             val studyTechStackList = _writeDataMap.value?.get("studyTechStackList") as? List<Int> ?: listOf()
+            val studyChatLink = _writeDataMap.value?.get("studyChatLink") as? String ?: ""
 
             // studyPic URI 확인 및 변환
             val studyPicString = _writeDataMap.value?.get("studyPic") as? String
@@ -123,6 +132,7 @@ class WriteViewModel : ViewModel() {
                 studyPic = studyS3Url,  // S3에서 업로드된 이미지 URL 사용
                 studyMaxMember = studyMaxMember,
                 studyState = true,
+                studyChatLink = studyChatLink,
                 userIdx = userIdx
             )
 
@@ -135,51 +145,22 @@ class WriteViewModel : ViewModel() {
             )
 
             result.onSuccess {
+                // 로딩 종료
+                _writeStudyDataLoading.postValue(false)
+
                 Log.d(logTag, "writeStudyData: 스터디 데이터 업로드 성공 - studyIdx: $it")
                 _writeStudyIdx.postValue(it)
             }.onFailure { e ->
+                // 로딩 종료
+                _writeStudyDataLoading.postValue(false)
+
                 Log.e(logTag, "writeStudyData: 스터디 데이터 업로드 실패", e)
                 _writeStudyDataError.postValue(e)
+
             }
         }
     }
 
-    // 전체 데이터 유효성 검사
-    fun checkAllData(): Throwable? {
-        val requiredFields = listOf(
-            "studyType" to "스터디 타입",
-            "studyPeriod" to "스터디 기간",
-            "studyOnOffline" to "스터디 온라인/오프라인 여부",
-            "studyMaxMember" to "스터디 최대 인원",
-            "studyTechStackList" to "스터디 기술 스택",
-            "studyTitle" to "스터디 제목",
-            "studyContent" to "스터디 내용"
-        )
-
-        // 필수 필드 중 값이 비어있거나 null인 경우 해당 메시지를 담은 Throwable 반환
-        requiredFields.forEach { (key, fieldName) ->
-            val value = _writeDataMap.value?.get(key)
-            when {
-                value == null -> return Throwable("$fieldName 을/를 지정해주세요!")
-                value is String && value.isBlank() -> return Throwable("$fieldName 을/를 지정해주세요!")
-                value is List<*> && value.isEmpty() -> return Throwable("$fieldName 을/를 지정해주세요!")
-                value is Int && (value == 0||value == 1) -> return Throwable("$fieldName 이 ${value}명 입니다.")
-            }
-        }
-
-        // 스터디 온/오프라인 여부에 따른 스터디 장소 검증
-        val studyOnOffline = _writeDataMap.value?.get("studyOnOffline") as? String
-        val studyPlace = _writeDataMap.value?.get("studyPlace") as? String
-
-        when (studyOnOffline) {
-            "오프라인", "온·오프 혼합" -> {
-                if (studyPlace.isNullOrBlank()) {
-                    return Throwable("스터디 장소를 지정해주세요!")
-                }
-            }
-        }
-        return null  // 모든 필드가 유효할 경우 null 반환
-    }
     // --------------------------------------- 글작성 ---------------------------------------
 
     // --------------------------------------- 탭설정 ---------------------------------------
@@ -219,6 +200,8 @@ class WriteViewModel : ViewModel() {
     }
     // -------------------------------------- 바텀 시트 설정 --------------------------------------
 
+    var isDataCleared: Boolean = false // 데이터 초기화 플래그
+
     // 글작성 데이터 초기화
     fun clearData() {
         _writeDataMap.postValue(mutableMapOf())
@@ -228,6 +211,9 @@ class WriteViewModel : ViewModel() {
         _techStackData.postValue(emptyList())
         _writeStudyIdx.postValue(null)
         _contentUri.postValue(null)
+        _writeStudyDataLoading.postValue(false)
+
+        isDataCleared = true // 데이터가 초기화되었음을 표시
 
         Log.d(logTag, "clearData: 데이터 초기화 완료")
     }
