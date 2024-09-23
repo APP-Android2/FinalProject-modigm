@@ -257,24 +257,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="신청 방식을 선택해주세요"
-                    android:textSize="18dp"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupDetailEditApply"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    app:singleLine="true"
-                    app:singleSelection="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="참여신청 링크를 작성해주세요"
+                    android:text="스터디 활동에 필요한 링크를 작성해주세요"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 

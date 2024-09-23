@@ -549,7 +549,6 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         // 초기화 전에 기존 칩을 모두 제거하여 ID 충돌 방지
         binding.chipGroupDetailEditType.removeAllViews()
         binding.chipGroupDetailEditPlace.removeAllViews()
-        binding.chipGroupDetailEditApply.removeAllViews()
 
         Log.d("DetailEditFragment", "Setting up study type chips")
         setupChipGroup(
@@ -563,13 +562,6 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
             binding.chipGroupDetailEditPlace,
             listOf("오프라인", "온라인", "온오프혼합"),
             mapOf("온라인" to "온라인", "오프라인" to "오프라인", "온오프혼합" to "온오프혼합") // tag 값을 지정
-        )
-
-        Log.d("DetailEditFragment", "Setting up apply method chips")
-        setupChipGroup(
-            binding.chipGroupDetailEditApply,
-            listOf("신청제", "선착순"),
-            mapOf("신청제" to "신청제", "선착순" to "선착순") // tag 값을 지정
         )
 
         // 장소선택 가시성 설정
@@ -856,30 +848,6 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         return selectedChip.tag as? String ?: ""
     }
 
-    fun getSelectedStudyApplyMethod(): String {
-        val chipGroup = binding.chipGroupDetailEditApply
-        val selectedChipId = chipGroup.checkedChipId
-        // 선택된 Chip이 없을 경우 처리
-        if (selectedChipId == View.NO_ID) {
-            Log.d("DetailEditFragment", "No chip selected in chipGroupDetailEditApply")
-            return "" // 선택된 칩이 없으면 빈 문자열 반환
-        }
-
-        // Chip 객체를 가져오기
-        val selectedChip = binding.root.findViewById<Chip>(selectedChipId)
-
-        // Chip이 null인지 체크
-        if (selectedChip == null) {
-            Log.e("DetailEditFragment", "Selected chip is null. ID: $selectedChipId")
-            return "" // Chip이 없을 경우에도 빈 문자열 반환
-        }
-
-        Log.d("DetailEditFragment", "Selected Chip Tag: ${selectedChip.tag}")
-
-        // 선택된 Chip의 Tag 반환
-        return selectedChip.tag as? String ?: ""
-    }
-
     fun uploadImageAndSaveData() {
         contentUri?.let { selectedImageUri ->
             try {
@@ -912,7 +880,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         val studyType = getSelectedStudyType()
         val studyOnOffline = getSelectedStudyOnOffline()
-        val studyApplyMethod = getSelectedStudyApplyMethod()
+        val studyApplyMethod = "신청제"
 //        val studySkills = if (selectedSkills.isNotEmpty()) selectedSkills else currentStudyData?.studySkillList ?: listOf()
 
         // EditText로부터 텍스트를 가져와 줄바꿈 문자를 \n으로 변환
@@ -1028,16 +996,6 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
             updatePlaceVisibility(it) // UI 가시성 설정
             Log.d("DetailEditFragment", "On/Offline chip selected: ${it.text}")
         } ?: Log.d("DetailEditFragment", "No matching chip found for onOfflineTag: $onOfflineTag")
-
-        // 신청 방법 칩 선택
-        val applyMethodTag = currentStudyData?.studyApplyMethod ?: "" // 기본값 설정
-        val applyMethodChip = findChipByText(binding.chipGroupDetailEditApply, applyMethodTag)
-
-        applyMethodChip?.let {
-            it.isChecked = true
-            updateChipStyle(it, true)
-            Log.d("DetailEditFragment", "Apply method chip selected: ${it.text}")
-        } ?: Log.d("DetailEditFragment", "No matching chip found for applyMethodTag: $applyMethodTag")
     }
 
 
