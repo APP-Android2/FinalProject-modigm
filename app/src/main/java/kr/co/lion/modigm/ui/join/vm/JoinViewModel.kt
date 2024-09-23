@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -13,6 +14,7 @@ import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.JoinUserRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -144,13 +146,14 @@ class JoinViewModel @Inject constructor(
             "",
             _userEmail.value?:_email.value,
             _userProvider.value,
-            _interests.value?.joinToString(",")?:""
+            _interests.value?.joinToString(",")?:"",
+            Date(System.currentTimeMillis())
         )
     }
 
     // 회원 가입 완료
-    fun completeJoinUser(){
-        viewModelScope.launch {
+    fun completeJoinUser(handler: CoroutineExceptionHandler){
+        viewModelScope.launch(handler) {
             _user.value = _auth.currentUser
 
             val user = createUserInfoData()

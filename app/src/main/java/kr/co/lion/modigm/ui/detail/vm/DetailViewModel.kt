@@ -9,11 +9,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
@@ -76,6 +81,30 @@ class DetailViewModel: ViewModel() {
     private val _notificationResult = MutableSharedFlow<Boolean>()
     val notificationResult: SharedFlow<Boolean> = _notificationResult
 
+    private val _isUserAlreadyMember = MutableStateFlow(false)
+    val isUserAlreadyMember: StateFlow<Boolean> = _isUserAlreadyMember
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
+    // 각각의 데이터 로딩 상태를 저장하는 변수들
+    private val _isStudyDataLoaded = MutableStateFlow(false)
+    private val _isMemberCountLoaded = MutableStateFlow(false)
+    private val _isUserDataLoaded = MutableStateFlow(false)
+    private val _isStudyPicLoaded = MutableStateFlow(false)
+    private val _isTechListLoaded = MutableStateFlow(false)
+
+    // 모든 데이터를 로드했는지 확인하는 플래그
+    val isDataFullyLoaded: StateFlow<Boolean> = combine(
+        _isStudyDataLoaded,
+        _isMemberCountLoaded,
+        _isUserDataLoaded,
+        _isStudyPicLoaded,
+        _isTechListLoaded
+    ) { studyLoaded, memberCountLoaded, userLoaded, picLoaded, techLoaded ->
+        studyLoaded && memberCountLoaded && userLoaded && picLoaded && techLoaded
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     fun clearData() {
         _studyData.value = null
         _memberCount.value = 0
@@ -85,32 +114,81 @@ class DetailViewModel: ViewModel() {
         _studyMembers.value = emptyList()
     }
 
-    // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
-    fun getStudy(studyIdx: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun clearLoadingState() {
+        _isLoading.value = true
+        _isStudyDataLoaded.value = false
+        _isMemberCountLoaded.value = false
+        _isUserDataLoaded.value = false
+        _isStudyPicLoaded.value = false
+        _isTechListLoaded.value = false
+    }
+
+
+
+    fun loadStudyData(studyIdx: Int) {
+        clearLoadingState()  // 새로운 데이터를 로드하기 전에 상태 초기화
+        _isLoading.value = true
+
+        viewModelScope.launch {
             try {
-                detailRepository.getStudyById(studyIdx).collect { data ->
-                    _studyData.value = data
-                    data?.let { getStudyPic(it.studyIdx) } // 데이터 가져온 후 이미지 로드
+                // 1. 스터디 데이터 로드
+                detailRepository.getStudyById(studyIdx).collect { studyData ->
+                    _studyData.value = studyData
+                    _isStudyDataLoaded.value = true
+
+                    // studyData에서 userIdx를 가져옵니다.
+                    studyData?.let { study ->
+                        val userIdx = study.userIdx
+
+                        // 2. 글 작성자 데이터 로드
+                        val userDeferred = async { getUserById(userIdx) }
+
+                        // 3. 멤버 수 로드
+                        val memberCountDeferred = async { countMembersByStudyIdx(studyIdx) }
+
+                        // 4. 스터디 이미지 로드
+                        val studyPicDeferred = async { getStudyPic(studyIdx) }
+
+                        // 5. 스터디 기술 목록 로드
+                        val techDeferred = async { getTechIdxByStudyIdx(studyIdx) }
+
+                        // 모든 데이터 로드 완료까지 대기
+                        awaitAll(userDeferred, memberCountDeferred, studyPicDeferred, techDeferred)
+                    }
                 }
-            } catch (throwable: Throwable) {
-                Log.e("DetailViewModel", "Error fetching study data", throwable)
+            }catch (throwable: Throwable) {
+                Log.e("DetailViewModel", "Error loading study data", throwable)
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
-    // 특정 studyIdx에 대한 스터디 멤버 수를 가져오는 메소드
-    fun countMembersByStudyIdx(studyIdx: Int) {
-        viewModelScope.launch {
-            try {
-                detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
-                    _memberCount.value = count
-                }
-            } catch (throwable: Throwable) {
-                Log.e("DetailViewModel", "Error counting members", throwable)
+    // 특정 studyIdx에 대한 스터디 데이터를 가져오는 메소드
+    suspend fun getStudy(studyIdx: Int) {
+        try {
+            detailRepository.getStudyById(studyIdx).collect { data ->
+                _studyData.value = data
+                _isStudyDataLoaded.value = true
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching study data", throwable)
         }
     }
+
+    // 특정 studyIdx에 대한 스터디 멤버 수를 가져오는 메소드
+    suspend fun countMembersByStudyIdx(studyIdx: Int) {
+        try {
+            detailRepository.countMembersByStudyIdx(studyIdx).collect { count ->
+                _memberCount.value = count
+                _isMemberCountLoaded.value = true
+            }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error counting members", throwable)
+        }
+    }
+
+
     fun fetchMembersInfo(studyIdx: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -147,37 +225,37 @@ class DetailViewModel: ViewModel() {
 
 
     // 특정 studyIdx에 대한 스터디 이미지를 가져오는 메소드
-    fun getStudyPic(studyIdx: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+    suspend fun getStudyPic(studyIdx: Int) {
+        try {
             detailRepository.getStudyPicByStudyIdx(studyIdx).collect { pic ->
                 _studyPic.value = pic
+                _isStudyPicLoaded.value = true
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching study pic", throwable)
         }
     }
 
-    fun getUserById(userIdx: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _userData.value = null  // 데이터 로드 전에 null로 초기화
-            try {
-                detailRepository.getUserById(userIdx).collect { user ->
-                    if (user != null) {
-                        _userData.value = user
-                        Log.d("DetailViewModel", "User data fetched successfully: $user")
-                    } else {
-                        Log.e("DetailViewModel", "No user data found for userIdx: $userIdx")
-                    }
-                }
-            } catch (throwable: Throwable) {
-                Log.e("DetailViewModel", "Error fetching user data", throwable)
+    suspend fun getUserById(userIdx: Int) {
+        try {
+            detailRepository.getUserById(userIdx).collect { user ->
+                _userData.value = user
+                _isUserDataLoaded.value = true
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching user data", throwable)
         }
     }
 
-    fun getTechIdxByStudyIdx(studyIdx: Int) {
-        viewModelScope.launch {
+
+    suspend fun getTechIdxByStudyIdx(studyIdx: Int) {
+        try {
             detailRepository.getTechIdxByStudyIdx(studyIdx).collect { techList ->
                 _studyTechList.value = techList
+                _isTechListLoaded.value = true
             }
+        } catch (throwable: Throwable) {
+            Log.e("DetailViewModel", "Error fetching tech list", throwable)
         }
     }
 
@@ -216,6 +294,23 @@ class DetailViewModel: ViewModel() {
         }
     }
 
+    // 사용자가 이미 스터디에 참여 중인지 확인하는 함수
+    fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int) {
+        viewModelScope.launch {
+            try {
+                // DetailRepository를 통해 해당 사용자가 스터디 멤버인지 체크
+                val isMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
+                _isUserAlreadyMember.value = isMember
+            } catch (e: Exception) {
+                Log.e("DetailViewModel", "Error checking if user is already a member", e)
+                _isUserAlreadyMember.value = false
+            }
+        }
+    }
+
+
+
+
     // FCM 토큰을 서버에 등록
     fun registerFcmToken(userIdx: Int, fcmToken: String) {
         viewModelScope.launch {
@@ -231,23 +326,39 @@ class DetailViewModel: ViewModel() {
     // 사용자가 신청할 때 알림을 전송하고 데이터를 저장하는 메서드
     fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View, studyTitle: String) {
         viewModelScope.launch {
-            // 기존 신청 여부 확인
+            // 사용자가 이미 참여 중인지 확인
+            val isAlreadyMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
+
+            // 이미 신청된 상태인지 확인
             val isAlreadyApplied = detailRepository.isAlreadyApplied(userIdx, studyIdx)
+
+            if (isAlreadyMember) {
+                // 이미 스터디에 참여 중인 경우
+                withContext(Dispatchers.Main) {
+                    val snackbar = Snackbar.make(
+                        view,
+                        "이미 참여중인 스터디입니다.",
+                        Snackbar.LENGTH_LONG
+                    )
+                    val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                    val textSizeInPx = dpToPx(context, 14f)
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+                    snackbar.show()
+                }
+                return@launch
+            }
 
             if (isAlreadyApplied) {
                 // 이미 신청한 경우
                 withContext(Dispatchers.Main) {
-                    // 스낵바 생성
                     val snackbar = Snackbar.make(
                         view,
                         "이미 신청한 스터디입니다.",
                         Snackbar.LENGTH_LONG
                     )
-                    // 텍스트 뷰의 글씨 크기를 dp로 변환하여 설정
                     val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                    val textSizeInPx = dpToPx(context, 14f) // 원하는 글씨 크기를 dp로 설정
+                    val textSizeInPx = dpToPx(context, 14f)
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
                     snackbar.show()
                 }
                 return@launch
@@ -255,7 +366,6 @@ class DetailViewModel: ViewModel() {
 
             // 신청자의 사용자 정보 가져오기
             val applyUserData = detailRepository.getUserById(userIdx).firstOrNull()
-
             if (applyUserData == null) {
                 Log.e("DetailViewModel", "Failed to fetch applicant user data for userIdx: $userIdx")
                 return@launch
@@ -269,47 +379,32 @@ class DetailViewModel: ViewModel() {
             }
 
             if (success) {
-                // 신청 사용자에게 알림 전송
+                // 신청 성공 시, 알림 전송 로직 진행
                 val title = "신청 완료"
                 val body = "${studyTitle}스터디 신청이 성공적으로 완료되었습니다."
-                sendPushNotification(context, userIdx, title, body, studyIdx) // 신청한 사용자에게 알림
+                sendPushNotification(context, userIdx, title, body, studyIdx)
 
-                // 글 작성자의 FCM 토큰 가져오기
-                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull() // study 데이터 가져오기
+                // 글 작성자에게도 알림 전송
+                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull()
                 val writerUserIdx = studyData?.userIdx
-
-                if (writerUserIdx != null && writerUserIdx != userIdx) { // 글 작성자가 신청자와 다른 경우에만
+                if (writerUserIdx != null && writerUserIdx != userIdx) {
                     val writerFcmToken = detailRepository.getUserFcmToken(writerUserIdx)
                     if (writerFcmToken != null) {
                         val writerTitle = "새로운 스터디 신청"
                         val writerBody = "${applyUserData.userName}님이 ${studyData?.studyTitle} 스터디에 신청했습니다."
-                        val result = FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody,studyIdx)
-
-                        if (result) {
-                            Log.d("DetailViewModel", "Notification sent successfully to writerUserIdx: $writerUserIdx")
-
-                            // 알림 저장
-                            val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
-                            val saveResult = detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl,studyIdx)
-                            if (saveResult) {
-                                Log.d("DetailViewModel", "Notification saved successfully to database for writerUserIdx: $writerUserIdx")
-                            } else {
-                                Log.e("DetailViewModel", "Failed to save notification to database for writerUserIdx: $writerUserIdx")
-                            }
-                        } else {
-                            Log.e("DetailViewModel", "Failed to send notification to writerUserIdx: $writerUserIdx")
-                        }
-                    } else {
-                        Log.e("DetailViewModel", "Failed to retrieve FCM token for writerUserIdx: $writerUserIdx")
+                        FCMService.sendNotificationToToken(context, writerFcmToken, writerTitle, writerBody, studyIdx)
+                        // 알림 저장
+                        val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                        detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl, studyIdx)
                     }
                 }
-
                 _addUserResult.emit(true)
             } else {
                 _addUserResult.emit(false)
             }
         }
     }
+
 
     // dp를 px로 변환하는 함수
     private fun dpToPx(context: Context, dp: Float): Float {

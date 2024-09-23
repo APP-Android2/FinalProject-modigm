@@ -361,20 +361,19 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             viewModel.setInterests(it1)
         }
 
-        val handler = CoroutineExceptionHandler { _, throwable ->
-            Log.e("JoinError", "${throwable.message}")
+        val handler = CoroutineExceptionHandler { context, throwable ->
+            Log.e("JoinError", "$context ${throwable.message}")
             hideLoading()
-            showSnackBar(networkErrorMessage)
+            showSnackBar(throwable.message.toString())
         }
 
         // 회원가입 완료 처리
-        lifecycleScope.launch(handler) {
+        lifecycleScope.launch {
             showLoading()
-            viewModel.completeJoinUser()
+            viewModel.completeJoinUser(handler)
         }
     }
 
-    private val networkErrorMessage = "통신 에러, 잠시 후 다시 시도해주세요."
     private val emailNotVerifiedMessage = "이메일 인증이 완료되지 않았습니다."
 
     private fun showSnackBar(message: String) {

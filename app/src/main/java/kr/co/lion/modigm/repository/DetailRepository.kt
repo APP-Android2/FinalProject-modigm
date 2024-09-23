@@ -94,6 +94,10 @@ class DetailRepository {
         return remoteDetailDataSource.updateStudyCanApplyField(studyIdx, newState)
     }
 
+    suspend fun isUserAlreadyMember(studyIdx: Int, userIdx: Int): Flow<Boolean> {
+        return remoteDetailDataSource.isUserAlreadyMember(studyIdx, userIdx)
+    }
+
     // 사용자 FCM 토큰을 가져오는 메서드
     suspend fun getUserFcmToken(userIdx: Int): String? {
         return remoteDetailDataSource.getUserFcmToken(userIdx)
