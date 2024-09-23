@@ -195,10 +195,16 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         }
     }
 
+
     override fun onResume() {
         super.onResume()
         // ViewModel의 로딩 상태 초기화
         viewModel.clearLoadingState()
+
+        // 이미 데이터가 로드된 상태라면 로딩을 다시 하지 않음
+        if (!viewModel.isDataFullyLoaded.value) {
+            viewModel.loadStudyData(studyIdx)
+        }
 
         fetchDataAndUpdateUI()
     }

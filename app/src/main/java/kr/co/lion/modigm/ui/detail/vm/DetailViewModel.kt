@@ -115,13 +115,16 @@ class DetailViewModel: ViewModel() {
     }
 
     fun clearLoadingState() {
-        _isLoading.value = true
-        _isStudyDataLoaded.value = false
-        _isMemberCountLoaded.value = false
-        _isUserDataLoaded.value = false
-        _isStudyPicLoaded.value = false
-        _isTechListLoaded.value = false
+        if (!_isStudyDataLoaded.value) {
+            _isLoading.value = true
+            _isStudyDataLoaded.value = false
+            _isMemberCountLoaded.value = false
+            _isUserDataLoaded.value = false
+            _isStudyPicLoaded.value = false
+            _isTechListLoaded.value = false
+        }
     }
+
 
 
     fun loadStudyData(studyIdx: Int) {
