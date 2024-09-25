@@ -23,7 +23,7 @@ import kr.co.lion.modigm.ui.profile.vm.ProfileStudyViewModel
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 
-class ProfileStudyFragment : DBBaseFragment<FragmentProfileStudyBinding>(R.layout.fragment_profile_study) {
+class ProfileStudyFragment: DBBaseFragment<FragmentProfileStudyBinding>(R.layout.fragment_profile_study) {
     private val profileStudyViewModel: ProfileStudyViewModel by viewModels()
 
     val studyAdapter: ProfileStudyAdapter = ProfileStudyAdapter(
@@ -35,15 +35,16 @@ class ProfileStudyFragment : DBBaseFragment<FragmentProfileStudyBinding>(R.layou
             viewLifecycleOwner.lifecycleScope.launch {
                 val detailFragment = DetailFragment()
 
-                // Bundle 생성 및 현재 사용자 uid 담기
+                // Bundle 생성 및 글 인덱스 담기
                 val bundle = Bundle()
                 bundle.putInt("studyIdx", studyIdx)
 
-                // Bundle을 ProfileStudyFragment에 설정
+                // Bundle을 DetailFragment에 설정
                 detailFragment.arguments = bundle
 
                 requireActivity().supportFragmentManager.commit {
-                    add(R.id.containerMain, detailFragment)
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    replace(R.id.containerMain, detailFragment)
                     addToBackStack(FragmentName.DETAIL.str)
                 }
             }
@@ -78,7 +79,7 @@ class ProfileStudyFragment : DBBaseFragment<FragmentProfileStudyBinding>(R.layou
             // 뒤로 가기
             setNavigationIcon(R.drawable.icon_arrow_back_24px)
             setNavigationOnClickListener {
-                requireActivity().supportFragmentManager.popBackStack()
+                parentFragmentManager.popBackStack()
             }
         }
     }
