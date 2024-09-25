@@ -128,8 +128,8 @@ class RemoteWriteStudyDao {
                     val query = """
                     INSERT INTO tb_study (studyTitle, studyContent, studyType, studyPeriod, studyOnOffline, 
                     studyDetailPlace, studyPlace, studyApplyMethod, studyCanApply, studyPic, studyMaxMember, 
-                    studyState, studyChatLink, userIdx)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    studyState, studyChatLink, studyCreateDate, userIdx)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """.trimIndent()
 
                     connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS).use { statement ->

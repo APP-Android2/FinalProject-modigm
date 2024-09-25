@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.model
 
-import java.sql.Date
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.format.DateTimeFormatter
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -20,7 +21,7 @@ data class StudyData(
     val studyMaxMember: Int = 0,                                        // 최대 인원수
     val studyState: Boolean = true,                                     // 삭제 여부 (존재함, 삭제됨)
     val studyChatLink: String = "",                                     // 오픈 채팅 링크
-    val studyCreateDate: Date = Date(System.currentTimeMillis()),       // 생성 날짜
+    val studyCreateDate: LocalDateTime = LocalDateTime.now(),           // 생성 날짜
     val userIdx: Int = -1,                                              // 사용자 번호
 ){
     fun toMap(): Map<String, Any>{
@@ -61,8 +62,16 @@ data class StudyData(
                 studyMaxMember = map["studyMaxMember"] as Int,
                 studyState = map["studyState"] as Boolean,
                 studyChatLink = map["studyChatLink"] as String,
-                studyCreateDate = map["studyCreateDate"] as Date,
+                studyCreateDate = map["studyCreateDate"] as LocalDateTime,
                 userIdx = map["userIdx"] as Int
+            )
+        }
+
+        private fun getLocalDate(timestamp: Timestamp): LocalDateTime {
+            return LocalDateTime.ofEpochSecond(
+                timestamp.time / 1000, // 밀리초를 초 단위로 변환
+                (timestamp.time % 1000 * 1000000).toInt(), // 나머지 밀리초를 나노초로 변환
+                org.threeten.bp.ZoneOffset.UTC // 필요에 따라 ZoneOffset 설정
             )
         }
 
@@ -82,7 +91,7 @@ data class StudyData(
                 resultSet.getInt("studyMaxMember"),
                 resultSet.getBoolean("studyState"),
                 resultSet.getString("studyChatLink"),
-                resultSet.getDate("studyCreateDate"),
+                getLocalDate(resultSet.getTimestamp("studyCreateDate")),
                 resultSet.getInt("userIdx"),
             )
         }
@@ -98,7 +107,11 @@ data class StudyData(
                     is String -> statement.setString(index + 1, value)
                     is Int -> statement.setInt(index + 1, value)
                     is Boolean -> statement.setBoolean(index + 1, value)
-                    is Date -> statement.setTimestamp(index + 1, Timestamp(value.time))
+                    is LocalDateTime -> {
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                        val formattedDateTime = value.format(formatter)
+                        statement.setTimestamp(index + 1, Timestamp.valueOf(formattedDateTime))
+                    }
                     else -> throw IllegalArgumentException("Unsupported type: ${value::class.simpleName}")
                 }
             }

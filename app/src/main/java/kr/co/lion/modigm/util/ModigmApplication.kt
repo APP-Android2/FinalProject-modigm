@@ -5,6 +5,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -30,6 +31,9 @@ class ModigmApplication : Application() {
             // 초기화가 완료되면 배너 광고를 사전 로드
             preloadAdBanner()
         }
+
+        // sdk26이하에서 LocalDateTime(Java 8) 사용을 위해 ThreeTen 초기화
+        AndroidThreeTen.init(this)
     }
 
     // 배너 광고를 미리 로드하는 함수
