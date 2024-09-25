@@ -1,7 +1,8 @@
 package kr.co.lion.modigm.model
 
 import java.sql.ResultSet
-import java.util.Date
+import org.threeten.bp.LocalDateTime;
+import java.sql.Timestamp
 
 data class UserData(
     val userIdx: Int = -1,              // 회원 고유번호
@@ -13,7 +14,7 @@ data class UserData(
     val userEmail: String = "",         // 사용자 이메일
     val userProvider: String = "",      // Firebase Auth에 등록된 계정 Provider
     val userInterests: String = "",     // 관심 분야 목록
-    val userJoinDate: Date = Date(System.currentTimeMillis()), // 회원가입 일자
+    val userJoinDate: LocalDateTime = LocalDateTime.now(), // 회원가입 일자
 ) {
     fun toMap(): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
@@ -41,8 +42,12 @@ data class UserData(
                 resultSet.getString("userEmail") ?: "",
                 resultSet.getString("userProvider") ?: "",
                 resultSet.getString("userInterests") ?: "",
-                resultSet.getDate("userJoinDate") ?: Date(System.currentTimeMillis()),
+                getLocalDate(resultSet.getTimestamp("userJoinDate"))
             )
+        }
+
+        private fun getLocalDate(timestamp:Timestamp): LocalDateTime {
+            return LocalDateTime.of(timestamp.year, timestamp.month, timestamp.day, timestamp.hours, timestamp.minutes, timestamp.seconds)
         }
     }
 }

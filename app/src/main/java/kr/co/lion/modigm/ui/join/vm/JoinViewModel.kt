@@ -14,7 +14,8 @@ import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.JoinUserRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
-import java.util.Date
+import org.threeten.bp.LocalDate
+import org.threeten.bp.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -147,7 +148,7 @@ class JoinViewModel @Inject constructor(
             _userEmail.value?:_email.value,
             _userProvider.value,
             _interests.value?.joinToString(",")?:"",
-            Date(System.currentTimeMillis())
+            LocalDateTime.now()
         )
     }
 
