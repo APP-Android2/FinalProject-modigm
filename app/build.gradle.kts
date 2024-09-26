@@ -192,4 +192,7 @@ dependencies {
 
     // lottie 애니메이션
     implementation("com.airbnb.android:lottie:6.5.2")
+
+    // java.time 패키지를 사용하기 위한 ThreeTen 백포트 사용
+    implementation("com.jakewharton.threetenabp:threetenabp:1.3.0")
 }
