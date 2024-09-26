@@ -47,7 +47,11 @@ data class UserData(
         }
 
         private fun getLocalDate(timestamp:Timestamp): LocalDateTime {
-            return LocalDateTime.of(timestamp.year, timestamp.month, timestamp.day, timestamp.hours, timestamp.minutes, timestamp.seconds)
+            return LocalDateTime.ofEpochSecond(
+                timestamp.time / 1000, // 밀리초를 초 단위로 변환
+                (timestamp.time % 1000 * 1000000).toInt(), // 나머지 밀리초를 나노초로 변환
+                org.threeten.bp.ZoneOffset.UTC // 필요에 따라 ZoneOffset 설정
+            )
         }
     }
 }
