@@ -23,25 +23,24 @@ class StudyViewHolder(
     private val logTag by lazy { StudyViewHolder::class.simpleName }
 
     fun bind(studyData: Triple<StudyData, Int, Boolean>) {
-        with(binding) {
-            setupRootView(studyData)
-            // 스터디 이미지 설정
-            setStudyImage(studyData)
-            // 스터디 모집 상태 (모집중, 모집완료)
-            textViewStudyCanApply.text = studyData.first.studyCanApply
-            // 진행 방식 (온라인, 오프라인, 온/오프혼합)
-            setStudyOnOffline(studyData.first.studyOnOffline)
-            // 스터디 제목
-            textViewStudyTitle.text = studyData.first.studyTitle
-            // 활동 타입 (스터디, 프로젝트, 공모전)
-            setStudyType(studyData.first.studyType)
-            // 스터디 현재 인원수, 최대 인원수
-            setStudyMembers(studyData)
-            // 찜 상태
-            setFavoriteButton(studyData)
-        }
+        setupRootView(studyData)
+        // 스터디 이미지 설정
+        setStudyImage(studyData)
+        // 스터디 모집 상태 (모집중, 모집완료)
+        setStudyCanApply(studyData)
+        // 진행 방식 (온라인, 오프라인, 온/오프혼합)
+        setStudyOnOffline(studyData)
+        // 스터디 제목
+        setStudyTitle(studyData)
+        // 활동 타입 (스터디, 프로젝트, 공모전)
+        setStudyType(studyData)
+        // 스터디 현재 인원수, 최대 인원수
+        setStudyMembers(studyData)
+        // 찜 상태
+        setFavoriteButton(studyData)
     }
 
+    // 스터디 뷰 설정
     private fun setupRootView(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
             root.apply {
@@ -95,37 +94,97 @@ class StudyViewHolder(
                 })
 
             // 이미지 클릭 시
-            imageViewStudyPic.setOnClickListener {
-                rowClickListener.invoke(studyData.first.studyIdx)
-            }
-        }
-    }
-
-    // 스터디 진행 방식 설정 (온라인/오프라인/혼합)
-    private fun setStudyOnOffline(studyOnOffline: String) {
-        with(binding) {
-            textViewStudyOnOffline.apply {
-                // 스터디 진행 방식에 따라 텍스트와 텍스트 색상을 설정
-                text = studyOnOffline
-                when (studyOnOffline) {
-                    "온라인" -> setTextColor(Color.parseColor("#0FA981"))
-                    "오프라인" -> setTextColor(Color.parseColor("#EB9C58"))
-                    "온오프혼합" -> setTextColor(Color.parseColor("#0096FF"))
+            imageViewStudyPic.apply {
+                setOnClickListener {
+                    rowClickListener.invoke(studyData.first.studyIdx)
                 }
             }
         }
     }
 
-    private fun setStudyType(studyType: String) {
+    // 스터디 모집 상태 설정 (모집중, 모집완료)
+    private fun setStudyCanApply(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
-            textViewStudyType.apply {
-                text = studyType
-                with(imageViewStudyStudyTypeIcon) {
-                    when (studyType) {
-                        "스터디" -> setImageResource(R.drawable.icon_closed_book_24px)
-                        "프로젝트" -> setImageResource(R.drawable.icon_code_box_24px)
-                        "공모전" -> setImageResource(R.drawable.icon_trophy_24px)
+            textViewStudyCanApply.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    text = studyData.first.studyCanApply
+                    setTextColor(Color.parseColor("#1A51C5"))
+                } else {
+                    // 모집완료인 경우
+                    text = studyData.first.studyCanApply
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
+            }
+        }
+    }
+
+    // 스터디 진행 방식 설정 (온라인/오프라인/혼합)
+    private fun setStudyOnOffline(studyData: Triple<StudyData, Int, Boolean>) {
+        with(binding) {
+            textViewStudyOnOffline.apply {
+                text = studyData.first.studyOnOffline
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    // 스터디 진행 방식에 따라 텍스트와 텍스트 색상을 설정
+                    when (studyData.first.studyOnOffline) {
+                        "온라인" -> setTextColor(Color.parseColor("#0FA981"))
+                        "오프라인" -> setTextColor(Color.parseColor("#EB9C58"))
+                        "온오프혼합" -> setTextColor(Color.parseColor("#0096FF"))
                     }
+                } else {
+                    // 모집완료인 경우
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
+            }
+        }
+    }
+
+    private fun setStudyTitle(studyData: Triple<StudyData, Int, Boolean>) {
+        with(binding) {
+            textViewStudyTitle.apply {
+                // 스터디 제목 설정
+                text = studyData.first.studyTitle
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우(블랙)
+                    setTextColor(Color.parseColor("#000000"))
+                } else {
+                    // 모집완료인 경우(그레이)
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
+
+            }
+        }
+    }
+
+    // 스터디 타입 설정 (스터디, 프로젝트, 공모전)
+    private fun setStudyType(studyData: Triple<StudyData, Int, Boolean>) {
+        with(binding) {
+            // 스터디 타입 텍스트 설정
+            textViewStudyType.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    setTextColor(Color.parseColor("#777777"))
+                } else {
+                    // 모집완료인 경우
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
+                text = studyData.first.studyType
+
+            }
+            // 스터디 타입 아이콘 설정
+            imageViewStudyStudyTypeIcon.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    setColorFilter(Color.parseColor("#777777"))
+                } else {
+                    // 모집완료인 경우
+                    setColorFilter(Color.parseColor("#BBBBBB"))
+                }
+                when (studyData.first.studyType) {
+                    "스터디" -> setImageResource(R.drawable.icon_closed_book_24px)
+                    "프로젝트" -> setImageResource(R.drawable.icon_code_box_24px)
+                    "공모전" -> setImageResource(R.drawable.icon_trophy_24px)
                 }
             }
         }
@@ -133,11 +192,53 @@ class StudyViewHolder(
 
     private fun setStudyMembers(studyData: Triple<StudyData, Int, Boolean>) {
         with(binding) {
+
             textViewStudyMaxMember.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    setTextColor(Color.parseColor("#777777"))
+                } else {
+                    // 모집완료인 경우
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
                 text = studyData.first.studyMaxMember.toString()
             }
             textViewStudyCurrentMember.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    setTextColor(Color.parseColor("#777777"))
+                } else {
+                    // 모집완료인 경우
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
                 text = studyData.second.toString()
+            }
+            imageViewStudyMaxMemberIcon.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    setColorFilter(Color.parseColor("#777777"))
+                } else {
+                    // 모집완료인 경우
+                    setColorFilter(Color.parseColor("#BBBBBB"))
+                }
+            }
+            textViewStudyMaxMemberSlash.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    setTextColor(Color.parseColor("#777777"))
+                } else {
+                    // 모집완료인 경우
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
+            }
+            textViewStudyMaxMemberLast.apply {
+                if(studyData.first.studyCanApply == "모집중") {
+                    // 모집중인 경우
+                    setTextColor(Color.parseColor("#777777"))
+                } else {
+                    // 모집완료인 경우
+                    setTextColor(Color.parseColor("#BBBBBB"))
+                }
             }
         }
     }
@@ -161,6 +262,5 @@ class StudyViewHolder(
                 }
             }
         }
-
     }
 }

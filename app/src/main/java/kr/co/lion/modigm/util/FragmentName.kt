@@ -3,10 +3,6 @@ package kr.co.lion.modigm.util
 // MainActivity에서 보여줄 프레그먼트들의 이름
 enum class FragmentName (var str: String){
 
-
-    // 채팅
-    CHAT("ChatFragment"),
-
     // 알림
     NOTI("NotificationFragment"),
 
@@ -14,7 +10,6 @@ enum class FragmentName (var str: String){
     DETAIL("DetailFragment"),
     DETAIL_MEMBER("DetailMemberFragment"),
     DETAIL_EDIT("DetailEditFragment"),
-
 
     // 회원가입
     JOIN("JoinFragment"),
@@ -52,10 +47,7 @@ enum class FragmentName (var str: String){
     BOTTOM_NAVI("BottomNaviFragment"),
     STUDY_SEARCH("StudySearchFragment"),
 
-
     // 글 작성
     WRITE("WriteFragment"),
-
-
 
 }

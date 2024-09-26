@@ -23,11 +23,13 @@ class RemoteStudyDataSource {
                 val studyMemberTable = dao.selectTableStudyMembers().getOrThrow()
                 val favoriteTable = dao.selectTableFavorites().getOrThrow()
 
-                studyTable.map { study ->
-                    val memberCount = studyMemberTable.count { it.studyIdx == study.studyIdx }
-                    val isFavorite = favoriteTable.any { it.studyIdx == study.studyIdx && it.userIdx == userIdx }
-                    Triple(study, memberCount, isFavorite)
-                }
+                studyTable
+                    .filter { it.studyState }  // studyState 값이 true인 데이터만 필터링
+                    .map { study ->
+                        val memberCount = studyMemberTable.count { it.studyIdx == study.studyIdx }
+                        val isFavorite = favoriteTable.any { it.studyIdx == study.studyIdx && it.userIdx == userIdx }
+                        Triple(study, memberCount, isFavorite)
+                    }
             }.onFailure { e ->
                 Log.e(tag, "전체 스터디 목록 조회 중 오류 발생", e)
                 Result.failure<List<Triple<StudyData, Int, Boolean>>>(e)
@@ -46,7 +48,9 @@ class RemoteStudyDataSource {
                 val studyMemberTable = dao.selectTableStudyMembers().getOrThrow()
                 val favoriteTable = dao.selectTableFavorites().getOrThrow()
 
-                studyTable.filter { study ->
+                studyTable
+                    .filter { it.studyState }  // studyState 값이 true인 데이터만 필터링
+                    .filter { study ->
                     studyMemberTable.any { it.studyIdx == study.studyIdx && it.userIdx == userIdx }
                 }.map { study ->
                     val memberCount = studyMemberTable.count { it.studyIdx == study.studyIdx }
@@ -72,7 +76,9 @@ class RemoteStudyDataSource {
                 val favoriteTable = dao.selectTableFavorites().getOrThrow()
 
                 // 스터디 테이블에서 필터링
-                studyTable.filter { study ->
+                studyTable
+                    .filter { it.studyState }  // studyState 값이 true인 데이터만 필터링
+                    .filter { study ->
                     // 좋아요한 스터디인지 확인
                     favoriteTable.any { it.studyIdx == study.studyIdx && it.userIdx == userIdx }
                 }.map { study ->
