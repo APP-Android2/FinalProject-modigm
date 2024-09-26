@@ -4,6 +4,8 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.db.HikariCPDataSource
+import org.threeten.bp.DateTimeUtils
+import org.threeten.bp.LocalDateTime
 import java.sql.PreparedStatement
 import java.sql.Timestamp
 import java.util.Date
@@ -44,8 +46,8 @@ class RemoteJoinUserDao @Inject constructor() {
                         if(value is Boolean){
                             preparedStatement?.setBoolean(index+1, value)
                         }
-                        if(value is Date){
-                            preparedStatement?.setTimestamp(index+1, Timestamp(value.time))
+                        if(value is LocalDateTime){
+                            preparedStatement?.setTimestamp(index+1, DateTimeUtils.toSqlTimestamp(value))
                         }
                     }
                     preparedStatement?.executeUpdate() // 쿼리 실행
