@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -117,24 +118,36 @@ class StudySearchFragment : VBBaseFragment<FragmentStudySearchBinding>(FragmentS
             }
 
             // 서치뷰 설정
-            searchView.isSubmitButtonEnabled = true
+            searchView.apply {
+                isSubmitButtonEnabled = true
 
-            val searchTextView: TextView =
-                searchView.findViewById(androidx.appcompat.R.id.search_src_text)
-            TextViewCompat.setTextAppearance(searchTextView, R.style.ChipTextStyle)
 
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    query?.let {
-                        studySearchAdapter.search(it)
+                val searchTextView: TextView =
+                    findViewById(androidx.appcompat.R.id.search_src_text)
+                TextViewCompat.setTextAppearance(searchTextView, R.style.ChipTextStyle)
+
+                setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        query?.let {
+                            studySearchAdapter.search(it)
+                        }
+                        return true
                     }
-                    return true
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        return false
+                    }
+                })
+
+                setOnQueryTextFocusChangeListener { _, hasFocus ->
+                    if (hasFocus) {
+                        searchTextView.setSelectAllOnFocus(true)
+                        searchTextView.highlightColor = ContextCompat.getColor(requireContext(), R.color.textViewClickGray)
+                    }
                 }
 
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    return false
-                }
-            })
+
+            }
         }
     }
 
