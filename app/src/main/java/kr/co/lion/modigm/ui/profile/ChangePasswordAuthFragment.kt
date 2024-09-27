@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ class ChangePasswordAuthFragment : VBBaseFragment<FragmentChangePasswordAuthBind
 
         initView()
         observeViewModel()
+        backButton()
     }
 
     override fun onDestroy() {
@@ -173,7 +175,6 @@ class ChangePasswordAuthFragment : VBBaseFragment<FragmentChangePasswordAuthBind
             }
             show()
         }
-
     }
 
     // 뒤로가기 다이얼로그 표시
@@ -191,6 +192,15 @@ class ChangePasswordAuthFragment : VBBaseFragment<FragmentChangePasswordAuthBind
                 dismiss()
             }
             show()
+        }
+    }
+
+    // 뒤로가기 버튼 처리
+    private fun backButton() {
+        // 백버튼 처리
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            // 뒤로가기 처리
+            showCancelDialog()
         }
     }
 }

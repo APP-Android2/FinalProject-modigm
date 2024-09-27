@@ -39,7 +39,7 @@ class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBindin
         with(binding) {
 
             // 툴바
-            with(toolbarChangePhoneSocial) {
+            toolbarChangePhoneSocial.apply {
                 title = "전화번호 변경"
                 setNavigationIcon(R.drawable.icon_arrow_back_24px)
                 setNavigationOnClickListener {
@@ -48,7 +48,7 @@ class ChangePhoneSocialFragment : VBBaseFragment<FragmentChangePhoneSocialBindin
             }
 
             // 재인증 버튼
-            with(buttonChangePhoneNext) {
+            buttonChangePhoneNext.apply {
                 isEnabled = false // 버튼을 처음에 비활성화
                 setOnClickListener {
                     // 소셜 로그인 다시 인증

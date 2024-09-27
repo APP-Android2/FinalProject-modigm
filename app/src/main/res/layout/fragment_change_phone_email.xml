@@ -5,7 +5,9 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    android:transitionGroup="true">
+    android:transitionGroup="true"
+    android:clickable="true"
+    android:focusable="true">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarChangePhone"
@@ -20,7 +22,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp">
+        android:paddingHorizontal="16dp"
+        android:transitionGroup="true">
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
