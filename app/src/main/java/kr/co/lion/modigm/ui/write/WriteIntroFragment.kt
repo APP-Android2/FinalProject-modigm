@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -71,6 +72,19 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    // 권한 요청 런처
+    private val requestPermissionLauncher: ActivityResultLauncher<Array<String>> by lazy {
+        registerForActivityResult(RequestMultiplePermissions()) { permissions ->
+            // 권한 요청 결과 처리
+            permissions.entries.forEach { (permission, isGranted) ->
+                if (!isGranted) {
+                    // 필요한 권한이 거부된 경우 로그를 남기거나 사용자에게 알림
+                    Log.e(logTag, "$permission 권한이 거부되었습니다.")
+                }
+            }
+        }
+    }
+
     // 확인할 권한 목록
     private val permissionList: Array<String> by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -101,7 +115,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         super.onViewCreated(view, savedInstanceState)
 
         // 권한 요청
-        requestPermissions(permissionList, 0)
+        requestPermissionLauncher.launch(permissionList)
 
         // 데이터 복원 함수 호출
         restoreInputData()
