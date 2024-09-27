@@ -12,14 +12,12 @@
         android:layout_height="match_parent"
         android:background="#f7f7f7"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
         android:transitionGroup="true">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:fillViewport="true">
+            android:layout_weight="1">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -152,10 +150,18 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="오픈채팅 링크를 입력해주세요 *"
+                    android:layout_marginTop="24dp"
+                    android:text="스터디 활동에 필요한 링크를 작성해주세요 *"
                     android:textSize="18dp"
                     android:textStyle="bold" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="오픈채팅 사용시 개인 오픈 채팅을 통한 단체 오픈 톡방 \n공유를 추천드립니다"
+                    android:textSize="16dp"
+                    android:textColor="@color/textGray"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayoutWriteIntroLink"
@@ -171,8 +177,9 @@
                         android:id="@+id/textInputWriteIntroLink"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="오픈채팅 링크 입력"
-                        android:inputType="text"
+                        android:hint="오픈채팅, 구글폼 등"
+                        android:imeOptions="actionDone"
+                        android:inputType="textUri"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
