@@ -285,6 +285,11 @@ class StudyMyFragment : VBBaseFragment<FragmentStudyMyBinding>(FragmentStudyMyBi
         }
         badgeDrawable?.let { badge ->
             badge.backgroundColor = setBadgeColor
+
+            // 뱃지 위치 조정
+            badge.horizontalOffset = 35  // X축 방향 위치 조정 (필요에 따라 조정)
+            badge.verticalOffset = 35    // Y축 방향 위치 조정 (필요에 따라 조정)
+
             BadgeUtils.attachBadgeDrawable(badge, icon)
         }
     }
