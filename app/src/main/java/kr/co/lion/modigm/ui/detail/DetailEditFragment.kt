@@ -38,7 +38,6 @@ import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDetailEditBinding
@@ -47,16 +46,15 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.vm.DetailViewModel
 import kr.co.lion.modigm.util.Skill
 import java.io.File
+import kotlin.coroutines.cancellation.CancellationException
 
 
 class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDetailEditBinding::inflate), OnSkillSelectedListener, OnPlaceSelectedListener {
 
-//    lateinit var fragmentDetailEditBinding: FragmentDetailEditBinding
-
     private val viewModel: DetailViewModel by activityViewModels()
 
-//    private lateinit var auth: FirebaseAuth
-//    private lateinit var uid: String
+    private var isPopped = false // popBackStack이 한 번만 호출되도록 플래그 추가
+
 
     // 선택된 장소 이름
     private var selectedPlaceName: String = ""
@@ -92,25 +90,22 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
     private var selectedSkillList: MutableList<Int> = mutableListOf()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    // 뷰가 생성된 직후 호출
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         // 상품 idx
         studyIdx = arguments?.getInt("studyIdx")!!
-
-//        auth = FirebaseAuth.getInstance()
-//        uid = auth.currentUser?.uid.toString()
 
         // 카메라 및 앨범 런처 설정
         initData()
 
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
+        // 바인딩 객체에 안전하게 접근할 수 있도록 setupMemberInputWatcher 호출
+        binding?.let {
+            setupMemberInputWatcher()
+        }
+        // updateResult 값 초기화
+        viewModel.clearUpdateResult()
 
-    // 뷰가 생성된 직후 호출
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         // ViewModel에서 데이터 요청
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.getStudy(studyIdx)
@@ -132,10 +127,15 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
             viewModel.getTechIdxByStudyIdx(studyIdx)
         }
 
-        // 입력값 검증 로직 메서드 호출
-//        setupMemberInputWatcher()
-
     }
+
+    override fun onResume() {
+        super.onResume()
+        // updateResult 값을 초기화하여 이전 상태를 유지하지 않도록 설정
+        viewModel.clearUpdateResult()
+        Log.d("DetailEditFragment", "clearUpdateResult() called")
+    }
+
 
     fun logFragmentBackStack(fragmentManager: FragmentManager) {
         val backStackEntryCount = fragmentManager.backStackEntryCount
@@ -158,74 +158,109 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         // studyData 관찰
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.studyData.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { data ->
-                data?.let {
-                    currentStudyData = it // 여기서 데이터를 업데이트합니다.
-                    Log.d("DetailEditFragment", "Received study data: $it")
-                    updateUIIfReady() // UI 업데이트 체크
-                    preselectChips() // 칩 선택 사전 설정
+                try {
+                    data?.let {
+                        currentStudyData = it // 여기서 데이터를 업데이트합니다.
+                        Log.d("DetailEditFragment", "Received study data: $it")
+                        updateUIIfReady() // UI 업데이트 체크
+                        preselectChips() // 칩 선택 사전 설정
 
-                    if (it.studyPic.isNotEmpty()) {
-                        viewModel.getStudyPic(it.studyIdx) // 파일 이름을 사용하여 스터디 이미지 로드
+                        if (it.studyPic.isNotEmpty()) {
+                            viewModel.getStudyPic(it.studyIdx) // 파일 이름을 사용하여 스터디 이미지 로드
+                        }
+
+                        binding?.let {
+                            setupMemberInputWatcher() // 최소 인원 수를 반영하여 TextWatcher 설정
+                        }
                     }
-
-                    setupMemberInputWatcher() // 최소 인원 수를 반영하여 TextWatcher 설정
+                } catch (e: CancellationException) {
+                    // JobCancellationException이 발생해도 로그를 남기지 않고 무시함
+                } catch (e: Exception) {
+                    Log.e("DetailEditFragment", "Error in observeViewModel: ${e.message}")
                 }
             }
         }
 
-        // updateResult 관찰
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.updateResult.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { isSuccess ->
-                isSuccess?.let {
-                    val message = if (it) "정보가 업데이트되었습니다." else "업데이트 실패"
-                    val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+                Log.d("DetailEditFragment", "Collecting updateResult: $isSuccess")  // 로그 추가
+                try {
+                    isSuccess?.let {
+                        val message = if (it) "정보가 업데이트되었습니다." else "업데이트 실패"
+                        val snackbar = Snackbar.make(binding?.root ?: return@collect, message, Snackbar.LENGTH_LONG)
+                        val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                        val textSizeInPx = dpToPx(requireContext(), 14f)
+                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+                        snackbar.show()
 
-                    // 스낵바의 텍스트 뷰 찾기
-                    val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-
-                    // dpToPx 메서드를 사용하여 dp를 픽셀로 변환
-                    val textSizeInPx = dpToPx(requireContext(), 14f) // 예시: 텍스트 크기 14 dp
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-
-                    snackbar.show()
-
-                    if (it) {
-                        viewModel.clearUpdateResult()
-                        parentFragmentManager.popBackStack()
+                        if (isSuccess && !isPopped) {
+                            // popBackStack이 한 번만 호출되도록 플래그를 설정
+                            isPopped = true
+                            Log.d("DetailEditFragment", "Study data updated successfully, popping back stack")
+                            parentFragmentManager.popBackStack()  // 성공 시 이전 화면으로 이동
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.e("DetailEditFragment", "Error in updateResult: ${e.message}")
                 }
             }
         }
 
         // studyPic 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyPic.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { uri ->
-                safeContext()?.let { context ->
-                    binding.cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
+            viewModel.studyPic
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect { uri ->
+                    try {
+                        safeContext()?.let { context ->
+                            binding?.apply {
+                                cardViewCoverImageSelect.visibility = View.VISIBLE // 이미지 선택 카드뷰 가시성 설정
 
-                    Glide.with(context)
-                        .load(uri)
-                        .error(R.drawable.icon_error_24px) // 에러 발생시 보여줄 이미지
-                        .into(binding.imageViewCoverImageSelect)
+                                Glide.with(context)
+                                    .load(uri)
+                                    .error(R.drawable.icon_error_24px) // 에러 발생시 보여줄 이미지
+                                    .into(imageViewCoverImageSelect)
+                            }
+                        }
+                    } catch (e: CancellationException) {
+                        // CancellationException이 발생해도 무시함
+                    } catch (e: Exception) {
+                        Log.e("DetailEditFragment", "Error fetching studyPic: ${e.message}")
+                    }
                 }
-            }
         }
 
         // 최소 인원 수 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.memberCount.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { count ->
-                minMembers = count
-                Log.d("DetailEditFragment", "Minimum members: $minMembers")
-            }
+            viewModel.memberCount
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect { count ->
+                    try {
+                        minMembers = count
+                        Log.d("DetailEditFragment", "Minimum members: $minMembers")
+                    } catch (e: CancellationException) {
+                        // CancellationException이 발생해도 무시함
+                    } catch (e: Exception) {
+                        Log.e("DetailEditFragment", "Error fetching memberCount: ${e.message}")
+                    }
+                }
         }
 
         // 스킬 데이터 관찰
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.studyTechList.flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect { techList ->
-                Log.d("DetailEditFragment", "Received techList from ViewModel: $techList")
-                val skills = techList.map { Skill.fromNum(it) }  // techIdx를 Skill 객체로 변환
-                addChipsToGroup(binding.ChipGroupDetailEdit, skills)
-            }
+            viewModel.studyTechList
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+                .collect { techList ->
+                    try {
+                        Log.d("DetailEditFragment", "Received techList from ViewModel: $techList")
+                        val skills = techList.map { Skill.fromNum(it) }  // techIdx를 Skill 객체로 변환
+                        addChipsToGroup(binding?.ChipGroupDetailEdit ?: return@collect, skills)
+                    } catch (e: CancellationException) {
+                        // CancellationException이 발생해도 무시함
+                    } catch (e: Exception) {
+                        Log.e("DetailEditFragment", "Error fetching techList: ${e.message}")
+                    }
+                }
         }
     }
 
@@ -256,7 +291,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
     // 인원수 입력 설정
     fun setupMemberInputWatcher() {
-        binding.editTextDetailEditMember.addTextChangedListener(object :
+        binding?.editTextDetailEditMember?.addTextChangedListener(object :
             TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // 변경 전에 호출됩니다.
@@ -769,16 +804,14 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
     fun setupButton() {
         binding.buttonDetailEditDone.setOnClickListener {
+            Log.d("DetailEditFragment", "buttonDetailEditDone clicked")
             if (validateInputs()) {
-//                uploadImageAndSaveData()
                 if (contentUri != null) {
                     // 이미지를 선택한 경우
                     uploadImageAndSaveData()
-//                    parentFragmentManager.popBackStack()
                 } else {
                     // 이미지를 선택하지 않은 경우 기존 이미지를 사용
                     saveData(currentStudyData?.studyPic ?: "")
-//                    parentFragmentManager.popBackStack()
                 }
             }
         }
@@ -848,28 +881,49 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         return selectedChip.tag as? String ?: ""
     }
 
+    // S3에 이미지 업로드하는 함수
+    // ViewModel을 사용한 이미지 업로드 및 studyPic 업데이트
     fun uploadImageAndSaveData() {
+        // 기존 이미지가 있는지 확인하고 삭제
+        currentStudyData?.studyPic?.let { existingImageUrl ->
+            if (existingImageUrl.isNotEmpty()) {
+                viewModel.deleteImageFromS3(existingImageUrl)  // 기존 이미지 삭제
+            }
+        }
+
         contentUri?.let { selectedImageUri ->
             try {
-                val fileName = "${System.currentTimeMillis()}.jpg"
-                val storageReference = FirebaseStorage.getInstance().reference.child("studyPic/$fileName")
-                storageReference.putFile(selectedImageUri)
-                    .addOnSuccessListener { taskSnapshot ->
-                        taskSnapshot.metadata?.reference?.downloadUrl?.addOnSuccessListener { uri ->
-                            saveData(fileName)  // 이미지 URL 대신 파일 이름을 저장하도록 변경
+                viewModel.uploadImageToS3(requireContext(), selectedImageUri,
+                    onSuccess = { imageUrl ->
+                        viewModel.updateStudyPic(studyIdx, imageUrl)
+                        saveData(imageUrl)
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            // 이미지 업로드 성공 후 데이터 저장 성공 여부를 UI에 반영
+                            viewModel.setUpdateResult(true)
+                            Log.d("DetailEditFragment", "setUpdateResult(true) called after successful image upload")
+                        }
+                    },
+                    onFailure = { e ->
+                        Log.e("DetailEditFragment", "Error uploading image to S3: ${e.message}")
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            viewModel.setUpdateResult(false)
+                            Log.d("DetailEditFragment", "setUpdateResult(false) called after failed image upload")
                         }
                     }
-                    .addOnFailureListener {
-                        Log.e("DetailEditFragment", "Image upload failed: ${it.message}")
-                    }
+                )
             } catch (e: Exception) {
                 Log.e("DetailEditFragment", "Error uploading image: ${e.message}")
+                viewModel.setUpdateResult(false)
+                Log.d("DetailEditFragment", "setUpdateResult(false) called due to exception")
             }
         } ?: run {
+            // 이미지가 없을 경우에도 데이터를 저장할 수 있게 처리
             saveData("")
-            Log.e("DetailEditFragment", "Content URI is not initialized, saving without image")
+            viewModel.setUpdateResult(true)
+            Log.d("DetailEditFragment", "setUpdateResult(true) called with no image selected")
         }
     }
+
 
     fun saveData(imageFileName: String) {
         if (!validateInputs()) {
@@ -881,7 +935,6 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         val studyType = getSelectedStudyType()
         val studyOnOffline = getSelectedStudyOnOffline()
         val studyApplyMethod = "신청제"
-//        val studySkills = if (selectedSkills.isNotEmpty()) selectedSkills else currentStudyData?.studySkillList ?: listOf()
 
         // EditText로부터 텍스트를 가져와 줄바꿈 문자를 \n으로 변환
         val studyContent = binding.editTextDetailEditContext.text.toString().replace(System.getProperty("line.separator"), "\\n")
@@ -906,10 +959,16 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
             userIdx = currentStudyData?.userIdx ?: -1
         )
 
-        viewModel.updateStudyData(updatedStudyData)
-        viewModel.insertSkills(studyIdx, selectedSkillList)
-        Log.d("DetailEditFragment", "Updating study data: $updatedStudyData")
+        // 비동기 업데이트 완료 후 setUpdateResult 호출
+        viewModel.updateStudyData(updatedStudyData).also {
+            viewModel.insertSkills(studyIdx, selectedSkillList)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.setUpdateResult(true)
+                Log.d("DetailEditFragment", "Data save successful, setUpdateResult(true) called")
+            }
+        }
 
+        Log.d("DetailEditFragment", "Updating study data: $updatedStudyData")
     }
 
 
@@ -926,10 +985,6 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         val memberInput = binding.editTextDetailEditMember.text.toString()
         val memberCount = memberInput.toIntOrNull() ?: 0
 
-        // 최소 인원 수 설정
-//        val minMembers = currentStudyData?.studyUidList?.size.toString().toInt()
-
-
         val studyOnOffline = getSelectedStudyOnOffline()  // 현재 온라인/오프라인 상태 가져오기
         val placeName = selectedPlaceName
         val detailPlaceName = selectedDetailPlaceName
@@ -938,6 +993,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         // 제목이 비어있거나 너무 짧은 경우 검사
         if (title.isEmpty() || title.length < 8) {
             binding.textInputLayoutDetailEditTitle.error = "제목은 최소 8자 이상이어야 합니다."
+            binding.editTextDetailEditTitle.requestFocus()
             return false
         } else {
             binding.textInputLayoutDetailEditTitle.error = null
@@ -945,8 +1001,8 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
 
         // 소개글이 비어있거나 너무 짧은 경우 검사
         if (description.isEmpty() || description.length < 10) {
-            binding.textInputLayoutDetailEditContext.error =
-                "소개글은 최소 10자 이상이어야 합니다."
+            binding.textInputLayoutDetailEditContext.error = "소개글은 최소 10자 이상이어야 합니다."
+            binding.editTextDetailEditContext.requestFocus()
             return false
         } else {
             binding.textInputLayoutDetailEditContext.error = null
@@ -964,6 +1020,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         // 인원수가 최소 인원보다 작은 경우 검사
         if (memberCount < minMembers) {
             binding.textInputLayoutDetailEditMember.error = "최소 인원은 $minMembers 명 이상이어야 합니다."
+            binding.editTextDetailEditMember.requestFocus()
             return false
         } else {
             binding.textInputLayoutDetailEditMember.error = null
