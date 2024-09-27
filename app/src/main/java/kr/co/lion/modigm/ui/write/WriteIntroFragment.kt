@@ -163,17 +163,13 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 // 터치 이벤트 처리
                 setOnTouchListener { view, event ->
 
-                    // 포커스가 있을 때 부모의 스크롤 이벤트 가로채기 방지
-                    if (view.hasFocus()) {
-                        view.parent.requestDisallowInterceptTouchEvent(true)
+                    view.parent.requestDisallowInterceptTouchEvent(true)
 
-                        // 터치 끝나면 부모에게 이벤트 권한 반환
-                        if (event.action == MotionEvent.ACTION_UP) {
-                            view.parent.requestDisallowInterceptTouchEvent(false)
-                            view.performClick()  // 접근성을 위한 클릭 처리
-                        }
+                    // 터치 끝나면 부모에게 이벤트 권한 반환
+                    if (event.action == MotionEvent.ACTION_UP) {
+                        view.parent.requestDisallowInterceptTouchEvent(false)
+                        view.performClick()  // 접근성을 위한 클릭 처리
                     }
-
                     // false 반환하여 기본 동작 유지
                     false
                 }
