@@ -105,7 +105,8 @@
                         android:layout_height="wrap_content"
                         android:hint="제목 입력(최소 8자 이상)"
                         android:inputType="text"
-                        android:textSize="16dp" />
+                        android:textSize="16dp"
+                        android:textColorHighlight="@color/textViewClickGray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -134,7 +135,8 @@
                         android:inputType="textMultiLine"
                         android:nestedScrollingEnabled="false"
                         android:scrollbars="vertical"
-                        android:textSize="16dp" />
+                        android:textSize="16dp"
+                        android:textColorHighlight="@color/textViewClickGray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -180,7 +182,8 @@
                         android:hint="오픈채팅, 구글폼 등"
                         android:imeOptions="actionDone"
                         android:inputType="textUri"
-                        android:textSize="16dp" />
+                        android:textSize="16dp"
+                        android:textColorHighlight="@color/textViewClickGray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <View
