@@ -32,6 +32,7 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.showLoginSnackBar
 import java.io.File
 
 class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWriteIntroBinding::inflate) {
@@ -210,6 +211,10 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                     // 클릭 시 입력 유효성 검사
                     if(!checkAllInput()) {
                         // 유효하지 않은 경우 리턴
+                        return@setOnClickListener
+                    }
+                    if(!checkAllData()) {
+                        // 데이터가 모두 입력되지 않은 경우 리턴
                         return@setOnClickListener
                     }
                     // 스터디 커버 이미지 업데이트
@@ -621,6 +626,47 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             }
+        }
+    }
+
+
+
+    private fun checkAllData(): Boolean {
+        fun writeDataMap(item: String): Any? {
+            return viewModel.writeDataMap.value?.get(item)
+        }
+        if(writeDataMap("studyType")==null) {
+            requireActivity().showLoginSnackBar("타입을 선택해주세요.", null)
+            viewModel.updateSelectedTab(0)
+            return false
+        } else if(writeDataMap("studyPeriod")==null) {
+            requireActivity().showLoginSnackBar("기간을 선택해주세요.", null)
+            viewModel.updateSelectedTab(1)
+            return false
+        } else if (writeDataMap("studyOnOffline")==null) {
+            requireActivity().showLoginSnackBar("진행방식을 선택해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if((writeDataMap("studyOnOffline") == "오프라인"
+                    || writeDataMap("studyOnOffline") == "온오프혼합")
+            && writeDataMap("studyPlace") == null) {
+            requireActivity().showLoginSnackBar("장소를 입력해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if (writeDataMap("studyMaxMember") == null) {
+            requireActivity().showLoginSnackBar("최대 인원을 입력해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if (writeDataMap("studyMaxMember").toString().toInt() < 2) {
+            requireActivity().showLoginSnackBar("최소 2명 이상의 인원을 입력해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if (writeDataMap("studyTechStackList")==null) {
+            requireActivity().showLoginSnackBar("기술스택을 선택해주세요.", null)
+            viewModel.updateSelectedTab(3)
+            return false
+        } else {
+            return true
         }
     }
 }
