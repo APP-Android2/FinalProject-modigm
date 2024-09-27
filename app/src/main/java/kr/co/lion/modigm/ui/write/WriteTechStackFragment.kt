@@ -111,9 +111,21 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
         chipGroup.removeAllViews()
         selectedTechStackList.clear()
 
+        // "기타" 칩이 추가되었는지 여부를 확인하기 위한 플래그
+        var isOtherChipAdded = false
+
         // 전달받은 스킬 리스트를 이용하여 칩을 생성하고 추가
         for (techStack in techStacks) {
-            selectedTechStackList.add(techStack.techIdx)  // 선택된 스킬 번호를 저장
+            // "기타" 칩일 경우, 이미 추가된 경우는 건너뛴다.
+            if (techStack.techName == "기타") {
+                if (isOtherChipAdded) continue  // "기타" 칩이 이미 추가된 경우 추가하지 않음
+                isOtherChipAdded = true  // "기타" 칩을 추가했다고 표시
+            }
+
+            // 선택된 스킬 번호를 저장
+            selectedTechStackList.add(techStack.techIdx)
+
+            // 칩을 생성하여 ChipGroup에 추가
             val chip = Chip(context).apply {
                 text = techStack.techName  // 스킬의 이름을 칩 텍스트로 설정
                 isClickable = true

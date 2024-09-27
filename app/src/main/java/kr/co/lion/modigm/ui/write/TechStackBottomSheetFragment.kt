@@ -71,6 +71,7 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
             buttonComplete.apply {
                 setOnClickListener {
                     techStackSelectedListener?.onTechStackSelected(selectedTechStacks.toList())
+                    viewModel.updateSelectedTechStacks(selectedTechStacks) // ViewModel에 저장
                     dismiss()
                 }
             }
@@ -106,6 +107,13 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
         }
 
         viewModel.getTechStackData()  // ViewModel에서 데이터 요청
+
+        // ViewModel의 선택된 데이터로 초기화
+        viewModel.selectedTechStacks.observe(viewLifecycleOwner) { techStacks ->
+            selectedTechStacks.clear()
+            selectedTechStacks.addAll(techStacks)
+            updateSelectedChipsUI() // UI에 반영
+        }
     }
 
     /**
@@ -139,6 +147,9 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
                     }.also { chipGroupTechStack.addView(it) }  // 카테고리 칩을 그룹에 추가
                 }
         }
+
+        // 선택된 기술 스택을 UI에 반영
+        updateSelectedChipsUI()
     }
 
     /**

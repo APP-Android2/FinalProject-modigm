@@ -183,6 +183,16 @@ class WriteViewModel : ViewModel() {
     private val _techStackData = MutableLiveData<List<TechStackData>>()
     val techStackData: LiveData<List<TechStackData>> = _techStackData
 
+    // WriteViewModel
+    // 선택된 기술 스택 목록을 저장할 LiveData
+    private val _selectedTechStacks = MutableLiveData<MutableSet<TechStackData>>(mutableSetOf())
+    val selectedTechStacks: LiveData<MutableSet<TechStackData>> = _selectedTechStacks
+
+    // 선택된 기술 스택을 업데이트하는 함수
+    fun updateSelectedTechStacks(techStacks: Set<TechStackData>) {
+        _selectedTechStacks.postValue(techStacks.toMutableSet())
+    }
+
     /**
      * 기술 스택 데이터를 가져오는 함수
      */
