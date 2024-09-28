@@ -124,4 +124,14 @@ class DetailRepository {
     suspend fun isAlreadyApplied(userIdx: Int, studyIdx: Int): Boolean {
         return remoteDetailDataSource.checkExistingApplication(userIdx, studyIdx)
     }
+
+    // 이미지 URL로 studyPic을 업데이트하는 메서드 추가
+    suspend fun updateStudyPic(studyIdx: Int, imageUrl: String): Boolean {
+        return remoteDetailDataSource.updateStudyPic(studyIdx, imageUrl)
+    }
+
+    // S3에 저장된 이미지를 삭제하는 메서드
+    suspend fun deleteImageFromS3(fileName: String): Boolean {
+        return remoteDetailDataSource.deleteImageFromS3(fileName)
+    }
 }

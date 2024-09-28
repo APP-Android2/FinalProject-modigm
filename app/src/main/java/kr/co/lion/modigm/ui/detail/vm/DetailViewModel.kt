@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.detail.vm
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
@@ -25,12 +26,14 @@ import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.DetailRepository
 import kr.co.lion.modigm.repository.StudyRepository
+import kr.co.lion.modigm.repository.WriteRepository
 import kr.co.lion.modigm.ui.notification.FCMService
 
 class DetailViewModel: ViewModel() {
 
     private val detailRepository = DetailRepository()
     private val studyRepository = StudyRepository()
+    private val writeRepository = WriteRepository()
 
     private val _studyData = MutableStateFlow<StudyData?>(null)
     val studyData: StateFlow<StudyData?> = _studyData
@@ -48,7 +51,7 @@ class DetailViewModel: ViewModel() {
     val studyTechList: StateFlow<List<Int>> get() = _studyTechList
 
     private val _updateResult = MutableStateFlow<Boolean?>(null)
-    val updateResult: StateFlow<Boolean?> get() = _updateResult
+    val updateResult: StateFlow<Boolean?> = _updateResult
 
     private val _studyPic = MutableStateFlow<String?>(null)
     val studyPic: StateFlow<String?> = _studyPic
@@ -281,9 +284,14 @@ class DetailViewModel: ViewModel() {
         }
     }
 
-    // 업데이트 결과 초기화 함수
+    // updateResult 값을 업데이트하는 메서드
+    fun setUpdateResult(value: Boolean) {
+        _updateResult.value = value
+    }
+
+    // updateResult 값을 초기화하는 메서드
     fun clearUpdateResult() {
-        _updateResult.value = null
+        _updateResult.value = null  // 초기화할 때 null 사용
     }
 
     // 특정 사용자를 스터디에서 삭제하는 메소드
@@ -625,4 +633,40 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
             }
         }
     }
+
+    fun uploadImageToS3(context: Context, uri: Uri, onSuccess: (String) -> Unit, onFailure: (Throwable) -> Unit) {
+        viewModelScope.launch {
+            val result = writeRepository.uploadImageToS3(context, uri)
+            result.onSuccess { imageUrl ->
+                onSuccess(imageUrl)  // 성공 시 이미지 URL을 콜백으로 전달
+            }.onFailure { e ->
+                onFailure(e)  // 실패 시 오류를 콜백으로 전달
+            }
+        }
+    }
+
+    fun updateStudyPic(studyIdx: Int, imageUrl: String) {
+        viewModelScope.launch {
+            val result = detailRepository.updateStudyPic(studyIdx, imageUrl)
+            if (result) {
+                Log.d("DetailViewModel", "Study pic updated successfully")
+            } else {
+                Log.e("DetailViewModel", "Failed to update study pic")
+            }
+        }
+    }
+
+    // S3에서 이미지 삭제하는 메서드
+    fun deleteImageFromS3(fileName: String) {
+        viewModelScope.launch {
+            val isDeleted = detailRepository.deleteImageFromS3(fileName)
+            if (isDeleted) {
+                Log.d("DetailViewModel", "Image deleted successfully from S3")
+                // 추가로 필요한 로직 (예: UI 업데이트 등)
+            } else {
+                Log.e("DetailViewModel", "Failed to delete image from S3")
+            }
+        }
+    }
+
 }

@@ -204,5 +204,24 @@ class RemoteDetailDataSource {
         }
     }
 
+    // studyPic 업데이트하는 메서드 추가
+    suspend fun updateStudyPic(studyIdx: Int, imageUrl: String): Boolean {
+        return try {
+            studyDao.updateStudyPic(studyIdx, imageUrl) > 0
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource Error", "Error updating studyPic: ${e.message}")
+            false
+        }
+    }
+
+    // S3에 저장된 이미지를 삭제하는 메서드
+    suspend fun deleteImageFromS3(fileName: String): Boolean {
+        return try {
+            studyDao.deleteImageFromS3(fileName)
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDataSource", "Error deleting image from S3: ${e.message}")
+            false
+        }
+    }
 
 }
