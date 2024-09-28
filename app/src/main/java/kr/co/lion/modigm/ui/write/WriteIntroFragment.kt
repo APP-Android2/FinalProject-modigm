@@ -643,39 +643,46 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
-
-
     private fun checkAllData(): Boolean {
         fun writeDataMap(item: String): Any? {
             return viewModel.writeDataMap.value?.get(item)
         }
-        if(writeDataMap("studyType")==null) {
+        val studyType = writeDataMap("studyType") as? String
+        val studyPeriod = writeDataMap("studyPeriod") as? String
+        val studyOnOffline = writeDataMap("studyOnOffline") as? String
+        val studyPlace = writeDataMap("studyPlace") as? String
+        val studyMaxMember = writeDataMap("studyMaxMember") as? Int
+        val studyTechStackList = writeDataMap("studyTechStackList") as? List<*>
+
+        if(studyType == null || studyType == "") {
             requireActivity().showLoginSnackBar("타입을 선택해주세요.", null)
             viewModel.updateSelectedTab(0)
             return false
-        } else if(writeDataMap("studyPeriod")==null) {
+        } else if(studyPeriod == null || studyPeriod == "") {
             requireActivity().showLoginSnackBar("기간을 선택해주세요.", null)
             viewModel.updateSelectedTab(1)
             return false
-        } else if (writeDataMap("studyOnOffline")==null) {
+        } else if (studyOnOffline == null || studyOnOffline == "") {
             requireActivity().showLoginSnackBar("진행방식을 선택해주세요.", null)
             viewModel.updateSelectedTab(2)
             return false
-        } else if((writeDataMap("studyOnOffline") == "오프라인"
-                    || writeDataMap("studyOnOffline") == "온오프혼합")
-            && writeDataMap("studyPlace") == null) {
+        } else if ((studyOnOffline == "오프라인"
+                    || studyOnOffline == "온오프혼합")
+            && (studyPlace == null
+                    || studyPlace == "")
+        ) {
             requireActivity().showLoginSnackBar("장소를 입력해주세요.", null)
             viewModel.updateSelectedTab(2)
             return false
-        } else if (writeDataMap("studyMaxMember") == null) {
+        } else if (studyMaxMember == null) {
             requireActivity().showLoginSnackBar("최대 인원을 입력해주세요.", null)
             viewModel.updateSelectedTab(2)
             return false
-        } else if (writeDataMap("studyMaxMember").toString().toInt() < 2) {
+        } else if (studyMaxMember < 2) {
             requireActivity().showLoginSnackBar("최소 2명 이상의 인원을 입력해주세요.", null)
             viewModel.updateSelectedTab(2)
             return false
-        } else if (writeDataMap("studyTechStackList")==null) {
+        } else if (studyTechStackList == null || studyTechStackList.isEmpty()) {
             requireActivity().showLoginSnackBar("기술스택을 선택해주세요.", null)
             viewModel.updateSelectedTab(3)
             return false
