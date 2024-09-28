@@ -53,4 +53,7 @@ class ProfileRepository {
     suspend fun uploadProfilePic(uri: Uri, context: Context): Flow<String> = flow {
         emit(_remoteProfileDao.uploadProfilePic(uri, context))
     }.flowOn(Dispatchers.IO)
+
+    // 회원 탈퇴
+    suspend fun deleteUserData(userIdx: Int) = _remoteProfileDao.deleteUserData(userIdx)
 }

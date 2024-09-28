@@ -1,0 +1,125 @@
+package kr.co.lion.modigm.ui.profile
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.WindowManager
+import android.widget.TextView
+import androidx.core.text.HtmlCompat
+import androidx.fragment.app.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import kr.co.lion.modigm.R
+import kr.co.lion.modigm.databinding.FragmentDeleteUserBinding
+import kr.co.lion.modigm.ui.VBBaseFragment
+import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.profile.vm.DeleteUserViewModel
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
+import kr.co.lion.modigm.util.collectWhenStarted
+import kr.co.lion.modigm.util.hideSoftInput
+
+class DeleteUserFragment : VBBaseFragment<FragmentDeleteUserBinding>(FragmentDeleteUserBinding::inflate) {
+
+    private val viewModel: DeleteUserViewModel by viewModels()
+
+    private val userIdx by lazy {
+        prefs.getInt("currentUserIdx")
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Inflate the layout for this fragment
+        settingToolBar()
+        settingDeleteGuideText()
+        settingDeleteUserButton()
+    }
+
+    private fun settingToolBar(){
+        with(binding.toolbarDeleteUser){
+            setNavigationIcon(R.drawable.arrow_back_24px)
+            setNavigationOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
+        }
+    }
+
+    private fun settingDeleteGuideText(){
+        val html = "<ui>" +
+                "<li>　회원 탈퇴 시 가입되어있는 모든 스터디가 삭제됩니다.</li>" +
+                "<li>　본인이 스터디장으로 있는 진행중인 스터디가 있을 경우, 해당 스터디원들에게 회원 탈퇴 및 스터디 삭제를 안내해주세요.</li>" +
+                "<li>　삭제된 스터디 및 찜목록은 복구되지 않습니다.</li>" +
+                "<li>　탈퇴한 계정 및 회원 정보는 복구되지 않습니다.</li>" +
+                "<li>　회원 탈퇴하기 전 신중히 생각하신 후 회원 탈퇴를 진행해주세요.</li>" +
+                "</ui>"
+        val textView = TextView(requireContext()).apply {
+            text = HtmlCompat.fromHtml(html, 0)
+            textSize = 16f
+        }
+        binding.linearLayoutDeleteUserGuide.addView(textView)
+    }
+
+    private fun settingDeleteUserButton(){
+        binding.buttonDeleteUser.setOnClickListener {
+            val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog, null)
+            val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
+                .setTitle("회원 탈퇴")
+                .setMessage("정말로 회원 탈퇴를 진행하시겠습니까?")
+                .setView(dialogView)
+                .create()
+
+            dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
+            dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
+                // 회원 탈퇴 실행
+                viewModel.deleteUserDate(userIdx)
+                settingCollector()
+                dialog.dismiss()
+                showLoading()
+            }
+
+            dialogView.findViewById<TextView>(R.id.btnNo).text = "아니오"
+            dialogView.findViewById<TextView>(R.id.btnNo).setOnClickListener {
+                // 아니요 버튼 로직
+                dialog.dismiss()
+            }
+            dialog.show()
+        }
+    }
+
+    private fun settingCollector() {
+        // 회원 탈퇴 완료 시
+        collectWhenStarted(viewModel.isDeleted){
+            hideLoading()
+            if(it){
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.containerMain, LoginFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
+        }
+
+        // 회원 탈퇴 실패 시
+        collectWhenStarted(viewModel.errorMessage){
+            // 스낵바 띄우기
+            it?.let {
+                hideLoading()
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                viewModel.resetErrorMessage()
+            }
+        }
+    }
+
+    private fun showLoading() {
+        requireActivity().hideSoftInput()
+        binding.layoutDeleteUserLoading.visibility = View.VISIBLE
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private fun hideLoading() {
+        binding.layoutDeleteUserLoading.visibility = View.GONE
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+}

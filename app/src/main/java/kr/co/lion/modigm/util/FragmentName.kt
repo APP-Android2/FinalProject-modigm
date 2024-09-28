@@ -38,6 +38,7 @@ enum class FragmentName (var str: String){
     CHANGE_PHONE_EMAIL("ChangePhoneEmailFragment"),
     CHANGE_PHONE_SOCIAL("ChangePhoneSocialFragment"),
     CHANGE_PHONE_AUTH("ChangePhoneAuthFragment"),
+    DELETE_USER("DeleteUserFragment"),
 
     // 스터디
     STUDY("StudyFragment"),
