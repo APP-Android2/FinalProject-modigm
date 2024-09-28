@@ -106,14 +106,14 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
             initializeCategoryChips(techStackList)  // 기술 스택 목록을 화면에 표시
         }
 
-        viewModel.getTechStackData()  // ViewModel에서 데이터 요청
-
         // ViewModel의 선택된 데이터로 초기화
         viewModel.selectedTechStacks.observe(viewLifecycleOwner) { techStacks ->
             selectedTechStacks.clear()
             selectedTechStacks.addAll(techStacks)
-            updateSelectedChipsUI() // UI에 반영
+            updateSelectedChipsUI()
         }
+
+        viewModel.getTechStackData()  // ViewModel에서 데이터 요청
     }
 
     /**
@@ -147,7 +147,6 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
                     }.also { chipGroupTechStack.addView(it) }  // 카테고리 칩을 그룹에 추가
                 }
         }
-
         // 선택된 기술 스택을 UI에 반영
         updateSelectedChipsUI()
     }
@@ -191,19 +190,30 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
         with(binding.chipGroupSelectedItems) {
             removeAllViews()  // 기존 선택된 칩들을 제거
 
-            // 선택된 각 기술 스택에 대해 칩을 생성하여 추가
-            selectedTechStacks.forEach { techStack ->
-                Chip(context).apply {
-                    text = techStack.techName
-                    isCloseIconVisible = true  // 선택된 기술 스택 칩에 삭제 버튼 표시
-                    setTextAppearance(R.style.ChipTextStyle)
-                    chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
-                    setOnCloseIconClickListener {
-                        selectedTechStacks.remove(techStack)  // 삭제 버튼 클릭 시 선택 목록에서 제거
-                        updateSelectedChipsUI()  // UI 업데이트
+            // "기타" 칩 중복 제거를 위한 플래그
+            var isOtherChipAdded = false
+
+            selectedTechStacks
+                .distinctBy { it.techName } // "기타" 칩 중복 제거
+                .forEach { techStack ->
+                    // "기타" 칩 중복 체크
+                    if (techStack.techName == "기타") {
+                        if (isOtherChipAdded) return@forEach  // 이미 추가된 경우 건너뜀
+                        isOtherChipAdded = true
                     }
-                }.also { addView(it) }
-            }
+
+                    Chip(context).apply {
+                        text = techStack.techName
+                        isCloseIconVisible = true  // 선택된 기술 스택 칩에 삭제 버튼 표시
+                        setTextAppearance(R.style.ChipTextStyle)
+                        chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
+                        setOnCloseIconClickListener {
+                            selectedTechStacks.remove(techStack)  // 삭제 버튼 클릭 시 선택 목록에서 제거
+                            viewModel.updateSelectedTechStacks(selectedTechStacks)  // ViewModel 업데이트
+                            updateSelectedChipsUI()  // UI 업데이트
+                        }
+                    }.also { addView(it) }
+                }
 
             // 선택된 기술 스택이 없을 경우 '기타' 칩을 추가
             if (selectedTechStacks.isEmpty()) {

@@ -183,14 +183,14 @@ class WriteViewModel : ViewModel() {
     private val _techStackData = MutableLiveData<List<TechStackData>>()
     val techStackData: LiveData<List<TechStackData>> = _techStackData
 
-    // WriteViewModel
     // 선택된 기술 스택 목록을 저장할 LiveData
     private val _selectedTechStacks = MutableLiveData<MutableSet<TechStackData>>(mutableSetOf())
     val selectedTechStacks: LiveData<MutableSet<TechStackData>> = _selectedTechStacks
 
     // 선택된 기술 스택을 업데이트하는 함수
     fun updateSelectedTechStacks(techStacks: Set<TechStackData>) {
-        _selectedTechStacks.postValue(techStacks.toMutableSet())
+        val distinctTechStacks = techStacks.distinctBy { it.techName }.toMutableSet()
+        _selectedTechStacks.postValue(distinctTechStacks)
     }
 
     /**
@@ -210,7 +210,7 @@ class WriteViewModel : ViewModel() {
     }
     // -------------------------------------- 바텀 시트 설정 --------------------------------------
 
-    var isDataCleared: Boolean = false // 데이터 초기화 플래그
+    private var isDataCleared: Boolean = false // 데이터 초기화 플래그
 
     // 글작성 데이터 초기화
     fun clearData() {
@@ -222,6 +222,7 @@ class WriteViewModel : ViewModel() {
         _writeStudyIdx.postValue(null)
         _contentUri.postValue(null)
         _writeStudyDataLoading.postValue(false)
+        _selectedTechStacks.postValue(mutableSetOf())
 
         isDataCleared = true // 데이터가 초기화되었음을 표시
 
