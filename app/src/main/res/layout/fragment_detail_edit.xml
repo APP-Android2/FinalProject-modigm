@@ -175,6 +175,9 @@
                         android:gravity="top"
                         android:hint="소개글 입력(최대한 자세히 입력해주세요)"
                         android:inputType="textMultiLine"
+                        android:maxLines="10"
+                        android:scrollbars="vertical"
+                        android:overScrollMode="always"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 

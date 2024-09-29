@@ -17,6 +17,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
@@ -126,6 +127,34 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.getTechIdxByStudyIdx(studyIdx)
         }
+
+        // 입력 필드 스크롤
+        binding.editTextDetailEditContext.apply {
+            setOnTouchListener { v, event ->
+                if (v.id == R.id.editTextDetailEditContext) {
+                    // 부모 레이아웃의 터치 이벤트를 막아줍니다.
+                    v.parent.requestDisallowInterceptTouchEvent(true)
+
+                    when (event.action) {
+                        MotionEvent.ACTION_UP -> {
+                            v.parent.requestDisallowInterceptTouchEvent(false)
+                            if (!v.hasFocus()) {
+                                // 포커스를 얻지 않은 상태라면 클릭을 처리합니다.
+                                v.performClick()
+                            }
+                        }
+                    }
+                }
+                false
+            }
+
+            // 클릭 이벤트는 별도로 처리합니다.
+            setOnClickListener {
+                // 원하는 클릭 동작을 처리합니다.
+                Log.d("DetailEditFragment", "EditText clicked!")
+            }
+        }
+
 
     }
 
