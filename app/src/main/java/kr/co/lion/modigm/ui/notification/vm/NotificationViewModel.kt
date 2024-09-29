@@ -23,7 +23,13 @@ class NotificationViewModel : ViewModel() {
             _isLoading.value = true // 로딩 시작
             try {
                 val data = repository.getNotifications(userIdx) // 데이터베이스에서 데이터를 가져오는 메서드
-                _notifications.value = data
+                // 만약 데이터가 비어있지 않으면 업데이트
+                if (data.isNotEmpty()) {
+                    _notifications.value = data
+                } else {
+                    // 알림이 없는 경우 처리
+                    _notifications.value = emptyList()
+                }
             } catch (e: Exception) {
                 // 에러 처리 로직
             } finally {
@@ -43,7 +49,12 @@ class NotificationViewModel : ViewModel() {
     }
 
     suspend fun deleteNotification(notification: NotificationData): Boolean {
-        return repository.deleteNotification(notification)
+        return repository.deleteNotification(notification).also { success ->
+            if (success) {
+                // 성공적으로 삭제된 경우 알림 목록에서 해당 알림 제거
+                _notifications.value = _notifications.value.filter { it.notificationIdx != notification.notificationIdx }
+            }
+        }
     }
 
     // 특정 알림을 읽음으로 표시하는 메서드
@@ -51,13 +62,18 @@ class NotificationViewModel : ViewModel() {
         viewModelScope.launch {
             val result = repository.markNotificationAsRead(notificationIdx)
             if (result) {
-                // 읽음 상태 변경 후 상태 업데이트
-                _notifications.value = _notifications.value.map {
-                    if (it.notificationIdx == notificationIdx) it.copy(isNew = false) else it
+                // 읽음 상태로 변경해도 알림 목록에서 제거하지 않고 그대로 유지
+                _notifications.value = _notifications.value.map { notification ->
+                    if (notification.notificationIdx == notificationIdx) {
+                        notification.copy(isNew = false)
+                    } else {
+                        notification
+                    }
                 }
             }
         }
     }
+
 
     // 모든 알림을 읽음으로 표시하는 메서드
     fun markAllNotificationsAsRead(userIdx: Int) {

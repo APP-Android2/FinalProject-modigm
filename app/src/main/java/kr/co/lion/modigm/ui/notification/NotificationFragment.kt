@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -63,6 +64,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         // Fragment에서 lifecycleScope을 사용하여 StateFlow 구독
         lifecycleScope.launchWhenStarted {
             viewModel.notifications.collect { notifications ->
+                Log.d("NotificationFragment", "Notifications: $notifications")
                 if (notifications.isNotEmpty()) {
                     binding.blankLayoutNotification.visibility = View.GONE
                     binding.recyclerviewNotification.visibility = View.VISIBLE
@@ -84,10 +86,19 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun showLoading(isLoading: Boolean) {
-        // 로딩 중에는 프로그래스 바만 표시하고, 다른 모든 뷰는 숨김
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        binding.recyclerviewNotification.visibility = if (isLoading) View.GONE else View.VISIBLE
-        binding.blankLayoutNotification.visibility = if (isLoading) View.GONE else View.VISIBLE // 로딩 중에는 빈 레이아웃 숨김
+        if (isLoading) {
+            // 로딩 중에는 알림 목록 및 빈 레이아웃 모두 숨김
+            binding.recyclerviewNotification.visibility = View.GONE
+            binding.blankLayoutNotification.visibility = View.GONE
+        } else {
+            // 로딩이 끝나면 알림 상태에 따라 레이아웃 가시성 조정 (isLoading이 끝난 후 조정)
+            if (viewModel.notifications.value.isEmpty()) {
+                binding.blankLayoutNotification.visibility = View.VISIBLE
+            } else {
+                binding.recyclerviewNotification.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun clearBadgeOnBottomNavigation() {
@@ -117,6 +128,9 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
                 setAllNotificationsRead()
                 clearBadgeOnBottomNavigation()
             }
+
+            // RecyclerView 갱신
+            adapter.updateData(notifications)
         }
     }
 
@@ -145,6 +159,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun refreshData() {
         // 현재 사용자 ID 가져오기
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+        Log.d("NotificationFragment", "Refreshing notifications for userIdx: $userIdx")
         // ViewModel을 통해 알림 데이터를 다시 가져옵니다.
         viewModel.fetchNotifications(userIdx)
     }
