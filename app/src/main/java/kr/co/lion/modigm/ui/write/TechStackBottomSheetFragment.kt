@@ -103,7 +103,7 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
      */
     private fun observeViewModel() {
         viewModel.techStackData.observe(viewLifecycleOwner) { techStackList ->
-            initializeCategoryChips(techStackList)  // 기술 스택 목록을 화면에 표시
+            showMainCategory(techStackList)  // 기술 스택 목록을 화면에 표시
         }
 
         // ViewModel의 선택된 데이터로 초기화
@@ -120,7 +120,7 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
      * 카테고리별로 그룹화된 기술 스택을 화면에 칩 형태로 추가하는 함수.
      * 각 카테고리 칩을 선택하면 해당 카테고리의 하위 기술 스택이 표시됨.
      */
-    private fun initializeCategoryChips(techStackList: List<TechStackData>) {
+    private fun showMainCategory(techStackList: List<TechStackData>) {
         with(binding) {
             chipGroupTechStack.removeAllViews()  // 기존 칩들을 먼저 제거
 
@@ -139,7 +139,11 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
                         setOnCheckedChangeListener { _, isChecked ->
                             updateChipStyle(this, isChecked)
                             if (isChecked) {
-                                displaySubCategories(techStacks)
+                                if(category == "기타"){
+                                    selectedTechStacks.add(TechStackData(104, "기타", "기타"))
+                                    updateSelectedChipsUI()
+                                }
+                                showSubCategory(techStacks)
                             } else {
                                 subCategoryChipGroupTechStack.removeAllViews()  // 선택 해제 시 하위 칩 제거
                             }
@@ -154,7 +158,7 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
     /**
      * 선택된 카테고리의 하위 기술 스택을 칩 형태로 화면에 표시하는 함수.
      */
-    private fun displaySubCategories(techStackList: List<TechStackData>) {
+    private fun showSubCategory(techStackList: List<TechStackData>) {
         with(binding.subCategoryChipGroupTechStack) {
             removeAllViews()  // 기존 하위 칩들을 제거
 
@@ -177,7 +181,6 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
                     }
                 }.also { addView(it) }  // 기술 스택 칩을 그룹에 추가
             }
-
             scrollViewTechStackSelectVisibility()  // 스크롤뷰 가시성 업데이트
         }
     }
@@ -189,19 +192,9 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
     private fun updateSelectedChipsUI() {
         with(binding.chipGroupSelectedItems) {
             removeAllViews()  // 기존 선택된 칩들을 제거
-
-            // "기타" 칩 중복 제거를 위한 플래그
-            var isOtherChipAdded = false
-
             selectedTechStacks
                 .distinctBy { it.techName } // "기타" 칩 중복 제거
                 .forEach { techStack ->
-                    // "기타" 칩 중복 체크
-                    if (techStack.techName == "기타") {
-                        if (isOtherChipAdded) return@forEach  // 이미 추가된 경우 건너뜀
-                        isOtherChipAdded = true
-                    }
-
                     Chip(context).apply {
                         text = techStack.techName
                         isCloseIconVisible = true  // 선택된 기술 스택 칩에 삭제 버튼 표시
@@ -214,16 +207,6 @@ class TechStackBottomSheetFragment : VBBaseBottomSheetFragment<FragmentTechStack
                         }
                     }.also { addView(it) }
                 }
-
-            // 선택된 기술 스택이 없을 경우 '기타' 칩을 추가
-            if (selectedTechStacks.isEmpty()) {
-                Chip(context).apply {
-                    text = "기타"
-                    isCloseIconVisible = false
-                    setTextAppearance(R.style.ChipTextStyle)
-                    chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
-                }.also { addView(it) }
-            }
 
             scrollViewTechStackSelectVisibility()  // 스크롤뷰 가시성 업데이트
         }

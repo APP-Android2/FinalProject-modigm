@@ -115,17 +115,10 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
         chipGroup.removeAllViews()
         selectedTechStackList.clear()
 
-        // "기타" 칩이 추가되었는지 여부를 확인하기 위한 플래그
-        var isOtherChipAdded = false
-
-        // "기타" 칩 중복 제거 로직
-        val filteredTechStacks = techStacks.distinctBy { it.techName } // "기타" 칩 중복 제거
+        val filteredTechStacks = techStacks.distinctBy { it.techName }
 
         for (techStack in filteredTechStacks) {
-            if (techStack.techName == "기타") {
-                if (isOtherChipAdded) continue  // 이미 "기타" 칩이 추가된 경우 건너뜀
-                isOtherChipAdded = true
-            }
+
 
             selectedTechStackList.add(techStack.techIdx)
 
