@@ -256,20 +256,6 @@
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_logout_24px" />
                     </LinearLayout>
-                </LinearLayout>
-
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    app:dividerColor="@color/dividerView" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="8dp">
 
                     <LinearLayout
                         android:id="@+id/layoutSettingsDeleteUser"
