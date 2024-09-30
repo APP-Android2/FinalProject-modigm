@@ -15,7 +15,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     PHP(11, "PHP", Category.PROGRAMMING),
     RUST(12, "Rust", Category.PROGRAMMING),
     TYPESCRIPT(13, "TypeScript", Category.PROGRAMMING),
-    OTHER_PROGRAMMING(14, "기타", Category.PROGRAMMING),
 
     // 프론트 엔드
     HTML(15, "HTML", Category.FRONT_END),
@@ -27,7 +26,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     NPM(21, "NPM", Category.FRONT_END),
     WEBPACK(22, "Webpack", Category.FRONT_END),
     BABEL(23, "Babel", Category.FRONT_END),
-    OTHER_FRONT_END(24, "기타", Category.FRONT_END),
 
     // 백엔드
     JAVA_BACKEND(25, "Java", Category.BACK_END),
@@ -45,7 +43,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     POSTGRESQL(37, "PostgreSQL", Category.BACK_END),
     MONGODB(38, "MongoDB", Category.BACK_END),
     REDIS(39, "Redis", Category.BACK_END),
-    OTHER_BACKEND(40, "기타", Category.BACK_END),
 
     // 모바일 개발
     SWIFT_IOS(41, "Swift(iOS)", Category.MOBILE),
@@ -53,7 +50,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     REACT_NATIVE(43, "ReactNative", Category.MOBILE),
     FLUTTER(44, "Flutter", Category.MOBILE),
     XAMARIN(45, "Xamarin", Category.MOBILE),
-    OTHER_MOBILE(46, "기타", Category.MOBILE),
 
     // 데이터 사이언스
     PANDAS(47, "Pandas", Category.DATA_SCIENCE),
@@ -64,7 +60,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     PYTORCH(52, "PyTorch", Category.DATA_SCIENCE),
     JUPYTER(53, "JupyterNotebook", Category.DATA_SCIENCE),
     ANACONDA(54, "Anaconda", Category.DATA_SCIENCE),
-    OTHER_DATA_SCIENCE(55, "기타", Category.DATA_SCIENCE),
 
     // 데브옵스 및 시스템 관리
     JENKINS(56, "Jenkins", Category.DEVOPS),
@@ -75,7 +70,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     PROMETHEUS(61, "Prometheus", Category.DEVOPS),
     GRAFANA(62, "Grafana", Category.DEVOPS),
     ELK_STACK(63, "ELKStack", Category.DEVOPS),
-    OTHER_DEVOPS(64, "기타", Category.DEVOPS),
 
     // 클라우드 및 인프라
     AWS(65, "AWS", Category.CLOUD),
@@ -84,14 +78,12 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     AWS_LAMBDA(68, "AWSLambda", Category.CLOUD),
     AZURE_FUNCTIONS(69, "AzureFunctions", Category.CLOUD),
     CLOUDFORMATION(70, "CloudFormation", Category.CLOUD),
-    OTHER_CLOUD(71, "기타", Category.CLOUD),
 
     // 게임 개발
     UNITY(72, "Unity", Category.GAME_DEVELOPMENT),
     UNREAL_ENGINE(73, "UnrealEngine", Category.GAME_DEVELOPMENT),
     BLENDER(74, "Blender", Category.GAME_DEVELOPMENT),
     MAYA(75, "Maya", Category.GAME_DEVELOPMENT),
-    OTHER_GAME_DEV(76, "기타", Category.GAME_DEVELOPMENT),
 
     // 보안
     WIRESHARK(77, "Wireshark", Category.SECURITY),
@@ -100,7 +92,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     NETWORK_SECURITY(80, "네트워크 보안", Category.SECURITY),
     KALI_LINUX(81, "KaliLinux", Category.SECURITY),
     OWASP(82, "OWASP", Category.SECURITY),
-    OTHER_SECURITY(83, "기타", Category.SECURITY),
 
     // 인공지능
     AI_PYTHON(84, "Python", Category.AI),
@@ -108,7 +99,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     MACHINE_LEARNING(86, "머신러닝", Category.AI),
     COMPUTER_VISION(87, "컴퓨터 비전", Category.AI),
     NLP(88, "자연어 처리", Category.AI),
-    OTHER_AI(89, "기타", Category.AI),
 
     // UI/UX 디자인
     SKETCH(90, "Sketch", Category.UI_UX),
@@ -116,7 +106,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     FIGMA(92, "Figma", Category.UI_UX),
     USER_CENTERED_DESIGN(93, "사용자 중심 디자인", Category.UI_UX),
     INTERACTION_DESIGN(94, "인터랙션 디자인", Category.UI_UX),
-    OTHER_UI_UX(95, "기타", Category.UI_UX),
 
     // 빅데이터
     HADOOP(96, "Hadoop", Category.BIG_DATA),
@@ -125,7 +114,6 @@ enum class Skill(val num: Int, val displayName: String, val category: Category?)
     CASSANDRA(99, "Cassandra", Category.BIG_DATA),
     APACHE_KAFKA(100, "ApacheKafka", Category.BIG_DATA),
     APACHE_FLINK(101, "ApacheFlink", Category.BIG_DATA),
-    OTHER_BIG_DATA(102, "기타", Category.BIG_DATA),
 
     // Special categories
     TOTAL(103, "전체", null),

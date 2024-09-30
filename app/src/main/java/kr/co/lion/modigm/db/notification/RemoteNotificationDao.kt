@@ -87,5 +87,22 @@ class RemoteNotificationDao {
             Log.e(TAG, "Error marking all notifications as read", e)
         }
     }
+    // FCM 토큰을 삭제하는 메서드 추가
+    suspend fun removeFcmTokenByUserId(userIdx: Int): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "DELETE FROM tb_user_fcm WHERE userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    val rowsAffected = statement.executeUpdate()
+                    Log.d("RemoteNotificationDao", "FCM Token 삭제 성공, 삭제된 행: $rowsAffected")
+                    rowsAffected > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteNotificationDao", "Error removing FCM token", e)
+            false
+        }
+    }
 
 }

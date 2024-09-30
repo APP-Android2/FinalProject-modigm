@@ -188,5 +188,48 @@ class RemoteLoginDao {
                 Result.failure<Boolean>(e)
             }
         }
+
+    // FCM 토큰 삽입 또는 업데이트 메서드
+    suspend fun insertUserFcmToken(userIdx: Int, fcmToken: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                Log.d(tag, "Preparing to insert FCM token for userIdx: $userIdx with token: $fcmToken")
+                val query = """
+                    INSERT INTO tb_user_fcm (userIdx, fcmToken)
+                    VALUES (?, ?)
+                    ON DUPLICATE KEY UPDATE fcmToken = VALUES(fcmToken)
+                """
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    statement.setString(2, fcmToken)
+                    val rowsUpdated = statement.executeUpdate()
+                    Log.d(tag, "Rows updated/inserted: $rowsUpdated")
+                    rowsUpdated > 0
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error inserting FCM token", e)
+            false
+        }
+    }
+
+    // 사용자 FCM 토큰 조회 메서드
+    suspend fun getUserFcmToken(userIdx: Int): String? = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "SELECT fcmToken FROM tb_user_fcm WHERE userIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setInt(1, userIdx)
+                    val resultSet = statement.executeQuery()
+                    if (resultSet.next()) {
+                        return@withContext resultSet.getString("fcmToken")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Error fetching FCM token", e)
+        }
+        return@withContext null
+    }
 }
 

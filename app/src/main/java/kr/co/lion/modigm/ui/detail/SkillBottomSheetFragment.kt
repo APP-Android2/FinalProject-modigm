@@ -170,8 +170,7 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
                 updateChipStyle(chip, isChecked)
                 if (isChecked) {
                     if (category == Skill.Category.OTHER) {
-                        selectedSkills.clear()
-                        selectedSkills.add(Skill.OTHER)
+                        selectedSkills.add(Skill.OTHER) // Skill.OTHER만 추가
                         updateSelectedChipsUI()
                     } else {
                         selectedSkills.remove(Skill.OTHER)
@@ -184,6 +183,7 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
                     collapseSubCategories(category) // 서브 카테고리 닫기
                 }
             }
+
             binding.chipGroupSkill.addView(chip)
         }
     }
@@ -245,52 +245,25 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
     fun updateSelectedChipsUI() {
         binding.chipGroupSelectedItems.removeAllViews()
 
-        // 기타 스킬을 필터링하여 "기타"는 하나만 남김
-        val skillsToDisplay = selectedSkills.groupBy { it.displayName }
-            .mapValues { entry ->
-                if (entry.key == "기타") {
-                    listOf(entry.value.first())  // "기타"인 항목이 여러 개 있으면 첫 번째만 남김
-                } else {
-                    entry.value
-                }
-            }.flatMap { it.value }
-
-        skillsToDisplay.forEach { skill ->
+        selectedSkills.forEach { skill ->
             val chip = Chip(context).apply {
                 text = skill.displayName
                 isCloseIconVisible = true
                 setTextAppearance(R.style.ChipTextStyle)
                 chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
                 setOnCloseIconClickListener {
-//                    selectedSkills.remove(skill)
-//                    updateCategoryChipState(skill, false)
-//                    updateSelectedChipsUI()
-
-                    // "기타" 칩일 경우 모든 카테고리의 "기타" 칩을 선택 해제
-                    if (skill.displayName == "기타") {
-                        removeAllGitaChips() // "기타" 칩들을 모두 삭제하는 함수 호출
-                    } else {
-                        selectedSkills.remove(skill)  // 일반 스킬 제거
-                        updateCategoryChipState(skill, false)
-                    }
-                    // UI 업데이트 및 서브 카테고리 칩 새로고침
+                    selectedSkills.remove(skill)
+                    updateCategoryChipState(skill, false)
                     updateSelectedChipsUI()
-                    refreshSubCategoryChips(skill.category)  // 선택된 스킬에 맞춰 서브 카테고리 칩 새로고침
+                    refreshSubCategoryChips(skill.category)
                 }
             }
             binding.chipGroupSelectedItems.addView(chip)
         }
-        if (selectedSkills.isEmpty() ) {
-            val chip = Chip(context).apply {
-                text = "기타"
-                isCloseIconVisible = false
-                setTextAppearance(R.style.ChipTextStyle)
-                chipBackgroundColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.dividerView))
-            }
-            binding.chipGroupSelectedItems.addView(chip)
-        }
+
         ScrollViewSkillSelectVisibility()
     }
+
 
     // 서브 카테고리 칩을 새로고침하는 함수
     fun refreshSubCategoryChips(category: Skill.Category?) {
@@ -323,24 +296,6 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
         ScrollViewSkillSelectVisibility()
     }
 
-    fun removeAllGitaChips() {
-        // "기타"가 포함된 모든 스킬을 선택 해제
-        val toRemove = selectedSkills.filter { it.displayName == "기타" }
-        selectedSkills.removeAll(toRemove)  // 선택된 "기타" 스킬 제거
-
-        // 모든 카테고리에서 "기타" 칩의 선택 상태를 해제
-        Skill.Category.values().forEach { category ->
-            val gitaSkill = Skill.values().find { it.displayName == "기타" && it.category == category }
-            gitaSkill?.let {
-                updateCategoryChipState(it, false) // "기타" 선택 해제
-                collapseSubCategories(category)     // 서브 카테고리 접기
-            }
-        }
-        // 선택 상태를 적용하고 화면을 새로고침
-        updateSelectedChipsUI()  // 칩 삭제 후 UI를 새로고침
-        refreshSubCategoryChips(null)  // 모든 서브 카테고리 칩 새로고침
-    }
-
     // 카테고리를 접는 함수
     fun collapseSubCategories(category: Skill.Category) {
         // 서브 카테고리 칩을 모두 제거하여 접기
@@ -351,8 +306,6 @@ class SkillBottomSheetFragment : VBBaseBottomSheetFragment<FragmentSkillBottomSh
             binding.subCategoryTextView.visibility = View.GONE
         }
     }
-
-
 
     fun updateCategoryChipState(skill: Skill, isSelected: Boolean) {
         // category가 null이 아닌지 확인

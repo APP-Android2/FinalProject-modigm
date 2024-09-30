@@ -103,19 +103,27 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
                 updateButtonColor()
             }
         }
+
+        // ViewModel에서 selectedTechStacks를 관찰하여 UI 업데이트
+        viewModel.selectedTechStacks.observe(viewLifecycleOwner) { selectedStacks ->
+            addChipsToGroup(binding.chipGroupWriteTechStack, selectedStacks.toList())
+        }
     }
 
     // ChipGroup에 칩을 추가하는 함수
     private fun addChipsToGroup(chipGroup: ChipGroup, techStacks: List<TechStackData>) {
-        // 기존의 칩들을 삭제
         chipGroup.removeAllViews()
         selectedTechStackList.clear()
 
-        // 전달받은 스킬 리스트를 이용하여 칩을 생성하고 추가
-        for (techStack in techStacks) {
-            selectedTechStackList.add(techStack.techIdx)  // 선택된 스킬 번호를 저장
+        val filteredTechStacks = techStacks.distinctBy { it.techName }
+
+        for (techStack in filteredTechStacks) {
+
+
+            selectedTechStackList.add(techStack.techIdx)
+
             val chip = Chip(context).apply {
-                text = techStack.techName  // 스킬의 이름을 칩 텍스트로 설정
+                text = techStack.techName
                 isClickable = true
                 isCheckable = false
                 isCloseIconVisible = true
@@ -124,25 +132,23 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
                 setTextAppearance(R.style.ChipTextStyle)
                 id = View.generateViewId()
 
-                // 'X' 아이콘 클릭 시 해당 칩을 ChipGroup에서 제거
                 setOnCloseIconClickListener {
-                    chipGroup.removeView(this)  // 현재 클릭된 Chip 인스턴스를 ChipGroup에서 제거
-                    selectedTechStackList.remove(techStack.techIdx)  // 선택된 스킬 목록에서 해당 스킬 제거
+                    chipGroup.removeView(this)
+                    selectedTechStackList.remove(techStack.techIdx)
+                    viewModel.updateSelectedTechStacks(viewModel.selectedTechStacks.value?.apply {
+                        remove(techStack)
+                    } ?: mutableSetOf()) // ViewModel에 선택된 스택 업데이트
 
-                    // 선택된 스킬 목록이 비어 있으면 ViewModel 데이터를 null로 업데이트
                     if (selectedTechStackList.isEmpty()) {
-                        viewModel.updateWriteData("studyTechStackList", null)  // ViewModel에 데이터를 null로 설정
+                        viewModel.updateWriteData("studyTechStackList", null)
                     } else {
-                        viewModel.updateWriteData("studyTechStackList", selectedTechStackList)  // ViewModel에 선택된 스킬 목록 업데이트
+                        viewModel.updateWriteData("studyTechStackList", selectedTechStackList)
                     }
-
-                    // 버튼 색상 업데이트
                     updateButtonColor()
                 }
             }
-            chipGroup.addView(chip)  // ChipGroup에 칩을 추가
+            chipGroup.addView(chip)
         }
-        // 버튼 색상 초기 업데이트
         updateButtonColor()
     }
 
