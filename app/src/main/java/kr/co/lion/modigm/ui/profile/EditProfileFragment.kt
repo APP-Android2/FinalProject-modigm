@@ -8,12 +8,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -318,6 +320,12 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
 
                 // 스낵바 띄우기
                 val snackbar = Snackbar.make(binding.root, "정보가 업데이트되었습니다.", Snackbar.LENGTH_LONG)
+                // 스낵바 글씨 크기 변경
+                val snackbarTextView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+                // 16dp를 px로 변환
+                val textSizeInPx = 16f * requireContext().resources.displayMetrics.density
+                // 변환된 크기를 textSize에 적용
+                snackbarTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
                 snackbar.show()
 
                 // 이전 프래그먼트로 돌아간다
