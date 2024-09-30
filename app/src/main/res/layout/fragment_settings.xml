@@ -36,7 +36,7 @@
                     android:paddingTop="20dp"
                     android:paddingBottom="8dp">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewSettings1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -53,14 +53,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="회원 정보 수정"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_chevron_right_24px" />
@@ -73,14 +73,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="비밀번호 변경"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_chevron_right_24px" />
@@ -91,7 +91,8 @@
                 <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
                     android:layout_height="10dp"
-                    app:dividerColor="@color/dividerView" />
+                    app:dividerColor="@color/dividerView"
+                    android:visibility="gone"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -99,9 +100,10 @@
                     android:orientation="vertical"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="20dp"
-                    android:paddingBottom="8dp">
+                    android:paddingBottom="8dp"
+                    android:visibility="gone">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewSettings2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -118,14 +120,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="알림"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_chevron_right_24px" />
@@ -145,7 +147,7 @@
                     android:paddingTop="20dp"
                     android:paddingBottom="8dp">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewSettings3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -162,14 +164,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="공지사항"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_chevron_right_24px" />
@@ -182,14 +184,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="고객센터"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_chevron_right_24px" />
@@ -202,14 +204,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="이용약관"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_chevron_right_24px" />
@@ -222,17 +224,17 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="버전 정보"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/icon_chevron_right_24px" />
+                            android:text="1.0.0" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -242,14 +244,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="로그아웃"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_logout_24px" />

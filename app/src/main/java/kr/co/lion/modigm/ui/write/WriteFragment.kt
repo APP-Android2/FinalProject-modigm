@@ -16,7 +16,6 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.login.CustomCancelDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.FragmentName
-import kr.co.lion.modigm.util.showLoginSnackBar
 
 class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding::inflate) {
 
@@ -56,15 +55,6 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
                 addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                     override fun onTabSelected(tab: TabLayout.Tab) {
                         val currentPosition = tab.position
-
-                        // 탭이 처음 접근된 경우 유효성 검사 생략
-                        if (!isTabAccessed[currentPosition]) {
-                            isTabAccessed[currentPosition] = true // 탭 접근 상태 업데이트
-                        } else if (!validateCurrentTab()) {
-                            // 유효하지 않으면 이전 탭으로 되돌아감
-                            tabLayoutWrite.getTabAt(previousTabPosition)?.select()
-                            return
-                        }
 
                         // 선택된 탭에 따라 프래그먼트 교체
                         val fragment = when (currentPosition) {
@@ -107,82 +97,6 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
         }
     }
 
-    private fun validateCurrentTab(): Boolean {
-
-        // 데이터가 초기화된 직후에는 유효성 검사를 생략
-        if (viewModel.isDataCleared) {
-            viewModel.isDataCleared = false // 초기화 플래그 리셋
-            return true
-        }
-        val currentTabPosition = previousTabPosition
-        fun writeDataMap(item: String): Any? {
-            return viewModel.writeDataMap.value?.get(item)
-        }
-
-        val isValid = when (currentTabPosition) {
-            0 -> {
-                if (writeDataMap("studyType") == null) {
-                    requireActivity().showLoginSnackBar("타입을 선택해주세요.", null)
-                    false
-                } else {
-                    true
-                }
-            }
-            1 -> {
-                if (writeDataMap("studyPeriod") == null) {
-                    requireActivity().showLoginSnackBar("기간을 선택해주세요.", null)
-                    false
-                } else {
-                    true
-                }
-            }
-            2 -> {
-                if (writeDataMap("studyOnOffline") == null) {
-                    requireActivity().showLoginSnackBar("진행방식을 선택해주세요.", null)
-                    false
-                } else if ((writeDataMap("studyOnOffline") == "오프라인"
-                            || writeDataMap("studyOnOffline") == "온오프혼합")
-                    && writeDataMap("studyPlace") == null
-                ) {
-                    requireActivity().showLoginSnackBar("장소를 입력해주세요.", null)
-                    false
-                } else if (writeDataMap("studyMaxMember") == null) {
-                    requireActivity().showLoginSnackBar("최대 인원을 입력해주세요.", null)
-                    false
-                } else if (writeDataMap("studyMaxMember").toString().toInt() < 2) {
-                    requireActivity().showLoginSnackBar("최소 2명 이상의 인원을 입력해주세요.", null)
-                    false
-                } else {
-                    true
-                }
-            }
-            3 -> {
-                if (writeDataMap("studyTechStackList") == null) {
-                    requireActivity().showLoginSnackBar("기술스택을 선택해주세요.", null)
-                    false
-                } else {
-                    true
-                }
-            }
-            4 -> {
-                if (writeDataMap("studyTitle") == null) {
-                    requireActivity().showLoginSnackBar("제목을 입력해주세요.", null)
-                    false
-                } else if (writeDataMap("studyContent") == null) {
-                    requireActivity().showLoginSnackBar("소개글을 입력해주세요.", null)
-                    false
-                } else if (writeDataMap("studyChatLink") == null) {
-                    requireActivity().showLoginSnackBar("오픈채팅 링크를 입력해주세요.", null)
-                    false
-                } else {
-                    true
-                }
-            }
-            else -> true
-        }
-        return isValid
-    }
-
 
     // 프로그래스바 애니메이션 함수
     private fun animateProgressBar(progressBar: ProgressBar, from: Int, to: Int) {
@@ -205,31 +119,6 @@ class WriteFragment : VBBaseFragment<FragmentWriteBinding>(FragmentWriteBinding:
             viewModel.progressBarState.observe(viewLifecycleOwner) { progress ->
                 animateProgressBar(progressBarWrite, progressBarWrite.progress, progress)
             }
-
-            // writeDataMap 변경 사항을 관찰
-            viewModel.writeDataMap.observe(viewLifecycleOwner) { dataMap ->
-                updateTabEnabledState(dataMap)
-            }
-        }
-    }
-
-    // 탭의 활성화/비활성화 상태를 업데이트하는 함수
-    private fun updateTabEnabledState(dataMap: MutableMap<String, Any?>?) {
-        with(binding.tabLayoutWrite) {
-            // 첫 번째 탭은 항상 활성화
-            getTabAt(0)?.view?.isEnabled = true
-
-            // 두 번째 탭은 첫 번째 탭에 해당하는 데이터가 있을 때 활성화
-            getTabAt(1)?.view?.isEnabled = dataMap?.get("studyType") != null
-
-            // 세 번째 탭은 두 번째 탭에 해당하는 데이터가 있을 때 활성화
-            getTabAt(2)?.view?.isEnabled = dataMap?.get("studyPeriod") != null
-
-            // 네 번째 탭은 세 번째 탭에 해당하는 데이터가 있을 때 활성화
-            getTabAt(3)?.view?.isEnabled = dataMap?.get("studyOnOffline") != null
-
-            // 다섯 번째 탭은 네 번째 탭에 해당하는 데이터가 있을 때 활성화
-            getTabAt(4)?.view?.isEnabled = dataMap?.get("studyTechStackList") != null
         }
     }
 

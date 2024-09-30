@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import androidx.activity.addCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -38,6 +39,7 @@ class ChangePhoneAuthFragment : VBBaseFragment<FragmentChangePhoneAuthBinding>(F
         super.onViewCreated(view, savedInstanceState)
         initView()
         observeViewModel()
+        backButton()
     }
 
     override fun onDestroy() {
@@ -270,6 +272,15 @@ class ChangePhoneAuthFragment : VBBaseFragment<FragmentChangePhoneAuthBinding>(F
                     buttonChangePhoneAuth.isEnabled = true
                 }
             }
+        }
+    }
+
+    // 뒤로가기 버튼 처리
+    private fun backButton() {
+        // 백버튼 처리
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            // 뒤로가기 처리
+            showCancelDialog()
         }
     }
 }

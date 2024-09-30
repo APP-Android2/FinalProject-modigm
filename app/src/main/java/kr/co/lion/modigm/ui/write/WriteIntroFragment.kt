@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -32,6 +33,7 @@ import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
 import kr.co.lion.modigm.util.FragmentName
+import kr.co.lion.modigm.util.showLoginSnackBar
 import java.io.File
 
 class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWriteIntroBinding::inflate) {
@@ -70,6 +72,19 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         }
     }
 
+    // 권한 요청 런처
+    private val requestPermissionLauncher: ActivityResultLauncher<Array<String>> by lazy {
+        registerForActivityResult(RequestMultiplePermissions()) { permissions ->
+            // 권한 요청 결과 처리
+            permissions.entries.forEach { (permission, isGranted) ->
+                if (!isGranted) {
+                    // 필요한 권한이 거부된 경우 로그를 남기거나 사용자에게 알림
+                    Log.e(logTag, "$permission 권한이 거부되었습니다.")
+                }
+            }
+        }
+    }
+
     // 확인할 권한 목록
     private val permissionList: Array<String> by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -100,7 +115,7 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
         super.onViewCreated(view, savedInstanceState)
 
         // 권한 요청
-        requestPermissions(permissionList, 0)
+        requestPermissionLauncher.launch(permissionList)
 
         // 데이터 복원 함수 호출
         restoreInputData()
@@ -163,17 +178,13 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 // 터치 이벤트 처리
                 setOnTouchListener { view, event ->
 
-                    // 포커스가 있을 때 부모의 스크롤 이벤트 가로채기 방지
-                    if (view.hasFocus()) {
-                        view.parent.requestDisallowInterceptTouchEvent(true)
+                    view.parent.requestDisallowInterceptTouchEvent(true)
 
-                        // 터치 끝나면 부모에게 이벤트 권한 반환
-                        if (event.action == MotionEvent.ACTION_UP) {
-                            view.parent.requestDisallowInterceptTouchEvent(false)
-                            view.performClick()  // 접근성을 위한 클릭 처리
-                        }
+                    // 터치 끝나면 부모에게 이벤트 권한 반환
+                    if (event.action == MotionEvent.ACTION_UP) {
+                        view.parent.requestDisallowInterceptTouchEvent(false)
+                        view.performClick()  // 접근성을 위한 클릭 처리
                     }
-
                     // false 반환하여 기본 동작 유지
                     false
                 }
@@ -214,6 +225,10 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                     // 클릭 시 입력 유효성 검사
                     if(!checkAllInput()) {
                         // 유효하지 않은 경우 리턴
+                        return@setOnClickListener
+                    }
+                    if(!checkAllData()) {
+                        // 데이터가 모두 입력되지 않은 경우 리턴
                         return@setOnClickListener
                     }
                     // 스터디 커버 이미지 업데이트
@@ -625,6 +640,54 @@ class WriteIntroFragment : VBBaseFragment<FragmentWriteIntroBinding>(FragmentWri
                 setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             }
+        }
+    }
+
+    private fun checkAllData(): Boolean {
+        fun writeDataMap(item: String): Any? {
+            return viewModel.writeDataMap.value?.get(item)
+        }
+        val studyType = writeDataMap("studyType") as? String
+        val studyPeriod = writeDataMap("studyPeriod") as? String
+        val studyOnOffline = writeDataMap("studyOnOffline") as? String
+        val studyPlace = writeDataMap("studyPlace") as? String
+        val studyMaxMember = writeDataMap("studyMaxMember") as? Int
+        val studyTechStackList = writeDataMap("studyTechStackList") as? List<*>
+
+        if(studyType == null || studyType == "") {
+            requireActivity().showLoginSnackBar("타입을 선택해주세요.", null)
+            viewModel.updateSelectedTab(0)
+            return false
+        } else if(studyPeriod == null || studyPeriod == "") {
+            requireActivity().showLoginSnackBar("기간을 선택해주세요.", null)
+            viewModel.updateSelectedTab(1)
+            return false
+        } else if (studyOnOffline == null || studyOnOffline == "") {
+            requireActivity().showLoginSnackBar("진행방식을 선택해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if ((studyOnOffline == "오프라인"
+                    || studyOnOffline == "온오프혼합")
+            && (studyPlace == null
+                    || studyPlace == "")
+        ) {
+            requireActivity().showLoginSnackBar("장소를 입력해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if (studyMaxMember == null) {
+            requireActivity().showLoginSnackBar("최대 인원을 입력해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if (studyMaxMember < 2) {
+            requireActivity().showLoginSnackBar("최소 2명 이상의 인원을 입력해주세요.", null)
+            viewModel.updateSelectedTab(2)
+            return false
+        } else if (studyTechStackList == null || studyTechStackList.isEmpty()) {
+            requireActivity().showLoginSnackBar("기술스택을 선택해주세요.", null)
+            viewModel.updateSelectedTab(3)
+            return false
+        } else {
+            return true
         }
     }
 }
