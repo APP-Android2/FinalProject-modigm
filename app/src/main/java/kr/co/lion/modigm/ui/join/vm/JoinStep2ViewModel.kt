@@ -114,6 +114,9 @@ class JoinStep2ViewModel @Inject constructor(
     // 인증문자 발송 여부
     private val _isCodeSent = MutableStateFlow(false)
     val isCodeSent: StateFlow<Boolean> = _isCodeSent
+    fun resetIsCodeSent(){
+        _isCodeSent.value = false
+    }
 
     // 인증 ID(인증 코드 내용 아님)
     private val _verificationId = MutableStateFlow("")
@@ -174,9 +177,10 @@ class JoinStep2ViewModel @Inject constructor(
             try{
                 _errorMessage.value = ""
                 val phoneCredential = PhoneAuthProvider.getCredential(_verificationId.value, inputSmsCode.value)
-                val linkedProviders = _auth.currentUser?.providerData?.find { it.providerId == PhoneAuthProvider.PROVIDER_ID }
-                if (linkedProviders != null) {
-                    _auth.currentUser?.unlink(PhoneAuthProvider.PROVIDER_ID)
+                val linkedNumber = _auth.currentUser?.providerData?.find { it.providerId == PhoneAuthProvider.PROVIDER_ID }?.phoneNumber
+                if (!linkedNumber.isNullOrEmpty()) {
+                    _auth.currentUser?.reload()?.await()
+                    _auth.currentUser?.unlink(PhoneAuthProvider.PROVIDER_ID)?.await()
                 }
                 _auth.currentUser?.linkWithCredential(phoneCredential)?.await()
             }catch (e: FirebaseAuthException){
@@ -242,11 +246,9 @@ class JoinStep2ViewModel @Inject constructor(
     // ================3. 초기화 ==============================================================
     fun reset(){
         userName.value = ""
-        nameValidation.value = ""
         userPhone.value = ""
-        phoneValidation.value = ""
         inputSmsCode.value = ""
-        inputSmsCodeValidation.value = ""
+        resetValidationText()
 
         _isCodeSent.value = false
         _verificationId.value = ""
@@ -258,6 +260,12 @@ class JoinStep2ViewModel @Inject constructor(
         _alreadyRegisteredUserProvider.value = ""
         _authButtonText.value = "인증하기"
         _authExpired.value = true
+    }
+
+    fun resetValidationText(){
+        nameValidation.value = ""
+        phoneValidation.value = ""
+        inputSmsCodeValidation.value = ""
     }
 
     fun cancelTimer(){
