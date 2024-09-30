@@ -94,6 +94,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="전화번호 입력"
+                        android:imeOptions="actionDone"
                         android:inputType="phone"
                         android:text="@={viewModel.userPhone}"
                         android:textSize="16dp" />
@@ -139,10 +140,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="인증번호 입력"
-                        app:errorTextAppearance="@style/dialogText"
+                        android:imeOptions="actionDone"
                         android:inputType="number"
                         android:text="@={viewModel.inputSmsCode}"
-                        android:textSize="16dp" />
+                        android:textSize="16dp"
+                        app:errorTextAppearance="@style/dialogText" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
