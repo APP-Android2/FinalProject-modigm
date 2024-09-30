@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:titleTextAppearance="@style/toolbarText" />
+        app:titleTextAppearance="@style/toolbarText"
+        android:fitsSystemWindows="true"/>
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
@@ -24,6 +25,7 @@
     <WebView
         android:id="@+id/profileWebView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"/>
 
 </LinearLayout>
