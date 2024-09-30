@@ -55,6 +55,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
     private var isPopupShown = false
 
+    private var snackbar: Snackbar? = null
+
     // 현재 선택된 스터디 idx 번호를 담을 변수
     var studyIdx = 0
     var userIdx = 1
@@ -788,38 +790,55 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     }
 
     private fun handleNonOwnerButtonClick(view: View) {
-        // 현재 참여자 수와 최대 인원을 비교하여 신청 가능 여부 확인
         val currentMemberCount = binding.textViewDetailMember.text.toString().toIntOrNull() ?: 0
         val maxMemberCount = currentStudyData?.studyMaxMember ?: 0
 
+        // 신청 인원이 다 찼을 경우 스낵바로 알림 표시 후 리턴
         if (currentMemberCount >= maxMemberCount) {
-            // 신청 인원이 다 찼을 경우 스낵바로 알림 표시 후 리턴
             showSnackbar(view, "신청 인원이 다 찼습니다. 신청이 불가능합니다.")
             return
         }
 
-        // applyMethod를 currentStudyData의 studyApplyMethod 값으로 설정
-        val applyMethod = currentStudyData?.studyApplyMethod ?: "선착순"  // 기본값을 "선착순"으로 설정
+        val applyMethod = currentStudyData?.studyApplyMethod ?: "선착순" // 기본값 설정
 
-        // 사용자가 이미 참여 중인지 확인
-        viewModel.checkIfUserAlreadyMember(studyIdx, userIdx)
-
-        // 참여 여부를 관찰하여 처리
         lifecycleScope.launch {
-            viewModel.isUserAlreadyMember.collect { isAlreadyMember ->
+            val (isAlreadyMember, isAlreadyApplied, success) = withContext(Dispatchers.IO) {
+                // 사용자가 이미 참여 중이거나 이미 신청했는지 먼저 확인
+                val isAlreadyMember = viewModel.checkIfUserAlreadyMember(studyIdx, userIdx)
+                val isAlreadyApplied = viewModel.isAlreadyApplied(userIdx, studyIdx)
+
+                // 로그로 상태 확인
+                Log.d("DetailViewModel", "isAlreadyMember: $isAlreadyMember, isAlreadyApplied: $isAlreadyApplied")
+
+                // 1. 사용자가 이미 참여 중일 때
                 if (isAlreadyMember) {
-                    // 이미 참여 중이면 스낵바로 알림 표시 후 리턴
-                    showSnackbar(view, "이미 참여중인 스터디입니다.")
-                    return@collect
+                    return@withContext Triple(true, false, false)
                 }
 
-                // 스터디에 참여 중이 아니면 신청 로직을 계속 진행
-                val method = currentStudyData?.studyApplyMethod
-                if (method != null && currentStudyData?.userIdx != userIdx) {
-                    val studyTitle = currentStudyData?.studyTitle ?: ""
-                    viewModel.addUserToStudyOrRequest(studyIdx, userIdx, applyMethod, requireContext(), requireView(), studyTitle)
-                } else {
-                    Log.d("DetailFragment", "No action needed, either method is null or user is study owner.")
+                // 2. 사용자가 이미 신청했을 때
+                if (isAlreadyApplied) {
+                    return@withContext Triple(false, true, false)
+                }
+
+                // 3. 신청 가능한 경우
+                val success = viewModel.addUserToStudyOrRequest(
+                    studyIdx,
+                    userIdx,
+                    applyMethod,
+                    requireContext(),
+                    requireView(),
+                    currentStudyData?.studyTitle ?: ""
+                )
+                return@withContext Triple(false, false, success)
+            }
+
+            // 메인 스레드에서 결과 처리
+            withContext(Dispatchers.Main) {
+                when {
+                    isAlreadyMember -> showSnackbar(view, "이미 참여중인 스터디입니다.")
+                    isAlreadyApplied -> showSnackbar(view, "이미 신청한 스터디입니다.")
+                    success -> showSnackbar(view, "성공적으로 신청되었습니다.")
+                    else -> showSnackbar(view, "신청에 실패하였습니다.")
                 }
             }
         }
@@ -827,11 +846,14 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
 
     private fun showSnackbar(view: View, message: String) {
-        val snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)
-        val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        // 기존 스낵바가 표시 중이면 닫기
+        snackbar?.dismiss()
+
+        snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)
+        val textView = snackbar?.view?.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
         val textSizeInPx = dpToPx(requireContext(), 14f)
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-        snackbar.show()
+        textView?.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+        snackbar?.show()
         Log.d("DetailFragment", "Snackbar shown for apply")
     }
 
