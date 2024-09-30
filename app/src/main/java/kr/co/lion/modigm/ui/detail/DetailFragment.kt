@@ -783,6 +783,16 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
     }
 
     private fun handleNonOwnerButtonClick(view: View) {
+        // 현재 참여자 수와 최대 인원을 비교하여 신청 가능 여부 확인
+        val currentMemberCount = binding.textViewDetailMember.text.toString().toIntOrNull() ?: 0
+        val maxMemberCount = currentStudyData?.studyMaxMember ?: 0
+
+        if (currentMemberCount >= maxMemberCount) {
+            // 신청 인원이 다 찼을 경우 스낵바로 알림 표시 후 리턴
+            showSnackbar(view, "신청 인원이 다 찼습니다. 신청이 불가능합니다.")
+            return
+        }
+
         // applyMethod를 currentStudyData의 studyApplyMethod 값으로 설정
         val applyMethod = currentStudyData?.studyApplyMethod ?: "선착순"  // 기본값을 "선착순"으로 설정
 
