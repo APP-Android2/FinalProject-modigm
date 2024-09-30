@@ -158,12 +158,11 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
         // 화면이 다시 보일 때 현재 보여지는 프래그먼트를 기준으로 FAB 상태를 업데이트
         updateFabVisibilityBasedOnCurrentFragment()
 
-        // 화면이 다시 보일 때 알림을 확인하지 않았다면 배지를 유지
-        if (shouldShowNotificationBadge()) {
-            showNotificationBadge(true)
-        } else {
-            showNotificationBadge(false)
-        }
+        // SharedPreferences에서 읽지 않은 알림이 있는지 확인
+        val hasUnreadNotifications = prefs.getBoolean("hasUnreadNotifications", false)
+
+        // 배지 상태를 업데이트
+        showNotificationBadge(hasUnreadNotifications)
 
 
     }
@@ -291,6 +290,10 @@ class BottomNaviFragment : VBBaseFragment<FragmentBottomNaviBinding>(FragmentBot
                             }
                         }
                         R.id.bottomNaviNotification -> {
+                            // 알림 화면으로 이동할 때, 알림 상태를 읽음으로 처리
+                            prefs.setBoolean("hasUnreadNotifications", false) // 알림 읽음 상태로 변경
+                            showNotificationBadge(false) // 배지 숨기기
+
                             // FAB 숨기기
                             fabStudyWrite.hide()
                             val notificationFragment = NotificationFragment().apply {

@@ -115,6 +115,10 @@ class NotificationAdapter(
                     addToBackStack("DETAIL") // Fragment 이름을 추가하여 백스택에 저장
                 }
 
+                // 클릭한 항목만 읽음 상태로 업데이트
+                notification.isNew = false
+                notifyItemChanged(adapterPosition) // 변경된 항목만 갱신
+
                 // 서버에 상태 업데이트 호출
                 onMarkAsRead(notification)
 
