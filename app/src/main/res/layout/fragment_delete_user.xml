@@ -50,14 +50,13 @@
             android:textSize="18dp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/linearLayoutDeleteUserGuide"
+        <TextView
+            android:id="@+id/textViewDeleteUserGuide"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:orientation="vertical">
-
-        </LinearLayout>
+            android:textSize="18dp"
+            android:text="@string/delete_guide_text" />
 
     </LinearLayout>
 
