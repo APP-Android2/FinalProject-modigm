@@ -494,27 +494,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         val chipGroup = binding.chipGroupJoinInterest
         chipGroup.removeAllViews()
 
-        // "기타" 칩은 하나만 추가되도록 필터링
-        val filteredTechList = techList.distinctBy { skillId ->
-            Skill.fromNum(skillId).displayName // 스킬의 displayName으로 중복 필터링
-        }
-
-        var hasAddedEtc = false // "기타" 칩이 추가되었는지 확인
-
-        filteredTechList.forEach { techId ->
-            val skill = Skill.fromNum(techId)
-
-            // "기타" 칩은 한 번만 추가되도록
-            if (skill.displayName == "기타") {
-                if (!hasAddedEtc) {
-                    val chip = createSkillChip(techId)
-                    chipGroup.addView(chip)
-                    hasAddedEtc = true // "기타" 칩이 추가되었음을 표시
-                }
-            } else {
-                val chip = createSkillChip(techId)
-                chipGroup.addView(chip)
-            }
+        techList.forEach { techId ->
+            val chip = createSkillChip(techId)
+            chipGroup.addView(chip)
         }
     }
 
