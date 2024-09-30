@@ -33,8 +33,7 @@
 
     <!-- Chip의 텍스트 스타일 -->
     <style name="ChipTextStyle" parent="">
-        <item name="android:fontFamily">@font/notosans_kr</item>
-        <item name="android:textSize">14dp</item>
+        <item name="android:textSize">16dp</item>
     </style>
 
 
