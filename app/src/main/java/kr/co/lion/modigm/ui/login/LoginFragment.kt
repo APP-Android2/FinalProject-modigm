@@ -1,6 +1,8 @@
 package kr.co.lion.modigm.ui.login
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
@@ -11,12 +13,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.common.KakaoSdk
 import jp.wasabeef.glide.transformations.BlurTransformation
 import jp.wasabeef.glide.transformations.ColorFilterTransformation
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentLoginBinding
@@ -35,7 +39,6 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     // 뷰모델
     private val viewModel: LoginViewModel by viewModels()
-    private val detailViewModel: DetailViewModel by activityViewModels()
 
     // 태그
     private val logTag by lazy { LoginFragment::class.simpleName }
@@ -204,14 +207,19 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
             if (result) {
                 hideLoginLoading()
                 Log.i(logTag, "이메일 로그인 성공")
-                val joinType = JoinType.EMAIL
+
+                val userIdx = prefs.getInt("currentUserIdx", 0)
+                Log.d("LoginFragment", "UserIdx after login: $userIdx")  // UserIdx 로그 추가
 
                 // FCM 토큰 등록
-                val userIdx = prefs.getInt("currentUserIdx", 0)
                 if (userIdx > 0) {
+                    Log.d("LoginFragment", "Calling registerFcmTokenToServer")  // 로그 추가
                     registerFcmTokenToServer(userIdx)
+                } else {
+                    Log.e("LoginFragment", "UserIdx is not valid")
                 }
 
+                val joinType = JoinType.EMAIL
                 goToBottomNaviFragment(joinType)
             }
         }
@@ -356,16 +364,38 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     // FCM 토큰을 가져와 서버에 등록
     private fun registerFcmTokenToServer(userIdx: Int) {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                return@addOnCompleteListener
-            }
+        Log.d("LoginFragment", "Attempting to fetch FCM Token...")
+        FirebaseMessaging.getInstance().deleteToken() // 기존 토큰 삭제 (필요한 경우)
+            .addOnCompleteListener { deleteTask ->
+                if (!deleteTask.isSuccessful) {
+                    Log.e("LoginFragment", "FCM 토큰 삭제 실패", deleteTask.exception)
+                    return@addOnCompleteListener
+                }
 
-            val token = task.result
-            if (token != null) {
-                detailViewModel.registerFcmToken(userIdx, token)
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        // 여기에서 실패 원인을 로그로 찍음
+                        Log.e(
+                            "LoginFragment",
+                            "Fetching FCM registration token failed",
+                            task.exception
+                        )
+                        return@addOnCompleteListener
+                    }
+
+                    val token = task.result
+                    Log.d("LoginFragment", "FCM Token: $token")
+
+                    // 토큰이 null이 아닌지 확인하고 서버에 등록하는 로직
+                    if (token != null) {
+                        Log.d("LoginFragment", "FCM Token: $token")
+                        // FCM 토큰을 ViewModel을 통해 서버에 등록
+                        viewModel.registerFcmToken(userIdx, token)
+                    } else {
+                        Log.e("LoginFragment", "FCM Token is null")
+                    }
+                }
             }
-        }
     }
 
     // 백버튼 종료 동작

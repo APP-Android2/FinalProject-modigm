@@ -38,6 +38,23 @@ class DetailJoinMembersAdapter(
         holder.bind(userData)
     }
 
+    override fun submitList(list: List<UserData>?) {
+        if (list != null) {
+            // 스터디장의 userIdx를 알기 위해 전달받은 currentUserId와 비교
+            val studyLeader = list.filter { it.userIdx == currentUserId }  // 스터디장 구분
+            val otherMembers = list.filter { it.userIdx != currentUserId }  // 스터디장 아닌 멤버들
+
+            // 스터디장이 맨 위로 가도록 리스트 정렬
+            val sortedList = studyLeader + otherMembers
+
+            // 정렬된 리스트를 어댑터에 제출
+            super.submitList(sortedList)
+        } else {
+            super.submitList(list)
+        }
+    }
+
+
     inner class MemberViewHolder(private val binding: RowDetailJoinMemberBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: UserData) {

@@ -17,6 +17,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
@@ -126,6 +127,34 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.getTechIdxByStudyIdx(studyIdx)
         }
+
+        // 입력 필드 스크롤
+        binding.editTextDetailEditContext.apply {
+            setOnTouchListener { v, event ->
+                if (v.id == R.id.editTextDetailEditContext) {
+                    // 부모 레이아웃의 터치 이벤트를 막아줍니다.
+                    v.parent.requestDisallowInterceptTouchEvent(true)
+
+                    when (event.action) {
+                        MotionEvent.ACTION_UP -> {
+                            v.parent.requestDisallowInterceptTouchEvent(false)
+                            if (!v.hasFocus()) {
+                                // 포커스를 얻지 않은 상태라면 클릭을 처리합니다.
+                                v.performClick()
+                            }
+                        }
+                    }
+                }
+                false
+            }
+
+            // 클릭 이벤트는 별도로 처리합니다.
+            setOnClickListener {
+                // 원하는 클릭 동작을 처리합니다.
+                Log.d("DetailEditFragment", "EditText clicked!")
+            }
+        }
+
 
     }
 
@@ -731,23 +760,10 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
         chipGroup.removeAllViews()
         selectedSkillList.clear()
 
-        var addedOtherChip = false // "기타" 칩이 이미 추가됐는지 여부
-
-        // "기타" 칩들을 하나로 그룹화해서 처리하기 위한 리스트
-        val groupedSkills = skills.groupBy { if (it.displayName == "기타") "기타" else it.displayName }
-
-        groupedSkills.forEach { (displayName, skillGroup) ->
-            // "기타" 칩은 한 번만 UI에 추가하되, 다른 카테고리의 "기타"도 선택된 상태는 유지
-            if (displayName == "기타") {
-                if (!addedOtherChip) {
-                    addedOtherChip = true // 한 번만 추가
-                    addSingleChip(chipGroup, skillGroup.first()) // UI에 "기타" 칩 하나만 추가
-                }
-            } else {
-                addSingleChip(chipGroup, skillGroup.first()) // 기타 외의 칩들은 그대로 추가
-            }
-            // 선택된 상태는 데이터로 유지
-            selectedSkillList.addAll(skillGroup.map { it.num })
+        // 선택된 스킬을 반복하며 칩을 추가
+        skills.forEach { skill ->
+            addSingleChip(chipGroup, skill)
+            selectedSkillList.add(skill.num)
         }
     }
 

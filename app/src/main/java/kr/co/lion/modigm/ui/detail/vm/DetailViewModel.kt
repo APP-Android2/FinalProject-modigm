@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
@@ -240,8 +241,10 @@ class DetailViewModel: ViewModel() {
     }
 
     suspend fun getUserById(userIdx: Int) {
+        Log.e("DetailViewModel", "getUserById 호출됨: userIdx: $userIdx") // 로그 추가
         try {
             detailRepository.getUserById(userIdx).collect { user ->
+                Log.e("DetailViewModel", "유저 데이터 가져옴: $user") // 결과 확인 로그
                 _userData.value = user
                 _isUserDataLoaded.value = true
             }
@@ -303,84 +306,63 @@ class DetailViewModel: ViewModel() {
     }
 
     // 사용자가 이미 스터디에 참여 중인지 확인하는 함수
-    fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int) {
-        viewModelScope.launch {
-            try {
-                // DetailRepository를 통해 해당 사용자가 스터디 멤버인지 체크
-                val isMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
-                _isUserAlreadyMember.value = isMember
-            } catch (e: Exception) {
-                Log.e("DetailViewModel", "Error checking if user is already a member", e)
-                _isUserAlreadyMember.value = false
-            }
+//    fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int) {
+//        viewModelScope.launch {
+//            try {
+//                // DetailRepository를 통해 해당 사용자가 스터디 멤버인지 체크
+//                val isMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
+//                _isUserAlreadyMember.value = isMember
+//            } catch (e: Exception) {
+//                Log.e("DetailViewModel", "Error checking if user is already a member", e)
+//                _isUserAlreadyMember.value = false
+//            }
+//        }
+//    }
+    // Boolean 값을 반환하는 메소드로 수정
+    suspend fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int): Boolean {
+        return try {
+            detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
+        } catch (e: Exception) {
+            Log.e("DetailViewModel", "Error checking if user is already a member", e)
+            false
         }
     }
 
-
-
-
-    // FCM 토큰을 서버에 등록
-    fun registerFcmToken(userIdx: Int, fcmToken: String) {
-        viewModelScope.launch {
-            val result = detailRepository.registerFcmToken(userIdx, fcmToken)
-            if (result) {
-                Log.d("DetailViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx")
-            } else {
-                Log.e("DetailViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
-            }
-        }
-    }
 
     // 사용자가 신청할 때 알림을 전송하고 데이터를 저장하는 메서드
-    fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View, studyTitle: String) {
-        viewModelScope.launch {
+    suspend fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View, studyTitle: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            var success = false
+
             // 사용자가 이미 참여 중인지 확인
             val isAlreadyMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
 
             // 이미 신청된 상태인지 확인
             val isAlreadyApplied = detailRepository.isAlreadyApplied(userIdx, studyIdx)
 
-            if (isAlreadyMember) {
-                // 이미 스터디에 참여 중인 경우
-                withContext(Dispatchers.Main) {
-                    val snackbar = Snackbar.make(
-                        view,
-                        "이미 참여중인 스터디입니다.",
-                        Snackbar.LENGTH_LONG
-                    )
-                    val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                    val textSizeInPx = dpToPx(context, 14f)
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-                    snackbar.show()
+            withContext(Dispatchers.Main) {
+                if (isAlreadyMember) {
+                    // 이미 참여 중이면 스낵바로 알림 표시 후 리턴
+                    showSnackbar(view, "이미 참여중인 스터디입니다.", context)
+                    return@withContext false
+                } else if (isAlreadyApplied) {
+                    // 이미 신청한 경우
+                    showSnackbar(view, "이미 신청한 스터디입니다.", context)
+                    return@withContext false
+                } else {
+                    true // 이미 참여 중이거나 신청한 상태가 아닐 경우 진행
                 }
-                return@launch
-            }
-
-            if (isAlreadyApplied) {
-                // 이미 신청한 경우
-                withContext(Dispatchers.Main) {
-                    val snackbar = Snackbar.make(
-                        view,
-                        "이미 신청한 스터디입니다.",
-                        Snackbar.LENGTH_LONG
-                    )
-                    val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-                    val textSizeInPx = dpToPx(context, 14f)
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
-                    snackbar.show()
-                }
-                return@launch
             }
 
             // 신청자의 사용자 정보 가져오기
             val applyUserData = detailRepository.getUserById(userIdx).firstOrNull()
             if (applyUserData == null) {
                 Log.e("DetailViewModel", "Failed to fetch applicant user data for userIdx: $userIdx")
-                return@launch
+                return@withContext false
             }
 
             // 기존 신청이 없는 경우 신청 진행
-            val success = if (applyMethod == "선착순") {
+            success = if (applyMethod == "선착순") {
                 detailRepository.addUserToStudy(studyIdx, userIdx)
             } else {
                 detailRepository.addUserToStudyRequest(studyIdx, userIdx)
@@ -389,7 +371,7 @@ class DetailViewModel: ViewModel() {
             if (success) {
                 // 신청 성공 시, 알림 전송 로직 진행
                 val title = "신청 완료"
-                val body = "${studyTitle}스터디 신청이 성공적으로 완료되었습니다."
+                val body = "${studyTitle} 스터디 신청이 성공적으로 완료되었습니다."
                 sendPushNotification(context, userIdx, title, body, studyIdx)
 
                 // 글 작성자에게도 알림 전송
@@ -406,12 +388,34 @@ class DetailViewModel: ViewModel() {
                         detailRepository.insertNotification(writerUserIdx, writerTitle, writerBody, coverPhotoUrl, studyIdx)
                     }
                 }
-                _addUserResult.emit(true)
-            } else {
-                _addUserResult.emit(false)
             }
+
+            withContext(Dispatchers.Main) {
+                if (success) {
+                    showSnackbar(view, "성공적으로 신청되었습니다.", context)
+                } else {
+                    showSnackbar(view, "신청에 실패하였습니다.", context)
+                }
+            }
+
+            success // 성공 여부 반환
         }
     }
+
+    suspend fun isAlreadyApplied(userIdx: Int, studyIdx: Int): Boolean {
+        return detailRepository.isAlreadyApplied(userIdx, studyIdx)
+    }
+
+
+
+    fun showSnackbar(view: View, message: String, context: Context) {
+        val snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG)
+        val textView = snackbar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        val textSizeInPx = dpToPx(context, 14f)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
+        snackbar.show()
+    }
+
 
 
     // dp를 px로 변환하는 함수
@@ -421,13 +425,16 @@ class DetailViewModel: ViewModel() {
 
     // 푸시 알림 전송 및 데이터 저장 메서드
     fun sendPushNotification(context: Context, userIdx: Int, title: String, body: String, studyIdx: Int) {
+        Log.e("DetailViewModel", "sendPushNotification 호출됨: userIdx: $userIdx, title: $title, body: $body") // 로그 추가
         viewModelScope.launch {
             val userFcmToken = detailRepository.getUserFcmToken(userIdx)
 
             if (userFcmToken != null) {
+                Log.e("DetailViewModel", "FCM 토큰 가져옴: $userFcmToken") // 토큰 확인 로그
                 val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
                 if (result) {
                     Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+                    Log.e("DetailViewModel", "Notification sent successfully to userIdx: $userIdx") // 성공 로그
 
                     // 알림 내용과 이미지 URL을 데이터베이스에 저장
                     val coverPhotoUrl = getCoverPhotoUrl(studyIdx)

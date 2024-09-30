@@ -13,6 +13,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.MainActivity
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class NotificationService : FirebaseMessagingService(){
 
@@ -22,6 +23,8 @@ class NotificationService : FirebaseMessagingService(){
         remoteMessage.notification?.let {
             val title = it.title ?: "Default Title"
             val body = it.body ?: "Default Body"
+
+            Log.d(TAG, "Message Notification Title: ${it.title}, Body: ${it.body}")
 
             // 데이터 페이로드가 비어있는 경우에만 알림을 생성
             if (remoteMessage.data.isEmpty()) {
@@ -53,7 +56,16 @@ class NotificationService : FirebaseMessagingService(){
         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
     }
 
-    private fun showNotification(title: String?, body: String?, studyIdx: Int? = null) {
+    private fun showNotification(title: String?, body: String?, studyIdx: Int? = null, userIdx: Int? = null) {
+        // 현재 앱에 로그인된 사용자 ID
+        val currentUserIdx = prefs.getInt("currentUserIdx", -1)
+
+        // 만약 FCM 메시지의 userIdx가 현재 로그인된 사용자와 다르다면 알림을 무시
+        if (userIdx != null && userIdx != currentUserIdx) {
+            Log.d(TAG, "Received notification for another user. Ignoring notification.")
+            return
+        }
+
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId = System.currentTimeMillis().toInt()
 

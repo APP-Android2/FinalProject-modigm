@@ -55,16 +55,6 @@ class DetailJoinMemberFragment : VBBaseFragment<FragmentDetailJoinMemberBinding>
 
         setupRecyclerView()
 
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                viewModel.studyMembers.collect { members ->
-//                    Log.d("DetailJoinMembersAdapter", "Members list size: ${members.size}")
-//                    adapter.submitList(members)
-//                    adapter.notifyDataSetChanged()
-//                }
-//            }
-//        }
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.studyMembers.collect { members ->
