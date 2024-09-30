@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
         android:text="TextView"
+        android:textSize="16dp"
         app:layout_constraintStart_toEndOf="@id/imageRowLinkAddIcon"
         app:layout_constraintEnd_toStartOf="@id/iconRowLinkAddDelete"
         app:layout_constraintTop_toTopOf="parent"
