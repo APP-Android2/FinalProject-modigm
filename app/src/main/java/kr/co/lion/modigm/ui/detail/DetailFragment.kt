@@ -334,6 +334,10 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
     private fun loadUserImage(imageUrl: String?) {
         if (isViewActive()) {
+            // 이미지 뷰 초기화 (이전 이미지를 지워줍니다)
+            Glide.with(this)
+                .clear(binding.imageViewDetailUserPic)
+
             if (!imageUrl.isNullOrEmpty()) {
                 Glide.with(this)
                     .load(imageUrl)
@@ -345,6 +349,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                             .skipMemoryCache(true)
                     )
                     .into(binding.imageViewDetailUserPic)
+                    .clearOnDetach()
             } else {
                 binding.imageViewDetailUserPic.setImageResource(R.drawable.image_default_profile)
                 binding.imageViewDetailUserPic.invalidate()

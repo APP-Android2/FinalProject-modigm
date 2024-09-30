@@ -319,20 +319,6 @@ class DetailViewModel: ViewModel() {
     }
 
 
-
-
-    // FCM 토큰을 서버에 등록
-    fun registerFcmToken(userIdx: Int, fcmToken: String) {
-        viewModelScope.launch {
-            val result = detailRepository.registerFcmToken(userIdx, fcmToken)
-            if (result) {
-                Log.d("DetailViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx")
-            } else {
-                Log.e("DetailViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
-            }
-        }
-    }
-
     // 사용자가 신청할 때 알림을 전송하고 데이터를 저장하는 메서드
     fun addUserToStudyOrRequest(studyIdx: Int, userIdx: Int, applyMethod: String, context: Context, view: View, studyTitle: String) {
         viewModelScope.launch {
