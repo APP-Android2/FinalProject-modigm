@@ -25,4 +25,9 @@ class NotificationRepository {
     suspend fun markAllNotificationsAsRead(userIdx: Int) {
         dataSource.markAllNotificationsAsRead(userIdx)
     }
+
+    // FCM 토큰을 삭제하는 메서드 추가
+    suspend fun removeFcmToken(userIdx: Int): Boolean {
+        return dataSource.removeFcmToken(userIdx)
+    }
 }

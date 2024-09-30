@@ -1,10 +1,14 @@
 package kr.co.lion.modigm.ui.profile
 
+import NotificationViewModel
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSettingsBinding
@@ -16,6 +20,10 @@ import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragment_settings) {
+
+    // 뷰모델
+    private val viewModel: NotificationViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
@@ -106,6 +114,21 @@ class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragmen
                 // 알림창이 띄워져있는 동안 배경 클릭 막기
                 //logoutAdDialog.isCancelable = false
                 logoutAdDialog.show(parentFragmentManager, "LogoutAdDialog")
+
+                val userIdx = prefs.getInt("currentUserIdx", 0)
+
+                // 로그아웃 확인 시 리스너 설정
+                logoutAdDialog.setOnConfirmLogoutListener {
+                    // FCM 토큰 삭제
+                    FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            viewModel.removeFcmTokenFromServer(userIdx)
+                            Log.d("SettingsFragment", "FCM Token 삭제 성공")
+                        } else {
+                            Log.e("SettingsFragment", "FCM Token 삭제 실패: ${task.exception?.message}")
+                        }
+                    }
+                }
             }
         }
     }

@@ -521,4 +521,14 @@ class RemoteLoginDataSource {
             Result.failure<Boolean>(e)
         }
     }
+
+    // FCM 토큰을 서버에 등록하는 메서드
+    suspend fun registerFcmToken(userIdx: Int, fcmToken: String): Boolean {
+        return dao.insertUserFcmToken(userIdx, fcmToken)
+    }
+
+    // 사용자 FCM 토큰을 가져오는 메서드
+    suspend fun getUserFcmToken(userIdx: Int): String? {
+        return dao.getUserFcmToken(userIdx)
+    }
 }

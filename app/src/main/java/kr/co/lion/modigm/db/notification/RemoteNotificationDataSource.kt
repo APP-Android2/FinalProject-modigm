@@ -36,4 +36,14 @@ class RemoteNotificationDataSource {
     suspend fun markAllNotificationsAsRead(userIdx: Int) {
         notificationDao.markAllNotificationsAsRead(userIdx)
     }
+
+    // FCM 토큰을 삭제하는 메서드 추가
+    suspend fun removeFcmToken(userIdx: Int): Boolean {
+        return try {
+            notificationDao.removeFcmTokenByUserId(userIdx)
+        } catch (e: Exception) {
+            Log.e("RemoteNotificationDataSource", "Error removing FCM token", e)
+            false
+        }
+    }
 }

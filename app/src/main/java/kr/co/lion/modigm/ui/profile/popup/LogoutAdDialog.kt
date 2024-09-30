@@ -18,6 +18,14 @@ import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class LogoutAdDialog: VBBaseDialogFragment<CustomDialogLogoutAdBinding>(CustomDialogLogoutAdBinding::inflate) {
 
+    // 로그아웃 확인 리스너
+    private var confirmLogoutListener: (() -> Unit)? = null
+
+    // 외부에서 리스너를 설정하는 메서드
+    fun setOnConfirmLogoutListener(listener: () -> Unit) {
+        confirmLogoutListener = listener
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -60,6 +68,9 @@ class LogoutAdDialog: VBBaseDialogFragment<CustomDialogLogoutAdBinding>(CustomDi
 
     fun setupButtonLogout() {
         binding.buttonAdDialogLogout.setOnClickListener {
+            // 로그아웃 확인 리스너 호출
+            confirmLogoutListener?.invoke()
+
             // SharedPreferences 초기화
             prefs.clearAllPrefs()
             prefs.setBoolean("autoLogin", false)

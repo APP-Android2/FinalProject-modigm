@@ -240,8 +240,10 @@ class DetailViewModel: ViewModel() {
     }
 
     suspend fun getUserById(userIdx: Int) {
+        Log.e("DetailViewModel", "getUserById 호출됨: userIdx: $userIdx") // 로그 추가
         try {
             detailRepository.getUserById(userIdx).collect { user ->
+                Log.e("DetailViewModel", "유저 데이터 가져옴: $user") // 결과 확인 로그
                 _userData.value = user
                 _isUserDataLoaded.value = true
             }
@@ -421,13 +423,16 @@ class DetailViewModel: ViewModel() {
 
     // 푸시 알림 전송 및 데이터 저장 메서드
     fun sendPushNotification(context: Context, userIdx: Int, title: String, body: String, studyIdx: Int) {
+        Log.e("DetailViewModel", "sendPushNotification 호출됨: userIdx: $userIdx, title: $title, body: $body") // 로그 추가
         viewModelScope.launch {
             val userFcmToken = detailRepository.getUserFcmToken(userIdx)
 
             if (userFcmToken != null) {
+                Log.e("DetailViewModel", "FCM 토큰 가져옴: $userFcmToken") // 토큰 확인 로그
                 val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
                 if (result) {
                     Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+                    Log.e("DetailViewModel", "Notification sent successfully to userIdx: $userIdx") // 성공 로그
 
                     // 알림 내용과 이미지 URL을 데이터베이스에 저장
                     val coverPhotoUrl = getCoverPhotoUrl(studyIdx)

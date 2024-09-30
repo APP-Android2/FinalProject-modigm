@@ -1,8 +1,11 @@
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.NotificationData
 import kr.co.lion.modigm.repository.NotificationRepository
 
@@ -80,6 +83,23 @@ class NotificationViewModel : ViewModel() {
         viewModelScope.launch {
             repository.markAllNotificationsAsRead(userIdx)
             refreshNotifications(userIdx) // 모든 알림 상태를 읽음으로 변경 후 데이터 갱신
+        }
+    }
+
+    // 서버에서 FCM 토큰을 삭제하는 메서드
+    fun removeFcmTokenFromServer(userIdx: Int) {
+        viewModelScope.launch {
+            try {
+                val result = repository.removeFcmToken(userIdx)
+                if (result) {
+                    // 성공적으로 삭제되었을 때 추가 로직 처리 가능
+                    Log.d("NotificationViewModel", "FCM token successfully removed from server")
+                } else {
+                    Log.e("NotificationViewModel", "Failed to remove FCM token from server")
+                }
+            } catch (e: Exception) {
+                Log.e("NotificationViewModel", "Error removing FCM token from server", e)
+            }
         }
     }
 }
