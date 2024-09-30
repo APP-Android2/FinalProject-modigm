@@ -3,7 +3,6 @@ package kr.co.lion.modigm.model
 import java.sql.ResultSet
 import org.threeten.bp.LocalDateTime;
 import java.sql.Timestamp
-
 data class UserData(
     val userIdx: Int = -1,              // 회원 고유번호
     val userUid: String = "",           // 회원 UID
