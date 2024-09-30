@@ -39,7 +39,6 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
 
     // 뷰모델
     private val viewModel: LoginViewModel by viewModels()
-    private val detailViewModel: DetailViewModel by activityViewModels()
 
     // 태그
     private val logTag by lazy { LoginFragment::class.simpleName }
