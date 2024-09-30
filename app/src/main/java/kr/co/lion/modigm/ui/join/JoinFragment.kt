@@ -310,6 +310,17 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     }
 
     private fun step2Process(){
+        // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
+        // 전화번호를 변경하지 않은 경우에만 넘어갈 수 있음
+        if(viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
+            if(joinType==JoinType.EMAIL){
+                binding.viewPagerJoin.setCurrentItemWithDuration(3, 300)
+            }else{
+                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+            }
+            return
+        }
+
         // 유효성 검사
         val validation = viewModelStep2.validate()
         if(!validation) return
@@ -320,14 +331,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         )
 
         lifecycleScope.launch {
-            // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
-            if(viewModel.phoneVerification.value==true){
-                // 전화번호를 변경하지 않은 경우에 넘어갈 수 있음
-                if(viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
-                    binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
-                    return@launch
-                }
-            }
             showLoading()
 
             val result = viewModelStep2.createPhoneUser()
@@ -407,13 +410,18 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             hideLoading()
             if(isVerified){
                 // 인증이 되었으면 다음으로 이동
-                viewModelStep2.cancelTimer()
                 if(joinType==JoinType.EMAIL){
                     binding.viewPagerJoin.setCurrentItemWithDuration(3, 300)
                 }else{
                     binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
                 }
-
+                // 인증 관련 초기화
+                viewModelStep2.apply {
+                    resetIsCodeSent()
+                    resetValidationText()
+                    cancelTimer()
+                }
+                viewModel.setPhoneVerified(false)
             }
         }
 

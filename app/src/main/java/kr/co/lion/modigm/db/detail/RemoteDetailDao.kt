@@ -1,9 +1,12 @@
 package kr.co.lion.modigm.db.detail
 
 import android.util.Log
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.services.s3.AmazonS3Client
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
@@ -436,5 +439,46 @@ class RemoteDetailDao {
         return@withContext false
     }
 
+    // studyPic 업데이트하는 메서드
+    suspend fun updateStudyPic(studyIdx: Int, imageUrl: String): Int = withContext(Dispatchers.IO) {
+        try {
+            HikariCPDataSource.getConnection().use { connection ->
+                val query = "UPDATE tb_study SET studyPic = ? WHERE studyIdx = ?"
+                connection.prepareStatement(query).use { statement ->
+                    statement.setString(1, imageUrl)
+                    statement.setInt(2, studyIdx)
+                    return@withContext statement.executeUpdate()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDao", "Error updating studyPic", e)
+            return@withContext 0
+        }
+    }
+
+    // S3에 저장된 이미지를 삭제하는 메서드
+    suspend fun deleteImageFromS3(fileName: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            // AWS 자격 증명 (BuildConfig에서 관리)
+            val accessKey = BuildConfig.BK_ACCESSKEY
+            val secretKey = BuildConfig.BK_SECRETKEY
+            val bucketName = BuildConfig.BK_NAME
+
+            // AWS S3 클라이언트 초기화
+            val awsCredentials = BasicAWSCredentials(accessKey, secretKey)
+            val s3Client = AmazonS3Client(awsCredentials)
+
+            // 파일 경로에서 실제 파일 이름만 추출 (URL로부터 파일 경로 추출)
+            val fileKey = fileName.substringAfterLast("/") // 파일명 추출 (URL이든 경로든 마지막 슬래시 이후 파일명만 추출)
+
+            // S3에서 파일 삭제
+            s3Client.deleteObject(bucketName, fileKey)
+            Log.d("RemoteDetailDao", "Image deleted successfully from S3: $fileKey")
+            return@withContext true
+        } catch (e: Exception) {
+            Log.e("RemoteDetailDao", "Error deleting image from S3: ${e.message}")
+            return@withContext false
+        }
+    }
 
 }
