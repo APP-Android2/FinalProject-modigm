@@ -64,6 +64,7 @@
                 android:layout_marginLeft="15dp"
                 android:breakStrategy="simple"
                 android:text="이름은 추후에 변경이 불가능합니다. 본명을 입력해주세요."
+                android:textSize="16dp"
                 android:textColor="#FF0000" />
 
             <TextView
