@@ -107,6 +107,15 @@ class SettingsFragment: DBBaseFragment<FragmentSettingsBinding>(R.layout.fragmen
                 //logoutAdDialog.isCancelable = false
                 logoutAdDialog.show(parentFragmentManager, "LogoutAdDialog")
             }
+
+            // 회원탈퇴
+            layoutSettingsDeleteUser.setOnClickListener {
+                parentFragmentManager.commit {
+                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
+                    replace(R.id.containerMain, DeleteUserFragment())
+                    addToBackStack(FragmentName.DELETE_USER.str)
+                }
+            }
         }
     }
 

@@ -256,6 +256,26 @@
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_logout_24px" />
                     </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutSettingsDeleteUser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="회원탈퇴"
+                            android:textSize="16dp" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/icon_person_remove_24" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
