@@ -34,8 +34,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomSnackbarWithIconBinding
 import kr.co.lion.modigm.databinding.CustomSnackbarWithoutIconBinding
@@ -100,7 +100,7 @@ fun Activity.showLoginSnackBar(message: String, iconResId: Int?) {
     // Snackbar 레이아웃 파라미터 설정
     (snackBar.view.layoutParams as FrameLayout.LayoutParams).apply {
         width = FrameLayout.LayoutParams.MATCH_PARENT
-        height = FrameLayout.LayoutParams.WRAP_CONTENT
+        height = 48.dp
         gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         bottomMargin = 80.dp
         snackBar.view.layoutParams = this

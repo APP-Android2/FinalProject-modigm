@@ -228,13 +228,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="버전 정보"
+                            android:text="버전정보"
                             android:textSize="16dp" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="1.0.0" />
+                            android:text="1.0.0"
+                            android:textSize="16dp"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -264,14 +265,14 @@
                         android:orientation="horizontal"
                         android:paddingVertical="16dp">
 
-                        <TextView
+                        <com.google.android.material.textview.MaterialTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="회원탈퇴"
                             android:textSize="16dp" />
 
-                        <ImageView
+                        <com.google.android.material.imageview.ShapeableImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/icon_person_remove_24" />

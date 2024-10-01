@@ -17,7 +17,6 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.detail.OnPlaceSelectedListener
 import kr.co.lion.modigm.ui.detail.PlaceBottomSheetFragment
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
-import kr.co.lion.modigm.util.shake
 import kr.co.lion.modigm.util.showLoginSnackBar
 
 class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(FragmentWriteProceedBinding::inflate),
@@ -388,7 +387,6 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
             fun showError(message: String) {
                 textInputLayoutProceedPlace.error = message
                 textInputEditWriteProceedPlace.requestFocus()
-                textInputEditWriteProceedPlace.shake()
             }
             return when {
                 textInputEditWriteProceedPlace.text.toString().isEmpty() -> {
@@ -411,7 +409,6 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
             fun showError(message: String) {
                 textInputLayoutProceedMaxMember.error = message
                 textInputEditProceedMaxMember.requestFocus()
-                textInputEditProceedMaxMember.shake()
             }
             return when {
                 textInputEditProceedMaxMember.text.toString().isEmpty() -> {
