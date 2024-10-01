@@ -972,6 +972,7 @@ class DetailEditFragment : VBBaseFragment<FragmentDetailEditBinding>(FragmentDet
             studyPic = imageFileName,
             studyMaxMember = binding.editTextDetailEditMember.text.toString().toInt(),
             studyState = currentStudyData?.studyState ?: true,
+            studyChatLink = binding.editTextDetailEditLink.text.toString(),
             userIdx = currentStudyData?.userIdx ?: -1
         )
 

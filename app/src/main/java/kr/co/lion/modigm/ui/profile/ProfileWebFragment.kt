@@ -1,13 +1,18 @@
 package kr.co.lion.modigm.ui.profile
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.TextView
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import kr.co.lion.modigm.R
@@ -30,18 +35,18 @@ class ProfileWebFragment : VBBaseFragment<FragmentProfileWebBinding>(FragmentPro
         binding.toolbarProfileWeb.apply {
             // 툴바 메뉴
             inflateMenu(R.menu.menu_profile_web)
-            setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.menu_item_profile_web_finish -> {
-                        // 이전 프래그먼트로 돌아간다
-                        requireActivity().supportFragmentManager.popBackStack()
-                    }
+            // 메뉴 항목의 actionView에서 클릭 이벤트 처리
+            post {
+                val menuItem = menu.findItem(R.id.menu_item_profile_web_finish)
+                val actionView = menuItem.actionView
+
+                actionView?.setOnClickListener {
+                    // 메뉴 항목 클릭 시 동작할 코드
+                    requireActivity().supportFragmentManager.popBackStack()
                 }
-                true
             }
         }
     }
-
     fun initWebView() {
         val link = arguments?.getString("link")
 

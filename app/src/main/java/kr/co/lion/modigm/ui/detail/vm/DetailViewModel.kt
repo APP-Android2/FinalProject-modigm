@@ -298,26 +298,15 @@ class DetailViewModel: ViewModel() {
     }
 
     // 특정 사용자를 스터디에서 삭제하는 메소드
-    fun removeUserFromStudy(studyIdx: Int, userIdx: Int) {
-        viewModelScope.launch {
-            val result = detailRepository.removeUserFromStudy(studyIdx, userIdx)
-            _removeUserResult.emit(result)
+    fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return runBlocking {
+            val success = detailRepository.removeUserFromStudy(studyIdx, userIdx)
+            _removeUserResult.emit(success)
+            return@runBlocking success  // 성공 여부 반환
         }
     }
 
     // 사용자가 이미 스터디에 참여 중인지 확인하는 함수
-//    fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int) {
-//        viewModelScope.launch {
-//            try {
-//                // DetailRepository를 통해 해당 사용자가 스터디 멤버인지 체크
-//                val isMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
-//                _isUserAlreadyMember.value = isMember
-//            } catch (e: Exception) {
-//                Log.e("DetailViewModel", "Error checking if user is already a member", e)
-//                _isUserAlreadyMember.value = false
-//            }
-//        }
-//    }
     // Boolean 값을 반환하는 메소드로 수정
     suspend fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int): Boolean {
         return try {
@@ -513,18 +502,18 @@ class DetailViewModel: ViewModel() {
             }
         }
     }
-// 사용자가 내보내졌을 때 푸시 알림 전송하고 데이터를 저장하는 메서드
-fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
-    viewModelScope.launch {
-        val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+    // 사용자가 내보내졌을 때 푸시 알림 전송하고 데이터를 저장하는 메서드
+    fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
+        viewModelScope.launch {
+            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
 
-        if (userFcmToken != null) {
-            val title = "스터디 탈퇴 알림"
-            val body = "$studyTitle 스터디에서 내보내졌습니다."
-            val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
+            if (userFcmToken != null) {
+                val title = "스터디 탈퇴 알림"
+                val body = "$studyTitle 스터디에서 내보내졌습니다."
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
 
-            if (result) {
-                Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+                if (result) {
+                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
 
                 // 알림 내용을 데이터베이스에 저장
                 val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
@@ -542,6 +531,46 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
         }
     }
 }
+
+    fun notificationUserLeave(context: Context, userIdx: Int, studyIdx: Int) {
+        viewModelScope.launch {
+            try {
+                // 글 작성자 정보를 가져옴
+                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull()
+                val ownerUserIdx = studyData?.userIdx
+
+                // 사용자가 스터디에서 탈퇴했을 때 알림 내용 설정
+                val leaveUser = detailRepository.getUserById(userIdx).firstOrNull()
+                val leaveUserName = leaveUser?.userName ?: "Unknown User"
+                val title = "스터디 탈퇴 알림"
+                val body = "$leaveUserName 님이 ${studyData?.studyTitle} 스터디에서 탈퇴하였습니다."
+
+                if (ownerUserIdx != null && ownerUserIdx != userIdx) {
+                    // 글 작성자의 FCM 토큰을 가져옴
+                    val ownerFcmToken = detailRepository.getUserFcmToken(ownerUserIdx)
+
+                    // FCM 알림 전송
+                    if (ownerFcmToken != null) {
+                        val result = FCMService.sendNotificationToToken(context, ownerFcmToken, title, body, studyIdx)
+                        if (result) {
+                            // 알림이 성공적으로 전송되었을 때, 데이터베이스에 저장
+                            val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                            detailRepository.insertNotification(ownerUserIdx, title, body, coverPhotoUrl, studyIdx)
+
+                            Log.d("DetailViewModel", "Notification sent and saved successfully.")
+                        } else {
+                            Log.e("DetailViewModel", "Failed to send notification to owner.")
+                        }
+                    } else {
+                        Log.e("DetailViewModel", "Owner's FCM token is null.")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DetailViewModel", "Error sending leave notification", e)
+            }
+        }
+    }
+
 
     // Cover Photo URL 가져오는 메서드
     private suspend fun getCoverPhotoUrl(studyIdx: Int): String {
@@ -572,15 +601,16 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
     }
 
     // 특정 사용자를 스터디 요청에서 삭제하는 메소드
-    fun removeUserFromApplyList(studyIdx: Int, userIdx: Int) {
-        viewModelScope.launch {
-            val result = detailRepository.removeUserFromStudyRequest(studyIdx, userIdx)
-            _removeUserFromApplyResult.emit(result)
+    fun removeUserFromApplyList(studyIdx: Int, userIdx: Int): Boolean {
+        return runBlocking {
+            val success = detailRepository.removeUserFromStudyRequest(studyIdx, userIdx)
+            _removeUserFromApplyResult.emit(success)
 
-            if (result) {
+            if (success) {
                 // 신청자 리스트를 다시 로드
                 fetchStudyRequestMembers(studyIdx)
             }
+            return@runBlocking success  // 성공 여부 반환
         }
     }
 
@@ -674,6 +704,11 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
                 Log.e("DetailViewModel", "Failed to delete image from S3")
             }
         }
+    }
+
+    // 글 작성자의 FCM 토큰 가져오기
+    suspend fun getFcmTokenByUserId(userId: Int): String? {
+        return detailRepository.getUserFcmToken(userId)
     }
 
 }

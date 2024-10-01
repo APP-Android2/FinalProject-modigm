@@ -21,6 +21,7 @@ import kr.co.lion.modigm.model.NotificationData
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.notification.adapter.NotificationAdapter
 import kr.co.lion.modigm.util.ModigmApplication
+import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
 class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(FragmentNotificationBinding::inflate) {
 
@@ -108,36 +109,26 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun deleteNotification(notification: NotificationData) {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+        val userIdx = prefs.getInt("currentUserIdx", 0)
 
         lifecycleScope.launch {
             val result = viewModel.deleteNotification(notification) // MySQL에서 삭제
             if (result) {
                 viewModel.refreshNotifications(userIdx) // RecyclerView 갱신
-                checkAndUpdateAllReadStatus() // 모든 알림 삭제 후 상태 업데이트
+                checkAndUpdateBadge() // 모든 알림 삭제 후 상태 업데이트
             }
         }
     }
 
-    private fun checkAndUpdateAllReadStatus() {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+    // **배지 상태를 확인하는 메서드**
+    private fun checkAndUpdateBadge() {
+        // 남은 읽지 않은 알림이 있는지 확인
+        val hasUnreadNotifications = viewModel.notifications.value.any { !it.isRead }
 
-        lifecycleScope.launch {
-            val notifications = viewModel.getNotifications(userIdx)
-            if (notifications.isEmpty()) {
-                setAllNotificationsRead()
-                clearBadgeOnBottomNavigation()
-            }
-
-            // RecyclerView 갱신
-            adapter.updateData(notifications)
+        // **읽지 않은 알림이 없으면 바텀 네비 배지를 숨김**
+        if (!hasUnreadNotifications) {
+            clearBadgeOnBottomNavigation()
         }
-    }
-
-    private fun setAllNotificationsRead() {
-        // 모든 알림을 읽음 상태로 변경하는 로직 추가
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
-        viewModel.markAllNotificationsAsRead(userIdx)
     }
 
     private fun settingToolbar() {
@@ -186,6 +177,15 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun markNotificationAsRead(notification: NotificationData) {
         lifecycleScope.launch {
             viewModel.markNotificationAsRead(notification.notificationIdx) // 서버에 읽음 상태 업데이트
+
+            // **알림 읽음 처리 후 isRead 값을 true로 업데이트**
+            notification.isRead = true
+
+            // **읽음 처리한 알림의 배지만 사라지게 함**
+            adapter.updateData(viewModel.notifications.value)
+
+            // **남은 읽지 않은 알림이 없다면 바텀 네비 배지 숨기기**
+            checkAndUpdateBadge()
         }
     }
 

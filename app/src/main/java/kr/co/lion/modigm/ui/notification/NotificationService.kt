@@ -47,6 +47,9 @@ class NotificationService : FirebaseMessagingService(){
             }
         }
 
+        // 배지 상태 저장 (알림이 도착했으므로 true로 설정)
+        prefs.setBoolean("hasUnreadNotifications", true)
+
         // 화면을 갱신하도록 브로드캐스트를 보냄
         notifyDataChanged()
     }
