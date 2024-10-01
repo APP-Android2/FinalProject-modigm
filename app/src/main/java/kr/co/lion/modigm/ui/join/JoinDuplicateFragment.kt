@@ -9,6 +9,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinDuplicateBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
@@ -81,7 +85,12 @@ class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(Fragm
             viewModelStep1.reset()
             viewModelStep2.reset()
             viewModelStep3.reset()
-            currentUser?.delete()
+
+            CoroutineScope(Dispatchers.IO).launch {
+                currentUser?.delete()?.addOnSuccessListener {
+                    Log.d("JoinDuplicateFragment", "deleteCurrentUser: 인증 정보 삭제 성공")
+                }
+            }
 
             // popBackStack에서 name값을 null로 넣어주면 기존의 backstack을 모두 없애준다.
             parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)

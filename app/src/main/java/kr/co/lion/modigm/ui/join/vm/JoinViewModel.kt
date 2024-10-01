@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.join.vm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -7,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -132,7 +135,11 @@ class JoinViewModel @Inject constructor(
     // 회원가입 이탈 시 이미 Auth에 등록되어있는 인증 정보 삭제
     fun deleteCurrentUser(){
         // 인증 정보 삭제
-        _auth.currentUser?.delete()
+        CoroutineScope(Dispatchers.IO).launch {
+            _auth.currentUser?.delete()?.addOnSuccessListener {
+                Log.d("JoinViewModel", "deleteCurrentUser: 인증 정보 삭제 성공")
+            }
+        }
     }
 
     // UserInfoData 객체 생성
