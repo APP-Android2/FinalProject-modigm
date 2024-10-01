@@ -389,10 +389,9 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
                 // 기존 칩들 제거
                 binding.chipGroupProfile.removeAllViews()
 
-                val interestList = interests?.split(",")?.map { it.trim() }
+                if (!interests.isNullOrEmpty()) {
+                    val interestList = interests.split(",").map { it.trim() }
 
-                // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
-                if (interestList != null) {
                     for (interest in interestList) {
                         // 아이템 처리 코드
                         binding.chipGroupProfile.addView(Chip(context).apply {
@@ -423,6 +422,7 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
                         })
                     }
                 }
+
                 // 마지막 칩은 칩을 추가하는 버튼으로 사용
                 binding.chipGroupProfile.addView(Chip(context).apply {
                     // chip 텍스트 설정
