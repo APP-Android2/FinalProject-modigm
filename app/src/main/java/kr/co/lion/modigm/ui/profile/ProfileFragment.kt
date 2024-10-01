@@ -379,10 +379,13 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
                 // 기존 칩들 제거
                 binding.chipGroupProfile.removeAllViews()
 
-                val interestList = interests?.split(",")?.map { it.trim() }
-
                 // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
-                if (interestList != null) {
+                if (interests.isNullOrEmpty()) {
+                    binding.layoutInterestChipGroup.visibility = View.GONE
+                } else {
+                    binding.layoutInterestChipGroup.visibility = View.VISIBLE
+                    val interestList = interests.split(",").map { it.trim() }
+
                     for (interest in interestList) {
                         // 아이템 처리 코드
                         binding.chipGroupProfile.addView(Chip(context).apply {

@@ -389,6 +389,7 @@ class EditProfileFragment: DBBaseFragment<FragmentEditProfileBinding>(R.layout.f
                 // 기존 칩들 제거
                 binding.chipGroupProfile.removeAllViews()
 
+                // 리스트가 변경될 때마다 for 문을 사용하여 아이템을 처리
                 if (!interests.isNullOrEmpty()) {
                     val interestList = interests.split(",").map { it.trim() }
 
