@@ -502,18 +502,18 @@ class DetailViewModel: ViewModel() {
             }
         }
     }
-// 사용자가 내보내졌을 때 푸시 알림 전송하고 데이터를 저장하는 메서드
-fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
-    viewModelScope.launch {
-        val userFcmToken = detailRepository.getUserFcmToken(userIdx)
+    // 사용자가 내보내졌을 때 푸시 알림 전송하고 데이터를 저장하는 메서드
+    fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: String) {
+        viewModelScope.launch {
+            val userFcmToken = detailRepository.getUserFcmToken(userIdx)
 
-        if (userFcmToken != null) {
-            val title = "스터디 탈퇴 알림"
-            val body = "$studyTitle 스터디에서 내보내졌습니다."
-            val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
+            if (userFcmToken != null) {
+                val title = "스터디 탈퇴 알림"
+                val body = "$studyTitle 스터디에서 내보내졌습니다."
+                val result = FCMService.sendNotificationToToken(context, userFcmToken, title, body,studyIdx)
 
-            if (result) {
-                Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
+                if (result) {
+                    Log.d("DetailViewModel", "Notification sent successfully to userIdx: $userIdx")
 
                 // 알림 내용을 데이터베이스에 저장
                 val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
@@ -531,6 +531,46 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
         }
     }
 }
+
+    fun notificationUserLeave(context: Context, userIdx: Int, studyIdx: Int) {
+        viewModelScope.launch {
+            try {
+                // 글 작성자 정보를 가져옴
+                val studyData = detailRepository.getStudyById(studyIdx).firstOrNull()
+                val ownerUserIdx = studyData?.userIdx
+
+                // 사용자가 스터디에서 탈퇴했을 때 알림 내용 설정
+                val leaveUser = detailRepository.getUserById(userIdx).firstOrNull()
+                val leaveUserName = leaveUser?.userName ?: "Unknown User"
+                val title = "스터디 탈퇴 알림"
+                val body = "$leaveUserName 님이 ${studyData?.studyTitle} 스터디에서 탈퇴하였습니다."
+
+                if (ownerUserIdx != null && ownerUserIdx != userIdx) {
+                    // 글 작성자의 FCM 토큰을 가져옴
+                    val ownerFcmToken = detailRepository.getUserFcmToken(ownerUserIdx)
+
+                    // FCM 알림 전송
+                    if (ownerFcmToken != null) {
+                        val result = FCMService.sendNotificationToToken(context, ownerFcmToken, title, body, studyIdx)
+                        if (result) {
+                            // 알림이 성공적으로 전송되었을 때, 데이터베이스에 저장
+                            val coverPhotoUrl = getCoverPhotoUrl(studyIdx)
+                            detailRepository.insertNotification(ownerUserIdx, title, body, coverPhotoUrl, studyIdx)
+
+                            Log.d("DetailViewModel", "Notification sent and saved successfully.")
+                        } else {
+                            Log.e("DetailViewModel", "Failed to send notification to owner.")
+                        }
+                    } else {
+                        Log.e("DetailViewModel", "Owner's FCM token is null.")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DetailViewModel", "Error sending leave notification", e)
+            }
+        }
+    }
+
 
     // Cover Photo URL 가져오는 메서드
     private suspend fun getCoverPhotoUrl(studyIdx: Int): String {
@@ -664,6 +704,11 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
                 Log.e("DetailViewModel", "Failed to delete image from S3")
             }
         }
+    }
+
+    // 글 작성자의 FCM 토큰 가져오기
+    suspend fun getFcmTokenByUserId(userId: Int): String? {
+        return detailRepository.getUserFcmToken(userId)
     }
 
 }

@@ -970,6 +970,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             val success = viewModel.removeUserFromStudy(studyIdx, userIdx)
             if (success) {
                 showSnackbar(requireView(), "스터디에서 탈퇴하였습니다.")
+                viewModel.notificationUserLeave(requireContext(), userIdx, studyIdx) // 탈퇴 알림 전송
                 setupApplyButton() // 버튼 상태 업데이트
                 refreshScreen() // 화면 갱신
             } else {
