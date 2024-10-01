@@ -529,7 +529,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
             // 뒤로 가기
             toolbar.setNavigationOnClickListener {
-                parentFragmentManager.popBackStack()
+                requireActivity().supportFragmentManager.popBackStack(FragmentName.BOTTOM_NAVI.str, 0)
             }
         }
     }
