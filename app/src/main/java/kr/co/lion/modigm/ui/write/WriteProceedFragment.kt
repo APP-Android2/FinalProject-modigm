@@ -72,7 +72,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
 
 
                 // 이전에 저장한 값
-                val studyOnOffline = viewModel.getUpdateData("studyOnOffline") ?: "오프라인"  // studyOnOffline 값이 null이면 "오프라인"으로 설정
+                val studyOnOffline = viewModel.getUpdateData("studyOnOffline")
                 val studyPlace = viewModel.getUpdateData("studyPlace")
                 val studyDetailPlace = viewModel.getUpdateData("studyDetailPlace")
                 val studyMaxMember = viewModel.getUpdateData("studyMaxMember")
@@ -86,7 +86,7 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
                 // 장소선택 가시성 설정
                 setPlaceSelectionListener()
 
-                // studyOnOffline 값에 따라 칩 선택. 기본값은 "오프라인"
+                // studyOnOffline 값에 따라 칩 선택.
                 studyOnOffline.let { selectedValue ->
                     children.forEach { view ->
                         if (view is Chip) {
@@ -360,17 +360,32 @@ class WriteProceedFragment : VBBaseFragment<FragmentWriteProceedBinding>(Fragmen
 
     // 버튼의 색상을 업데이트하는 함수
     private fun updateButtonColor() {
-        with(binding){
-            val colorResId = if (textInputEditProceedMaxMember.text != null && textInputEditWriteProceedPlace.text != null) {
-                R.color.pointColor
-            } else {
-                R.color.buttonGray
+        with(binding) {
+            // 진행방식 가져오기
+            val studyOnOffline = viewModel.getUpdateData("studyOnOffline")
+
+            // 각 진행방식에 따른 입력 조건 확인
+            val isMaxMemberFilled = !textInputEditProceedMaxMember.text.isNullOrEmpty()
+            val isPlaceFilled = !textInputEditWriteProceedPlace.text.isNullOrEmpty()
+
+            val isButtonEnabled = when (studyOnOffline) {
+                "온라인" -> isMaxMemberFilled  // 온라인일 경우 인원 수만 확인
+                "오프라인", "온오프혼합" -> isMaxMemberFilled && isPlaceFilled  // 오프라인, 온오프혼합일 경우 인원 수와 장소 모두 확인
+                else -> false
             }
+
+            // 버튼 활성화 여부 설정
+            val colorResId = if (isButtonEnabled) {
+                R.color.pointColor  // 모든 조건이 충족되었을 때 버튼을 활성화
+            } else {
+                R.color.buttonGray  // 조건이 충족되지 않으면 버튼을 비활성화
+            }
+
             with(buttonWriteProceedNext) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                isEnabled = isButtonEnabled  // 버튼 활성화/비활성화 설정
             }
-
         }
     }
 

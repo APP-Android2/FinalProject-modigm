@@ -161,11 +161,14 @@ class WriteTechStackFragment : VBBaseFragment<FragmentWriteTechStackBinding>(Fra
     }
     // 버튼의 색상을 업데이트하는 함수
     private fun updateButtonColor() {
-        with(binding){
-            val colorResId = if (selectedTechStackList.isNotEmpty()) R.color.pointColor else R.color.buttonGray
+        with(binding) {
+            val isTechStackSelected = selectedTechStackList.isNotEmpty()  // 선택한 기술 스택이 있는지 확인
+            val colorResId = if (isTechStackSelected) R.color.pointColor else R.color.buttonGray
+
             with(buttonWriteTechStackNext) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                isEnabled = isTechStackSelected  // 선택된 스택이 없으면 버튼 비활성화
             }
         }
     }

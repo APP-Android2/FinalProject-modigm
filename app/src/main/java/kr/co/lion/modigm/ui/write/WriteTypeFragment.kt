@@ -42,6 +42,9 @@ class WriteTypeFragment : VBBaseFragment<FragmentWriteTypeBinding>(FragmentWrite
                 }
             }
 
+            // 선택된 카드뷰가 없는 경우 버튼 비활성화
+            updateButtonColor()
+
             // 다음 버튼
             with(buttonWriteTypeNext) {
                 setOnClickListener {
@@ -103,12 +106,17 @@ class WriteTypeFragment : VBBaseFragment<FragmentWriteTypeBinding>(FragmentWrite
         cardView.strokeColor = ContextCompat.getColor(requireContext(), colorResId)
     }
 
-    // 버튼의 색상을 업데이트하는 함수
+    // 버튼의 색상을 업데이트하고, 선택된 카드뷰가 없으면 버튼 비활성화
     private fun updateButtonColor() {
-        with(binding){
-            val colorResId = if (selectedCardView != null) R.color.pointColor else R.color.buttonGray
-            buttonWriteTypeNext.setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
-            buttonWriteTypeNext.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        with(binding) {
+            val isEnabled = selectedCardView != null
+            val colorResId = if (isEnabled) R.color.pointColor else R.color.buttonGray
+            buttonWriteTypeNext.apply {
+                setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
+                this.isEnabled = isEnabled // 버튼 활성화/비활성화 설정
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            }
         }
     }
+
 }

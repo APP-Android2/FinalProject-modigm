@@ -10,6 +10,7 @@ import kr.co.lion.modigm.databinding.FragmentWritePeriodBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.write.adapter.OptionSpinnerAdapter
 import kr.co.lion.modigm.ui.write.vm.WriteViewModel
+import kr.co.lion.modigm.util.showLoginSnackBar
 
 
 class WritePeriodFragment :
@@ -54,12 +55,20 @@ class WritePeriodFragment :
                         position: Int,
                         id: Long
                     ) {
-                        val selectedPeriod = if (position == 0) null else spinnerItemList[position]
+                        val selectedPeriod = if (position == 0) {
+                            // "기간 선택"일 경우 ViewModel에서 데이터를 비우고 버튼 비활성화
+                            viewModel.updateWriteData("studyPeriod", null)
+                            null
+                        } else {
+                            spinnerItemList[position]
+                        }
+
                         // ViewModel에 선택한 기간 저장
                         selectedPeriod?.let {
                             val selectPeriodItem = it.replace(" ", "")
                             viewModel.updateWriteData("studyPeriod", selectPeriodItem)
                         }
+                        // 버튼 색상 업데이트
                         updateButtonColor()
                     }
 
@@ -73,7 +82,10 @@ class WritePeriodFragment :
             with(buttonWritePeriodNext) {
                 setOnClickListener {
                     // 유효성 검사
-                    if (viewModel.getUpdateData("studyPeriod") == null) {
+                    val studyPeriod = viewModel.getUpdateData("studyPeriod") as? String
+
+                    if (studyPeriod == null || studyPeriod == "기간 선택") {
+                        requireActivity().showLoginSnackBar("기간을 입력해주세요.", null)
                         return@setOnClickListener
                     }
                     viewModel.updateSelectedTab(2)
@@ -84,20 +96,23 @@ class WritePeriodFragment :
 
     // 버튼의 색상을 업데이트하는 함수
     private fun updateButtonColor() {
-        val isPeriodSelected = viewModel.getUpdateData("studyPeriod") != null
+        val selectedPeriod = viewModel.getUpdateData("studyPeriod") as? String
+        val isPeriodSelected = !selectedPeriod.isNullOrEmpty()
+
+        // 선택한 기간에 따라 버튼 색상 및 활성화 상태 설정
         val colorResId = if (isPeriodSelected) R.color.pointColor else R.color.buttonGray
+
         with(binding) {
             buttonWritePeriodNext.apply {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), colorResId))
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                isEnabled = isPeriodSelected  // 기간이 선택되었을 때만 버튼 활성화
             }
         }
-
     }
 
     // ViewModel의 데이터를 관찰하는 함수
     private fun observeViewModel() {
-
 
         viewModel.writeDataMap.observe(viewLifecycleOwner) { dataMap ->
             val savedPeriod = dataMap?.get("studyPeriod")?.toString()
