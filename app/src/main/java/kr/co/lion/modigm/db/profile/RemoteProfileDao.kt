@@ -397,35 +397,6 @@ class RemoteProfileDao {
                     // 수동으로 트랜잭션 시작
                     connection.autoCommit = false
                     try{
-                        // notification 관련 테이블 행 삭제
-                        connection.prepareStatement("DELETE FROM tb_notification WHERE userIdx = ?;").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
-
-                        // 스터디 관련 테이블 행 삭제
-                        connection.prepareStatement("DELETE FROM tb_favorite WHERE userIdx = ?;").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
-                        connection.prepareStatement("DELETE FROM tb_study_request WHERE userIdx = ?;").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
-                        connection.prepareStatement("DELETE FROM tb_study_tech_stack WHERE studyIdx IN ( SELECT studyIdx FROM tb_study WHERE userIdx = ? );").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
-                        connection.prepareStatement("DELETE FROM tb_study_member WHERE studyIdx IN ( SELECT studyIdx FROM tb_study WHERE userIdx = ? );").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
-                        connection.prepareStatement("DELETE FROM tb_study WHERE userIdx = ?;").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
-
-                        // 회원 관련 테이블 행 삭제
-                        connection.prepareStatement("DELETE FROM tb_user_fcm WHERE userIdx = ?;").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
-                        connection.prepareStatement("DELETE FROM tb_user_link WHERE userIdx = ?;").apply {
-                            setInt(1, userIdx)
-                        }.executeUpdate()
                         connection.prepareStatement("DELETE FROM tb_user WHERE userIdx = ?;").apply {
                             setInt(1, userIdx)
                         }.executeUpdate()
