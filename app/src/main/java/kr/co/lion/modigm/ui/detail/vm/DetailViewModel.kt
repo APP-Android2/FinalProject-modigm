@@ -298,26 +298,15 @@ class DetailViewModel: ViewModel() {
     }
 
     // 특정 사용자를 스터디에서 삭제하는 메소드
-    fun removeUserFromStudy(studyIdx: Int, userIdx: Int) {
-        viewModelScope.launch {
-            val result = detailRepository.removeUserFromStudy(studyIdx, userIdx)
-            _removeUserResult.emit(result)
+    fun removeUserFromStudy(studyIdx: Int, userIdx: Int): Boolean {
+        return runBlocking {
+            val success = detailRepository.removeUserFromStudy(studyIdx, userIdx)
+            _removeUserResult.emit(success)
+            return@runBlocking success  // 성공 여부 반환
         }
     }
 
     // 사용자가 이미 스터디에 참여 중인지 확인하는 함수
-//    fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int) {
-//        viewModelScope.launch {
-//            try {
-//                // DetailRepository를 통해 해당 사용자가 스터디 멤버인지 체크
-//                val isMember = detailRepository.isUserAlreadyMember(studyIdx, userIdx).firstOrNull() ?: false
-//                _isUserAlreadyMember.value = isMember
-//            } catch (e: Exception) {
-//                Log.e("DetailViewModel", "Error checking if user is already a member", e)
-//                _isUserAlreadyMember.value = false
-//            }
-//        }
-//    }
     // Boolean 값을 반환하는 메소드로 수정
     suspend fun checkIfUserAlreadyMember(studyIdx: Int, userIdx: Int): Boolean {
         return try {
@@ -572,15 +561,16 @@ fun notifyUserKicked(context: Context, userIdx: Int, studyIdx: Int, studyTitle: 
     }
 
     // 특정 사용자를 스터디 요청에서 삭제하는 메소드
-    fun removeUserFromApplyList(studyIdx: Int, userIdx: Int) {
-        viewModelScope.launch {
-            val result = detailRepository.removeUserFromStudyRequest(studyIdx, userIdx)
-            _removeUserFromApplyResult.emit(result)
+    fun removeUserFromApplyList(studyIdx: Int, userIdx: Int): Boolean {
+        return runBlocking {
+            val success = detailRepository.removeUserFromStudyRequest(studyIdx, userIdx)
+            _removeUserFromApplyResult.emit(success)
 
-            if (result) {
+            if (success) {
                 // 신청자 리스트를 다시 로드
                 fetchStudyRequestMembers(studyIdx)
             }
+            return@runBlocking success  // 성공 여부 반환
         }
     }
 
