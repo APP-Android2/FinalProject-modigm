@@ -70,23 +70,30 @@
                         android:id="@+id/textViewProfileIntro"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="20dp"
                         android:text="@={profileViewModel.profileIntro}"
                         android:textColor="@color/textGray"
                         android:textSize="14dp" />
 
-                    <TextView
-                        android:id="@+id/textView3"
+                    <LinearLayout
+                        android:id="@+id/layoutInterestChipGroup"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="10dp"
-                        android:text="관심분야"
-                        android:textSize="16dp" />
+                        android:layout_height="match_parent"
+                        android:paddingTop="20dp"
+                        android:orientation="vertical">
 
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupProfile"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        <TextView
+                            android:id="@+id/textView3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="10dp"
+                            android:text="관심분야"
+                            android:textSize="16dp" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupProfile"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
 
                 </LinearLayout>
 

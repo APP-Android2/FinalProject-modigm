@@ -208,7 +208,9 @@ class RemoteDetailDao {
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, studyIdx)
                     statement.setInt(2, userIdx)
-                    return@withContext statement.executeUpdate() > 0
+                    val result = statement.executeUpdate() > 0
+                    Log.d(TAG, "removeUserFromStudy: Deletion successful: $result")
+                    return@withContext result
                 }
             }
         } catch (e: Exception) {
@@ -301,7 +303,9 @@ class RemoteDetailDao {
                 connection.prepareStatement(query).use { statement ->
                     statement.setInt(1, studyIdx)
                     statement.setInt(2, userIdx)
-                    return@withContext statement.executeUpdate() > 0
+                    val result = statement.executeUpdate() > 0
+                    Log.d(TAG, "removeUserFromStudyRequest: Deletion successful: $result")
+                    return@withContext result
                 }
             }
         } catch (e: Exception) {

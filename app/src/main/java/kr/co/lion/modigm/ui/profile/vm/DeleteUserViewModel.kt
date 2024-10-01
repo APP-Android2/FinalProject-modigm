@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.repository.ProfileRepository
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
@@ -14,10 +16,10 @@ class DeleteUserViewModel: ViewModel() {
     private val auth = FirebaseAuth.getInstance()
 
     private val _isDeleted = MutableStateFlow(false)
-    val isDeleted: StateFlow<Boolean> = _isDeleted
+    val isDeleted = _isDeleted.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
+    val errorMessage = _errorMessage.asStateFlow()
     suspend fun resetErrorMessage() {
         _errorMessage.emit(null)
     }
@@ -27,7 +29,7 @@ class DeleteUserViewModel: ViewModel() {
             val result = profileRepository.deleteUserData(userIdx)
             result.onSuccess {
                 // 파이어베이스 인증 정보 삭제
-                auth.currentUser?.delete()
+                auth.currentUser?.delete()?.await()
                 prefs.clearAllPrefs()
                 prefs.setBoolean("autoLogin", false)
                 _isDeleted.emit(true)

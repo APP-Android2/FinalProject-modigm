@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
-import androidx.core.text.HtmlCompat
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -31,7 +30,6 @@ class DeleteUserFragment : VBBaseFragment<FragmentDeleteUserBinding>(FragmentDel
 
         // Inflate the layout for this fragment
         settingToolBar()
-        settingDeleteGuideText()
         settingDeleteUserButton()
     }
 
@@ -42,21 +40,6 @@ class DeleteUserFragment : VBBaseFragment<FragmentDeleteUserBinding>(FragmentDel
                 parentFragmentManager.popBackStack()
             }
         }
-    }
-
-    private fun settingDeleteGuideText(){
-        val html = "<ui>" +
-                "<li>　회원 탈퇴 시 가입되어있는 모든 스터디가 삭제됩니다.</li>" +
-                "<li>　본인이 스터디장으로 있는 진행중인 스터디가 있을 경우, 해당 스터디원들에게 회원 탈퇴 및 스터디 삭제를 안내해주세요.</li>" +
-                "<li>　삭제된 스터디 및 찜목록은 복구되지 않습니다.</li>" +
-                "<li>　탈퇴한 계정 및 회원 정보는 복구되지 않습니다.</li>" +
-                "<li>　회원 탈퇴하기 전 신중히 생각하신 후 회원 탈퇴를 진행해주세요.</li>" +
-                "</ui>"
-        val textView = TextView(requireContext()).apply {
-            text = HtmlCompat.fromHtml(html, 0)
-            textSize = 16f
-        }
-        binding.linearLayoutDeleteUserGuide.addView(textView)
     }
 
     private fun settingDeleteUserButton(){

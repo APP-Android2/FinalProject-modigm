@@ -11,7 +11,8 @@ data class NotificationData(
     val coverPhotoUrl: String?,
     val notificationTime: Date,
     val studyIdx: Int,
-    var isNew: Boolean = true // 알림이 새로운지 여부를 나타내는 속성
+    var isNew: Boolean = true, // 알림이 새로운지 여부를 나타내는 속성
+    var isRead: Boolean = false
 ) {
     companion object {
         fun getNotificationData(resultSet: ResultSet): NotificationData {

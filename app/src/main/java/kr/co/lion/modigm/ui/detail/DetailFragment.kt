@@ -33,6 +33,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.R
@@ -47,6 +48,7 @@ import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Skill
 import kr.co.lion.modigm.util.openWebView
+import kotlinx.coroutines.flow.collect
 
 class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBinding::inflate) {
 
@@ -128,6 +130,8 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
         binding.imageViewDetailCover.setOnClickListener {
             showImageZoomDialog()
         }
+
+//        observeApplyButton()
 
     }
 
@@ -222,6 +226,9 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                     currentStudyData = it
                     // 스터디 데이터를 수신한 후 사용자 데이터를 요청
                     viewModel.getUserById(it.userIdx)
+                    // 데이터가 로드된 후에 버튼 상태를 설정
+                    setupApplyButton()
+
                     updateUI(it)
 
                     // 링크 데이터 설정
@@ -529,7 +536,7 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
 
             // 뒤로 가기
             toolbar.setNavigationOnClickListener {
-                parentFragmentManager.popBackStack()
+                requireActivity().supportFragmentManager.popBackStack(FragmentName.BOTTOM_NAVI.str, 0)
             }
         }
     }
@@ -819,7 +826,11 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
                 when {
                     isAlreadyMember -> showSnackbar(view, "이미 참여중인 스터디입니다.")
                     isAlreadyApplied -> showSnackbar(view, "이미 신청한 스터디입니다.")
-                    success -> showSnackbar(view, "성공적으로 신청되었습니다.")
+                    success -> {
+                        showSnackbar(view, "성공적으로 신청되었습니다.")
+                        setupApplyButton()
+                        refreshScreen()  // 신청 후 화면 갱신
+                    }
                     else -> showSnackbar(view, "신청에 실패하였습니다.")
                 }
             }
@@ -894,6 +905,87 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             // "모집완료" 상태로 업데이트
             viewModel.updateStudyCanApplyInBackground(studyIdx, false)
         }
+    }
+
+    private fun setupApplyButton() {
+        lifecycleScope.launch {
+            // 글 작성자인지 확인
+            val isOwner = currentStudyData?.userIdx == userIdx
+
+            if (isOwner) {
+                // 작성자는 버튼 비활성화하고 '멤버관리'로 설정
+                binding.buttonDetailApply.text = "멤버관리"
+                binding.buttonDetailApply.isEnabled = true
+                binding.buttonDetailApply.setOnClickListener {
+                    navigateToMemberFragment()
+                }
+            } else {
+                // 비작성자인 경우: 신청 상태에 따라 버튼을 설정
+                val isMember = viewModel.checkIfUserAlreadyMember(studyIdx, userIdx)
+                val isApplied = viewModel.isAlreadyApplied(userIdx, studyIdx)
+
+                // 버튼 상태 업데이트
+                when {
+                    isMember -> {
+                        // 스터디 탈퇴 버튼 설정
+                        binding.buttonDetailApply.text = "스터디 탈퇴"
+                        binding.buttonDetailApply.setOnClickListener {
+                            leaveStudy()
+                        }
+                    }
+                    isApplied -> {
+                        // 신청 취소 버튼 설정
+                        binding.buttonDetailApply.text = "신청 취소"
+                        binding.buttonDetailApply.setOnClickListener {
+                            cancelStudyApplication()
+                        }
+                    }
+                    else -> {
+                        // 신청하기 버튼 설정
+                        binding.buttonDetailApply.text = "신청하기"
+                        binding.buttonDetailApply.setOnClickListener {
+                            handleNonOwnerButtonClick(it)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun cancelStudyApplication() {
+        lifecycleScope.launch {
+            val success = viewModel.removeUserFromApplyList(studyIdx, userIdx)
+            if (success) {
+                showSnackbar(requireView(), "스터디 신청이 취소되었습니다.")
+                setupApplyButton() // 버튼 상태 업데이트
+                refreshScreen() // 화면 갱신
+            } else {
+                showSnackbar(requireView(), "신청 취소에 실패했습니다.")
+            }
+        }
+    }
+
+    private fun leaveStudy() {
+        lifecycleScope.launch {
+            val success = viewModel.removeUserFromStudy(studyIdx, userIdx)
+            if (success) {
+                showSnackbar(requireView(), "스터디에서 탈퇴하였습니다.")
+                viewModel.notificationUserLeave(requireContext(), userIdx, studyIdx) // 탈퇴 알림 전송
+                setupApplyButton() // 버튼 상태 업데이트
+                refreshScreen() // 화면 갱신
+            } else {
+                showSnackbar(requireView(), "스터디 탈퇴에 실패했습니다.")
+            }
+        }
+    }
+
+    private fun refreshScreen() {
+        // 데이터를 다시 불러옵니다
+        viewModel.clearLoadingState()  // 상태 초기화
+        viewModel.loadStudyData(studyIdx)
+
+        // UI 업데이트를 다시 호출
+        fetchDataAndUpdateUI()
     }
 
 }
