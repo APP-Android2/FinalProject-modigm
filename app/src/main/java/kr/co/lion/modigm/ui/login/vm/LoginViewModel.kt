@@ -2,6 +2,8 @@ package kr.co.lion.modigm.ui.login.vm
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
-import kr.co.lion.modigm.repository.DetailRepository
 import kr.co.lion.modigm.repository.LoginRepository
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -204,14 +205,27 @@ class LoginViewModel : ViewModel() {
      * 자동 로그인 시도
      */
     fun tryAutoLogin() {
-        // 자동 로그인이 활성화 되어 있다면
         Log.d(logTag, "tryAutoLogin 호출됨.")
-        if(getAutoLogin()) {
+
+        if (getAutoLogin()) {
+            // 10초 후에 자동 로그인을 취소하는 핸들러 설정
+            val handler = Handler(Looper.getMainLooper())
+            val timeoutRunnable = Runnable {
+                Log.e(logTag, "prefs autoLogin: ${getAutoLogin()}, prefs userIdx: ${getCurrentUserIdx()}")
+
+                _autoLoginError.postValue(Exception("자동 로그인 시간 초과"))
+            }
+
+            // 8초 후에 timeoutRunnable 실행
+            handler.postDelayed(timeoutRunnable, 8000L)
+
             viewModelScope.launch {
                 val userIdx = getCurrentUserIdx()
                 val result = loginRepository.autoLogin(userIdx)
+
                 result.onSuccess {
-                    // 자동 로그인 성공
+                    // 자동 로그인 성공 시, 핸들러에 설정된 타임아웃 취소
+                    handler.removeCallbacks(timeoutRunnable)
                     Log.d(logTag, "자동 로그인 성공. ${getCurrentUserProvider()}")
                     when (getCurrentUserProvider()) {
                         JoinType.GITHUB.provider -> _githubLoginResult.postValue(true)
@@ -219,16 +233,20 @@ class LoginViewModel : ViewModel() {
                         JoinType.EMAIL.provider  -> _emailAutoLoginResult.postValue(true)
                     }
                 }.onFailure { e ->
-                    // 자동 로그인 실패
+                    // 자동 로그인 실패 시, 핸들러에 설정된 타임아웃 취소
+                    handler.removeCallbacks(timeoutRunnable)
                     Log.e(logTag, "자동 로그인 실패. 오류: ${e.message}", e)
                     when (getCurrentUserProvider()) {
                         JoinType.GITHUB.provider -> _githubLoginResult.postValue(false)
                         JoinType.KAKAO.provider  -> _kakaoLoginResult.postValue(false)
                         JoinType.EMAIL.provider  -> _emailAutoLoginResult.postValue(false)
                     }
+                    Log.e(logTag, "prefs autoLogin: ${getAutoLogin()}, prefs userIdx: ${getCurrentUserIdx()}")
                     _autoLoginError.postValue(e)
                 }
             }
+        } else {
+            Log.e(logTag, "자동 로그인이 설정되지 않음.")
         }
     }
 
