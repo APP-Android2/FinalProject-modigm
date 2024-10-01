@@ -45,7 +45,7 @@
         <!-- Heewon AdMob app ID: ca-app-pub-6523112897455529~9674369216 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-7493119982793962~4674922460"/>
 
         <!-- 변수 이름 중복으로 인한 충돌 해결 -->
         <property

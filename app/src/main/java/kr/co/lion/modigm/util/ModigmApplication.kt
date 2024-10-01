@@ -41,7 +41,7 @@ class ModigmApplication : Application() {
         // AdView 생성 및 설정
         val adSize = AdSize.getCurrentOrientationInlineAdaptiveBannerAdSize(this, 320)
         preloadedAdView = AdView(this).apply {
-            adUnitId = "ca-app-pub-3940256099942544/9214589741" // 실제 광고 단위 ID로 변경
+            adUnitId = "ca-app-pub-7493119982793962/7547619505" // 실제 광고 단위 ID로 변경
             setAdSize(adSize) // adSize는 여기서 설정
         }
 

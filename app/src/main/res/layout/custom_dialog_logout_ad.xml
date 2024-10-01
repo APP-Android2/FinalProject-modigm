@@ -50,7 +50,7 @@
                     android:layout_gravity="center"
                     android:layout_marginVertical="20dp"
                     ads:adSize="BANNER"
-                    ads:adUnitId="ca-app-pub-3940256099942544/9214589741" />
+                    ads:adUnitId="ca-app-pub-7493119982793962/7547619505" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
