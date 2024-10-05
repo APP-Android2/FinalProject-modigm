@@ -2,7 +2,7 @@
   "Version": "1.0",
   "S3TransferUtility": {
     "Default": {
-      "Bucket": "modigm-bucket",
+      "Bucket": "modigm-app-bucket",
       "Region": "ap-northeast-2"
     }
   }

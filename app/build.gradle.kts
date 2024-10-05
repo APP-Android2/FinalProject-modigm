@@ -83,8 +83,12 @@ android {
     }
 
 
+
+
+
+
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -195,4 +199,5 @@ dependencies {
 
     // java.time 패키지를 사용하기 위한 ThreeTen 백포트 사용
     implementation("com.jakewharton.threetenabp:threetenabp:1.3.0")
+
 }

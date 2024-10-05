@@ -113,8 +113,8 @@ class WriteViewModel : ViewModel() {
                 }
             } else {
                 listOf(
-                    "https://modigm-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_1.jpg",
-                    "https://modigm-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_2.jpg"
+                    "https://modigm-app-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_1.jpg",
+                    "https://modigm-app-bucket.s3.ap-northeast-2.amazonaws.com/image_detail_2.jpg"
                 ).random()
             }
 
