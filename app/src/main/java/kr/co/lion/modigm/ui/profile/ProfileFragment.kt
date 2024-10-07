@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.google.android.material.chip.Chip
+import com.google.android.play.integrity.internal.f
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentProfileBinding
@@ -33,6 +34,7 @@ import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.Links
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
+import java.util.UUID
 
 class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_profile) {
     private val profileViewModel: ProfileViewModel by viewModels()
@@ -223,16 +225,23 @@ class ProfileFragment: DBBaseFragment<FragmentProfileBinding>(R.layout.fragment_
         popupView.findViewById<TextView>(R.id.menuItem3).setOnClickListener {
             Log.d("zunione", "touched")
             // 아이템 1이 클릭되었을 때의 처리
-            openWebView(Links.SERVICE.url)
+            openWebView()
             popupWindow.dismiss()
         }
     }
 
-    private fun openWebView(url: String){
+    private fun openWebView(){
         viewLifecycleOwner.lifecycleScope.launch {
+            // 회원 신고하기 구글폼 띄우고 필요한 값 전달 by ms.
+            val link = StringBuilder(Links.USER_SERVICE.url)
+            // 신고 대상 idx
+            link.append("&entry.1881471803=${UUID.randomUUID().toString().split("-")[4]}#${userIdx}")
+            // 신고자 idx
+            link.append("&entry.759987217=${UUID.randomUUID().toString().split("-")[4]}#${prefs.getInt("currentUserIdx")}")
+
             // bundle 에 필요한 정보를 담는다
             val bundle = Bundle()
-            bundle.putString("link", url)
+            bundle.putString("link", link.toString())
 
             // 이동할 프래그먼트로 bundle을 넘긴다
             val profileWebFragment = ProfileWebFragment()

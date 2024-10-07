@@ -49,6 +49,7 @@ import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.Skill
 import kr.co.lion.modigm.util.openWebView
 import kotlinx.coroutines.flow.collect
+import java.util.UUID
 
 class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBinding::inflate) {
 
@@ -660,7 +661,13 @@ class DetailFragment : VBBaseFragment<FragmentDetailBinding>(FragmentDetailBindi
             popupView.findViewById<TextView>(R.id.menuItem4).setOnClickListener {
                 // 신고하기 기능
                 // 고객센터 구글폼 띄우기로 수정 by ms.
-                openWebView(viewLifecycleOwner, parentFragmentManager, Links.SERVICE.url)
+                val link = StringBuilder(Links.STUDY_SERVICE.url)
+                // 신고 스터디 idx
+                link.append("&entry.1666022374=${UUID.randomUUID().toString().split("-")[4]}#${studyIdx}")
+                // 신고자 idx
+                link.append("&entry.218705015=${UUID.randomUUID().toString().split("-")[4]}#${viewModel.userData.value?.userIdx}")
+
+                openWebView(viewLifecycleOwner, parentFragmentManager, link.toString())
                 popupWindow.dismiss()
             }
         }
