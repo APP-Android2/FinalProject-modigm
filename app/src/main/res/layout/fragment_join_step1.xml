@@ -77,7 +77,7 @@
                     android:id="@+id/textInput_join_userPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="비밀번호 입력"
+                    android:hint="영문, 숫자, 특수문자 포함 비밀번호 입력"
                     android:inputType="text|textPassword"
                     android:text="@={viewModel.userPassword}"
                     android:textSize="16dp" />
