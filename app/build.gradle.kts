@@ -200,4 +200,7 @@ dependencies {
     // java.time 패키지를 사용하기 위한 ThreeTen 백포트 사용
     implementation("com.jakewharton.threetenabp:threetenabp:1.3.0")
 
+    // 전화번호 인증 시 reCAPTCHA 에러가 날 경우 브라우저를 통한 인증이 필요함
+    implementation("androidx.browser:browser:1.8.0")
+
 }
