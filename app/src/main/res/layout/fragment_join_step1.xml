@@ -89,7 +89,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="15dp"
                 android:breakStrategy="simple"
-                android:text="최소 8자리 이상의 영문, 숫자, 특수문자 포함"
+                android:text="8~20자리, 영문, 숫자, 특수문자 포함 입력"
                 android:textSize="16dp"
                 android:textColor="#FF0000" />
 
