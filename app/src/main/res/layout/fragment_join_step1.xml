@@ -77,11 +77,21 @@
                     android:id="@+id/textInput_join_userPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="영문, 숫자, 특수문자 포함 비밀번호 입력"
+                    android:hint="비밀번호 입력"
                     android:inputType="text|textPassword"
                     android:text="@={viewModel.userPassword}"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="15dp"
+                android:breakStrategy="simple"
+                android:text="최소 8자리 이상의 영문, 숫자, 특수문자 포함"
+                android:textSize="16dp"
+                android:textColor="#FF0000" />
 
             <TextView
                 android:layout_width="match_parent"
