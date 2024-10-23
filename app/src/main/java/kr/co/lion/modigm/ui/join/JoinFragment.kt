@@ -310,6 +310,10 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     }
 
     private fun step2Process(){
+        // 유효성 검사
+        val validation = viewModelStep2.validate()
+        if(!validation) return
+
         // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
         // 전화번호를 변경하지 않은 경우에만 넘어갈 수 있음
         if(viewModel.verifiedPhoneNumber.value.isNotEmpty() && viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
@@ -321,9 +325,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             return
         }
 
-        // 유효성 검사
-        val validation = viewModelStep2.validate()
-        if(!validation) return
         // 응답 받은 이름, 전화번호
         viewModel.setUserNameAndPhoneNumber(
             viewModelStep2.userName.value,
