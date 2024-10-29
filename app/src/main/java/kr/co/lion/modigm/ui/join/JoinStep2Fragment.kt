@@ -1,16 +1,20 @@
 package kr.co.lion.modigm.ui.join
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import com.google.android.gms.auth.api.phone.SmsRetriever
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
+import kr.co.lion.modigm.util.SmsReceiver
 import kr.co.lion.modigm.util.collectWhenStarted
 
 @AndroidEntryPoint
@@ -82,6 +86,8 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
                 binding.textinputJoinPhoneAuth.requestFocus()
+                // sms retriever 시작
+                startSmsReceiver()
             }else{
                 binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
             }
@@ -96,6 +102,47 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
                 binding.buttonJoinPhoneAuth.isClickable = false
             }
         }
+    }
+
+    private var smsReceiver: SmsReceiver? = null
+    private val smsReceiverListener = object : SmsReceiver.SmsReceiverListener {
+        override fun onMessageReceived(message: String) {
+            joinStep2ViewModel.inputSmsCode.value = message
+        }
+    }
+
+    private fun startSmsReceiver(){
+        SmsRetriever.getClient(requireContext()).startSmsRetriever().also { task ->
+            task.addOnSuccessListener {
+                if(smsReceiver == null){
+                    smsReceiver = SmsReceiver().apply {
+                        setListener(smsReceiverListener)
+                    }
+                }
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                    requireContext().registerReceiver(smsReceiver, smsReceiver!!.doFilter(),
+                        Context.RECEIVER_NOT_EXPORTED)
+                }else{
+                    requireContext().registerReceiver(smsReceiver, smsReceiver!!.doFilter())
+                }
+            }
+
+            task.addOnFailureListener {
+                stopSmsReceiver()
+            }
+        }
+    }
+
+    private fun stopSmsReceiver(){
+        if(smsReceiver != null) {
+            requireContext().unregisterReceiver(smsReceiver)
+            smsReceiver = null
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        stopSmsReceiver()
     }
 
 }

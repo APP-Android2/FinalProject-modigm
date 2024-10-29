@@ -203,4 +203,8 @@ dependencies {
     // 전화번호 인증 시 reCAPTCHA 에러가 날 경우 브라우저를 통한 인증이 필요함
     implementation("androidx.browser:browser:1.8.0")
 
+    // SMS Retriever
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.0.1")
+
 }
