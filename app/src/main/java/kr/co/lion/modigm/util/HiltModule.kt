@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
+import kr.co.lion.modigm.repository.LoginRepository
 
 /**
  *
@@ -21,5 +22,8 @@ object HiltModule {
 
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Provides
+    fun provideLoginRepository(): LoginRepository = LoginRepository()
 
 }
