@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -16,14 +17,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
 import kr.co.lion.modigm.repository.JoinUserRepository
+import kr.co.lion.modigm.repository.LoginRepository
+import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
-import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class JoinViewModel @Inject constructor(
     private val _joinUserRepository: JoinUserRepository,
+    private val _loginRepository: LoginRepository,
     private val _auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -169,7 +172,11 @@ class JoinViewModel @Inject constructor(
             result.onSuccess { userIdx ->
                 // SharedPreferences에 유저 idx 저장
                  prefs.setInt("currentUserIdx", userIdx)
-
+                // FCM토큰 등록
+                if(_userProvider.value== JoinType.EMAIL.provider){
+                    registerFcmTokenToServer(userIdx)
+                }
+                // 회원가입 완료 처리
                 _joinCompleted.value = true
             }.onFailure {
                 _joinCompleted.value = false
@@ -214,6 +221,39 @@ class JoinViewModel @Inject constructor(
     fun signOut(){
         if(_auth.currentUser != null){
             _auth.signOut()
+        }
+    }
+
+    /**
+     * FCM 토큰을 가져와 서버에 등록하는 함수
+     */
+    private fun registerFcmTokenToServer(userIdx: Int) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.e("LoginViewModel", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            Log.d("LoginViewModel", "FCM Token: $token")
+
+            if (token != null) {
+                // 코루틴 내에서 서버에 FCM 토큰을 등록
+                viewModelScope.launch {
+                    try {
+                        val result = _loginRepository.registerFcmToken(userIdx, token)
+                        if (result) {
+                            Log.d("LoginViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx, token: $token")
+                        } else {
+                            Log.e("LoginViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("LoginViewModel", "Error registering FCM token", e)
+                    }
+                }
+            } else {
+                Log.e("LoginViewModel", "FCM Token is null")
+            }
         }
     }
 
