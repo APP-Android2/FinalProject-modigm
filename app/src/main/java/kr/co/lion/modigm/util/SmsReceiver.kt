@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.util.Log
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
@@ -35,7 +36,9 @@ class SmsReceiver: BroadcastReceiver() {
                         // 받아온 문자 내용
                         val sms = bundle.getString(SmsRetriever.EXTRA_SMS_MESSAGE, "")
                         val authCode = getAuthCode(sms)
+                        Log.d("test1234", "onReceive1 : $authCode")
                         if(smsListener != null && authCode != null){
+                            Log.d("test1234", "onReceive2 : $authCode")
                             smsListener!!.onMessageReceived(authCode)
                         }
                     }
@@ -53,5 +56,5 @@ class SmsReceiver: BroadcastReceiver() {
         addAction(SmsRetriever.SMS_RETRIEVED_ACTION)
     }
 
-    private fun getAuthCode(message: String): String? = PATTERN.toRegex().find(message)?.destructured?.component1()
+    private fun getAuthCode(message: String): String? = PATTERN.toRegex().find(message)?.value
 }

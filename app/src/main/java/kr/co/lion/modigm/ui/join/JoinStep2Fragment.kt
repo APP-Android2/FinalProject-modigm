@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -76,6 +77,8 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
 
             // 응답한 전화번호로 인증번호 SMS 보내기
             joinStep2ViewModel.sendCode(requireActivity())
+            // sms retriever 시작
+            startSmsReceiver()
         }
     }
 
@@ -86,8 +89,6 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
                 binding.textinputJoinPhoneAuth.requestFocus()
-                // sms retriever 시작
-                startSmsReceiver()
             }else{
                 binding.linearLayoutJoinPhoneAuth.visibility = View.GONE
             }
@@ -128,6 +129,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
             }
 
             task.addOnFailureListener {
+                Log.d("startSmsReceiver", "Failure")
                 stopSmsReceiver()
             }
         }
