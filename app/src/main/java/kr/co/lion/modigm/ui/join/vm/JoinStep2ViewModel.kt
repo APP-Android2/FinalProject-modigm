@@ -192,7 +192,7 @@ class JoinStep2ViewModel @Inject constructor(
     }
 
     // 전화 인증 발송
-    fun sendCode(activity: Activity){
+    fun sendCode(activity: Activity, startSmsReceiver: ()->Unit){
         // 전화 인증 여부를 초기화
         _isVerifiedPhone.value = false
         _authExpired.value = false
@@ -209,6 +209,7 @@ class JoinStep2ViewModel @Inject constructor(
             .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
             .build()
         PhoneAuthProvider.verifyPhoneNumber(options)
+        startSmsReceiver()
     }
 
     // 전화 인증코드 발송 콜백

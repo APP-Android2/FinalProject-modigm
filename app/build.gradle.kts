@@ -204,7 +204,7 @@ dependencies {
     implementation("androidx.browser:browser:1.8.0")
 
     // SMS Retriever
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
-    implementation("com.google.android.gms:play-services-auth-api-phone:18.0.1")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.1.0")
 
 }

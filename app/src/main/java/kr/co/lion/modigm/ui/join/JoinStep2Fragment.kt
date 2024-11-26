@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +38,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
         settingCollector()
+        joinStep2ViewModel.inputSmsCode.value = SmsReceiver.smsCode.value
     }
 
     // 에러 메시지 설정
@@ -76,9 +76,9 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
             }
 
             // 응답한 전화번호로 인증번호 SMS 보내기
-            joinStep2ViewModel.sendCode(requireActivity())
-            // sms retriever 시작
-            startSmsReceiver()
+            joinStep2ViewModel.sendCode(requireActivity()){
+                startSmsReceiver()
+            }
         }
     }
 
@@ -103,23 +103,20 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
                 binding.buttonJoinPhoneAuth.isClickable = false
             }
         }
-    }
 
-    private var smsReceiver: SmsReceiver? = null
-    private val smsReceiverListener = object : SmsReceiver.SmsReceiverListener {
-        override fun onMessageReceived(message: String) {
-            joinStep2ViewModel.inputSmsCode.value = message
+        // SmsReceiver에서 받은 인증 코드를 입력창에 넣어줌
+        collectWhenStarted(SmsReceiver.smsCode){
+            joinStep2ViewModel.inputSmsCode.value = it
         }
     }
 
+    private var smsReceiver: SmsReceiver? = null
+
     private fun startSmsReceiver(){
-        SmsRetriever.getClient(requireContext()).startSmsRetriever().also { task ->
+        SmsRetriever. getClient(requireContext()).startSmsRetriever().also { task ->
             task.addOnSuccessListener {
-                if(smsReceiver == null){
-                    smsReceiver = SmsReceiver().apply {
-                        setListener(smsReceiverListener)
-                    }
-                }
+                smsReceiver = SmsReceiver()
+
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
                     requireContext().registerReceiver(smsReceiver, smsReceiver!!.doFilter(),
                         Context.RECEIVER_NOT_EXPORTED)
@@ -127,9 +124,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
                     requireContext().registerReceiver(smsReceiver, smsReceiver!!.doFilter())
                 }
             }
-
             task.addOnFailureListener {
-                Log.d("startSmsReceiver", "Failure")
                 stopSmsReceiver()
             }
         }
@@ -142,8 +137,8 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onStop() {
+        super.onStop()
         stopSmsReceiver()
     }
 
