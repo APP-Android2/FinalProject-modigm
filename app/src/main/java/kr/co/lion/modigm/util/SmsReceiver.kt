@@ -11,13 +11,16 @@ import com.google.android.gms.common.api.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SmsReceiver: BroadcastReceiver() {
 
     companion object {
         private const val PATTERN = "\\d{6}"
-        val smsCode = MutableStateFlow("")
+
+        private val _smsCode = MutableStateFlow("")
+        val smsCode = _smsCode.asStateFlow()
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -35,7 +38,7 @@ class SmsReceiver: BroadcastReceiver() {
                         val authCode = getAuthCode(sms)
                         CoroutineScope(Dispatchers.Main).launch {
                             authCode?.let {
-                                smsCode.emit(it)
+                                _smsCode.emit(it)
                             }
                         }
                     }
