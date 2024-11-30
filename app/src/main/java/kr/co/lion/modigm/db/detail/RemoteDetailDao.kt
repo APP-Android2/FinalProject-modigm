@@ -3,10 +3,11 @@ package kr.co.lion.modigm.db.detail
 import android.util.Log
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kr.co.lion.modigm.BuildConfig
+import kotlinx.coroutines.withContext
+import kr.co.lion.modigm.db.FirestoreKeyProvider
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
@@ -463,10 +464,9 @@ class RemoteDetailDao {
     // S3에 저장된 이미지를 삭제하는 메서드
     suspend fun deleteImageFromS3(fileName: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            // AWS 자격 증명 (BuildConfig에서 관리)
-            val accessKey = BuildConfig.BK_ACCESSKEY
-            val secretKey = BuildConfig.BK_SECRETKEY
-            val bucketName = BuildConfig.BK_NAME
+            // Firestore에서 AWS 키 가져오기
+            val keyProvider = FirestoreKeyProvider()
+            val (accessKey, secretKey, bucketName) = keyProvider.getAwsKeys()
 
             // AWS S3 클라이언트 초기화
             val awsCredentials = BasicAWSCredentials(accessKey, secretKey)
