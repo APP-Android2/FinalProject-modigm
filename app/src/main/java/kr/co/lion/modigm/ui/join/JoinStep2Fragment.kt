@@ -1,16 +1,20 @@
 package kr.co.lion.modigm.ui.join
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import com.google.android.gms.auth.api.phone.SmsRetriever
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
 import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
+import kr.co.lion.modigm.util.SmsReceiver
 import kr.co.lion.modigm.util.collectWhenStarted
 
 @AndroidEntryPoint
@@ -34,6 +38,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
         settingCollector()
+        joinStep2ViewModel.inputSmsCode.value = SmsReceiver.smsCode.value
     }
 
     // 에러 메시지 설정
@@ -71,7 +76,9 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
             }
 
             // 응답한 전화번호로 인증번호 SMS 보내기
-            joinStep2ViewModel.sendCode(requireActivity())
+            joinStep2ViewModel.sendCode(requireActivity()){
+                startSmsReceiver()
+            }
         }
     }
 
@@ -96,6 +103,43 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
                 binding.buttonJoinPhoneAuth.isClickable = false
             }
         }
+
+        // SmsReceiver에서 받은 인증 코드를 입력창에 넣어줌
+        collectWhenStarted(SmsReceiver.smsCode){
+            joinStep2ViewModel.inputSmsCode.value = it
+        }
+    }
+
+    private var smsReceiver: SmsReceiver? = null
+
+    private fun startSmsReceiver(){
+        SmsRetriever. getClient(requireContext()).startSmsRetriever().also { task ->
+            task.addOnSuccessListener {
+                smsReceiver = SmsReceiver()
+
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                    requireContext().registerReceiver(smsReceiver, smsReceiver!!.doFilter(),
+                        Context.RECEIVER_NOT_EXPORTED)
+                }else{
+                    requireContext().registerReceiver(smsReceiver, smsReceiver!!.doFilter())
+                }
+            }
+            task.addOnFailureListener {
+                stopSmsReceiver()
+            }
+        }
+    }
+
+    private fun stopSmsReceiver(){
+        if(smsReceiver != null) {
+            requireContext().unregisterReceiver(smsReceiver)
+            smsReceiver = null
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopSmsReceiver()
     }
 
 }
