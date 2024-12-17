@@ -37,27 +37,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
     // 태그
     private val logTag by lazy { SocialLoginFragment::class.simpleName }
 
-    // 백버튼 콜백
-    private val backPressedCallback by lazy {
-        object : OnBackPressedCallback(true) {
-            private var doubleBackToExitPressedOnce = false
-
-            override fun handleOnBackPressed() {
-                // 백버튼을 두 번 눌렀을 때 앱 종료
-                if (doubleBackToExitPressedOnce) {
-                    // 종료 다이얼로그 표시
-                    showExitDialog()
-                } else {
-                    doubleBackToExitPressedOnce = true
-                    // Snackbar를 표시하여 사용자에게 알림
-                    requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
-                    // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
-                    view?.postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-                }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -78,14 +57,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
 
         // 백버튼 동작 설정
         backButton()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // 백버튼 콜백 제거
-        backPressedCallback.remove()
-
-        viewModel.clearData() // ViewModel 데이터 초기화
     }
 
     private fun initView() {
@@ -358,16 +329,38 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
             }
     }
 
-    // 백버튼 종료 동작
-    private fun backButton() {
-        // 백버튼 콜백을 안전하게 추가
-        backPressedCallback.let { callback ->
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+    private val backPressedCallback by lazy {
+        object : OnBackPressedCallback(true) {
+            private var doubleClickStatus = false
+
+            override fun handleOnBackPressed() {
+                // 백버튼을 두 번 눌렀을 때 앱 종료
+                if (doubleClickStatus) showExitDialog() else return
+                if(!doubleClickStatus) {
+                    doubleClickStatus = true
+                    // Snackbar를 표시하여 사용자에게 알림
+                    requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
+                    // 2초 후에 doubleBackToExitPressedOnce 플래그 초기화
+                    view?.postDelayed({ doubleClickStatus = false }, 2000)
+                }
+            }
         }
     }
 
     private fun showExitDialog() {
         val dialog = CustomExitDialogFragment()
         dialog.show(parentFragmentManager, "CustomExitDialog")
+    }
+
+    private fun backButton() {
+        backPressedCallback.let { callback ->
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        backPressedCallback.remove()
+        viewModel.clearData()
     }
 }
