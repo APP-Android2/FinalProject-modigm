@@ -15,7 +15,7 @@ import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.CannedAccessControlList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.db.FirestoreKeyProvider
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.StudyData
 import java.io.File
@@ -32,10 +32,9 @@ class RemoteWriteStudyDao {
         val filePath = getRealPathFromURI(context, uri) // URI로부터 실제 파일 경로를 얻음
         val file = File(filePath ?: throw IllegalArgumentException("Invalid file: $uri"))
 
-        // AWS 자격 증명
-        val accessKey = BuildConfig.BK_ACCESSKEY
-        val secretKey = BuildConfig.BK_SECRETKEY
-        val bucketName = BuildConfig.BK_NAME
+        // Firestore에서 AWS 키 가져오기
+        val keyProvider = FirestoreKeyProvider()
+        val (accessKey, secretKey, bucketName) = keyProvider.getAwsKeys()
 
         // AWS S3 클라이언트 초기화
         val credentials = BasicAWSCredentials(accessKey, secretKey)

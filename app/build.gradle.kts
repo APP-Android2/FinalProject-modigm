@@ -42,15 +42,6 @@ android {
         buildConfigField("String", "DB_USER", databaseUser)
         buildConfigField("String", "DB_PASSWORD", databasePassword)
 
-        // aws s3
-        val bucketAccessKey = localProperties.getProperty("bucket_accessKey") ?:""
-        val bucketSecretKey = localProperties.getProperty("bucket_secretKey") ?:""
-        val bucketName = localProperties.getProperty("bucket_name") ?:""
-
-        buildConfigField("String", "BK_ACCESSKEY", bucketAccessKey)
-        buildConfigField("String", "BK_SECRETKEY", bucketSecretKey)
-        buildConfigField("String", "BK_NAME", bucketName)
-
         // Notification 관련 설정
         val serviceAccountType = localProperties.getProperty("service_account_type") ?: ""
         val projectId = localProperties.getProperty("project_id") ?: ""
