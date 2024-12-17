@@ -58,8 +58,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    // --------------------------------- LC START ---------------------------------
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,11 +88,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         viewModel.clearData() // ViewModel 데이터 초기화
     }
 
-    // --------------------------------- LC END ---------------------------------
-
-    /**
-     * 초기 뷰 설정 메서드
-     */
     private fun initView() {
         with(binding){
 
@@ -129,9 +122,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    /**
-     * 자동 로그인
-     */
     private fun autoLogin() {
         // 자동 로그인 확인
         val autoLogin = prefs.getBoolean("autoLogin")
@@ -141,9 +131,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    /**
-     * ViewModel의 데이터 변경을 관찰하는 메서드
-     */
     private fun observeViewModel() {
         // 카카오 로그인 데이터 관찰
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner) { result ->
@@ -203,14 +190,14 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
                 Log.i(logTag, "이메일 로그인 성공")
 
                 val userIdx = prefs.getInt("currentUserIdx", 0)
-                Log.d("LoginFragment", "UserIdx after login: $userIdx")  // UserIdx 로그 추가
+                Log.d("SocialLoginFragment", "UserIdx after login: $userIdx")  // UserIdx 로그 추가
 
                 // FCM 토큰 등록
                 if (userIdx > 0) {
-                    Log.d("LoginFragment", "Calling registerFcmTokenToServer")  // 로그 추가
+                    Log.d("SocialLoginFragment", "Calling registerFcmTokenToServer")  // 로그 추가
                     registerFcmTokenToServer(userIdx)
                 } else {
-                    Log.e("LoginFragment", "UserIdx is not valid")
+                    Log.e("SocialLoginFragment", "UserIdx is not valid")
                 }
 
                 val joinType = JoinType.EMAIL
@@ -239,10 +226,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    /**
-     * 로그인 오류 처리 메서드
-     * @param e 발생한 오류
-     */
     private fun showLoginErrorDialog(e: Throwable) {
         val message = if (e.message != null) {
             e.message.toString()
@@ -252,10 +235,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         showLoginErrorDialog(message)
     }
 
-    /**
-     * 회원가입 화면으로 이동하는 메서드
-     * @param joinType 회원가입 타입
-     */
     private fun goToJoinFragment(joinType: JoinType) {
         // 회원가입으로 넘겨줄 데이터
         val bundle = Bundle().apply {
@@ -267,9 +246,6 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    /**
-     * BottomNaviFragment로 이동하는 메서드
-     */
     private fun goToBottomNaviFragment(joinType: JoinType) {
 
         val bundle = Bundle().apply {
@@ -281,28 +257,18 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    // 오류 다이얼로그 표시
     private fun showLoginErrorDialog(message: String) {
-        // 다이얼로그 생성
         val dialog = CustomLoginErrorDialog(requireContext())
         with(dialog){
-            // 다이얼로그 제목
             setTitle("오류")
-            // 다이얼로그 메시지
             setMessage(message)
-            // 확인 버튼
             setPositiveButton("확인") {
-                // 확인 버튼 클릭 시 다이얼로그 닫기
                 dismiss()
             }
-            // 다이얼로그 표시
             show()
         }
     }
 
-    /**
-     * 스크롤 가능할 때 화살표 보여주는 메서드
-     */
     private fun showScrollArrow() {
         with(binding){
             // 화살표 바인딩
@@ -358,11 +324,11 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
 
     // FCM 토큰을 가져와 서버에 등록
     private fun registerFcmTokenToServer(userIdx: Int) {
-        Log.d("LoginFragment", "Attempting to fetch FCM Token...")
+        Log.d("SocialLoginFragment", "Attempting to fetch FCM Token...")
         FirebaseMessaging.getInstance().deleteToken() // 기존 토큰 삭제 (필요한 경우)
             .addOnCompleteListener { deleteTask ->
                 if (!deleteTask.isSuccessful) {
-                    Log.e("LoginFragment", "FCM 토큰 삭제 실패", deleteTask.exception)
+                    Log.e("SocialLoginFragment", "FCM 토큰 삭제 실패", deleteTask.exception)
                     return@addOnCompleteListener
                 }
 
@@ -370,7 +336,7 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
                     if (!task.isSuccessful) {
                         // 여기에서 실패 원인을 로그로 찍음
                         Log.e(
-                            "LoginFragment",
+                            "SocialLoginFragment",
                             "Fetching FCM registration token failed",
                             task.exception
                         )
@@ -378,15 +344,15 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
                     }
 
                     val token = task.result
-                    Log.d("LoginFragment", "FCM Token: $token")
+                    Log.d("SocialLoginFragment", "FCM Token: $token")
 
                     // 토큰이 null이 아닌지 확인하고 서버에 등록하는 로직
                     if (token != null) {
-                        Log.d("LoginFragment", "FCM Token: $token")
+                        Log.d("SocialLoginFragment", "FCM Token: $token")
                         // FCM 토큰을 ViewModel을 통해 서버에 등록
                         viewModel.registerFcmToken(userIdx, token)
                     } else {
-                        Log.e("LoginFragment", "FCM Token is null")
+                        Log.e("SocialLoginFragment", "FCM Token is null")
                     }
                 }
             }
