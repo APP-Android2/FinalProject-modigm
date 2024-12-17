@@ -144,7 +144,7 @@ class FindUpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>
             setMessage("비밀번호 변경이 완료되었습니다.")
             setPositiveButton("확인") {
                 // 비밀번호 변경 완료 후 로그인 화면으로 이동
-                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                parentFragmentManager.popBackStack(FragmentName.EMAIL_LOGIN.str,0)
             }
             show()
         }
@@ -159,7 +159,7 @@ class FindUpdatePasswordFragment : VBBaseFragment<FragmentUpdatePasswordBinding>
             setPositiveButton("예") {
                 lifecycleScope.launch {
                     viewModel.authLogout()
-                    parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                    parentFragmentManager.popBackStack(FragmentName.EMAIL_LOGIN.str,0)
                 }
             }
             setNegativeButton("아니오") {

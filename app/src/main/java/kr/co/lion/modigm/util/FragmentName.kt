@@ -19,8 +19,8 @@ enum class FragmentName (var str: String){
     FAVORITE("FavoriteFragment"),
 
     // 로그인
-    LOGIN("LoginFragment"),
-    OTHER_LOGIN("OtherLoginFragment"),
+    SOCIAL_LOGIN("SocialLoginFragment"),
+    EMAIL_LOGIN("EmailLoginFragment"),
     FIND_EMAIL("FindEmailFragment"),
     FIND_EMAIL_AUTH("FindEmailAuthFragment"),
     FIND_PW("FindPwFragment"),

@@ -5,7 +5,7 @@ import android.view.View
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinCompleteBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.login.OtherLoginFragment
+import kr.co.lion.modigm.ui.login.EmailLoginFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.JoinType
 
@@ -26,7 +26,7 @@ class JoinCompleteFragment : VBBaseFragment<FragmentJoinCompleteBinding>(Fragmen
                 // 이메일 계정 회원가입인 경우에는 로그인 화면으로 돌아오기
                 JoinType.EMAIL ->{
                     parentFragmentManager.beginTransaction()
-                        .replace(R.id.containerMain, OtherLoginFragment())
+                        .replace(R.id.containerMain, EmailLoginFragment())
                         .commit()
                 }
                 // SNS 계정인 경우에는 메인으로 넘어가기

@@ -21,13 +21,13 @@ import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.shake
 import kr.co.lion.modigm.util.showSoftInput
 
-class OtherLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
+class EmailLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
 
     // 뷰모델
     private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
 
     // 태그
-    private val logTag by lazy { OtherLoginFragment::class.simpleName }
+    private val logTag by lazy { EmailLoginFragment::class.simpleName }
 
     // --------------------------------- LC START ---------------------------------
 

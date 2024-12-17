@@ -22,7 +22,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.ActivityMainBinding
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.login.SocialLoginFragment
 import kr.co.lion.modigm.ui.notification.CustomNotificationPermissionDialog
 
 @AndroidEntryPoint
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         }
         supportFragmentManager.commit {
             setReorderingAllowed(true)
-            replace<LoginFragment>(R.id.containerMain)
+            replace<SocialLoginFragment>(R.id.containerMain)
         }
 
         // 알림 권한 요청

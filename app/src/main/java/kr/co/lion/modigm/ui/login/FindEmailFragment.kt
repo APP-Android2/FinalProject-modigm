@@ -46,7 +46,7 @@ class FindEmailFragment : VBBaseFragment<FragmentFindEmailBinding>(FragmentFindE
             with(toolbarFindEmail) {
                 // 뒤로가기 버튼 클릭 시
                 setNavigationOnClickListener {
-                    parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                    parentFragmentManager.popBackStack(FragmentName.EMAIL_LOGIN.str,0)
                 }
             }
 

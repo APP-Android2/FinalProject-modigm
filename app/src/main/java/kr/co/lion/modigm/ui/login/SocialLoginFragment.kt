@@ -29,13 +29,13 @@ import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
+class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
 
     // 뷰모델
     private val viewModel: LoginViewModel by viewModels()
 
     // 태그
-    private val logTag by lazy { LoginFragment::class.simpleName }
+    private val logTag by lazy { SocialLoginFragment::class.simpleName }
 
     // 백버튼 콜백
     private val backPressedCallback by lazy {
@@ -99,7 +99,7 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
         with(binding){
 
             // Glide를 사용하여 이미지에 블러 효과 적용
-            Glide.with(this@LoginFragment)
+            Glide.with(this@SocialLoginFragment)
                 .load(R.drawable.background_login2)
                 .transform(CenterCrop(), BlurTransformation(5, 3), ColorFilterTransformation(0x60000000))
                 .into(imageViewLoginBackground)
@@ -122,8 +122,8 @@ class LoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding:
             textButtonLoginOther.setOnClickListener {
                 Log.i(logTag, "다른 방법으로 로그인 버튼 클릭됨")
                 parentFragmentManager.commit {
-                    replace<OtherLoginFragment>(R.id.containerMain)
-                    addToBackStack(FragmentName.OTHER_LOGIN.str)
+                    replace<EmailLoginFragment>(R.id.containerMain)
+                    addToBackStack(FragmentName.EMAIL_LOGIN.str)
                 }
             }
         }
