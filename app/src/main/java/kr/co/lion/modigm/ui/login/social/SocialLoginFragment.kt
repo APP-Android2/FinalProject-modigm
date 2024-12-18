@@ -207,7 +207,7 @@ class SocialLoginFragment :
     }
 
     // 로딩 화면 표시
-    private fun showLoginLoading() {
+    fun showLoginLoading() {
         with(binding) {
             layoutLoginLoadingBackground.visibility = View.VISIBLE
         }
