@@ -10,7 +10,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentOtherLoginBinding
+import kr.co.lion.modigm.databinding.FragmentEmailLoginBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
@@ -21,7 +21,7 @@ import kr.co.lion.modigm.util.hideSoftInput
 import kr.co.lion.modigm.util.shake
 import kr.co.lion.modigm.util.showSoftInput
 
-class EmailLoginFragment : VBBaseFragment<FragmentOtherLoginBinding>(FragmentOtherLoginBinding::inflate) {
+class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEmailLoginBinding::inflate) {
 
     // 뷰모델
     private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성

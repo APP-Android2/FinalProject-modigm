@@ -1,26 +1,19 @@
-package kr.co.lion.modigm.ui.login
+package kr.co.lion.modigm.ui.login.social
 
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.common.KakaoSdk
-import jp.wasabeef.glide.transformations.BlurTransformation
-import jp.wasabeef.glide.transformations.ColorFilterTransformation
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentLoginBinding
+import kr.co.lion.modigm.databinding.FragmentSocialLoginBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
+import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.study.CustomExitDialogFragment
@@ -29,7 +22,8 @@ import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
+class SocialLoginFragment :
+    VBBaseFragment<FragmentSocialLoginBinding>(FragmentSocialLoginBinding::inflate) {
 
     // 뷰모델
     private val viewModel: LoginViewModel by viewModels()
@@ -46,57 +40,29 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // 초기 뷰 설정
         initView()
 
-        // 자동 로그인
         autoLogin()
 
-        // ViewModel의 데이터 변경 관찰
         observeViewModel()
 
-        // 백버튼 동작 설정
         backButton()
     }
 
     private fun initView() {
-        with(binding){
-
-            // Glide를 사용하여 이미지에 블러 효과 적용
-            Glide.with(this@SocialLoginFragment)
-                .load(R.drawable.background_login2)
-                .transform(CenterCrop(), BlurTransformation(5, 3), ColorFilterTransformation(0x60000000))
-                .into(imageViewLoginBackground)
-
-            // 스크롤 가능할 때 화살표 표시
-            showScrollArrow()
-            // 카카오 로그인 버튼 클릭 리스너 설정
-            imageButtonLoginKakao.setOnClickListener {
-                showLoginLoading()
-                Log.i(logTag, "카카오 로그인 버튼 클릭됨")
-                viewModel.loginKakao(requireContext())
-            }
-            // 깃허브 로그인 버튼 클릭 리스너 설정
-            imageButtonLoginGithub.setOnClickListener {
-                showLoginLoading()
-                Log.i(logTag, "깃허브 로그인 버튼 클릭됨")
-                viewModel.githubLogin(requireActivity())
-            }
-            // 다른 방법으로 로그인 버튼 클릭 리스너 설정
-            textButtonLoginOther.setOnClickListener {
-                Log.i(logTag, "다른 방법으로 로그인 버튼 클릭됨")
-                parentFragmentManager.commit {
-                    replace<EmailLoginFragment>(R.id.containerMain)
-                    addToBackStack(FragmentName.EMAIL_LOGIN.str)
-                }
-            }
+        val initializer = SocialLoginViewInitializer(this, binding, viewModel)
+        initializer.apply {
+            initBlurBackground()
+            initKakaoLoginButton()
+            initGithubLoginButton()
+            initEmailLoginButton()
+            initScrollArrow()
         }
     }
 
     private fun autoLogin() {
-        // 자동 로그인 확인
         val autoLogin = prefs.getBoolean("autoLogin")
-        if(autoLogin){
+        if (autoLogin) {
             showLoginLoading()
             viewModel.tryAutoLogin()
         }
@@ -206,6 +172,18 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         showLoginErrorDialog(message)
     }
 
+    private fun showLoginErrorDialog(message: String) {
+        val dialog = CustomLoginErrorDialog(requireContext())
+        with(dialog) {
+            setTitle("오류")
+            setMessage(message)
+            setPositiveButton("확인") {
+                dismiss()
+            }
+            show()
+        }
+    }
+
     private fun goToJoinFragment(joinType: JoinType) {
         // 회원가입으로 넘겨줄 데이터
         val bundle = Bundle().apply {
@@ -228,67 +206,16 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    private fun showLoginErrorDialog(message: String) {
-        val dialog = CustomLoginErrorDialog(requireContext())
-        with(dialog){
-            setTitle("오류")
-            setMessage(message)
-            setPositiveButton("확인") {
-                dismiss()
-            }
-            show()
-        }
-    }
-
-    private fun showScrollArrow() {
-        with(binding){
-            // 화살표 바인딩
-            with(imageViewLoginScrollArrow) {
-                // 화살표 보이기/숨기기 업데이트 함수
-                fun updateVisibility() {
-                    visibility = if (scrollViewLogin.canScrollVertically(1)) View.VISIBLE else View.GONE
-                }
-                // 애니메이션 설정
-                val floatAnimation = AnimationUtils.loadAnimation(context, R.anim.breathing_up_down).apply {
-                    setAnimationListener(object : Animation.AnimationListener {
-                        override fun onAnimationStart(p0: Animation?) { }
-                        override fun onAnimationEnd(animation: Animation?) {
-                            // 애니메이션 끝나면 화살표 가시성 업데이트
-                            updateVisibility() // 애니메이션 끝난 후에도 가시성 업데이트
-                        }
-                        override fun onAnimationRepeat(p0: Animation?) { }
-                    })
-                }
-                // 레이아웃이 완전히 초기화된 후에 가시성 업데이트
-                scrollViewLogin.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        // 초기 상태에 따라 화살표 보이기/숨기기
-                        updateVisibility()
-                        if (visibility == View.VISIBLE) startAnimation(floatAnimation)
-                        // 리스너 제거
-                        scrollViewLogin.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    }
-                })
-                // 스크롤할 때 화살표 상태 업데이트
-                scrollViewLogin.setOnScrollChangeListener { v, _, _, _, _ ->
-                    updateVisibility()
-                    if (visibility == View.VISIBLE) startAnimation(floatAnimation) else clearAnimation()
-                    // 스크롤이 맨 위에 도달하면 화살표 보이기
-                    if (!v.canScrollVertically(-1)) visibility = View.VISIBLE
-                }
-            }
-        }
-    }
-
     // 로딩 화면 표시
-    private fun showLoginLoading() {
-        with(binding){
+    fun showLoginLoading() {
+        with(binding) {
             layoutLoginLoadingBackground.visibility = View.VISIBLE
         }
     }
+
     // 로딩 화면 숨기기
     private fun hideLoginLoading() {
-        with(binding){
+        with(binding) {
             layoutLoginLoadingBackground.visibility = View.GONE
         }
     }
@@ -335,8 +262,8 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
 
             override fun handleOnBackPressed() {
                 // 백버튼을 두 번 눌렀을 때 앱 종료
-                if (doubleClickStatus) showExitDialog() else return
-                if(!doubleClickStatus) {
+                if (doubleClickStatus) showAppExitDialog() else return
+                if (!doubleClickStatus) {
                     doubleClickStatus = true
                     // Snackbar를 표시하여 사용자에게 알림
                     requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
@@ -347,9 +274,9 @@ class SocialLoginFragment : VBBaseFragment<FragmentLoginBinding>(FragmentLoginBi
         }
     }
 
-    private fun showExitDialog() {
+    private fun showAppExitDialog() {
         val dialog = CustomExitDialogFragment()
-        dialog.show(parentFragmentManager, "CustomExitDialog")
+        dialog.show(parentFragmentManager, "AppExitDialog")
     }
 
     private fun backButton() {
