@@ -2,7 +2,9 @@ package kr.co.lion.modigm.ui.login.social
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -11,7 +13,7 @@ import com.kakao.sdk.common.KakaoSdk
 import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSocialLoginBinding
-import kr.co.lion.modigm.ui.VBBaseFragment
+import kr.co.lion.modigm.ui.DBBaseFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
@@ -22,20 +24,26 @@ import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.showLoginSnackBar
 
-class SocialLoginFragment :
-    VBBaseFragment<FragmentSocialLoginBinding>(FragmentSocialLoginBinding::inflate) {
+class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.fragment_social_login) {
 
-    // 뷰모델
     private val viewModel: LoginViewModel by viewModels()
-
-    // 태그
-    private val logTag by lazy { SocialLoginFragment::class.simpleName }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Kakao SDK 초기화
         KakaoSdk.init(requireContext(), BuildConfig.KAKAO_NATIVE_APP_KEY)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // 부모 클래스의 onCreateView를 호출하여 binding 초기화 및 root 반환
+        val rootView = super.onCreateView(inflater, container, savedInstanceState)
+        binding.loginViewModel = viewModel
+
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,30 +58,25 @@ class SocialLoginFragment :
     }
 
     private fun initView() {
-        val initializer = SocialLoginViewInitializer(this, binding, viewModel)
+        val initializer = SocialLoginViewInitializer(
+            fragment = this,
+            binding = binding
+        )
         initializer.apply {
             initBlurBackground()
-            initKakaoLoginButton()
-            initGithubLoginButton()
             initEmailLoginButton()
             initScrollArrow()
         }
     }
 
     private fun autoLogin() {
-        val autoLogin = prefs.getBoolean("autoLogin")
-        if (autoLogin) {
-            showLoginLoading()
-            viewModel.tryAutoLogin()
-        }
+        viewModel.tryAutoLogin()
     }
 
     private fun observeViewModel() {
         // 카카오 로그인 데이터 관찰
         viewModel.kakaoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                hideLoginLoading()
-                Log.i(logTag, "카카오 로그인 성공")
                 val joinType = JoinType.KAKAO
 
                 // FCM 토큰 등록
@@ -88,8 +91,6 @@ class SocialLoginFragment :
         // 깃허브 로그인 데이터 관찰
         viewModel.githubLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                hideLoginLoading()
-                Log.i(logTag, "깃허브 로그인 성공")
                 val joinType = JoinType.GITHUB
 
                 // FCM 토큰 등록
@@ -104,8 +105,6 @@ class SocialLoginFragment :
         // 카카오 회원가입 데이터 관찰
         viewModel.kakaoJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                hideLoginLoading()
-                Log.i(logTag, "카카오 회원가입으로 이동")
                 val joinType = JoinType.KAKAO
                 goToJoinFragment(joinType)
             }
@@ -113,8 +112,6 @@ class SocialLoginFragment :
         // 깃허브 회원가입 데이터 관찰
         viewModel.githubJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                hideLoginLoading()
-                Log.i(logTag, "깃허브 회원가입으로 이동")
                 val joinType = JoinType.GITHUB
 
                 goToJoinFragment(joinType)
@@ -123,8 +120,6 @@ class SocialLoginFragment :
         // 이메일 자동로그인 데이터 관찰
         viewModel.emailAutoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                hideLoginLoading()
-                Log.i(logTag, "이메일 로그인 성공")
 
                 val userIdx = prefs.getInt("currentUserIdx", 0)
                 Log.d("SocialLoginFragment", "UserIdx after login: $userIdx")  // UserIdx 로그 추가
@@ -144,20 +139,17 @@ class SocialLoginFragment :
         // 카카오 로그인 실패 시 에러 처리
         viewModel.kakaoLoginError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
-                hideLoginLoading()
                 showLoginErrorDialog(e)
             }
         }
         // 깃허브 로그인 실패 시 에러 처리
         viewModel.githubLoginError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
-                hideLoginLoading()
                 showLoginErrorDialog(e)
             }
         }
         viewModel.autoLoginError.observe(viewLifecycleOwner) { e ->
             if (e != null) {
-                hideLoginLoading()
                 requireActivity().showLoginSnackBar(e.message.toString(), null)
             }
         }
@@ -203,20 +195,6 @@ class SocialLoginFragment :
         parentFragmentManager.commit {
             replace(R.id.containerMain, BottomNaviFragment().apply { arguments = bundle })
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
-        }
-    }
-
-    // 로딩 화면 표시
-    fun showLoginLoading() {
-        with(binding) {
-            layoutLoginLoadingBackground.visibility = View.VISIBLE
-        }
-    }
-
-    // 로딩 화면 숨기기
-    private fun hideLoginLoading() {
-        with(binding) {
-            layoutLoginLoadingBackground.visibility = View.GONE
         }
     }
 
@@ -288,6 +266,6 @@ class SocialLoginFragment :
     override fun onDestroyView() {
         super.onDestroyView()
         backPressedCallback.remove()
-        viewModel.clearData()
+        viewModel.clearViewModelData()
     }
 }
