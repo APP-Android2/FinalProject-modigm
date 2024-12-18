@@ -49,7 +49,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
     override fun onDestroyView() {
         super.onDestroyView()
 
-        viewModel.clearData() // ViewModel 데이터 초기화
+        viewModel.clearViewModelData() // ViewModel 데이터 초기화
     }
 
     // --------------------------------- LC END ---------------------------------
