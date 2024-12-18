@@ -26,11 +26,6 @@ class RemoteLoginDataSource {
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val functions by lazy { FirebaseFunctions.getInstance("asia-northeast3") }
 
-    /**
-     * 카카오로 로그인
-     * @param context 컨텍스트
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
     suspend fun kakaoLogin(context: Context): Result<Int> {
         return runCatching {
             val token = if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
@@ -45,11 +40,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 카카오톡으로 로그인
-     * @param context 컨텍스트
-     * @return OAuthToken 카카오 OAuth 토큰
-     */
     private suspend fun loginWithKakaoTalk(context: Context): OAuthToken =
         suspendCancellableCoroutine { cont ->
             UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
@@ -66,11 +56,6 @@ class RemoteLoginDataSource {
             }
         }
 
-    /**
-     * 카카오 계정으로 로그인
-     * @param context 컨텍스트
-     * @return OAuthToken 카카오 OAuth 토큰
-     */
     private suspend fun loginWithKakaoAccount(context: Context): OAuthToken =
         suspendCancellableCoroutine { cont ->
             UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
@@ -87,11 +72,6 @@ class RemoteLoginDataSource {
             }
         }
 
-    /**
-     * 카카오 로그인 응답 처리
-     * @param token 카카오 OAuth 토큰
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
     private suspend fun handleKakaoResponse(token: OAuthToken?): Result<Int> {
         return runCatching {
             if (token != null) {
@@ -118,11 +98,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 카카오 커스텀 토큰 획득
-     * @param accessToken 카카오 OAuth 액세스 토큰
-     * @return Result<String> 카카오 커스텀 토큰을 반환
-     */
     private suspend fun getKakaoCustomToken(accessToken: String): Result<String> {
         val data = hashMapOf("token" to accessToken)
         return runCatching {
@@ -136,15 +111,10 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 깃허브로 로그인
-     * @param context 액티비티 컨텍스트
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
-    suspend fun githubLogin(context: Activity): Result<Int> {
+    suspend fun githubLogin(activity: Activity): Result<Int> {
         return runCatching {
             val provider = OAuthProvider.newBuilder("github.com")
-            val result = auth.startActivityForSignInWithProvider(context, provider.build()).await()
+            val result = auth.startActivityForSignInWithProvider(activity, provider.build()).await()
             val user = result.user ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
             val uid = user.uid
             Log.d(logTag, "Github 로그인 성공. uid: $uid")
@@ -157,12 +127,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 이메일과 비밀번호로 로그인
-     * @param email 사용자의 이메일
-     * @param password 사용자의 비밀번호
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
     suspend fun emailLogin(email: String, password: String): Result<Int> {
         return runCatching {
             val result = auth.signInWithEmailAndPassword(email, password).await()
@@ -175,11 +139,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 자동 로그인
-     * @param userIdx 사용자의 인덱스
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
     suspend fun autoLogin(userIdx: Int): Result<Int> {
         return runCatching {
             val authUserUid = auth.currentUser?.uid ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
@@ -196,11 +155,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 사용자 인덱스로 사용자 데이터 조회
-     * @param userIdx 사용자 인덱스
-     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
-     */
     suspend fun getUserDataByUserIdx(userIdx: Int): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserIdx(userIdx).getOrThrow()
@@ -210,11 +164,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 사용자 UID로 사용자 인덱스 조회
-     * @param userUid 사용자 UID
-     * @return Result<Int> 조회된 사용자 인덱스를 반환
-     */
     private suspend fun getUserIdxByUserUid(userUid: String): Result<Int> {
         return runCatching {
             dao.selectUserIdxByUserUid(userUid).getOrThrow()
@@ -224,11 +173,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 사용자 UID로 사용자 데이터 조회
-     * @param userUid 사용자 UID
-     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
-     */
     suspend fun getUserDataByUserUid(userUid: String): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserUid(userUid).getOrThrow()
@@ -238,11 +182,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 사용자 인덱스로 사용자 UID 조회
-     * @param userIdx 사용자 인덱스
-     * @return Result<String> 조회된 사용자 UID를 반환
-     */
     private suspend fun getUserUidByUserIdx(userIdx: Int): Result<String> {
         return runCatching {
             dao.selectUserUidByUserIdx(userIdx).getOrThrow()
@@ -252,11 +191,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 전화번호로 사용자 데이터 조회
-     * @param userPhone 사용자 전화번호
-     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
-     */
     suspend fun getUserDataByUserPhone(userPhone: String): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserPhone(userPhone).getOrThrow()
@@ -266,11 +200,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 이메일로 사용자 데이터 조회
-     * @param userEmail 사용자 이메일
-     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
-     */
     suspend fun getUserDataByUserEmail(userEmail: String): Result<UserData> {
         return runCatching {
             dao.selectUserDataByUserEmail(userEmail).getOrThrow()
@@ -280,12 +209,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 전화 인증 코드 발송
-     * @param activity 액티비티 컨텍스트
-     * @param userPhone 사용자 전화번호
-     * @return Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> 인증 코드 발송 결과를 반환
-     */
     suspend fun sendPhoneAuthCode(activity: Activity, userPhone: String): Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> {
         return runCatching {
             suspendCancellableCoroutine { cont ->
@@ -331,12 +254,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 인증번호 확인 (이메일 찾기)
-     * @param verificationId 인증 ID
-     * @param authCode 사용자 입력 인증 코드
-     * @return Result<String> 이메일을 반환
-     */
     suspend fun getEmailByAuthCode(verificationId: String, authCode: String): Result<String> {
         return runCatching {
             val phoneCredential = PhoneAuthProvider.getCredential(verificationId, authCode)
@@ -350,12 +267,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 인증번호 확인 (비밀번호 찾기)
-     * @param verificationId 인증 ID
-     * @param authCode 사용자 입력 인증 코드
-     * @return Result<Boolean> 인증 성공 여부를 반환
-     */
     suspend fun signInByAuthCode(verificationId: String, authCode: String): Result<Boolean> {
         return runCatching {
             val credential = PhoneAuthProvider.getCredential(verificationId, authCode)
@@ -367,11 +278,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 비밀번호 변경
-     * @param newPassword 새로운 비밀번호
-     * @return Result<Boolean> 비밀번호 변경 성공 여부를 반환
-     */
     suspend fun updatePassword(newPassword: String): Result<Boolean> {
         return runCatching {
             val user = auth.currentUser ?: throw IllegalStateException("유효한 사용자가 아닙니다.")
@@ -387,11 +293,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 이메일 로그인 유저 전화번호 변경 시 비밀번호 재인증
-     * @param password 유저가 입력한 비밀번호
-     * @return Result<Boolean> 인증 성공 여부를 반환
-     */
     suspend fun checkPassword(password: String): Result<String> {
         return runCatching {
             // 현재 로그인한 사용자 가져오기
@@ -448,11 +349,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 깃허브 재인증
-     * @param context 액티비티 컨텍스트
-     * @return Result<Boolean> 재인증 성공 여부를 반환
-     */
     suspend fun reAuthenticateWithGithub(context: Activity): Result<String> {
         return runCatching {
             // 깃허브 제공자 생성
@@ -469,15 +365,6 @@ class RemoteLoginDataSource {
         }
     }
 
-    /**
-     * 유저 전화번호 변경
-     * @param userIdx 사용자 인덱스
-     * @param currentUserPhone 현재 전화번호
-     * @param newUserPhone 새로운 전화번호
-     * @param verificationId 인증 ID
-     * @param authCode 사용자 입력 인증 코드
-     * @return Result<Boolean> 전화번호 변경 성공 여부를 반환
-     */
     suspend fun updatePhone(
         userIdx: Int,
         currentUserPhone: String,
@@ -508,9 +395,6 @@ class RemoteLoginDataSource {
     }
 
 
-    /**
-     * 로그아웃
-     */
     fun authLogout(): Result<Boolean> {
         return runCatching {
             // 로그아웃

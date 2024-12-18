@@ -19,9 +19,9 @@ import kr.co.lion.modigm.repository.LoginRepository
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
-class LoginViewModel(
-    private val loginRepository: LoginRepository
-) : ViewModel() {
+class LoginViewModel : ViewModel() {
+
+    private val loginRepository by lazy { LoginRepository() }
 
     val isLoading = MutableLiveData(false)
 
@@ -35,7 +35,7 @@ class LoginViewModel(
     private val _kakaoLoginError = MutableLiveData<Throwable?>()
     val kakaoLoginError: LiveData<Throwable?> = _kakaoLoginError
 
-    fun loginKakao(context: Context) {
+    fun kakaoLogin(context: Context) {
         isLoading.value = true
         _kakaoLoginResult.postValue(false) // 초기 상태 설정
         viewModelScope.launch {
@@ -59,7 +59,6 @@ class LoginViewModel(
                     )
                     _kakaoLoginResult.postValue(true)
                 }
-
             }.onFailure { e ->
                 isLoading.postValue(false)
                 prefs.clearAllPrefs()
@@ -79,17 +78,20 @@ class LoginViewModel(
     private val _githubLoginError = MutableLiveData<Throwable?>()
     val githubLoginError: LiveData<Throwable?> = _githubLoginError
 
-    fun githubLogin(context: Activity) {
+    fun githubLogin(activity: Activity) {
         isLoading.value = true
         _githubLoginResult.postValue(false) // 초기 상태 설정
         viewModelScope.launch {
-            val githubLoginResult = loginRepository.githubLogin(context)
+            val githubLoginResult = loginRepository.githubLogin(activity)
             githubLoginResult.onSuccess {
                 isLoading.postValue(false)
                 if (it == 0) {
                     _githubJoinResult.postValue(true)
                 } else {
-                    prefs.setBoolean("autoLogin", true)
+                    prefs.setBoolean(
+                        key = "autoLogin",
+                        value = true
+                    )
                     prefs.setString(
                         key = "currentUserProvider",
                         value = JoinType.GITHUB.provider
@@ -122,7 +124,7 @@ class LoginViewModel(
 
     fun emailLogin(email: String, password: String, autoLoginValue: Boolean) {
         isLoading.value = true
-        _emailLoginResult.postValue(false) // 초기 상태 설정
+        _emailLoginResult.postValue(false)
         viewModelScope.launch {
             val result = loginRepository.emailLogin(email, password)
             result.onSuccess { userIdx ->
@@ -169,7 +171,6 @@ class LoginViewModel(
                         "로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
                     }
                 }
-
                 _emailLoginError.postValue(Exception(errorMessage, e))
             }
         }
@@ -200,7 +201,7 @@ class LoginViewModel(
                     // 자동 로그인 성공 시, 핸들러에 설정된 타임아웃 취소
                     timeoutHandler.removeCallbacks(timeoutRunnable)
 
-                    when (prefs.getString("currentUserProvider")) {
+                    when (prefs.getString(key = "currentUserProvider")) {
                         JoinType.GITHUB.provider -> _githubLoginResult.postValue(true)
                         JoinType.KAKAO.provider -> _kakaoLoginResult.postValue(true)
                         JoinType.EMAIL.provider -> _emailAutoLoginResult.postValue(true)
@@ -210,7 +211,7 @@ class LoginViewModel(
                     // 자동 로그인 실패 시, 핸들러에 설정된 타임아웃 취소
                     timeoutHandler.removeCallbacks(timeoutRunnable)
 
-                    when (prefs.getString("currentUserProvider")) {
+                    when (prefs.getString(key = "currentUserProvider")) {
                         JoinType.GITHUB.provider -> _githubLoginResult.postValue(false)
                         JoinType.KAKAO.provider -> _kakaoLoginResult.postValue(false)
                         JoinType.EMAIL.provider -> _emailAutoLoginResult.postValue(false)
@@ -248,6 +249,7 @@ class LoginViewModel(
             }
         }
     }
+
     private fun registerFcmTokenToServer(userIdx: Int) {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {

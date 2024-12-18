@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
+
         <variable
             name="loginViewModel"
             type="kr.co.lion.modigm.ui.login.vm.LoginViewModel" />
@@ -53,7 +55,6 @@
                         android:layout_height="150dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="100dp"
-
                         android:src="@drawable/logo_modigm" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -91,8 +92,7 @@
                         android:insetTop="0dp"
                         android:insetRight="0dp"
                         android:insetBottom="0dp"
-                        android:stateListAnimator="@animator/button_click"
-                        android:onClick="@{() -> loginViewModel.loginKakao(context)}"/>
+                        android:stateListAnimator="@animator/button_click"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/imageButtonLoginGithub"
@@ -112,8 +112,7 @@
                         app:cornerRadius="8dp"
                         app:icon="@drawable/icon_github_logo"
                         app:iconPadding="0dp"
-                        app:rippleColor="#00FFFFFF"
-                        android:onClick="@{() -> loginViewModel.githubLogin(context)}"/>
+                        app:rippleColor="#00FFFFFF"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/textButtonLoginOther"

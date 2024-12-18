@@ -13,11 +13,13 @@ import jp.wasabeef.glide.transformations.ColorFilterTransformation
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSocialLoginBinding
 import kr.co.lion.modigm.ui.login.EmailLoginFragment
+import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.util.FragmentName
 
 class SocialLoginViewInitializer(
     private val fragment: SocialLoginFragment,
-    private val binding: FragmentSocialLoginBinding
+    private val binding: FragmentSocialLoginBinding,
+    private val viewModel: LoginViewModel
 ) {
 
     fun initBlurBackground() {
@@ -29,6 +31,18 @@ class SocialLoginViewInitializer(
                 ColorFilterTransformation(0x60000000)
             )
             .into(binding.imageViewSocialLoginBackground)
+    }
+
+    fun initKakaoLoginButton() {
+        binding.imageButtonLoginKakao.setOnClickListener {
+            viewModel.kakaoLogin(fragment.requireContext())
+        }
+    }
+
+    fun initGithubLoginButton() {
+        binding.imageButtonLoginGithub.setOnClickListener {
+            viewModel.githubLogin(fragment.requireActivity())
+        }
     }
 
     fun initEmailLoginButton() {

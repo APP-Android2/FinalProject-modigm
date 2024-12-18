@@ -60,10 +60,13 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
     private fun initView() {
         val initializer = SocialLoginViewInitializer(
             fragment = this,
-            binding = binding
+            binding = binding,
+            viewModel = viewModel
         )
         initializer.apply {
             initBlurBackground()
+            initKakaoLoginButton()
+            initGithubLoginButton()
             initEmailLoginButton()
             initScrollArrow()
         }
@@ -240,8 +243,9 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
 
             override fun handleOnBackPressed() {
                 // 백버튼을 두 번 눌렀을 때 앱 종료
-                if (doubleClickStatus) showAppExitDialog() else return
-                if (!doubleClickStatus) {
+                if (doubleClickStatus) {
+                    showAppExitDialog()
+                } else {
                     doubleClickStatus = true
                     // Snackbar를 표시하여 사용자에게 알림
                     requireActivity().showLoginSnackBar("한 번 더 누르면 앱이 종료됩니다.", null)
