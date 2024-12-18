@@ -18,7 +18,7 @@ import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
-import kr.co.lion.modigm.ui.login.SocialLoginFragment
+import kr.co.lion.modigm.ui.login.social.SocialLoginFragment
 import kr.co.lion.modigm.util.JoinType
 
 class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(FragmentJoinDuplicateBinding::inflate) {

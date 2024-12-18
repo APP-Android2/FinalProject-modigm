@@ -11,7 +11,7 @@ import com.google.android.material.snackbar.Snackbar
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentDeleteUserBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.login.SocialLoginFragment
+import kr.co.lion.modigm.ui.login.social.SocialLoginFragment
 import kr.co.lion.modigm.ui.profile.vm.DeleteUserViewModel
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.collectWhenStarted

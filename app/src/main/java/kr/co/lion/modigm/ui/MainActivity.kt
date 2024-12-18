@@ -22,7 +22,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.ActivityMainBinding
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.ui.detail.DetailFragment
-import kr.co.lion.modigm.ui.login.SocialLoginFragment
+import kr.co.lion.modigm.ui.login.social.SocialLoginFragment
 import kr.co.lion.modigm.ui.notification.CustomNotificationPermissionDialog
 
 @AndroidEntryPoint

@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.CustomDialogLogoutAdBinding
 import kr.co.lion.modigm.ui.VBBaseDialogFragment
-import kr.co.lion.modigm.ui.login.SocialLoginFragment
+import kr.co.lion.modigm.ui.login.social.SocialLoginFragment
 import kr.co.lion.modigm.util.ModigmApplication
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 
