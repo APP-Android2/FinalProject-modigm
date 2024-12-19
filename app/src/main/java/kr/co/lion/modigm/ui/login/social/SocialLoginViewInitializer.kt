@@ -6,10 +6,6 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import jp.wasabeef.glide.transformations.BlurTransformation
-import jp.wasabeef.glide.transformations.ColorFilterTransformation
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSocialLoginBinding
 import kr.co.lion.modigm.ui.login.EmailLoginFragment
@@ -21,17 +17,6 @@ class SocialLoginViewInitializer(
     private val binding: FragmentSocialLoginBinding,
     private val viewModel: LoginViewModel
 ) {
-
-    fun initBlurBackground() {
-        Glide.with(fragment)
-            .load(R.drawable.background_login2)
-            .transform(
-                CenterCrop(),
-                BlurTransformation(5, 3),
-                ColorFilterTransformation(0x60000000)
-            )
-            .into(binding.imageViewSocialLoginBackground)
-    }
 
     fun initKakaoLoginButton() {
         binding.imageButtonLoginKakao.setOnClickListener {

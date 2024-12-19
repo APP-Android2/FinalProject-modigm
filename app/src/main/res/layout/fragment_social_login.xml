@@ -20,12 +20,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.imageview.ShapeableImageView
+            <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/imageViewSocialLoginBackground"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/background_login2" />
+                android:layout_height="match_parent" />
 
             <!-- ScrollView로 LinearLayout을 감쌈 -->
             <androidx.core.widget.NestedScrollView
@@ -49,13 +47,12 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <com.google.android.material.imageview.ShapeableImageView
+                    <androidx.compose.ui.platform.ComposeView
                         android:id="@+id/imageViewLoginLogo"
                         android:layout_width="150dp"
                         android:layout_height="150dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="100dp"
-                        android:src="@drawable/logo_modigm" />
+                        android:layout_marginTop="100dp" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/textViewLoginTitle"

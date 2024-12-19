@@ -6,6 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import com.google.firebase.messaging.FirebaseMessaging
@@ -40,7 +52,22 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
         savedInstanceState: Bundle?
     ): View? {
         val rootView = super.onCreateView(inflater, container, savedInstanceState)
-        binding.loginViewModel = viewModel
+        binding.apply {
+            loginViewModel = viewModel
+        }
+        binding.imageViewSocialLoginBackground.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                BackgroundImage()
+            }
+        }
+
+        binding.imageViewLoginLogo.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                LogoImage()
+            }
+        }
 
         return rootView
     }
@@ -63,7 +90,6 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
             viewModel = viewModel
         )
         initializer.apply {
-            initBlurBackground()
             initKakaoLoginButton()
             initGithubLoginButton()
             initEmailLoginButton()
@@ -259,5 +285,40 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
         super.onDestroyView()
         backPressedCallback.remove()
         viewModel.clearViewModelData()
+    }
+
+    @Composable
+    fun BackgroundImage() {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            // 배경 이미지
+            Image(
+                painter = painterResource(id = R.drawable.background_login2),
+                contentDescription = "Social Login Background",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(5.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+            )
+        }
+    }
+
+    @Composable
+    fun LogoImage(){
+        Image(
+            painter = painterResource(id = R.drawable.logo_modigm),
+            contentDescription = "Login Logo",
+            modifier = Modifier
+                .fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
     }
 }
