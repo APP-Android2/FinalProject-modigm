@@ -4,41 +4,12 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentSocialLoginBinding
-import kr.co.lion.modigm.ui.login.EmailLoginFragment
-import kr.co.lion.modigm.ui.login.vm.LoginViewModel
-import kr.co.lion.modigm.util.FragmentName
 
 class SocialLoginViewInitializer(
-    private val fragment: SocialLoginFragment,
-    private val binding: FragmentSocialLoginBinding,
-    private val viewModel: LoginViewModel
+    private val binding: FragmentSocialLoginBinding
 ) {
-
-    fun initKakaoLoginButton() {
-        binding.imageButtonLoginKakao.setOnClickListener {
-            viewModel.kakaoLogin(fragment.requireContext())
-        }
-    }
-
-    fun initGithubLoginButton() {
-        binding.imageButtonLoginGithub.setOnClickListener {
-            viewModel.githubLogin(fragment.requireActivity())
-        }
-    }
-
-    fun initEmailLoginButton() {
-        binding.textButtonLoginOther.setOnClickListener {
-            fragment.parentFragmentManager.commit {
-                replace<EmailLoginFragment>(R.id.containerMain)
-                addToBackStack(FragmentName.EMAIL_LOGIN.str)
-            }
-        }
-    }
-
     fun initScrollArrow() {
         with(binding) {
             // 화살표 바인딩
