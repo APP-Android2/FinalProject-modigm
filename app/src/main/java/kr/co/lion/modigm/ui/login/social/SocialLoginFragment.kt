@@ -39,7 +39,6 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // 부모 클래스의 onCreateView를 호출하여 binding 초기화 및 root 반환
         val rootView = super.onCreateView(inflater, container, savedInstanceState)
         binding.loginViewModel = viewModel
 
@@ -82,12 +81,10 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
             if (result) {
                 val joinType = JoinType.KAKAO
 
-                // FCM 토큰 등록
                 val userIdx = prefs.getInt("currentUserIdx", 0)
                 if (userIdx > 0) {
                     registerFcmTokenToServer(userIdx)
                 }
-
                 goToBottomNaviFragment(joinType)
             }
         }
@@ -96,7 +93,6 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
             if (result) {
                 val joinType = JoinType.GITHUB
 
-                // FCM 토큰 등록
                 val userIdx = prefs.getInt("currentUserIdx", 0)
                 if (userIdx > 0) {
                     registerFcmTokenToServer(userIdx)
@@ -116,25 +112,17 @@ class SocialLoginFragment : DBBaseFragment<FragmentSocialLoginBinding>(R.layout.
         viewModel.githubJoinResult.observe(viewLifecycleOwner) { result ->
             if (result) {
                 val joinType = JoinType.GITHUB
-
                 goToJoinFragment(joinType)
             }
         }
         // 이메일 자동로그인 데이터 관찰
         viewModel.emailAutoLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-
                 val userIdx = prefs.getInt("currentUserIdx", 0)
-                Log.d("SocialLoginFragment", "UserIdx after login: $userIdx")  // UserIdx 로그 추가
 
-                // FCM 토큰 등록
                 if (userIdx > 0) {
-                    Log.d("SocialLoginFragment", "Calling registerFcmTokenToServer")  // 로그 추가
                     registerFcmTokenToServer(userIdx)
-                } else {
-                    Log.e("SocialLoginFragment", "UserIdx is not valid")
                 }
-
                 val joinType = JoinType.EMAIL
                 goToBottomNaviFragment(joinType)
             }
