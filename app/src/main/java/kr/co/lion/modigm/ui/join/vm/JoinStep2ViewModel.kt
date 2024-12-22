@@ -14,14 +14,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
-import kr.co.lion.modigm.repository.JoinUserRepository
+import kr.co.lion.modigm.repository.JoinRepository
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
 class JoinStep2ViewModel @Inject constructor(
-    private val _db: JoinUserRepository,
+    private val _db: JoinRepository,
     private val _auth: FirebaseAuth
 ): ViewModel() {
     // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================

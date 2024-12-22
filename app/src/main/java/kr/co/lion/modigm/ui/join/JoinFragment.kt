@@ -29,7 +29,7 @@ import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinViewModel
-import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.login.social.SocialLoginFragment
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
 import kr.co.lion.modigm.util.collectWhenStarted
@@ -68,7 +68,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
          * 안그러면 이미 로그인된 계정이 있을 때 회원가입 화면에서 나갈 때 계정이 파이어베이스 인증 등록에서 삭제될 수 있음
          */
         if(joinType==JoinType.EMAIL){
-            viewModel.signOut()
+            viewModel.signOutCurrentFirebaseUser()
         }
 
         // sms 인증 코드 발송 시 보여줄 프로그래스바 익명함수를 viewModelStep2에 전달
@@ -86,7 +86,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             // SNS계정인경우 uid, email 셋팅
             if(joinType != JoinType.EMAIL){
                 viewModel.setUserUid()
-                viewModel.setUserEmail()
+                viewModel.setSnsUserEmail()
             }
         }
     }
@@ -114,21 +114,21 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
         // 전화번호 중복 계정 화면으로 넘어가는 경우는
         // 전부 리셋하지 않고 isPhoneAlreadyRegistered값만 false로 변경
-        if(viewModel.isPhoneAlreadyRegistered.value == true){
+        if(viewModel.isPhoneAlreadyRegistered.value){
             viewModel.setIsPhoneAlreadyRegistered(false)
             return
         }
 
         // 회원가입을 완료하지 않고 화면을 이탈한 경우 이미 등록되어있던 Auth 정보를 삭제한다.
-        if(viewModel.joinCompleted.value == false){
-            viewModel.deleteCurrentUser()
+        if(!viewModel.isJoinCompleted.value){
+            viewModel.deleteCurrentRegisteredFirebaseUser()
         }
 
         // 뷰모델 값 리셋
         viewModelStep1.reset()
         viewModelStep2.reset()
         viewModelStep3.reset()
-        viewModel.reset()
+        viewModel.resetViewModelStates()
     }
 
     private fun settingToolBar(){
@@ -158,7 +158,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.containerMain, LoginFragment())
+                .replace(R.id.containerMain, SocialLoginFragment())
                 .commit()
             dialog.dismiss()
         }
@@ -271,12 +271,12 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 ){
                 if(viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty()){
                     // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
-                    viewModel.deleteCurrentUser()
+                    viewModel.deleteCurrentRegisteredFirebaseUser()
                     // 이메일 인증 여부 초기화
                     viewModelStep1.resetEmailVerified()
                 }
                 // 계정 중복 확인
-                val isDup = viewModel.createEmailUser()
+                val isDup = viewModel.registerEmailUserToFirebaseAuth()
                 if(isDup.isNotEmpty()){
                     viewModelStep1.emailValidation.value = isDup
                     hideLoading()
@@ -326,7 +326,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
 
         // 응답 받은 이름, 전화번호
-        viewModel.setUserNameAndPhoneNumber(
+        viewModel.setUserNameAndUserPhone(
             viewModelStep2.userName.value,
             viewModelStep2.userPhone.value
         )
@@ -337,14 +337,14 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             val result = viewModelStep2.createPhoneUser()
             if(result.isEmpty()){
                 // 인증 번호 확인 성공
-                viewModel.setPhoneVerified(true)
+                viewModel.setPhoneNumberVerificationState(true)
                 viewModelStep2.userPhone.value.let { viewModel.setVerifiedPhoneNumber(it) }
                 viewModelStep2.cancelTimer()
             }else{
                 // 인증 번호 확인 실패
-                viewModel.setPhoneVerified(false)
+                viewModel.setPhoneNumberVerificationState(false)
             }
-            if(!viewModel.phoneVerification.value && result=="이미 해당 번호로 가입한 계정이 있습니다."){
+            if(!viewModel.isPhoneNumberVerified.value && result=="이미 해당 번호로 가입한 계정이 있습니다."){
                 viewModel.setAlreadyRegisteredUser(
                     viewModelStep2.alreadyRegisteredUserEmail.value,
                     viewModelStep2.alreadyRegisteredUserProvider.value
@@ -362,7 +362,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         if(!validation) return
         // 응답값
         viewModelStep3.selectedInterestList.value.let { it1 ->
-            viewModel.setInterests(it1)
+            viewModel.setUserInterests(it1)
         }
 
         val handler = CoroutineExceptionHandler { context, throwable ->
@@ -374,7 +374,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         // 회원가입 완료 처리
         lifecycleScope.launch {
             showLoading()
-            viewModel.completeJoinUser(handler)
+            viewModel.completeJoinProcess(handler)
         }
     }
 
@@ -407,7 +407,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     // 회원가입 절차 StateFlow값 collect 세팅
     private fun settingCollector() {
         // 전화번호 인증이 확인 되었을 때
-        collectWhenStarted(viewModel.phoneVerification) { isVerified ->
+        collectWhenStarted(viewModel.isPhoneNumberVerified) { isVerified ->
             hideLoading()
             if(isVerified){
                 // 인증이 되었으면 다음으로 이동
@@ -422,14 +422,14 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                     resetValidationText()
                     cancelTimer()
                 }
-                viewModel.setPhoneVerified(false)
+                viewModel.setPhoneNumberVerificationState(false)
             }
         }
 
         // 인증하기를 다시 했을 때 기존의 인증 완료 취소
         collectWhenStarted(viewModelStep2.isVerifiedPhone) {
             if(!it){
-                viewModel.setPhoneVerified(false)
+                viewModel.setPhoneNumberVerificationState(false)
             }
         }
 
@@ -440,7 +440,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 val bundle = Bundle()
                 bundle.putString("email", viewModel.alreadyRegisteredUserEmail.value)
                 bundle.putString("provider", viewModel.alreadyRegisteredUserProvider.value)
-                bundle.putParcelable("user", viewModel.user.value)
+                bundle.putParcelable("user", viewModel.firebaseUser.value)
                 val joinDupFragment = JoinDuplicateFragment()
                 joinDupFragment.arguments = bundle
                 parentFragmentManager.commit {
@@ -456,13 +456,13 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
 
         // 회원가입 완료 시 완료 화면으로 이동
-        collectWhenStarted(viewModel.joinCompleted) { isCompleted ->
+        collectWhenStarted(viewModel.isJoinCompleted) { isCompleted ->
             hideLoading()
 
             if(isCompleted){
                 if(joinType==JoinType.EMAIL){
                     // 이메일 계정 회원가입인 경우에는 로그아웃 처리
-                    viewModel.signOut()
+                    viewModel.signOutCurrentFirebaseUser()
                 }else{
                     // SNS 계정 회원가입인 경우에는 자동로그인값 preferences에 저장
                     prefs.setBoolean("autoLogin", true)

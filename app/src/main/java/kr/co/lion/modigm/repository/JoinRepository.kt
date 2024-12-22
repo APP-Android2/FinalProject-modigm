@@ -5,7 +5,7 @@ import kr.co.lion.modigm.model.UserData
 import javax.inject.Inject
 
 
-class JoinUserRepository @Inject constructor(
+class JoinRepository @Inject constructor(
     private val _joinUserDataSource: RemoteJoinUserDataSource
 ) {
 
