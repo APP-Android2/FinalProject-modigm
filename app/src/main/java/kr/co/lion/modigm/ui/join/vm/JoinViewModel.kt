@@ -240,15 +240,15 @@ class JoinViewModel @Inject constructor(
             if (token != null) {
                 // 코루틴 내에서 서버에 FCM 토큰을 등록
                 viewModelScope.launch {
-                    try {
-                        val result = _loginRepository.registerFcmToken(userIdx, token)
-                        if (result) {
-                            Log.d("LoginViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx, token: $token")
-                        } else {
-                            Log.e("LoginViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
+                    runCatching {
+                        val response = _loginRepository.registerFcmToken(userIdx, token)
+                        response.onSuccess { result ->
+                            if(result) {
+                                Log.d("LoginViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx, token: $token")
+                            } else {
+                                Log.e("LoginViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
+                            }
                         }
-                    } catch (e: Exception) {
-                        Log.e("LoginViewModel", "Error registering FCM token", e)
                     }
                 }
             } else {

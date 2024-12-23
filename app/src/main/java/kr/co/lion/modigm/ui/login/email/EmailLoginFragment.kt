@@ -16,7 +16,7 @@ import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.login.FindEmailFragment
 import kr.co.lion.modigm.ui.login.FindPasswordFragment
-import kr.co.lion.modigm.ui.login.vm.LoginViewModel
+import kr.co.lion.modigm.ui.login.email.viewmodel.EmailLoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
@@ -27,7 +27,7 @@ import kr.co.lion.modigm.util.showSoftInput
 class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEmailLoginBinding::inflate) {
 
     // 뷰모델
-    private val viewModel: LoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
+    private val viewModel: EmailLoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
 
     // 태그
     private val logTag by lazy { EmailLoginFragment::class.simpleName }

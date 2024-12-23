@@ -1,7 +1,6 @@
 package kr.co.lion.modigm.ui.login.social
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,7 +59,6 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.common.KakaoSdk
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.BuildConfig
@@ -68,7 +66,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.login.email.EmailLoginFragment
-import kr.co.lion.modigm.ui.login.vm.LoginViewModel
+import kr.co.lion.modigm.ui.login.social.viewmodel.SocialLoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.study.CustomExitDialogFragment
 import kr.co.lion.modigm.util.FragmentName
@@ -78,7 +76,7 @@ import kr.co.lion.modigm.util.showLoginSnackBar
 
 class SocialLoginFragment : Fragment() {
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: SocialLoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,7 +143,7 @@ class SocialLoginFragment : Fragment() {
     }
 
     @Composable
-    fun SocialLoginScreen(viewModel: LoginViewModel) {
+    fun SocialLoginScreen(viewModel: SocialLoginViewModel) {
         val scrollState = rememberScrollState()
         val isLoading by viewModel.isLoading.observeAsState(false)
         val kakaoLoginResult by viewModel.kakaoLoginResult.observeAsState(false)
@@ -163,7 +161,7 @@ class SocialLoginFragment : Fragment() {
 
                 val userIdx = prefs.getInt("currentUserIdx", 0)
                 if (userIdx > 0) {
-                    registerFcmTokenToServer(userIdx)
+                    viewModel.registerFcmTokenToServer(userIdx)
                 }
                 goToBottomNaviFragment(joinType)
             }
@@ -175,7 +173,7 @@ class SocialLoginFragment : Fragment() {
 
                 val userIdx = prefs.getInt("currentUserIdx", 0)
                 if (userIdx > 0) {
-                    registerFcmTokenToServer(userIdx)
+                    viewModel.registerFcmTokenToServer(userIdx)
                 }
 
                 goToBottomNaviFragment(joinType)
@@ -201,7 +199,7 @@ class SocialLoginFragment : Fragment() {
                 val userIdx = prefs.getInt("currentUserIdx", 0)
 
                 if (userIdx > 0) {
-                    registerFcmTokenToServer(userIdx)
+                    viewModel.registerFcmTokenToServer(userIdx)
                 }
                 val joinType = JoinType.EMAIL
                 goToBottomNaviFragment(joinType)
@@ -525,40 +523,5 @@ class SocialLoginFragment : Fragment() {
             replace(R.id.containerMain, BottomNaviFragment().apply { arguments = bundle })
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
         }
-    }
-
-    private fun registerFcmTokenToServer(userIdx: Int) {
-        Log.d("SocialLoginFragment", "Attempting to fetch FCM Token...")
-        FirebaseMessaging.getInstance().deleteToken() // 기존 토큰 삭제 (필요한 경우)
-            .addOnCompleteListener { deleteTask ->
-                if (!deleteTask.isSuccessful) {
-                    Log.e("SocialLoginFragment", "FCM 토큰 삭제 실패", deleteTask.exception)
-                    return@addOnCompleteListener
-                }
-
-                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                    if (!task.isSuccessful) {
-                        // 여기에서 실패 원인을 로그로 찍음
-                        Log.e(
-                            "SocialLoginFragment",
-                            "Fetching FCM registration token failed",
-                            task.exception
-                        )
-                        return@addOnCompleteListener
-                    }
-
-                    val token = task.result
-                    Log.d("SocialLoginFragment", "FCM Token: $token")
-
-                    // 토큰이 null이 아닌지 확인하고 서버에 등록하는 로직
-                    if (token != null) {
-                        Log.d("SocialLoginFragment", "FCM Token: $token")
-                        // FCM 토큰을 ViewModel을 통해 서버에 등록
-                        viewModel.registerFcmToken(userIdx, token)
-                    } else {
-                        Log.e("SocialLoginFragment", "FCM Token is null")
-                    }
-                }
-            }
     }
 }
