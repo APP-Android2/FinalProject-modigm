@@ -67,7 +67,7 @@ import kr.co.lion.modigm.BuildConfig
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
-import kr.co.lion.modigm.ui.login.EmailLoginFragment
+import kr.co.lion.modigm.ui.login.email.EmailLoginFragment
 import kr.co.lion.modigm.ui.login.vm.LoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.ui.study.CustomExitDialogFragment

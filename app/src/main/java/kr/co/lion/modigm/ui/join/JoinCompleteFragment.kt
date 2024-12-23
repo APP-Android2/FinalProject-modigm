@@ -5,7 +5,7 @@ import android.view.View
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinCompleteBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.login.EmailLoginFragment
+import kr.co.lion.modigm.ui.login.email.EmailLoginFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.JoinType
 
