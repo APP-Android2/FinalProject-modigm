@@ -23,7 +23,8 @@ class LoginViewModel : ViewModel() {
 
     private val loginRepository by lazy { LoginRepository() }
 
-    val isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData(false)
+    val isLoading : LiveData<Boolean> = _isLoading
 
     // 카카오 로그인
     private val _kakaoLoginResult = MutableLiveData<Boolean>()
@@ -36,12 +37,12 @@ class LoginViewModel : ViewModel() {
     val kakaoLoginError: LiveData<Throwable?> = _kakaoLoginError
 
     fun kakaoLogin(context: Context) {
-        isLoading.value = true
+        _isLoading.value = true
         _kakaoLoginResult.postValue(false) // 초기 상태 설정
         viewModelScope.launch {
             val result = loginRepository.kakaoLogin(context)
             result.onSuccess {
-                isLoading.postValue(false)
+                _isLoading.postValue(false)
                 if (it == 0) {
                     _kakaoJoinResult.postValue(true)
                 } else {
@@ -60,7 +61,7 @@ class LoginViewModel : ViewModel() {
                     _kakaoLoginResult.postValue(true)
                 }
             }.onFailure { e ->
-                isLoading.postValue(false)
+                _isLoading.postValue(false)
                 prefs.clearAllPrefs()
                 _kakaoLoginResult.postValue(false)
                 _kakaoLoginError.postValue(e)
@@ -79,12 +80,12 @@ class LoginViewModel : ViewModel() {
     val githubLoginError: LiveData<Throwable?> = _githubLoginError
 
     fun githubLogin(activity: Activity) {
-        isLoading.value = true
+        _isLoading.value = true
         _githubLoginResult.postValue(false) // 초기 상태 설정
         viewModelScope.launch {
             val githubLoginResult = loginRepository.githubLogin(activity)
             githubLoginResult.onSuccess {
-                isLoading.postValue(false)
+                _isLoading.postValue(false)
                 if (it == 0) {
                     _githubJoinResult.postValue(true)
                 } else {
@@ -104,7 +105,7 @@ class LoginViewModel : ViewModel() {
                 }
 
             }.onFailure { e ->
-                isLoading.postValue(false)
+                _isLoading.postValue(false)
                 prefs.clearAllPrefs()
                 _githubLoginResult.postValue(false)
                 _githubLoginError.postValue(e)
@@ -123,12 +124,12 @@ class LoginViewModel : ViewModel() {
     val emailLoginError: LiveData<Throwable?> = _emailLoginError
 
     fun emailLogin(email: String, password: String, autoLoginValue: Boolean) {
-        isLoading.value = true
+        _isLoading.value = true
         _emailLoginResult.postValue(false)
         viewModelScope.launch {
             val result = loginRepository.emailLogin(email, password)
             result.onSuccess { userIdx ->
-                isLoading.postValue(false)
+                _isLoading.postValue(false)
                 prefs.setBoolean(
                     key = "autoLogin",
                     value = autoLoginValue
@@ -146,7 +147,7 @@ class LoginViewModel : ViewModel() {
                 // 로그인 성공 후 즉시 FCM 토큰 등록
                 registerFcmTokenToServer(userIdx)
             }.onFailure { e ->
-                isLoading.postValue(false)
+                _isLoading.postValue(false)
                 prefs.clearAllPrefs()
                 _emailLoginResult.postValue(false)
                 // 예외 처리 및 사용자에게 전달할 메시지 설정
@@ -181,12 +182,12 @@ class LoginViewModel : ViewModel() {
     val autoLoginError: LiveData<Throwable?> = _autoLoginError
 
     fun tryAutoLogin() {
-        isLoading.value = true
+        _isLoading.value = true
         if (prefs.getBoolean("autoLogin")) {
 
             val timeoutHandler = Handler(Looper.getMainLooper())
             val timeoutRunnable = Runnable {
-                isLoading.value = false
+                _isLoading.value = false
                 _autoLoginError.postValue(Exception("자동 로그인 시간 초과"))
             }
 
@@ -197,7 +198,7 @@ class LoginViewModel : ViewModel() {
                 val result = loginRepository.autoLogin(userIdx)
 
                 result.onSuccess {
-                    isLoading.postValue(false)
+                    _isLoading.postValue(false)
                     // 자동 로그인 성공 시, 핸들러에 설정된 타임아웃 취소
                     timeoutHandler.removeCallbacks(timeoutRunnable)
 
@@ -207,7 +208,7 @@ class LoginViewModel : ViewModel() {
                         JoinType.EMAIL.provider -> _emailAutoLoginResult.postValue(true)
                     }
                 }.onFailure { e ->
-                    isLoading.postValue(false)
+                    _isLoading.postValue(false)
                     // 자동 로그인 실패 시, 핸들러에 설정된 타임아웃 취소
                     timeoutHandler.removeCallbacks(timeoutRunnable)
 
@@ -221,13 +222,13 @@ class LoginViewModel : ViewModel() {
                 }
             }
         } else {
-            isLoading.value = false
+            _isLoading.value = false
         }
     }
 
     // 뷰모델 데이터 초기화
     fun clearViewModelData() {
-        isLoading.postValue(false)
+        _isLoading.postValue(false)
         _emailLoginResult.postValue(false)
         _githubLoginResult.postValue(false)
         _kakaoLoginResult.postValue(false)
