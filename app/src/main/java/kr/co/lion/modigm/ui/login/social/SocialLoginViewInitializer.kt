@@ -35,14 +35,12 @@ class SocialLoginViewInitializer(
 
     fun initKakaoLoginButton() {
         binding.imageButtonLoginKakao.setOnClickListener {
-            fragment.showLoginLoading()
-            viewModel.loginKakao(fragment.requireContext())
+            viewModel.kakaoLogin(fragment.requireContext())
         }
     }
 
     fun initGithubLoginButton() {
         binding.imageButtonLoginGithub.setOnClickListener {
-            fragment.showLoginLoading()
             viewModel.githubLogin(fragment.requireActivity())
         }
     }
