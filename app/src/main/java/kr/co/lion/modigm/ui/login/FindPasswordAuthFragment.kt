@@ -142,7 +142,7 @@ class FindPasswordAuthFragment : VBBaseFragment<FragmentFindPasswordAuthBinding>
         with(dialog){
             setTitle("뒤로가기")
             setPositiveButton("확인") {
-                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                parentFragmentManager.popBackStack(FragmentName.EMAIL_LOGIN.str,0)
             }
             setNegativeButton("취소") {
                 dismiss()

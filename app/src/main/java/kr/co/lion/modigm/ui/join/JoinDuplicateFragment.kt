@@ -12,14 +12,13 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinDuplicateBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
 import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
-import kr.co.lion.modigm.ui.login.LoginFragment
+import kr.co.lion.modigm.ui.login.social.SocialLoginFragment
 import kr.co.lion.modigm.util.JoinType
 
 class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(FragmentJoinDuplicateBinding::inflate) {
@@ -96,7 +95,7 @@ class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(Fragm
             parentFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
             parentFragmentManager.beginTransaction()
-                .replace(R.id.containerMain, LoginFragment())
+                .replace(R.id.containerMain, SocialLoginFragment())
                 .commit()
         }
     }

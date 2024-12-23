@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:transitionGroup="true"
-    tools:context=".ui.login.LoginFragment">
+    tools:context=".ui.login.social.SocialLoginFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/imageViewLoginBackground"
+            android:id="@+id/imageViewSocialLoginBackground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
@@ -19,7 +19,7 @@
 
         <!-- ScrollView로 LinearLayout을 감쌈 -->
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollViewLogin"
+            android:id="@+id/scrollViewSocialLogin"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
