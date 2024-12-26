@@ -21,15 +21,17 @@ import androidx.compose.ui.unit.sp
 import kr.co.lion.modigm.R
 
 @Composable
-fun EmailLoginButton(onClick: () -> Unit) {
+fun EmailLoginButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         TextButton(
             onClick = onClick,
-            modifier = Modifier
+            modifier = modifier
                 .wrapContentWidth()
                 .wrapContentHeight()
                 .padding(top = 20.dp),

@@ -17,10 +17,13 @@ import androidx.compose.ui.unit.dp
 import kr.co.lion.modigm.R
 
 @Composable
-fun KakaoLoginButton(onClick: () -> Unit) {
+fun KakaoLoginButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 40.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
@@ -30,7 +33,7 @@ fun KakaoLoginButton(onClick: () -> Unit) {
         Image(
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "카카오 로그인",
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .height(48.dp),
             contentScale = ContentScale.FillBounds

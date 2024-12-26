@@ -11,10 +11,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 
 @Composable
-fun SocialLoginLoading(isLoading: Boolean) {
+fun SocialLoginLoading(
+    modifier: Modifier = Modifier,
+    isLoading: Boolean
+) {
     if (isLoading) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.5f))
                 .pointerInput(Unit) { },
