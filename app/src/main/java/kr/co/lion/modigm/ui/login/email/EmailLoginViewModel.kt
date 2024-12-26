@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.ui.login.email.viewmodel
+package kr.co.lion.modigm.ui.login.email
 
 import android.util.Log
 import androidx.lifecycle.LiveData

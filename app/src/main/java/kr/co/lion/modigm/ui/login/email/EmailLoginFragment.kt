@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
@@ -16,7 +19,6 @@ import kr.co.lion.modigm.ui.join.JoinFragment
 import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.login.FindEmailFragment
 import kr.co.lion.modigm.ui.login.FindPasswordFragment
-import kr.co.lion.modigm.ui.login.email.viewmodel.EmailLoginViewModel
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
@@ -32,7 +34,20 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
     // 태그
     private val logTag by lazy { EmailLoginFragment::class.simpleName }
 
-    // --------------------------------- LC START ---------------------------------
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                EmailLoginScreen(
+                    viewModel = viewModel,
+
+                )
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,8 +69,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
 
         viewModel.clearViewModelData() // ViewModel 데이터 초기화
     }
-
-    // --------------------------------- LC END ---------------------------------
 
     private fun initView() {
         with(binding){
@@ -170,10 +183,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         }
     }
 
-    /**
-     * 로그인 오류 처리 메서드
-     * @param e 발생한 오류
-     */
     private fun showErrorDialog(e: Throwable) {
         val message = if (e.message != null) {
             e.message.toString()

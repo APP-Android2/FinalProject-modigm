@@ -45,9 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.login.social.component.EmailLoginButton
 import kr.co.lion.modigm.ui.login.social.component.GithubLoginButton
 import kr.co.lion.modigm.ui.login.social.component.KakaoLoginButton
+import kr.co.lion.modigm.ui.login.social.component.NavigateToEmailLoginButton
 import kr.co.lion.modigm.ui.login.social.component.SocialLoginLoading
 import kr.co.lion.modigm.util.JoinType
 
@@ -56,7 +56,7 @@ fun SocialLoginScreen(
     viewModel: SocialLoginViewModel,
     onKakaoLoginClick: () -> Unit,
     onGithubLoginClick: () -> Unit,
-    onEmailLoginClick: () -> Unit,
+    onNavigateEmailLoginClick: () -> Unit,
     navigateToJoinFragment: (JoinType) -> Unit,
     navigateToBottomNaviFragment: (JoinType) -> Unit,
     showLoginErrorDialog: (Throwable) -> Unit,
@@ -144,7 +144,7 @@ fun SocialLoginScreen(
             LoginSubTitleText()
             KakaoLoginButton(onClick = onKakaoLoginClick)
             GithubLoginButton(onClick = onGithubLoginClick)
-            EmailLoginButton(onClick = onEmailLoginClick)
+            NavigateToEmailLoginButton(onClick = onNavigateEmailLoginClick)
         }
         SocialLoginScrollArrow(
             scrollState = scrollState,

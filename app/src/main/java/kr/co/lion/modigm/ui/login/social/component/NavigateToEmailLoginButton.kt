@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import kr.co.lion.modigm.R
 
 @Composable
-fun EmailLoginButton(
+fun NavigateToEmailLoginButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit) {
     Column(

@@ -41,7 +41,7 @@ class SocialLoginFragment : Fragment() {
                     viewModel = viewModel,
                     onKakaoLoginClick = { viewModel.kakaoLogin(requireContext()) },
                     onGithubLoginClick = { viewModel.githubLogin(requireActivity()) },
-                    onEmailLoginClick = { navigateToEmailLoginFragment() },
+                    onNavigateEmailLoginClick = { navigateToEmailLoginFragment() },
                     navigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
                     navigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
                     showLoginErrorDialog = { message -> showLoginErrorDialog(message) },
