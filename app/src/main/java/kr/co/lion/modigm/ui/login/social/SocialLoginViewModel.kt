@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.ui.login.social.viewmodel
+package kr.co.lion.modigm.ui.login.social
 
 import android.app.Activity
 import android.content.Context
@@ -176,27 +176,30 @@ class SocialLoginViewModel : ViewModel() {
         _autoLoginError.postValue(null)
     }
 
-    fun registerFcmTokenToServer(userIdx: Int) {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                return@addOnCompleteListener
-            }
-            val token = task.result
-            if (token != null) {
-                viewModelScope.launch {
-                    runCatching {
-                        val response = loginRepository.registerFcmToken(userIdx, token)
-                        response.onSuccess { result ->
-                            if(result) {
-                                Log.d("LoginViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx, token: $token")
-                            } else {
-                                Log.e("LoginViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
+    fun registerFcmTokenToServer() {
+        val userIdx = prefs.getInt("currentUserIdx", 0)
+        if (userIdx > 0) {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    return@addOnCompleteListener
+                }
+                val token = task.result
+                if (token != null) {
+                    viewModelScope.launch {
+                        runCatching {
+                            val response = loginRepository.registerFcmToken(userIdx, token)
+                            response.onSuccess { result ->
+                                if(result) {
+                                    Log.d("LoginViewModel", "FCM 토큰 등록 성공 userIdx: $userIdx, token: $token")
+                                } else {
+                                    Log.e("LoginViewModel", "FCM 토큰 등록 실패 userIdx: $userIdx")
+                                }
                             }
                         }
                     }
+                } else {
+                    Log.e("LoginViewModel", "FCM Token is null")
                 }
-            } else {
-                Log.e("LoginViewModel", "FCM Token is null")
             }
         }
     }
