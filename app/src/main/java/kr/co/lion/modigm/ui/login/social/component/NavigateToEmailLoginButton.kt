@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.login.social.dpToSp
 
 @Composable
 fun NavigateToEmailLoginButton(
@@ -42,7 +42,7 @@ fun NavigateToEmailLoginButton(
         ) {
             Text(
                 text = "다른 방법으로 로그인",
-                fontSize = 16.sp,
+                fontSize = dpToSp(16.dp),
                 fontFamily = FontFamily(Font(R.font.one_mobile_pop_otf)),
                 fontWeight = FontWeight.Normal,
                 color = Color.White

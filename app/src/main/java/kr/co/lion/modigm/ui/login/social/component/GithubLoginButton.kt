@@ -19,17 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.login.social.dpToSp
 
 @Composable
 fun GithubLoginButton(onClick: () -> Unit) {
     Button(
-        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 30.dp)
             .height(48.dp),
+        onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Black,
             contentColor = Color.White
@@ -43,20 +43,21 @@ fun GithubLoginButton(onClick: () -> Unit) {
                 .padding(horizontal = 16.dp)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.icon_github_logo),
-                contentDescription = "깃허브 로고",
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.CenterStart),
+                painter = painterResource(id = R.drawable.icon_github_logo),
+                contentDescription = "깃허브 로고",
                 tint = Color.White
             )
             Text(
-                text = "깃허브 로그인",
-                fontSize = 20.sp,
-                color = Color.White,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .offset(x = 12.dp)
+                    .offset(x = 12.dp),
+                text = "깃허브 로그인",
+                fontSize = dpToSp(20.dp),
+                color = Color.White,
+
             )
         }
     }

@@ -37,12 +37,13 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.login.social.component.GithubLoginButton
@@ -140,8 +141,8 @@ fun SocialLoginScreen(
                 .padding(30.dp)
         ) {
             LogoImage()
-            LoginTitle()
-            LoginSubTitleText()
+            SocialLoginTitle()
+            SocialLoginSubTitle()
             KakaoLoginButton(onClick = onKakaoLoginClick)
             GithubLoginButton(onClick = onGithubLoginClick)
             NavigateToEmailLoginButton(onClick = onNavigateEmailLoginClick)
@@ -185,7 +186,7 @@ fun LogoImage() {
 }
 
 @Composable
-fun LoginTitle() {
+fun SocialLoginTitle() {
     Text(
         text = "모우다임",
         modifier = Modifier
@@ -193,14 +194,14 @@ fun LoginTitle() {
             .wrapContentHeight()
             .padding(top = 60.dp),
         fontFamily = FontFamily(Font(R.font.one_mobile_pop_otf)),
-        fontSize = 70.sp,
+        fontSize = dpToSp(70.dp),
         color = Color.White,
         fontWeight = FontWeight.Normal
     )
 }
 
 @Composable
-fun LoginSubTitleText() {
+fun SocialLoginSubTitle() {
     Text(
         text = "개발자 스터디의 새로운 패러다임",
         modifier = Modifier
@@ -208,7 +209,7 @@ fun LoginSubTitleText() {
             .wrapContentHeight()
             .padding(top = 10.dp),
         fontFamily = FontFamily(Font(R.font.one_mobile_pop_otf)),
-        fontSize = 22.sp,
+        fontSize = dpToSp(22.dp),
         color = Color.White,
         fontWeight = FontWeight.Normal
     )
@@ -268,3 +269,6 @@ fun Modifier.animateEnterExit(): Modifier {
     )
     return this.offset(y = offsetY.dp)
 }
+
+@Composable
+fun dpToSp(dp: Dp) = with(LocalDensity.current) { dp.toSp() }
