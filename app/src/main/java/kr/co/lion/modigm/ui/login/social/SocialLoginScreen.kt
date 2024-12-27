@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.login.email.dpToSp
 import kr.co.lion.modigm.ui.login.social.component.GithubLoginButton
 import kr.co.lion.modigm.ui.login.social.component.KakaoLoginButton
 import kr.co.lion.modigm.ui.login.social.component.NavigateToEmailLoginButton
@@ -54,79 +54,70 @@ import kr.co.lion.modigm.util.JoinType
 
 @Composable
 fun SocialLoginScreen(
-    viewModel: SocialLoginViewModel,
+    isLoading: Boolean,
+    kakaoLoginResult: Boolean,
+    githubLoginResult: Boolean,
+    kakaoJoinResult: Boolean,
+    githubJoinResult: Boolean,
+    emailLoginResult: Boolean,
+    kakaoLoginError: Throwable?,
+    githubLoginError: Throwable?,
+    autoLoginError: Throwable?,
     onKakaoLoginClick: () -> Unit,
     onGithubLoginClick: () -> Unit,
     onNavigateEmailLoginClick: () -> Unit,
-    navigateToJoinFragment: (JoinType) -> Unit,
-    navigateToBottomNaviFragment: (JoinType) -> Unit,
+    onNavigateToJoinFragment: (JoinType) -> Unit,
+    onNavigateToBottomNaviFragment: (JoinType) -> Unit,
     showLoginErrorDialog: (Throwable) -> Unit,
     showSnackBar: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val isLoading by viewModel.isLoading.observeAsState(false)
-    val kakaoLoginResult by viewModel.kakaoLoginResult.observeAsState(false)
-    val githubLoginResult by viewModel.githubLoginResult.observeAsState(false)
-    val kakaoJoinResult by viewModel.kakaoJoinResult.observeAsState(false)
-    val githubJoinResult by viewModel.githubJoinResult.observeAsState(false)
-    val emailLoginResult by viewModel.emailAutoLoginResult.observeAsState(false)
-    val kakaoLoginError by viewModel.kakaoLoginError.observeAsState()
-    val githubLoginError by viewModel.githubLoginError.observeAsState()
-    val autoLoginError by viewModel.autoLoginError.observeAsState()
 
     LaunchedEffect(kakaoLoginResult) {
         if (kakaoLoginResult) {
-            val joinType = JoinType.KAKAO
-            viewModel.registerFcmTokenToServer()
-            navigateToBottomNaviFragment(joinType)
+            onNavigateToBottomNaviFragment(JoinType.KAKAO)
         }
     }
 
     LaunchedEffect(githubLoginResult) {
         if (githubLoginResult) {
-            val joinType = JoinType.GITHUB
-            viewModel.registerFcmTokenToServer()
-            navigateToBottomNaviFragment(joinType)
+            onNavigateToBottomNaviFragment(JoinType.GITHUB)
         }
     }
 
     LaunchedEffect(kakaoJoinResult) {
         if (kakaoJoinResult) {
-            val joinType = JoinType.KAKAO
-            navigateToJoinFragment(joinType)
+            onNavigateToJoinFragment(JoinType.KAKAO)
         }
     }
 
     LaunchedEffect(githubJoinResult) {
         if (githubJoinResult) {
-            val joinType = JoinType.GITHUB
-            navigateToJoinFragment(joinType)
+            onNavigateToJoinFragment(JoinType.GITHUB)
         }
     }
 
     LaunchedEffect(emailLoginResult) {
         if (emailLoginResult) {
-            viewModel.registerFcmTokenToServer()
-            val joinType = JoinType.EMAIL
-            navigateToBottomNaviFragment(joinType)
+            onNavigateToBottomNaviFragment(JoinType.EMAIL)
         }
     }
 
     LaunchedEffect(kakaoLoginError) {
-        kakaoLoginError?.let { e ->
-            showLoginErrorDialog(e)
+        kakaoLoginError?.let { error ->
+            showLoginErrorDialog(error)
         }
     }
 
     LaunchedEffect(githubLoginError) {
-        githubLoginError?.let { e ->
-            showLoginErrorDialog(e)
+        githubLoginError?.let { error ->
+            showLoginErrorDialog(error)
         }
     }
 
     LaunchedEffect(autoLoginError) {
-        autoLoginError?.let { e ->
-            showSnackBar(e.message.toString())
+        autoLoginError?.let { error ->
+            showSnackBar(error.message.toString())
         }
     }
 

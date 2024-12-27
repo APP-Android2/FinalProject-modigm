@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -37,15 +39,33 @@ class SocialLoginFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                val isLoading by viewModel.isLoading.observeAsState(false)
+                val kakaoLoginResult by viewModel.kakaoLoginResult.observeAsState(false)
+                val githubLoginResult by viewModel.githubLoginResult.observeAsState(false)
+                val kakaoJoinResult by viewModel.kakaoJoinResult.observeAsState(false)
+                val githubJoinResult by viewModel.githubJoinResult.observeAsState(false)
+                val emailLoginResult by viewModel.emailAutoLoginResult.observeAsState(false)
+                val kakaoLoginError by viewModel.kakaoLoginError.observeAsState()
+                val githubLoginError by viewModel.githubLoginError.observeAsState()
+                val autoLoginError by viewModel.autoLoginError.observeAsState()
+
                 SocialLoginScreen(
-                    viewModel = viewModel,
+                    isLoading = isLoading,
+                    kakaoLoginResult = kakaoLoginResult,
+                    githubLoginResult = githubLoginResult,
+                    kakaoJoinResult = kakaoJoinResult,
+                    githubJoinResult = githubJoinResult,
+                    emailLoginResult = emailLoginResult,
+                    kakaoLoginError = kakaoLoginError,
+                    githubLoginError = githubLoginError,
+                    autoLoginError = autoLoginError,
                     onKakaoLoginClick = { viewModel.kakaoLogin(requireContext()) },
                     onGithubLoginClick = { viewModel.githubLogin(requireActivity()) },
                     onNavigateEmailLoginClick = { navigateToEmailLoginFragment() },
-                    navigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
-                    navigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
-                    showLoginErrorDialog = { message -> showLoginErrorDialog(message) },
-                    showSnackBar = { message -> requireActivity().showLoginSnackBar(message,null) }
+                    onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
+                    onNavigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
+                    showLoginErrorDialog = { error -> showLoginErrorDialog(error) },
+                    showSnackBar = { message -> requireActivity().showLoginSnackBar(message, null) }
                 )
             }
         }
@@ -125,6 +145,7 @@ class SocialLoginFragment : Fragment() {
     }
 
     private fun navigateToBottomNaviFragment(joinType: JoinType) {
+        viewModel.registerFcmTokenToServer()
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
         }
