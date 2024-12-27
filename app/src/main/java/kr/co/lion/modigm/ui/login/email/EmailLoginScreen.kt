@@ -10,6 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -20,12 +22,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.login.email.component.EmailLoginLoading
+import kr.co.lion.modigm.ui.login.email.component.EmailLoginScrollArrow
+import kr.co.lion.modigm.ui.login.email.component.EmailTextField
+import kr.co.lion.modigm.ui.login.email.component.PasswordTextField
+import kr.co.lion.modigm.util.JoinType
 
 @Composable
 fun EmailLoginScreen(
-    viewModel: EmailLoginViewModel
+    isLoading: Boolean,
+    emailLoginResult: Boolean,
+    emailLoginError: Throwable?,
+    onNavigateToBottomNaviFragment: (JoinType) -> Unit,
+    showLoginErrorDialog: (Throwable) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(emailLoginResult) {
+        if (emailLoginResult) {
+            onNavigateToBottomNaviFragment(JoinType.EMAIL)
+        }
+    }
+
+    LaunchedEffect(emailLoginError) {
+        emailLoginError?.let { error ->
+            showLoginErrorDialog(error)
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -38,7 +61,14 @@ fun EmailLoginScreen(
         ) {
             EmailLoginTitle()
             EmailLoginSubTitle()
+            EmailTextField()
+            PasswordTextField()
         }
+        EmailLoginScrollArrow(
+            scrollState = scrollState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+        EmailLoginLoading(isLoading = isLoading)
     }
 }
 
@@ -75,7 +105,13 @@ fun EmailLoginSubTitle() {
 @Preview
 @Composable
 fun EmailLoginScreenPreview() {
-    EmailLoginScreen(viewModel = EmailLoginViewModel())
+    EmailLoginScreen(
+        isLoading = false,
+        emailLoginResult = false,
+        emailLoginError = null,
+        onNavigateToBottomNaviFragment = {},
+        showLoginErrorDialog = {}
+    )
 }
 
 @Composable

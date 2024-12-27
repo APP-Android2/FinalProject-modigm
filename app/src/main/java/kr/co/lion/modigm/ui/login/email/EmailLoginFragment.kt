@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -41,9 +43,16 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
     ): View? {
         return ComposeView(requireContext()).apply {
             setContent {
-                EmailLoginScreen(
-                    viewModel = viewModel,
+                val isLoading by viewModel.isLoading.observeAsState(false)
+                val emailLoginResult by viewModel.emailLoginResult.observeAsState(false)
+                val emailLoginError by viewModel.emailLoginError.observeAsState()
 
+                EmailLoginScreen(
+                    isLoading = isLoading,
+                    emailLoginResult = emailLoginResult,
+                    emailLoginError = emailLoginError,
+                    onNavigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
+                    showLoginErrorDialog = { error -> showErrorDialog(error) },
                 )
             }
         }
@@ -171,7 +180,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                 hideLoginLoading()
                 Log.i(logTag, "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
-                goToBottomNaviFragment(joinType)
+                navigateToBottomNaviFragment(joinType)
             }
         }
         // 이메일 로그인 실패 시 에러 처리
@@ -205,7 +214,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         }
     }
 
-    private fun goToBottomNaviFragment(joinType: JoinType) {
+    private fun navigateToBottomNaviFragment(joinType: JoinType) {
 
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
