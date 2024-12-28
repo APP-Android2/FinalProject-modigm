@@ -26,16 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.login.email.component.EmailAutoLoginCheckBox
+import kr.co.lion.modigm.ui.login.email.component.EmailLoginButton
+import kr.co.lion.modigm.ui.login.email.component.EmailLoginJoinButton
 import kr.co.lion.modigm.ui.login.email.component.EmailLoginLoading
 import kr.co.lion.modigm.ui.login.email.component.EmailLoginScrollArrow
 import kr.co.lion.modigm.ui.login.email.component.EmailTextField
 import kr.co.lion.modigm.ui.login.email.component.FindEmailTextButton
 import kr.co.lion.modigm.ui.login.email.component.FindPasswordTextButton
+import kr.co.lion.modigm.ui.login.email.component.NavigateToSocialLoginButton
 import kr.co.lion.modigm.ui.login.email.component.PasswordTextField
-import kr.co.lion.modigm.ui.login.social.dpToSp
 import kr.co.lion.modigm.util.JoinType
 
 @Composable
@@ -46,6 +47,8 @@ fun EmailLoginScreen(
     onNavigateToBottomNaviFragment: (JoinType) -> Unit,
     onNavigateToFindEmailFragment: () -> Unit,
     onNavigateToFindPasswordFragment: () -> Unit,
+    onEmailLoginButtonClick: () -> Unit,
+    onNavigateToSocialLoginFragment: () -> Unit,
     onNavigateToJoinFragment: (JoinType) -> Unit,
     showLoginErrorDialog: (Throwable) -> Unit,
 ) {
@@ -83,7 +86,7 @@ fun EmailLoginScreen(
                     .fillMaxWidth()
                     .padding(top = 10.dp, end = 0.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -92,13 +95,32 @@ fun EmailLoginScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    FindEmailTextButton(onNavigateToFindEmailFragment)
+                    FindEmailTextButton(onNavigateToFindEmailFragment = onNavigateToFindEmailFragment)
                     Text(
                         text = "|",
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                        fontSize = dpToSp(16.dp)
                     )
-                    FindPasswordTextButton(onNavigateToFindPasswordFragment)
+                    FindPasswordTextButton(onNavigateToFindPasswordFragment = onNavigateToFindPasswordFragment)
+                }
+            }
+            EmailLoginButton(onEmailLoginButtonClick = onEmailLoginButtonClick)
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 0.dp, end = 0.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    NavigateToSocialLoginButton(onNavigateToSocialLoginFragment = onNavigateToSocialLoginFragment)
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    EmailLoginJoinButton(onNavigateToJoinFragment = onNavigateToJoinFragment)
                 }
             }
         }
@@ -151,6 +173,8 @@ fun EmailLoginScreenPreview() {
         showLoginErrorDialog = {},
         onNavigateToFindEmailFragment = {},
         onNavigateToFindPasswordFragment = {},
+        onEmailLoginButtonClick = {},
+        onNavigateToSocialLoginFragment = {},
         onNavigateToJoinFragment = {},
     )
 }

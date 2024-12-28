@@ -29,10 +29,8 @@ import kr.co.lion.modigm.util.showSoftInput
 
 class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEmailLoginBinding::inflate) {
 
-    // 뷰모델
-    private val viewModel: EmailLoginViewModel by viewModels()  // LoginViewModel 인스턴스 생성
+    private val viewModel: EmailLoginViewModel by viewModels()
 
-    // 태그
     private val logTag by lazy { EmailLoginFragment::class.simpleName }
 
     override fun onCreateView(
@@ -54,6 +52,8 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                     onNavigateToFindEmailFragment = { navigateToFindEmailFragment() },
                     onNavigateToFindPasswordFragment = { navigateToFindPasswordFragment() },
                     onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
+                    onEmailLoginButtonClick = {  },
+                    onNavigateToSocialLoginFragment = { navigateToSocialLoginFragment() },
                     showLoginErrorDialog = { error -> showErrorDialog(error) },
                 )
             }
@@ -196,6 +196,10 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
             replace(R.id.containerMain, FindPasswordFragment())
             addToBackStack(FragmentName.FIND_PASSWORD.str)
         }
+    }
+
+    private fun navigateToSocialLoginFragment() {
+        parentFragmentManager.popBackStack()
     }
 
     // 회원가입 화면으로 이동하는 메소드
