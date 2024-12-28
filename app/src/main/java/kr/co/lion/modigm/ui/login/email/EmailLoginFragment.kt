@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentEmailLoginBinding
@@ -40,7 +39,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return ComposeView(requireContext()).apply {
             setContent {
                 val isLoading by viewModel.isLoading.observeAsState(false)
@@ -52,6 +51,9 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                     emailLoginResult = emailLoginResult,
                     emailLoginError = emailLoginError,
                     onNavigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
+                    onNavigateToFindEmailFragment = { navigateToFindEmailFragment() },
+                    onNavigateToFindPasswordFragment = { navigateToFindPasswordFragment() },
+                    onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
                     showLoginErrorDialog = { error -> showErrorDialog(error) },
                 )
             }
@@ -137,7 +139,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                 }
                 requireActivity().hideSoftInput()
 
-                showLoginLoading()
                 val email = textInputEditOtherEmail.text.toString()
                 val password = textInputEditOtherPassword.text.toString()
                 val autoLogin = checkBoxOtherAutoLogin.isChecked
@@ -147,23 +148,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
             // 회원가입 버튼 클릭 시 회원가입 화면으로 이동
             buttonOtherJoin.setOnClickListener {
                 val joinType = JoinType.EMAIL
-                goToJoinFragment(joinType)
-            }
-
-            // 이메일 찾기 버튼 클릭 시
-            buttonOtherFindEmail.setOnClickListener {
-                parentFragmentManager.commit {
-                    replace<FindEmailFragment>(R.id.containerMain)
-                    addToBackStack(FragmentName.FIND_EMAIL.str)
-                }
-            }
-
-            // 비밀번호 찾기 버튼 클릭 시
-            buttonOtherFindPassword.setOnClickListener {
-                parentFragmentManager.commit {
-                    replace<FindPasswordFragment>(R.id.containerMain)
-                    addToBackStack(FragmentName.FIND_PW.str)
-                }
+                navigateToJoinFragment(joinType)
             }
             // 돌아가기 버튼 클릭 시
             buttonOtherBack.setOnClickListener {
@@ -177,7 +162,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         // 이메일 로그인 데이터 관찰
         viewModel.emailLoginResult.observe(viewLifecycleOwner) { result ->
             if (result) {
-                hideLoginLoading()
                 Log.i(logTag, "이메일 로그인 성공")
                 val joinType = JoinType.EMAIL
                 navigateToBottomNaviFragment(joinType)
@@ -186,7 +170,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         // 이메일 로그인 실패 시 에러 처리
         viewModel.emailLoginError.observe(viewLifecycleOwner) { error ->
             if (error != null) {
-                hideLoginLoading()
                 showErrorDialog(error)
             }
         }
@@ -201,10 +184,23 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         showLoginErrorDialog(message)
     }
 
-    // 회원가입 화면으로 이동하는 메소드
-    private fun goToJoinFragment(joinType: JoinType) {
-        Log.d(logTag, "navigateToJoinFragment - joinType: ${joinType.provider}")
+    private fun navigateToFindEmailFragment() {
+        parentFragmentManager.commit {
+            replace(R.id.containerMain, FindEmailFragment())
+            addToBackStack(FragmentName.FIND_EMAIL.str)
+        }
+    }
 
+    private fun navigateToFindPasswordFragment() {
+        parentFragmentManager.commit {
+            replace(R.id.containerMain, FindPasswordFragment())
+            addToBackStack(FragmentName.FIND_PASSWORD.str)
+        }
+    }
+
+    // 회원가입 화면으로 이동하는 메소드
+    private fun navigateToJoinFragment(joinType: JoinType) {
+        Log.d(logTag, "navigateToJoinFragment - joinType: ${joinType.provider}")
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
         }
@@ -215,7 +211,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
     }
 
     private fun navigateToBottomNaviFragment(joinType: JoinType) {
-
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
         }
@@ -325,18 +320,4 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         override fun afterTextChanged(p0: Editable?) {
         }
     }
-
-    // 로딩 화면 표시
-    private fun showLoginLoading() {
-        with(binding){
-            layoutLoginLoadingBackground.visibility = View.VISIBLE
-        }
-    }
-    // 로딩 화면 숨김
-    private fun hideLoginLoading() {
-        with(binding){
-            layoutLoginLoadingBackground.visibility = View.GONE
-        }
-    }
-
 }

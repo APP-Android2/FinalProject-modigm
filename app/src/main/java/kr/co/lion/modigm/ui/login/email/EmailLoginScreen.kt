@@ -1,8 +1,11 @@
 package kr.co.lion.modigm.ui.login.email
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -11,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,11 +26,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.login.email.component.EmailAutoLoginCheckBox
 import kr.co.lion.modigm.ui.login.email.component.EmailLoginLoading
 import kr.co.lion.modigm.ui.login.email.component.EmailLoginScrollArrow
 import kr.co.lion.modigm.ui.login.email.component.EmailTextField
+import kr.co.lion.modigm.ui.login.email.component.FindEmailTextButton
+import kr.co.lion.modigm.ui.login.email.component.FindPasswordTextButton
 import kr.co.lion.modigm.ui.login.email.component.PasswordTextField
+import kr.co.lion.modigm.ui.login.social.dpToSp
 import kr.co.lion.modigm.util.JoinType
 
 @Composable
@@ -34,9 +44,13 @@ fun EmailLoginScreen(
     emailLoginResult: Boolean,
     emailLoginError: Throwable?,
     onNavigateToBottomNaviFragment: (JoinType) -> Unit,
+    onNavigateToFindEmailFragment: () -> Unit,
+    onNavigateToFindPasswordFragment: () -> Unit,
+    onNavigateToJoinFragment: (JoinType) -> Unit,
     showLoginErrorDialog: (Throwable) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val isChecked = remember { mutableStateOf(false) }
 
     LaunchedEffect(emailLoginResult) {
         if (emailLoginResult) {
@@ -63,6 +77,30 @@ fun EmailLoginScreen(
             EmailLoginSubTitle()
             EmailTextField()
             PasswordTextField()
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, end = 0.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    EmailAutoLoginCheckBox(isChecked = isChecked)
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    FindEmailTextButton(onNavigateToFindEmailFragment)
+                    Text(
+                        text = "|",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    FindPasswordTextButton(onNavigateToFindPasswordFragment)
+                }
+            }
         }
         EmailLoginScrollArrow(
             scrollState = scrollState,
@@ -102,7 +140,7 @@ fun EmailLoginSubTitle() {
     )
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun EmailLoginScreenPreview() {
     EmailLoginScreen(
@@ -110,7 +148,10 @@ fun EmailLoginScreenPreview() {
         emailLoginResult = false,
         emailLoginError = null,
         onNavigateToBottomNaviFragment = {},
-        showLoginErrorDialog = {}
+        showLoginErrorDialog = {},
+        onNavigateToFindEmailFragment = {},
+        onNavigateToFindPasswordFragment = {},
+        onNavigateToJoinFragment = {},
     )
 }
 
