@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun EmailLoginLoading(
@@ -26,4 +27,10 @@ fun EmailLoginLoading(
             CircularProgressIndicator(color = Color.White)
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmailLoginLoadingPreview() {
+    EmailLoginLoading(isLoading = true)
 }
