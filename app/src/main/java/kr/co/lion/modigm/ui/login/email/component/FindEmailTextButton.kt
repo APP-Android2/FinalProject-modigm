@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun FindEmailTextButton(
@@ -20,7 +20,7 @@ fun FindEmailTextButton(
         Text(
             text = "이메일 찾기",
             color = Color.Black,
-            fontSize = 16.sp
+            fontSize = dpToSp(16.dp)
         )
     }
 }
