@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kr.co.lion.modigm.ui.login.social.dpToSp
+import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun EmailAutoLoginCheckBox(
@@ -22,7 +22,6 @@ fun EmailAutoLoginCheckBox(
         modifier = Modifier
             .size(20.dp)
             .padding(top = 0.dp, bottom = 0.dp, start = 0.dp, end = 0.dp)
-
     )
     Spacer(modifier = Modifier
         .size(8.dp)

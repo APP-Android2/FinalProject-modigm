@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.login.email.dpToSp
 import kr.co.lion.modigm.ui.login.social.component.GithubLoginButton
 import kr.co.lion.modigm.ui.login.social.component.KakaoLoginButton
 import kr.co.lion.modigm.ui.login.social.component.NavigateToEmailLoginButton
