@@ -72,22 +72,20 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
 
         // sms 인증 코드 발송 시 보여줄 프로그래스바 익명함수를 viewModelStep2에 전달
-        viewModelStep2.hideCallback.value = hideLoading
-        viewModelStep2.showCallback.value = showLoading
+        viewModelStep2.hideLoadingCallback.value = hideLoading
+        viewModelStep2.showLoadingCallback.value = showLoading
 
         return binding.root
     }
 
     // 번들로 전달받은 값들을 뷰모델 라이브 데이터에 셋팅
     private fun settingValuesFromBundle(){
-        if(joinType != null){
-            // 프로바이더 셋팅
-            viewModel.setUserProvider(joinType?.provider?:"")
-            // SNS계정인경우 uid, email 셋팅
-            if(joinType != JoinType.EMAIL){
-                viewModel.setUserUid()
-                viewModel.setSnsUserEmail()
-            }
+        // 프로바이더 셋팅
+        viewModel.setUserProvider(joinType.provider)
+        // SNS계정인경우 uid, email 셋팅
+        if(joinType != JoinType.EMAIL){
+            viewModel.setUserUid()
+            viewModel.setSnsUserEmail()
         }
     }
 
@@ -125,9 +123,9 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
 
         // 뷰모델 값 리셋
-        viewModelStep1.reset()
-        viewModelStep2.reset()
-        viewModelStep3.reset()
+        viewModelStep1.resetStep1States()
+        viewModelStep2.resetStep2States()
+        viewModelStep3.resetStep3States()
         viewModel.resetViewModelStates()
     }
 
@@ -253,13 +251,12 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
     private fun step1Process(){
         // 유효성 검사
-        val validation = viewModelStep1.validate()
-        if(!validation) return
+        if(!viewModelStep1.validateStep1UserInput()) return
 
         // 응답 받은 이메일, 비밀번호
         viewModel.setEmailAndPw(
-            viewModelStep1.userEmail.value,
-            viewModelStep1.userPassword.value
+            viewModelStep1.userInputEmail.value,
+            viewModelStep1.userInputPassword.value
         )
 
         lifecycleScope.launch {
@@ -267,9 +264,9 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             // 처음 화면인 경우
             if(viewModel.verifiedEmail.value.isEmpty()
                 // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우
-                || (viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty())
+                || (viewModelStep1.userInputEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty())
                 ){
-                if(viewModelStep1.userEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty()){
+                if(viewModelStep1.userInputEmail.value != viewModel.verifiedEmail.value && viewModel.verifiedEmail.value.isNotEmpty()){
                     // 다음 화면으로 넘어갔다가 다시 돌아와서 이메일을 변경한 경우에는 기존에 등록한 이메일 계정을 삭제
                     viewModel.deleteCurrentRegisteredFirebaseUser()
                     // 이메일 인증 여부 초기화
@@ -278,7 +275,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 // 계정 중복 확인
                 val isDup = viewModel.registerEmailUserToFirebaseAuth()
                 if(isDup.isNotEmpty()){
-                    viewModelStep1.emailValidation.value = isDup
+                    viewModelStep1.userInputEmailValidation.value = isDup
                     hideLoading()
                     return@launch
                 }
@@ -297,7 +294,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
     private fun checkEmailVerified(){
         showLoading()
-        viewModelStep1.checkEmailValidation{ isVerified ->
+        viewModelStep1.checkFirebaseEmailValidation{ isVerified ->
             if (isVerified) {
                 // 인증이 되었으면 다음으로 이동
                 binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
@@ -311,12 +308,12 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
     private fun step2Process(){
         // 유효성 검사
-        val validation = viewModelStep2.validate()
+        val validation = viewModelStep2.validateStep2UserInput()
         if(!validation) return
 
         // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
         // 전화번호를 변경하지 않은 경우에만 넘어갈 수 있음
-        if(viewModel.verifiedPhoneNumber.value.isNotEmpty() && viewModel.verifiedPhoneNumber.value == viewModelStep2.userPhone.value){
+        if(viewModel.verifiedPhoneNumber.value.isNotEmpty() && viewModel.verifiedPhoneNumber.value == viewModelStep2.userInputPhone.value){
             if(joinType==JoinType.EMAIL){
                 binding.viewPagerJoin.setCurrentItemWithDuration(3, 300)
             }else{
@@ -327,19 +324,19 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
         // 응답 받은 이름, 전화번호
         viewModel.setUserNameAndUserPhone(
-            viewModelStep2.userName.value,
-            viewModelStep2.userPhone.value
+            viewModelStep2.userInputName.value,
+            viewModelStep2.userInputPhone.value
         )
 
         lifecycleScope.launch {
             showLoading()
 
-            val result = viewModelStep2.createPhoneUser()
+            val result = viewModelStep2.linkWithPhoneAuthCredential()
             if(result.isEmpty()){
                 // 인증 번호 확인 성공
                 viewModel.setPhoneNumberVerificationState(true)
-                viewModelStep2.userPhone.value.let { viewModel.setVerifiedPhoneNumber(it) }
-                viewModelStep2.cancelTimer()
+                viewModelStep2.userInputPhone.value.let { viewModel.setVerifiedPhoneNumber(it) }
+                viewModelStep2.cancelPhoneAuthTimer()
             }else{
                 // 인증 번호 확인 실패
                 viewModel.setPhoneNumberVerificationState(false)
@@ -350,7 +347,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                     viewModelStep2.alreadyRegisteredUserProvider.value
                 )
                 viewModel.setIsPhoneAlreadyRegistered(true)
-                viewModelStep2.cancelTimer()
+                viewModelStep2.cancelPhoneAuthTimer()
             }
             hideLoading()
         }
@@ -358,8 +355,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
     private fun step3Process(){
         // 유효성 검사
-        val validation = viewModelStep3.validate()
-        if(!validation) return
+        if(!viewModelStep3.validateStep3UserInput()) return
         // 응답값
         viewModelStep3.selectedInterestList.value.let { it1 ->
             viewModel.setUserInterests(it1)
@@ -418,9 +414,8 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 }
                 // 인증 관련 초기화
                 viewModelStep2.apply {
-                    resetIsCodeSent()
-                    resetValidationText()
-                    cancelTimer()
+                    resetPhoneAuthCodeSentState()
+                    cancelPhoneAuthTimer()
                 }
                 viewModel.setPhoneNumberVerificationState(false)
             }
@@ -469,7 +464,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 }
                 val joinCompleteFragment = JoinCompleteFragment().apply {
                     arguments = Bundle().apply {
-                        putString("joinType", joinType?.provider)
+                        putString("joinType", joinType.provider)
                     }
                 }
                 // popBackStack에서 name값을 null로 넣어주면 기존의 backstack을 모두 없애준다.

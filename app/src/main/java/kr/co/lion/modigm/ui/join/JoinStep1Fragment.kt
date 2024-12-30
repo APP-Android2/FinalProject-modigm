@@ -34,17 +34,17 @@ class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.frag
     private fun settingTextInputLayoutError(){
 
         // 이메일 에러
-        collectWhenStarted(joinStep1ViewModel.emailValidation) {
+        collectWhenStarted(joinStep1ViewModel.userInputEmailValidation) {
             binding.textInputLayoutJoinUserEmail.error = it
         }
 
         // 비밀번호 에러
-        collectWhenStarted(joinStep1ViewModel.pwValidation) {
+        collectWhenStarted(joinStep1ViewModel.userInputPwValidation) {
             binding.textInputLayoutJoinUserPassword.error = it
         }
 
         // 비밀번호 확인 에러
-        collectWhenStarted(joinStep1ViewModel.pwCheckValidation) {
+        collectWhenStarted(joinStep1ViewModel.userInputPwCheckValidation) {
             binding.textInputLayoutJoinUserPasswordCheck.error = it
         }
     }

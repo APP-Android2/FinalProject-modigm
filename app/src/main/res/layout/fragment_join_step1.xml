@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:hint="이메일 입력"
                     android:inputType="text|textEmailAddress"
-                    android:text="@={viewModel.userEmail}"
+                    android:text="@={viewModel.userInputEmail}"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:hint="비밀번호 입력"
                     android:inputType="text|textPassword"
-                    android:text="@={viewModel.userPassword}"
+                    android:text="@={viewModel.userInputPassword}"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
             <TextView
@@ -117,7 +117,7 @@
                     android:hint="비밀번호 확인 입력"
                     android:imeOptions="actionDone"
                     android:inputType="text|textPassword"
-                    android:text="@={viewModel.userPasswordCheck}"
+                    android:text="@={viewModel.userInputPasswordCheck}"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>

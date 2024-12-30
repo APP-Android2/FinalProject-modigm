@@ -54,12 +54,12 @@ class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.frag
                             if(isChecked){
                                 setTextColor(resources.getColor(R.color.white, null))
                                 setChipBackgroundColorResource(R.color.pointColor)
-                                joinStep3ViewModel.addInterest(chipName.str)
+                                joinStep3ViewModel.addToInterestList(chipName.str)
 
                             }else{
                                 setTextColor(resources.getColor(R.color.textGray, null))
                                 setChipBackgroundColorResource(R.color.white)
-                                joinStep3ViewModel.removeInterest(chipName.str)
+                                joinStep3ViewModel.removeFromInterestList(chipName.str)
                             }
                         }
                     }
@@ -69,7 +69,7 @@ class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.frag
     }
     private fun settingCollector(){
         // 에러메시지 셋팅
-        collectWhenStarted(joinStep3ViewModel.isValidate) {
+        collectWhenStarted(joinStep3ViewModel.isInterestListValidated) {
             if(it == true){
                 binding.textViewJoinAlert.visibility = View.GONE
             }else if(it == false){

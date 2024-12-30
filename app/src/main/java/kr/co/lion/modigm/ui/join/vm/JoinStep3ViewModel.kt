@@ -7,29 +7,29 @@ import kotlinx.coroutines.flow.StateFlow
 class JoinStep3ViewModel: ViewModel() {
 
     // 유효성 검사 여부
-    private var _isValidate = MutableStateFlow<Boolean?>(null)
-    val isValidate: StateFlow<Boolean?> = _isValidate
+    private var _isInterestListValidated = MutableStateFlow<Boolean?>(null)
+    val isInterestListValidated: StateFlow<Boolean?> = _isInterestListValidated
 
     // 선택한 관심분야 리스트
     private val _selectedInterestList = MutableStateFlow<MutableList<String>>(mutableListOf())
     val selectedInterestList: StateFlow<MutableList<String>> = _selectedInterestList
 
-    fun addInterest(interest: String) {
+    fun addToInterestList(interest: String) {
         _selectedInterestList.value.add(interest)
     }
 
-    fun removeInterest(interest: String) {
+    fun removeFromInterestList(interest: String) {
         _selectedInterestList.value.remove(interest)
     }
 
     // 유효성 검사
-    fun validate(): Boolean {
-        _isValidate.value = selectedInterestList.value.isNotEmpty()
-        return isValidate.value ?: false
+    fun validateStep3UserInput(): Boolean {
+        _isInterestListValidated.value = selectedInterestList.value.isNotEmpty()
+        return isInterestListValidated.value ?: false
     }
 
-    fun reset(){
-        _isValidate.value = null
+    fun resetStep3States(){
+        _isInterestListValidated.value = null
         _selectedInterestList.value = mutableListOf()
     }
 }

@@ -38,22 +38,22 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
         settingCollector()
-        joinStep2ViewModel.inputSmsCode.value = SmsReceiver.smsCode.value
+        joinStep2ViewModel.userInputSmsCode.value = SmsReceiver.smsCode.value
     }
 
     // 에러 메시지 설정
     private fun settingTextInputLayoutError(){
 
         // 이름 에러
-        collectWhenStarted(joinStep2ViewModel.nameValidation){
+        collectWhenStarted(joinStep2ViewModel.userInputNameValidation){
             binding.textInputLayoutJoinUserName.error = it
         }
 
-        collectWhenStarted(joinStep2ViewModel.phoneValidation){
+        collectWhenStarted(joinStep2ViewModel.userInputPhoneValidation){
             binding.textInputLayoutJoinUserPhone.error = it
         }
 
-        collectWhenStarted(joinStep2ViewModel.inputSmsCodeValidation){
+        collectWhenStarted(joinStep2ViewModel.userInputSmsCodeValidation){
             binding.textInputLayoutJoinPhoneAuth.error = it
         }
 
@@ -70,13 +70,13 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         binding.buttonJoinPhoneAuth.setOnClickListener {
             joinStep2ViewModel.showLoading()
             // 전화번호 유효성 검사 먼저 한 후
-            if(!joinStep2ViewModel.checkPhoneValidation()){
+            if(!joinStep2ViewModel.checkUserInputPhoneValidation()){
                 joinStep2ViewModel.hideLoading()
                 return@setOnClickListener
             }
 
             // 응답한 전화번호로 인증번호 SMS 보내기
-            joinStep2ViewModel.sendCode(requireActivity()){
+            joinStep2ViewModel.sendPhoneAuthCode(requireActivity()){
                 startSmsReceiver()
             }
         }
@@ -84,7 +84,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
 
     private fun settingCollector(){
         // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
-        collectWhenStarted(joinStep2ViewModel.isCodeSent) {
+        collectWhenStarted(joinStep2ViewModel.isPhoneAuthCodeSent) {
             joinStep2ViewModel.hideLoading()
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
@@ -94,7 +94,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
             }
         }
 
-        collectWhenStarted(joinStep2ViewModel.authExpired) {
+        collectWhenStarted(joinStep2ViewModel.isPhoneAuthExpired) {
             if(it){
                 binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.pointColor))
                 binding.buttonJoinPhoneAuth.isClickable = true
@@ -106,7 +106,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
 
         // SmsReceiver에서 받은 인증 코드를 입력창에 넣어줌
         collectWhenStarted(SmsReceiver.smsCode){
-            joinStep2ViewModel.inputSmsCode.value = it
+            joinStep2ViewModel.userInputSmsCode.value = it
         }
     }
 

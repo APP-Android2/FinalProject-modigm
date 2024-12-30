@@ -20,51 +20,51 @@ class JoinStep1ViewModel @Inject constructor(
     // ================1. 유효성 검사 관련==============================================================
 
     // 이메일
-    val userEmail = MutableStateFlow("")
+    val userInputEmail = MutableStateFlow("")
     // 이메일 유효성 검사
-    val emailValidation = MutableStateFlow("")
+    val userInputEmailValidation = MutableStateFlow("")
 
     // 비밀번호
-    val userPassword = MutableStateFlow("")
+    val userInputPassword = MutableStateFlow("")
     // 비밀번호 유효성 검사
-    val pwValidation = MutableStateFlow("")
+    val userInputPwValidation = MutableStateFlow("")
 
     // 비밀번호 확인
-    val userPasswordCheck = MutableStateFlow("")
+    val userInputPasswordCheck = MutableStateFlow("")
     // 비밀번호 확인 유효성 검사
-    val pwCheckValidation = MutableStateFlow("")
+    val userInputPwCheckValidation = MutableStateFlow("")
 
     // 입력한 내용 유효성 검사
-    fun validate(): Boolean {
+    fun validateStep1UserInput(): Boolean {
         // 에러 초기화
-        emailValidation.value = ""
-        pwValidation.value = ""
-        pwCheckValidation.value = ""
+        userInputEmailValidation.value = ""
+        userInputPwValidation.value = ""
+        userInputPwCheckValidation.value = ""
 
         var result = true
 
-        if(userEmail.value.isEmpty()){
-            emailValidation.value = "이메일을 입력해주세요."
+        if(userInputEmail.value.isEmpty()){
+            userInputEmailValidation.value = "이메일을 입력해주세요."
             result = false
         }
-        if(userEmail.value.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(userEmail.value).matches()){
-            emailValidation.value = "올바른 이메일 형식이 아닙니다."
+        if(userInputEmail.value.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(userInputEmail.value).matches()){
+            userInputEmailValidation.value = "올바른 이메일 형식이 아닙니다."
             result = false
         }
-        if(userPassword.value.isEmpty()){
-            pwValidation.value = "비밀번호를 입력해주세요."
+        if(userInputPassword.value.isEmpty()){
+            userInputPwValidation.value = "비밀번호를 입력해주세요."
             result = false
         }
-        if(userPassword.value.isNotEmpty() && !Pattern.matches("^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&.])[A-Za-z[0-9]$@$!%*#?&.]{8,20}$", userPassword.value)){
-            pwValidation.value = "영문, 숫자, 특수문자가 포함된 비밀번호를 8~20자로 입력해주세요."
+        if(userInputPassword.value.isNotEmpty() && !Pattern.matches("^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&.])[A-Za-z[0-9]$@$!%*#?&.]{8,20}$", userInputPassword.value)){
+            userInputPwValidation.value = "영문, 숫자, 특수문자가 포함된 비밀번호를 8~20자로 입력해주세요."
             result = false
         }
-        if(userPasswordCheck.value.isEmpty()){
-            pwCheckValidation.value = "비밀번호 확인을 입력해주세요."
+        if(userInputPasswordCheck.value.isEmpty()){
+            userInputPwCheckValidation.value = "비밀번호 확인을 입력해주세요."
             result = false
         }
-        if(userPassword.value.isNotEmpty() && userPasswordCheck.value.isNotEmpty() &&  userPassword.value != userPasswordCheck.value){
-            pwCheckValidation.value = "비밀번호가 일치하지 않습니다."
+        if(userInputPassword.value.isNotEmpty() && userInputPasswordCheck.value.isNotEmpty() &&  userInputPassword.value != userInputPasswordCheck.value){
+            userInputPwCheckValidation.value = "비밀번호가 일치하지 않습니다."
             result = false
         }
 
@@ -72,13 +72,13 @@ class JoinStep1ViewModel @Inject constructor(
     }
 
     // 입력값 초기화
-    fun reset(){
-        userEmail.value = ""
-        emailValidation.value = ""
-        userPassword.value = ""
-        pwValidation.value = ""
-        userPasswordCheck.value = ""
-        pwCheckValidation.value = ""
+    fun resetStep1States(){
+        userInputEmail.value = ""
+        userInputEmailValidation.value = ""
+        userInputPassword.value = ""
+        userInputPwValidation.value = ""
+        userInputPasswordCheck.value = ""
+        userInputPwCheckValidation.value = ""
         _isEmailVerified.value = false
     }
 
@@ -93,7 +93,7 @@ class JoinStep1ViewModel @Inject constructor(
     }
 
     // 메일 인증 여부 체크
-    fun checkEmailValidation(moveNext: (boolean: Boolean) -> Unit) {
+    fun checkFirebaseEmailValidation(moveNext: (boolean: Boolean) -> Unit) {
         viewModelScope.launch {
             _auth.currentUser?.let { user ->
                 user.reload().await()
@@ -111,7 +111,7 @@ class JoinStep1ViewModel @Inject constructor(
             _auth.currentUser?.sendEmailVerification()
         }catch (e: Exception){
             Log.e("sendEmailAuth", "${e.message}")
-            emailValidation.value = "인증 메일 발송 실패"
+            userInputEmailValidation.value = "인증 메일 발송 실패"
         }
     }
 
