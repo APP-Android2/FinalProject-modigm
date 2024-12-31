@@ -19,12 +19,10 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.CannedAccessControlList
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.BuildConfig
+import kr.co.lion.modigm.db.FirestoreKeyProvider
 import kr.co.lion.modigm.db.HikariCPDataSource
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.model.UserData
@@ -174,11 +172,9 @@ class RemoteProfileDao {
             ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
         }
 
-        // AWS 자격 증명
-        val accessKey = BuildConfig.BK_ACCESSKEY
-        val secretKey = BuildConfig.BK_SECRETKEY
-        val bucketName = BuildConfig.BK_NAME
-//        val region = "AP_NORTHEAST_2"
+        // Firestore에서 AWS 키 가져오기
+        val keyProvider = FirestoreKeyProvider()
+        val (accessKey, secretKey, bucketName) = keyProvider.getAwsKeys()
 
         // AWS S3 클라이언트 초기화
         val credentials = BasicAWSCredentials(accessKey, secretKey)

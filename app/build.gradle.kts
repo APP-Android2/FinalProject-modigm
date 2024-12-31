@@ -42,15 +42,6 @@ android {
         buildConfigField("String", "DB_USER", databaseUser)
         buildConfigField("String", "DB_PASSWORD", databasePassword)
 
-        // aws s3
-        val bucketAccessKey = localProperties.getProperty("bucket_accessKey") ?:""
-        val bucketSecretKey = localProperties.getProperty("bucket_secretKey") ?:""
-        val bucketName = localProperties.getProperty("bucket_name") ?:""
-
-        buildConfigField("String", "BK_ACCESSKEY", bucketAccessKey)
-        buildConfigField("String", "BK_SECRETKEY", bucketSecretKey)
-        buildConfigField("String", "BK_NAME", bucketName)
-
         // Notification 관련 설정
         val serviceAccountType = localProperties.getProperty("service_account_type") ?: ""
         val projectId = localProperties.getProperty("project_id") ?: ""
@@ -108,6 +99,11 @@ android {
         viewBinding = true
         dataBinding = true
         buildConfig = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
     // 빌드 과정에서 제외할 파일 지정 (리소스 파일 중복 문제 방지)
@@ -206,5 +202,39 @@ dependencies {
     // SMS Retriever
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.google.android.gms:play-services-auth-api-phone:18.1.0")
+
+    // 컴포즈
+    val composeBom = platform("androidx.compose:compose-bom:2024.10.01")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    // Choose one of the following:
+    // Material Design 3
+    implementation("androidx.compose.material3:material3")
+    // or skip Material Design and build directly on top of foundational components
+    implementation("androidx.compose.foundation:foundation")
+    // or only import the main APIs for the underlying toolkit systems,
+    // such as input and measurement/layout
+    implementation("androidx.compose.ui:ui")
+    // Android Studio Preview support
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    // UI Tests
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    // Optional - Included automatically by material, only add when you need
+    // the icons but not the material library (e.g. when using Material3 or a
+    // custom design system based on Foundation)
+    implementation("androidx.compose.material:material-icons-core")
+    // Optional - Add full set of material icons
+    implementation("androidx.compose.material:material-icons-extended")
+    // Optional - Add window size utils
+    implementation("androidx.compose.material3.adaptive:adaptive")
+
+    // Optional - Integration with activities
+    implementation("androidx.activity:activity-compose:1.9.2")
+    // Optional - Integration with ViewModels
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
+    // Optional - Integration with LiveData
+    implementation("androidx.compose.runtime:runtime-livedata")
 
 }

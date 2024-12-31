@@ -13,12 +13,6 @@ class LoginRepository {
 
     private val loginDataSource by lazy { RemoteLoginDataSource() }
 
-    /**
-     * 이메일과 비밀번호로 로그인
-     * @param email 사용자의 이메일
-     * @param password 사용자의 비밀번호
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
     suspend fun emailLogin(email: String, password: String): Result<Int> {
         return runCatching {
             loginDataSource.emailLogin(email, password).getOrThrow()
@@ -28,25 +22,15 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 깃허브로 로그인
-     * @param context 액티비티 컨텍스트
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
-    suspend fun githubLogin(context: Activity): Result<Int> {
+    suspend fun githubLogin(activity: Activity): Result<Int> {
         return runCatching {
-            loginDataSource.githubLogin(context).getOrThrow()
+            loginDataSource.githubLogin(activity).getOrThrow()
         }.onFailure { e ->
             Log.e(logTag, "깃허브 로그인 중 오류 발생: ${e.message}", e)
             Result.failure<Int>(e)
         }
     }
 
-    /**
-     * 카카오로 로그인
-     * @param context 컨텍스트
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
     suspend fun kakaoLogin(context: Context): Result<Int> {
         return runCatching {
             loginDataSource.kakaoLogin(context).getOrThrow()
@@ -56,11 +40,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 자동 로그인
-     * @param userIdx 사용자의 인덱스
-     * @return Result<Int> 로그인 성공 여부를 반환
-     */
     suspend fun autoLogin(userIdx: Int): Result<Int> {
         return runCatching {
             loginDataSource.autoLogin(userIdx).getOrThrow()
@@ -70,11 +49,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 전화번호로 사용자 데이터 조회
-     * @param userPhone 사용자의 전화번호
-     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
-     */
     suspend fun getUserDataByUserPhone(userPhone: String): Result<UserData> {
         return runCatching {
             loginDataSource.getUserDataByUserPhone(userPhone).getOrThrow()
@@ -84,11 +58,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 이메일로 사용자 데이터 조회
-     * @param userEmail 사용자의 이메일
-     * @return Result<SqlUserData> 조회된 사용자 데이터를 반환
-     */
     suspend fun getUserDataByUserEmail(userEmail: String): Result<UserData> {
         return runCatching {
             loginDataSource.getUserDataByUserEmail(userEmail).getOrThrow()
@@ -98,12 +67,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 전화 인증 코드 발송
-     * @param activity 액티비티 컨텍스트
-     * @param userPhone 사용자의 전화번호
-     * @return Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> 인증 코드 발송 결과를 반환
-     */
     suspend fun sendPhoneAuthCode(activity: Activity, userPhone: String): Result<Triple<String, PhoneAuthCredential?, PhoneAuthProvider.ForceResendingToken?>> {
         return runCatching {
             loginDataSource.sendPhoneAuthCode(activity, userPhone).getOrThrow()
@@ -113,12 +76,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 인증번호 확인 (이메일 찾기)
-     * @param verificationId 인증 ID
-     * @param authCode 사용자가 입력한 인증 코드
-     * @return Result<String> 이메일을 반환
-     */
     suspend fun getEmailByAuthCode(verificationId: String, authCode: String): Result<String> {
         return runCatching {
             loginDataSource.getEmailByAuthCode(verificationId, authCode).getOrThrow()
@@ -128,12 +85,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 인증 코드로 로그인
-     * @param verificationId 인증 ID
-     * @param authCode 사용자가 입력한 인증 코드
-     * @return Result<Boolean> 로그인 성공 여부를 반환
-     */
     suspend fun signInByAuthCode(verificationId: String, authCode: String): Result<Boolean> {
         return runCatching {
             loginDataSource.signInByAuthCode(verificationId, authCode).getOrThrow()
@@ -143,11 +94,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 비밀번호 변경
-     * @param newPassword 새로운 비밀번호
-     * @return Result<Boolean> 비밀번호 변경 성공 여부를 반환
-     */
     suspend fun updatePassword(newPassword: String): Result<Boolean> {
         return runCatching {
             loginDataSource.updatePassword(newPassword).getOrThrow()
@@ -157,9 +103,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 유저 비밀번호 재인증
-     */
     suspend fun checkPassword(userPassword: String): Result<String> {
         return runCatching {
             loginDataSource.checkPassword(userPassword).getOrThrow()
@@ -169,9 +112,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 카카오 재인증
-     */
     suspend fun reAuthenticateWithKakao(context: Activity): Result<String> {
         return runCatching {
             loginDataSource.reAuthenticateWithKakao(context).getOrThrow()
@@ -181,9 +121,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 깃허브 재인증
-     */
     suspend fun reAuthenticateWithGithub(context: Activity): Result<String> {
         return runCatching {
             loginDataSource.reAuthenticateWithGithub(context).getOrThrow()
@@ -193,9 +130,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 전화번호 변경
-     */
     suspend fun updatePhone(userIdx: Int, currentUserPhone:String, newUserPhone:String, verificationId: String, authCode: String): Result<Boolean> {
         return runCatching {
             loginDataSource.updatePhone(userIdx, currentUserPhone, newUserPhone, verificationId, authCode).getOrThrow()
@@ -205,9 +139,6 @@ class LoginRepository {
         }
     }
 
-    /**
-     * 로그아웃
-     */
     fun authLogout(): Result<Boolean> {
         return runCatching {
             loginDataSource.authLogout().getOrThrow()

@@ -130,7 +130,7 @@ class FindEmailAuthFragment : VBBaseFragment<FragmentFindEmailAuthBinding>(Fragm
             setTitle("이메일 찾기")
             setEmail("$email 입니다.")
             setPositiveButton("확인") {
-                parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                parentFragmentManager.popBackStack(FragmentName.EMAIL_LOGIN.str,0)
             }
             show()
         }
@@ -144,7 +144,7 @@ class FindEmailAuthFragment : VBBaseFragment<FragmentFindEmailAuthBinding>(Fragm
             setPositiveButton("확인") {
                 lifecycleScope.launch {
                     viewModel.authLogout()
-                    parentFragmentManager.popBackStack(FragmentName.OTHER_LOGIN.str,0)
+                    parentFragmentManager.popBackStack(FragmentName.EMAIL_LOGIN.str,0)
                 }
             }
             setNegativeButton("취소") {
