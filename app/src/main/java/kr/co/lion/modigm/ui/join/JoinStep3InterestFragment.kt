@@ -7,15 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentJoinStep3Binding
+import kr.co.lion.modigm.databinding.FragmentJoinStep3InterestBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
-import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep3InterestViewModel
 import kr.co.lion.modigm.util.Interest
 import kr.co.lion.modigm.util.collectWhenStarted
 
-class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.fragment_join_step3) {
+class JoinStep3InterestFragment : DBBaseFragment<FragmentJoinStep3InterestBinding>(R.layout.fragment_join_step3_interest) {
 
-    private val joinStep3ViewModel: JoinStep3ViewModel by activityViewModels()
+    private val joinStep3InterestViewModel: JoinStep3InterestViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,7 +23,7 @@ class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.frag
     ): View? {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState)
-        binding.viewModel = joinStep3ViewModel
+        binding.viewModel = joinStep3InterestViewModel
 
         return binding.root
     }
@@ -54,12 +54,12 @@ class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.frag
                             if(isChecked){
                                 setTextColor(resources.getColor(R.color.white, null))
                                 setChipBackgroundColorResource(R.color.pointColor)
-                                joinStep3ViewModel.addToInterestList(chipName.str)
+                                joinStep3InterestViewModel.addToInterestList(chipName.str)
 
                             }else{
                                 setTextColor(resources.getColor(R.color.textGray, null))
                                 setChipBackgroundColorResource(R.color.white)
-                                joinStep3ViewModel.removeFromInterestList(chipName.str)
+                                joinStep3InterestViewModel.removeFromInterestList(chipName.str)
                             }
                         }
                     }
@@ -69,7 +69,7 @@ class JoinStep3Fragment : DBBaseFragment<FragmentJoinStep3Binding>(R.layout.frag
     }
     private fun settingCollector(){
         // 에러메시지 셋팅
-        collectWhenStarted(joinStep3ViewModel.isInterestListValidated) {
+        collectWhenStarted(joinStep3InterestViewModel.isInterestListValidated) {
             if(it == true){
                 binding.textViewJoinAlert.visibility = View.GONE
             }else if(it == false){

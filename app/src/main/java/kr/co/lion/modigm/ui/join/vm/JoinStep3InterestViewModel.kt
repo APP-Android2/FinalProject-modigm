@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class JoinStep3ViewModel: ViewModel() {
+class JoinStep3InterestViewModel: ViewModel() {
 
     // 유효성 검사 여부
     private var _isInterestListValidated = MutableStateFlow<Boolean?>(null)

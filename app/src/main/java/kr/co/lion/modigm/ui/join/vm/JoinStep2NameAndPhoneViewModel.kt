@@ -20,9 +20,9 @@ import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
-class JoinStep2ViewModel @Inject constructor(
-    private val _db: JoinRepository,
-    private val _auth: FirebaseAuth
+class JoinStep2NameAndPhoneViewModel @Inject constructor(
+    private val _joinRepository: JoinRepository,
+    private val _firebaseAuth: FirebaseAuth
 ): ViewModel() {
     // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================
     val showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
@@ -161,7 +161,7 @@ class JoinStep2ViewModel @Inject constructor(
     // 전화번호 인증계정을 앞선 이메일(SNS)계정과 연결
     suspend fun linkWithPhoneAuthCredential(): String {
         // DB에 해당 번호로 등록된 계정이 있는지 확인한다.
-        _db.checkUserByPhone(userInputPhone.value).onSuccess { resultMap ->
+        _joinRepository.checkUserByPhone(userInputPhone.value).onSuccess { resultMap ->
             if(resultMap != null){
                 _phoneAuthErrorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
                 _alreadyRegisteredUserProvider.value = resultMap["userProvider"] ?: ""
@@ -174,12 +174,12 @@ class JoinStep2ViewModel @Inject constructor(
             try{
                 _phoneAuthErrorMessage.value = ""
                 val phoneCredential = PhoneAuthProvider.getCredential(_phoneAuthVerificationId.value, userInputSmsCode.value)
-                val linkedNumber = _auth.currentUser?.providerData?.find { it.providerId == PhoneAuthProvider.PROVIDER_ID }?.phoneNumber
+                val linkedNumber = _firebaseAuth.currentUser?.providerData?.find { it.providerId == PhoneAuthProvider.PROVIDER_ID }?.phoneNumber
                 if (!linkedNumber.isNullOrEmpty()) {
-                    _auth.currentUser?.reload()?.await()
-                    _auth.currentUser?.unlink(PhoneAuthProvider.PROVIDER_ID)?.await()
+                    _firebaseAuth.currentUser?.reload()?.await()
+                    _firebaseAuth.currentUser?.unlink(PhoneAuthProvider.PROVIDER_ID)?.await()
                 }
-                _auth.currentUser?.linkWithCredential(phoneCredential)?.await()
+                _firebaseAuth.currentUser?.linkWithCredential(phoneCredential)?.await()
             }catch (e: FirebaseAuthException){
                 _phoneAuthErrorMessage.value = e.message.toString()
                 userInputSmsCodeValidation.value = _phoneAuthErrorMessage.value
@@ -197,9 +197,9 @@ class JoinStep2ViewModel @Inject constructor(
         // 전화번호 앞에 "+82 " 국가코드 붙여주기
         val setNumber = userInputPhone.value.replaceRange(0,1,"+82 ")
 
-        _auth.setLanguageCode("kr")
+        _firebaseAuth.setLanguageCode("kr")
 
-        val options = PhoneAuthOptions.newBuilder(_auth)
+        val options = PhoneAuthOptions.newBuilder(_firebaseAuth)
             .setPhoneNumber(setNumber) // Phone number to verify
             .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
             .setActivity(activity) // Activity (for callback binding)

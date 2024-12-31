@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel" />
+            type="kr.co.lion.modigm.ui.join.vm.JoinStep3InterestViewModel" />
     </data>
 
     <LinearLayout
@@ -17,7 +17,7 @@
         android:paddingTop="40dp"
         android:paddingRight="16dp"
         android:transitionGroup="true"
-        tools:context=".ui.join.JoinStep3Fragment">
+        tools:context=".ui.join.JoinStep3InterestFragment">
 
         <ScrollView
             android:layout_width="match_parent"

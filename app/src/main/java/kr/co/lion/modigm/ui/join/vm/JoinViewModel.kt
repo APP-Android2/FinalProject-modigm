@@ -27,7 +27,7 @@ import javax.inject.Inject
 class JoinViewModel @Inject constructor(
     private val _joinRepository: JoinRepository,
     private val _loginRepository: LoginRepository,
-    private val _auth: FirebaseAuth
+    private val _firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
     // 파이어베이스에 연동된 유저
@@ -43,8 +43,8 @@ class JoinViewModel @Inject constructor(
     // sns계정의 email
     private var _snsUserEmail: MutableStateFlow<String?> = MutableStateFlow(null)
     fun setSnsUserEmail(){
-        if(_auth.currentUser != null){
-            _snsUserEmail.value = _auth.currentUser?.email ?: ""
+        if(_firebaseAuth.currentUser != null){
+            _snsUserEmail.value = _firebaseAuth.currentUser?.email ?: ""
         }
     }
 
@@ -92,8 +92,8 @@ class JoinViewModel @Inject constructor(
     // 회원 객체 생성을 위한 정보
     private val _userUid: MutableStateFlow<String?> = MutableStateFlow(null)
     fun setUserUid() {
-        if (_auth.currentUser != null) {
-            _userUid.value = _auth.currentUser?.uid
+        if (_firebaseAuth.currentUser != null) {
+            _userUid.value = _firebaseAuth.currentUser?.uid
         }
     }
 
@@ -121,7 +121,7 @@ class JoinViewModel @Inject constructor(
         // 오류 메시지
         var error = ""
         try {
-            val authResult = _auth.createUserWithEmailAndPassword(_userEmail.value, _userPassword.value).await()
+            val authResult = _firebaseAuth.createUserWithEmailAndPassword(_userEmail.value, _userPassword.value).await()
             _firebaseUser.value = authResult.user
             _userUid.value = authResult.user?.uid?:""
             _verifiedEmail.value = _userEmail.value
@@ -137,7 +137,7 @@ class JoinViewModel @Inject constructor(
     fun deleteCurrentRegisteredFirebaseUser(){
         // 인증 정보 삭제
         CoroutineScope(Dispatchers.IO).launch {
-            _auth.currentUser?.delete()?.addOnSuccessListener {
+            _firebaseAuth.currentUser?.delete()?.addOnSuccessListener {
                 Log.d("JoinViewModel", "deleteCurrentUser: 인증 정보 삭제 성공")
             }
         }
@@ -163,7 +163,7 @@ class JoinViewModel @Inject constructor(
     // 회원 가입 완료
     fun completeJoinProcess(handler: CoroutineExceptionHandler){
         viewModelScope.launch(handler) {
-            _firebaseUser.value = _auth.currentUser
+            _firebaseUser.value = _firebaseAuth.currentUser
 
             val user = createUserInfoData()
             val result = _joinRepository.insetUserData(user)
@@ -217,8 +217,8 @@ class JoinViewModel @Inject constructor(
     }
 
     fun signOutCurrentFirebaseUser(){
-        if(_auth.currentUser != null){
-            _auth.signOut()
+        if(_firebaseAuth.currentUser != null){
+            _firebaseAuth.signOut()
         }
     }
 

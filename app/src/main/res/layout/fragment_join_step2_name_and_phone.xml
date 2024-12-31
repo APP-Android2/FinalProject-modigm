@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel" />
+            type="kr.co.lion.modigm.ui.join.vm.JoinStep2NameAndPhoneViewModel" />
     </data>
 
     <ScrollView
@@ -21,7 +21,7 @@
             android:paddingTop="40dp"
             android:paddingRight="16dp"
             android:transitionGroup="true"
-            tools:context=".ui.join.JoinStep2Fragment">
+            tools:context=".ui.join.JoinStep2NameAndPhoneFragment">
 
             <TextView
                 android:layout_width="match_parent"

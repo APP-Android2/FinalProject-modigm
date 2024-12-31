@@ -13,7 +13,7 @@ import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
-class JoinStep1ViewModel @Inject constructor(
+class JoinStep1EmailAndPwViewModel @Inject constructor(
     private val _auth: FirebaseAuth
 ): ViewModel() {
 

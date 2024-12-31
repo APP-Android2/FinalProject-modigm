@@ -11,16 +11,16 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentJoinStep2Binding
+import kr.co.lion.modigm.databinding.FragmentJoinStep2NameAndPhoneBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
-import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep2NameAndPhoneViewModel
 import kr.co.lion.modigm.util.SmsReceiver
 import kr.co.lion.modigm.util.collectWhenStarted
 
 @AndroidEntryPoint
-class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.fragment_join_step2) {
+class JoinStep2NameAndPhoneFragment : DBBaseFragment<FragmentJoinStep2NameAndPhoneBinding>(R.layout.fragment_join_step2_name_and_phone) {
 
-    private val joinStep2ViewModel: JoinStep2ViewModel by activityViewModels()
+    private val joinStep2NameAndPhoneViewModel: JoinStep2NameAndPhoneViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,7 +28,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
     ): View? {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState)
-        binding.viewModel = joinStep2ViewModel
+        binding.viewModel = joinStep2NameAndPhoneViewModel
         return binding.root
     }
 
@@ -38,22 +38,22 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         settingTextInputUserPhone()
         settingButtonPhoneAuth()
         settingCollector()
-        joinStep2ViewModel.userInputSmsCode.value = SmsReceiver.smsCode.value
+        joinStep2NameAndPhoneViewModel.userInputSmsCode.value = SmsReceiver.smsCode.value
     }
 
     // 에러 메시지 설정
     private fun settingTextInputLayoutError(){
 
         // 이름 에러
-        collectWhenStarted(joinStep2ViewModel.userInputNameValidation){
+        collectWhenStarted(joinStep2NameAndPhoneViewModel.userInputNameValidation){
             binding.textInputLayoutJoinUserName.error = it
         }
 
-        collectWhenStarted(joinStep2ViewModel.userInputPhoneValidation){
+        collectWhenStarted(joinStep2NameAndPhoneViewModel.userInputPhoneValidation){
             binding.textInputLayoutJoinUserPhone.error = it
         }
 
-        collectWhenStarted(joinStep2ViewModel.userInputSmsCodeValidation){
+        collectWhenStarted(joinStep2NameAndPhoneViewModel.userInputSmsCodeValidation){
             binding.textInputLayoutJoinPhoneAuth.error = it
         }
 
@@ -68,15 +68,15 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
         binding.textInputLayoutJoinUserPhone.error = ""
 
         binding.buttonJoinPhoneAuth.setOnClickListener {
-            joinStep2ViewModel.showLoading()
+            joinStep2NameAndPhoneViewModel.showLoading()
             // 전화번호 유효성 검사 먼저 한 후
-            if(!joinStep2ViewModel.checkUserInputPhoneValidation()){
-                joinStep2ViewModel.hideLoading()
+            if(!joinStep2NameAndPhoneViewModel.checkUserInputPhoneValidation()){
+                joinStep2NameAndPhoneViewModel.hideLoading()
                 return@setOnClickListener
             }
 
             // 응답한 전화번호로 인증번호 SMS 보내기
-            joinStep2ViewModel.sendPhoneAuthCode(requireActivity()){
+            joinStep2NameAndPhoneViewModel.sendPhoneAuthCode(requireActivity()){
                 startSmsReceiver()
             }
         }
@@ -84,8 +84,8 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
 
     private fun settingCollector(){
         // 인증 코드 발송이 성공하면 인증번호 입력 창 보여주기
-        collectWhenStarted(joinStep2ViewModel.isPhoneAuthCodeSent) {
-            joinStep2ViewModel.hideLoading()
+        collectWhenStarted(joinStep2NameAndPhoneViewModel.isPhoneAuthCodeSent) {
+            joinStep2NameAndPhoneViewModel.hideLoading()
             if(it){
                 binding.linearLayoutJoinPhoneAuth.visibility = View.VISIBLE
                 binding.textinputJoinPhoneAuth.requestFocus()
@@ -94,7 +94,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
             }
         }
 
-        collectWhenStarted(joinStep2ViewModel.isPhoneAuthExpired) {
+        collectWhenStarted(joinStep2NameAndPhoneViewModel.isPhoneAuthExpired) {
             if(it){
                 binding.buttonJoinPhoneAuth.setBackgroundColor(requireContext().getColor(R.color.pointColor))
                 binding.buttonJoinPhoneAuth.isClickable = true
@@ -106,7 +106,7 @@ class JoinStep2Fragment : DBBaseFragment<FragmentJoinStep2Binding>(R.layout.frag
 
         // SmsReceiver에서 받은 인증 코드를 입력창에 넣어줌
         collectWhenStarted(SmsReceiver.smsCode){
-            joinStep2ViewModel.userInputSmsCode.value = it
+            joinStep2NameAndPhoneViewModel.userInputSmsCode.value = it
         }
     }
 
