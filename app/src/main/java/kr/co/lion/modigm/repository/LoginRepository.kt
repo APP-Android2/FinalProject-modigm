@@ -149,7 +149,7 @@ class LoginRepository {
     }
 
     // FCM 토큰 등록 메서드
-    suspend fun registerFcmToken(userIdx: Int, fcmToken: String): Boolean {
+    suspend fun registerFcmToken(userIdx: Int, fcmToken: String): Result<Boolean> {
         return loginDataSource.registerFcmToken(userIdx, fcmToken)
     }
 

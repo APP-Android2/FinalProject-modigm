@@ -190,8 +190,9 @@ class RemoteLoginDao {
         }
 
     // FCM 토큰 삽입 또는 업데이트 메서드
-    suspend fun insertUserFcmToken(userIdx: Int, fcmToken: String): Boolean = withContext(Dispatchers.IO) {
-        try {
+    suspend fun insertUserFcmToken(userIdx: Int, fcmToken: String): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+        runCatching {
             HikariCPDataSource.getConnection().use { connection ->
                 Log.d(tag, "Preparing to insert FCM token for userIdx: $userIdx with token: $fcmToken")
                 val query = """
@@ -207,9 +208,8 @@ class RemoteLoginDao {
                     rowsUpdated > 0
                 }
             }
-        } catch (e: Exception) {
+        }.onFailure { e ->
             Log.e(tag, "Error inserting FCM token", e)
-            false
         }
     }
 
