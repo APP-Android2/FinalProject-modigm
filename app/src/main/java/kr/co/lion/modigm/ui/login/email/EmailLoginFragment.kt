@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,7 +53,9 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                     onNavigateToFindEmailFragment = { navigateToFindEmailFragment() },
                     onNavigateToFindPasswordFragment = { navigateToFindPasswordFragment() },
                     onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
-                    onEmailLoginButtonClick = {  },
+                    onEmailLoginButtonClick = { email, password, autoLoginValue ->
+                        viewModel.emailLogin(email, password, autoLoginValue)
+                    },
                     onNavigateToSocialLoginFragment = { navigateToSocialLoginFragment() },
                     showLoginErrorDialog = { error -> showErrorDialog(error) },
                 )
@@ -63,8 +66,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initView() // 초기 UI 설정
-        observeViewModel() // ViewModel의 데이터 변경 관찰
+        initView()
     }
 
     override fun onResume() {
@@ -153,24 +155,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
             // 돌아가기 버튼 클릭 시
             buttonOtherBack.setOnClickListener {
                 parentFragmentManager.popBackStack()
-            }
-        }
-    }
-
-    // ViewModel의 데이터 변경을 관찰하여 UI 업데이트
-    private fun observeViewModel() {
-        // 이메일 로그인 데이터 관찰
-        viewModel.emailLoginResult.observe(viewLifecycleOwner) { result ->
-            if (result) {
-                Log.i(logTag, "이메일 로그인 성공")
-                val joinType = JoinType.EMAIL
-                navigateToBottomNaviFragment(joinType)
-            }
-        }
-        // 이메일 로그인 실패 시 에러 처리
-        viewModel.emailLoginError.observe(viewLifecycleOwner) { error ->
-            if (error != null) {
-                showErrorDialog(error)
             }
         }
     }
@@ -302,7 +286,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
 
     // 이메일 유효성을 검사하는 함수
     private fun isEmailValid(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
 

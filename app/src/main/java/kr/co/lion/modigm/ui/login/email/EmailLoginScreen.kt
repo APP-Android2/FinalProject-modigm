@@ -37,6 +37,7 @@ import kr.co.lion.modigm.ui.login.email.component.FindEmailTextButton
 import kr.co.lion.modigm.ui.login.email.component.FindPasswordTextButton
 import kr.co.lion.modigm.ui.login.email.component.NavigateToSocialLoginButton
 import kr.co.lion.modigm.ui.login.email.component.PasswordTextField
+import kr.co.lion.modigm.ui.login.social.dpToSp
 import kr.co.lion.modigm.util.JoinType
 
 @Composable
@@ -47,13 +48,19 @@ fun EmailLoginScreen(
     onNavigateToBottomNaviFragment: (JoinType) -> Unit,
     onNavigateToFindEmailFragment: () -> Unit,
     onNavigateToFindPasswordFragment: () -> Unit,
-    onEmailLoginButtonClick: () -> Unit,
+    onEmailLoginButtonClick: (String, String, Boolean) -> Unit,
     onNavigateToSocialLoginFragment: () -> Unit,
     onNavigateToJoinFragment: (JoinType) -> Unit,
     showLoginErrorDialog: (Throwable) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val email = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
     val isChecked = remember { mutableStateOf(false) }
+
+    val isLoginButtonEnabled = remember(email.value, password.value) {
+        email.value.isNotBlank() && password.value.isNotBlank()
+    }
 
     LaunchedEffect(emailLoginResult) {
         if (emailLoginResult) {
@@ -78,8 +85,14 @@ fun EmailLoginScreen(
         ) {
             EmailLoginTitle()
             EmailLoginSubTitle()
-            EmailTextField()
-            PasswordTextField()
+            EmailTextField(
+                email = email.value,
+                onEmailChange = { email.value = it }
+            )
+            PasswordTextField(
+                password = password.value,
+                onPasswordChange = { password.value = it }
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -103,7 +116,10 @@ fun EmailLoginScreen(
                     FindPasswordTextButton(onNavigateToFindPasswordFragment = onNavigateToFindPasswordFragment)
                 }
             }
-            EmailLoginButton(onEmailLoginButtonClick = onEmailLoginButtonClick)
+            EmailLoginButton(
+                onEmailLoginButtonClick = { onEmailLoginButtonClick (email.value, password.value, isChecked.value) },
+                isEnabled = isLoginButtonEnabled
+            )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -173,7 +189,7 @@ fun EmailLoginScreenPreview() {
         showLoginErrorDialog = {},
         onNavigateToFindEmailFragment = {},
         onNavigateToFindPasswordFragment = {},
-        onEmailLoginButtonClick = {},
+        onEmailLoginButtonClick = { email, password, autoLoginValue -> println("email: $email, password: $password, autoLoginValue: $autoLoginValue") },
         onNavigateToSocialLoginFragment = {},
         onNavigateToJoinFragment = {},
     )

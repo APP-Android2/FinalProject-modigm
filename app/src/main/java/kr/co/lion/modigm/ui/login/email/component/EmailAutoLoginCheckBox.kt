@@ -14,7 +14,7 @@ import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun EmailAutoLoginCheckBox(
-    isChecked: MutableState<Boolean>
+    isChecked: MutableState<Boolean>,
 ) {
     Checkbox(
         checked = isChecked.value,
@@ -23,9 +23,11 @@ fun EmailAutoLoginCheckBox(
             .size(20.dp)
             .padding(top = 0.dp, bottom = 0.dp, start = 0.dp, end = 0.dp)
     )
-    Spacer(modifier = Modifier
-        .size(8.dp)
-        .clickable { isChecked.value = !isChecked.value })
+    Spacer(
+        modifier = Modifier
+            .size(8.dp)
+            .clickable { isChecked.value = !isChecked.value }
+    )
     Text(
         text = "자동 로그인",
         fontSize = dpToSp(16.dp),

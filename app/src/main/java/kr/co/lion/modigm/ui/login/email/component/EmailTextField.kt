@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -29,8 +28,10 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
-fun EmailTextField() {
-    var email by remember { mutableStateOf("") }
+fun EmailTextField(
+    email: String,
+    onEmailChange: (String) -> Unit
+) {
     val isError by remember { mutableStateOf(false) }
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
     Column(
@@ -40,9 +41,7 @@ fun EmailTextField() {
     ) {
         OutlinedTextField(
             value = email,
-            onValueChange = {
-                email = it
-            },
+            onValueChange = { onEmailChange(it) },
             modifier = Modifier.fillMaxWidth(),
             textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
             colors = TextFieldDefaults.colors(
@@ -58,15 +57,15 @@ fun EmailTextField() {
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_mail_24px),
-                    contentDescription = "Mail Icon"
+                    contentDescription = "이메일"
                 )
             },
             trailingIcon = {
                 if (email.isNotEmpty()) {
-                    IconButton(onClick = { email = "" }) {
+                    IconButton(onClick = { onEmailChange("") }) {
                         Icon(
                             imageVector = Icons.Default.Clear,
-                            contentDescription = "Clear Text"
+                            contentDescription = "이메일 초기화"
                         )
                     }
                 }

@@ -16,14 +16,16 @@ import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun EmailLoginButton(
-    onEmailLoginButtonClick: () -> Unit
+    onEmailLoginButtonClick: () -> Unit,
+    isEnabled: Boolean
 ) {
     Button(
         onClick = { onEmailLoginButtonClick() },
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp),
-        colors = buttonColors(Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor)))
+        colors = buttonColors(Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))),
+        enabled = isEnabled
     ) {
         Text(
             text = "로그인",

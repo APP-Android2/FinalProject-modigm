@@ -32,8 +32,10 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
-fun PasswordTextField() {
-    var password by remember { mutableStateOf("") }
+fun PasswordTextField(
+    password: String,
+    onPasswordChange: (String) -> Unit
+) {
     var isPasswordVisible by remember { mutableStateOf(false) }
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
     Column(
@@ -44,7 +46,7 @@ fun PasswordTextField() {
         OutlinedTextField(
             value = password,
             onValueChange = {
-                password = it
+                onPasswordChange(it)
                 isPasswordVisible = it.isEmpty()
             },
             modifier = Modifier
@@ -63,23 +65,18 @@ fun PasswordTextField() {
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_key_24px),
-                    contentDescription = "Key Icon"
+                    contentDescription = "비밀번호 아이콘"
                 )
             },
             trailingIcon = {
                 IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
-                        imageVector = if (isPasswordVisible) Icons.Default.Visibility
-                        else Icons.Default.VisibilityOff,
-                        contentDescription = if (isPasswordVisible) "Hide Password" else "Show Password"
+                        imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (isPasswordVisible) "비밀번호 숨김" else "비밀번호 보임"
                     )
                 }
             },
-            visualTransformation = if (isPasswordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
