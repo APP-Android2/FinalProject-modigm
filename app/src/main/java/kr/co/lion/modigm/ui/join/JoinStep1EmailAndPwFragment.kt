@@ -6,14 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentJoinStep1Binding
+import kr.co.lion.modigm.databinding.FragmentJoinStep1EmailAndPwBinding
 import kr.co.lion.modigm.ui.DBBaseFragment
-import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep1EmailAndPwViewModel
 import kr.co.lion.modigm.util.collectWhenStarted
 
-class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.fragment_join_step1) {
+class JoinStep1EmailAndPwFragment : DBBaseFragment<FragmentJoinStep1EmailAndPwBinding>(R.layout.fragment_join_step1_email_and_pw) {
 
-    private val joinStep1ViewModel: JoinStep1ViewModel by activityViewModels()
+    private val joinStep1EmailAndPwViewModel: JoinStep1EmailAndPwViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -21,7 +21,7 @@ class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.frag
     ): View? {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState)
-        binding.viewModel = joinStep1ViewModel
+        binding.viewModel = joinStep1EmailAndPwViewModel
         return binding.root
     }
 
@@ -34,17 +34,17 @@ class JoinStep1Fragment : DBBaseFragment<FragmentJoinStep1Binding>(R.layout.frag
     private fun settingTextInputLayoutError(){
 
         // 이메일 에러
-        collectWhenStarted(joinStep1ViewModel.emailValidation) {
+        collectWhenStarted(joinStep1EmailAndPwViewModel.userInputEmailValidation) {
             binding.textInputLayoutJoinUserEmail.error = it
         }
 
         // 비밀번호 에러
-        collectWhenStarted(joinStep1ViewModel.pwValidation) {
+        collectWhenStarted(joinStep1EmailAndPwViewModel.userInputPwValidation) {
             binding.textInputLayoutJoinUserPassword.error = it
         }
 
         // 비밀번호 확인 에러
-        collectWhenStarted(joinStep1ViewModel.pwCheckValidation) {
+        collectWhenStarted(joinStep1EmailAndPwViewModel.userInputPwCheckValidation) {
             binding.textInputLayoutJoinUserPasswordCheck.error = it
         }
     }

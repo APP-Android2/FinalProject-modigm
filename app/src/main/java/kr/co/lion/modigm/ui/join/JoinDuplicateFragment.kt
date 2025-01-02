@@ -15,9 +15,9 @@ import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.databinding.FragmentJoinDuplicateBinding
 import kr.co.lion.modigm.ui.VBBaseFragment
-import kr.co.lion.modigm.ui.join.vm.JoinStep1ViewModel
-import kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel
-import kr.co.lion.modigm.ui.join.vm.JoinStep3ViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep1EmailAndPwViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep2NameAndPhoneViewModel
+import kr.co.lion.modigm.ui.join.vm.JoinStep3InterestViewModel
 import kr.co.lion.modigm.ui.login.social.SocialLoginFragment
 import kr.co.lion.modigm.util.JoinType
 
@@ -39,9 +39,9 @@ class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(Fragm
         arguments?.getString("email")
     }
 
-    private val viewModelStep1: JoinStep1ViewModel by activityViewModels()
-    private val viewModelStep2: JoinStep2ViewModel by activityViewModels()
-    private val viewModelStep3: JoinStep3ViewModel by activityViewModels()
+    private val viewModelStep1: JoinStep1EmailAndPwViewModel by activityViewModels()
+    private val viewModelStep2: JoinStep2NameAndPhoneViewModel by activityViewModels()
+    private val viewModelStep3: JoinStep3InterestViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -81,9 +81,9 @@ class JoinDuplicateFragment : VBBaseFragment<FragmentJoinDuplicateBinding>(Fragm
         // 로그인 화면으로 돌아가거나 추후 가능할 경우 sns로그인 api 연동 예정
         binding.buttonJoinDupLogin.setOnClickListener {
             // 로그인 화면으로 돌아가면 입력값 초기화 및 계정(이메일,SNS) 삭제
-            viewModelStep1.reset()
-            viewModelStep2.reset()
-            viewModelStep3.reset()
+            viewModelStep1.resetStep1States()
+            viewModelStep2.resetStep2States()
+            viewModelStep3.resetStep3States()
 
             CoroutineScope(Dispatchers.IO).launch {
                 currentUser?.delete()?.addOnSuccessListener {

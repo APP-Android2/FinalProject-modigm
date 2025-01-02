@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="kr.co.lion.modigm.ui.join.vm.JoinStep2ViewModel" />
+            type="kr.co.lion.modigm.ui.join.vm.JoinStep2NameAndPhoneViewModel" />
     </data>
 
     <ScrollView
@@ -21,7 +21,7 @@
             android:paddingTop="40dp"
             android:paddingRight="16dp"
             android:transitionGroup="true"
-            tools:context=".ui.join.JoinStep2Fragment">
+            tools:context=".ui.join.JoinStep2NameAndPhoneFragment">
 
             <TextView
                 android:layout_width="match_parent"
@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:hint="이름 입력"
                     android:inputType="text"
-                    android:text="@={viewModel.userName}"
+                    android:text="@={viewModel.userInputName}"
                     android:textSize="16dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -97,7 +97,7 @@
                         android:hint="전화번호 입력"
                         android:imeOptions="actionDone"
                         android:inputType="phone"
-                        android:text="@={viewModel.userPhone}"
+                        android:text="@={viewModel.userInputPhone}"
                         android:textSize="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -107,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:text="@{viewModel.authButtonText}"
+                    android:text="@{viewModel.phoneAuthButtonText}"
                     android:textSize="14dp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -143,7 +143,7 @@
                         android:hint="인증번호 입력"
                         android:imeOptions="actionDone"
                         android:inputType="number"
-                        android:text="@={viewModel.inputSmsCode}"
+                        android:text="@={viewModel.userInputSmsCode}"
                         android:textSize="16dp"
                         app:errorTextAppearance="@style/dialogText" />
                 </com.google.android.material.textfield.TextInputLayout>
