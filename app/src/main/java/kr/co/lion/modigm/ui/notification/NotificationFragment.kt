@@ -109,58 +109,58 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         // 로딩 상태 관찰
         lifecycleScope.launchWhenStarted {
             viewModel.isLoading.collect { isLoading ->
-                showLoading(isLoading)// 로딩 상태 업데이트
+                toggleLoadingState(isLoading)// 로딩 상태 업데이트
             }
         }
     }
 
     private fun updateNotificationUI(notifications: List<NotificationData>) {
         if (notifications.isNotEmpty()) {
-            binding.blankLayoutNotification.visibility = View.GONE
-            binding.recyclerviewNotification.visibility = View.VISIBLE
-            adapter.updateData(notifications)
+            displayNotifications(notifications)
         } else {
-            binding.blankLayoutNotification.visibility = View.VISIBLE
-            binding.recyclerviewNotification.visibility = View.GONE
-            clearBadgeOnBottomNavigation()
+            displayEmptyState()
         }
     }
 
-    private fun showLoading(isLoading: Boolean) {
+    private fun toggleLoadingState(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        if (isLoading) {
-            binding.recyclerviewNotification.visibility = View.GONE
-            binding.blankLayoutNotification.visibility = View.GONE
-        } else {
-            updateNotificationUI(viewModel.notifications.value)
-        }
+        if (isLoading) hideContent() else updateNotificationUI(viewModel.notifications.value)
+    }
+
+    private fun displayNotifications(notifications: List<NotificationData>) {
+        binding.blankLayoutNotification.visibility = View.GONE
+        binding.recyclerviewNotification.visibility = View.VISIBLE
+        adapter.updateData(notifications)
+    }
+
+    private fun displayEmptyState() {
+        binding.blankLayoutNotification.visibility = View.VISIBLE
+        binding.recyclerviewNotification.visibility = View.GONE
+        clearBadgeOnBottomNavigation()
+    }
+
+    private fun hideContent() {
+        binding.recyclerviewNotification.visibility = View.GONE
+        binding.blankLayoutNotification.visibility = View.GONE
     }
 
     private fun clearBadgeOnBottomNavigation() {
         // 모든 알림이 삭제된 경우, BottomNaviFragment에 배지를 숨기라는 브로드캐스트를 전송합니다.
-        val intent = Intent("ACTION_HIDE_NOTIFICATION_BADGE")
-        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent("ACTION_HIDE_NOTIFICATION_BADGE"))
     }
 
     private fun deleteNotification(notification: NotificationData) {
-        val userIdx = prefs.getInt("currentUserIdx", 0)
-
         lifecycleScope.launch {
-            val result = viewModel.deleteNotification(notification) // MySQL에서 삭제
-            if (result) {
-                viewModel.refreshNotifications(userIdx) // RecyclerView 갱신
-                checkAndUpdateBadge() // 모든 알림 삭제 후 상태 업데이트
+            val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+            if (viewModel.deleteNotification(notification)) {
+                viewModel.refreshNotifications(userIdx)// RecyclerView 갱신
+                updateBadgeState()// 모든 알림 상태 업데이트
             }
         }
     }
 
-    // **배지 상태를 확인하는 메서드**
-    private fun checkAndUpdateBadge() {
-        // 남은 읽지 않은 알림이 있는지 확인
-        val hasUnreadNotifications = viewModel.notifications.value.any { !it.isRead }
-
-        // **읽지 않은 알림이 없으면 바텀 네비 배지를 숨김**
-        if (!hasUnreadNotifications) {
+    private fun updateBadgeState() {
+        if (viewModel.notifications.value.none { !it.isRead }) {
             clearBadgeOnBottomNavigation()
         }
     }
@@ -175,13 +175,16 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
     override fun onResume() {
         super.onResume()
-        // 화면으로 돌아올 때 모든 알림을 읽음으로 표시
-        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent("ACTION_MARK_ALL_READ"))
+        markAllAsRead()
     }
 
     override fun onPause() {
         super.onPause()
         // 알림 화면을 벗어날 때 모든 알림을 읽음으로 표시
+        markAllAsRead()
+    }
+
+    private fun markAllAsRead() {
         LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent("ACTION_MARK_ALL_READ"))
     }
 
@@ -198,7 +201,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
             // **알림 읽음 처리 후 isRead 값을 true로 업데이트**
             notification.isRead = true
             adapter.updateData(viewModel.notifications.value)
-            checkAndUpdateBadge()
+            updateBadgeState()
         }
     }
 }
