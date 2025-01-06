@@ -38,15 +38,25 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initializeUI() // 뷰 초기화
-        observeViewModel() // viewmodel 관찰
+        setupUI()
+        registerReceiver()
+        loadData()
+    }
 
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
-        viewModel.fetchNotifications(userIdx) // 알림 데이터 가져오기
+    private fun setupUI() {
+        initializeUI()
+        observeViewModel()
+    }
 
+    private fun registerReceiver() {
         // 데이터 새로고침 브로드캐스트 리시버 등록
         LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(dataRefreshReceiver, IntentFilter("ACTION_REFRESH_DATA"))
+    }
+
+    private fun loadData() {
+        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+        viewModel.fetchNotifications(userIdx) // 알림 데이터 가져오기
     }
 
     private fun initializeUI() {
@@ -81,43 +91,48 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun observeViewModel() {
+        observeNotifications()
+        observeLoadingState()
+    }
+
+    private fun observeNotifications() {
         // Fragment에서 lifecycleScope을 사용하여 StateFlow 구독
         lifecycleScope.launchWhenStarted {
             viewModel.notifications.collect { notifications ->
                 Log.d("NotificationFragment", "Notifications: $notifications")
-                if (notifications.isNotEmpty()) {
-                    binding.blankLayoutNotification.visibility = View.GONE
-                    binding.recyclerviewNotification.visibility = View.VISIBLE
-                    adapter.updateData(notifications) // RecyclerView 어댑터 데이터 업데이트
-                } else {
-                    binding.blankLayoutNotification.visibility = View.VISIBLE
-                    binding.recyclerviewNotification.visibility = View.GONE
-                    clearBadgeOnBottomNavigation() // 알림이 없을 때 배지를 지움
-                }
+                updateNotificationUI(notifications) // 알림 UI 업데이트
             }
         }
+    }
 
+    private fun observeLoadingState() {
         // 로딩 상태 관찰
         lifecycleScope.launchWhenStarted {
             viewModel.isLoading.collect { isLoading ->
-                showLoading(isLoading)
+                showLoading(isLoading)// 로딩 상태 업데이트
             }
+        }
+    }
+
+    private fun updateNotificationUI(notifications: List<NotificationData>) {
+        if (notifications.isNotEmpty()) {
+            binding.blankLayoutNotification.visibility = View.GONE
+            binding.recyclerviewNotification.visibility = View.VISIBLE
+            adapter.updateData(notifications)
+        } else {
+            binding.blankLayoutNotification.visibility = View.VISIBLE
+            binding.recyclerviewNotification.visibility = View.GONE
+            clearBadgeOnBottomNavigation()
         }
     }
 
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         if (isLoading) {
-            // 로딩 중에는 알림 목록 및 빈 레이아웃 모두 숨김
             binding.recyclerviewNotification.visibility = View.GONE
             binding.blankLayoutNotification.visibility = View.GONE
         } else {
-            // 로딩이 끝나면 알림 상태에 따라 레이아웃 가시성 조정 (isLoading이 끝난 후 조정)
-            if (viewModel.notifications.value.isEmpty()) {
-                binding.blankLayoutNotification.visibility = View.VISIBLE
-            } else {
-                binding.recyclerviewNotification.visibility = View.VISIBLE
-            }
+            updateNotificationUI(viewModel.notifications.value)
         }
     }
 
@@ -174,7 +189,6 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         super.onDestroyView()
         // 리시버 해제
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(dataRefreshReceiver)
-        adapter.onDestroy() // Adapter의 리시버 해제
     }
 
     private fun markNotificationAsRead(notification: NotificationData) {
@@ -183,13 +197,8 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
             // **알림 읽음 처리 후 isRead 값을 true로 업데이트**
             notification.isRead = true
-
-            // **읽음 처리한 알림의 배지만 사라지게 함**
             adapter.updateData(viewModel.notifications.value)
-
-            // **남은 읽지 않은 알림이 없다면 바텀 네비 배지 숨기기**
             checkAndUpdateBadge()
         }
     }
-
 }
