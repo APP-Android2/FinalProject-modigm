@@ -32,14 +32,14 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private val dataRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             // 데이터 갱신 요청 수신 시 호출되는 메소드
-            refreshData()
+            refreshNotifications()
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initView()
-        observeViewModel()
+        initializeUI() // 뷰 초기화
+        observeViewModel() // viewmodel 관찰
 
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
         viewModel.fetchNotifications(userIdx) // 알림 데이터 가져오기
@@ -49,8 +49,27 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
             .registerReceiver(dataRefreshReceiver, IntentFilter("ACTION_REFRESH_DATA"))
     }
 
-    private fun initView() {
-        settingToolbar()
+    private fun initializeUI() {
+        setupToolbar()
+        setupRecyclerView()
+    }
+    private fun setupToolbar() {
+        with(binding.toolBarNotification) {
+            title = "알림"
+            inflateMenu(R.menu.menu_notification_toolbar) // 메뉴 설정
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.notification_toolbar_refresh -> {
+                        refreshNotifications() // 새로고침 실행
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
+
+    private fun setupRecyclerView() {
         binding.recyclerviewNotification.layoutManager = LinearLayoutManager(requireContext())
         // NotificationAdapter 생성 시 onDeleteClick 람다 전달
         adapter = NotificationAdapter(
@@ -131,23 +150,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         }
     }
 
-    private fun settingToolbar() {
-        with(binding) {
-            toolBarNotification.title = "알림"
-            toolBarNotification.inflateMenu(R.menu.menu_notification_toolbar) // 메뉴 설정
-            toolBarNotification.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.notification_toolbar_refresh -> {
-                        refreshData() // 새로고침 실행
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }
-    }
-
-    private fun refreshData() {
+    private fun refreshNotifications() {
         // 현재 사용자 ID 가져오기
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
         Log.d("NotificationFragment", "Refreshing notifications for userIdx: $userIdx")
