@@ -16,12 +16,13 @@ import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun EmailLoginButton(
+    modifier: Modifier = Modifier,
     onEmailLoginButtonClick: () -> Unit,
     isEnabled: Boolean
 ) {
     Button(
         onClick = { onEmailLoginButtonClick() },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 10.dp),
         colors = buttonColors(Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))),

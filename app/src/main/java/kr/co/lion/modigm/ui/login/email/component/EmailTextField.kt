@@ -29,20 +29,21 @@ import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun EmailTextField(
+    modifier: Modifier = Modifier,
     email: String,
     onEmailChange: (String) -> Unit
 ) {
     val isError by remember { mutableStateOf(false) }
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 30.dp)
     ) {
         OutlinedTextField(
             value = email,
             onValueChange = { onEmailChange(it) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
             colors = TextFieldDefaults.colors(
                 focusedTextColor = Color.Black,

@@ -9,8 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
@@ -45,20 +49,25 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                 val emailLoginResult by viewModel.emailLoginResult.observeAsState(false)
                 val emailLoginError by viewModel.emailLoginError.observeAsState()
 
-                EmailLoginScreen(
-                    isLoading = isLoading,
-                    emailLoginResult = emailLoginResult,
-                    emailLoginError = emailLoginError,
-                    onNavigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
-                    onNavigateToFindEmailFragment = { navigateToFindEmailFragment() },
-                    onNavigateToFindPasswordFragment = { navigateToFindPasswordFragment() },
-                    onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
-                    onEmailLoginButtonClick = { email, password, autoLoginValue ->
-                        viewModel.emailLogin(email, password, autoLoginValue)
-                    },
-                    onNavigateToSocialLoginFragment = { navigateToSocialLoginFragment() },
-                    showLoginErrorDialog = { error -> showErrorDialog(error) },
-                )
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                ) { innerPadding ->
+                    EmailLoginScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        isLoading = isLoading,
+                        emailLoginResult = emailLoginResult,
+                        emailLoginError = emailLoginError,
+                        onNavigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
+                        onNavigateToFindEmailFragment = { navigateToFindEmailFragment() },
+                        onNavigateToFindPasswordFragment = { navigateToFindPasswordFragment() },
+                        onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
+                        onEmailLoginButtonClick = { email, password, autoLoginValue ->
+                            viewModel.emailLogin(email, password, autoLoginValue)
+                        },
+                        onNavigateToSocialLoginFragment = { navigateToSocialLoginFragment() },
+                        showLoginErrorDialog = { error -> showErrorDialog(error) },
+                    )
+                }
             }
         }
     }

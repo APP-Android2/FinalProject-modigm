@@ -11,11 +11,12 @@ import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun FindEmailTextButton(
-    onNavigateToFindEmailFragment: () -> Unit
+    modifier: Modifier = Modifier,
+    onNavigateToFindEmailFragment: () -> Unit,
 ) {
     TextButton(
+        modifier = modifier.padding(end = 4.dp),
         onClick = { onNavigateToFindEmailFragment() },
-        modifier = Modifier.padding(end = 4.dp)
     ) {
         Text(
             text = "이메일 찾기",

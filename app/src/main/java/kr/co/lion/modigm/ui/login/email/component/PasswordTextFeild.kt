@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.login.email.component
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,55 +32,53 @@ import kr.co.lion.modigm.ui.login.email.dpToSp
 
 @Composable
 fun PasswordTextField(
+    modifier: Modifier = Modifier,
     password: String,
     onPasswordChange: (String) -> Unit
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
-    Column(
-        modifier = Modifier
+
+    OutlinedTextField(
+        value = password,
+        onValueChange = {
+            onPasswordChange(it)
+            isPasswordVisible = it.isEmpty()
+        },
+        modifier = modifier
             .fillMaxWidth()
-            .padding(top = 20.dp)
-    ) {
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                onPasswordChange(it)
-                isPasswordVisible = it.isEmpty()
-            },
-            modifier = Modifier
-                .fillMaxWidth(),
-            textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = pointColor,
-                unfocusedIndicatorColor = Color.Black,
-                errorContainerColor = Color.White,
-            ),
-            placeholder = { Text(text = "비밀번호") },
-            leadingIcon = {
+            .padding(top = 20.dp),
+        textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedIndicatorColor = pointColor,
+            unfocusedIndicatorColor = Color.Black,
+            errorContainerColor = Color.White,
+        ),
+        placeholder = { Text(text = "비밀번호") },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_key_24px),
+                contentDescription = "비밀번호 아이콘"
+            )
+        },
+        trailingIcon = {
+            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.icon_key_24px),
-                    contentDescription = "비밀번호 아이콘"
+                    imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    contentDescription = if (isPasswordVisible) "비밀번호 숨김" else "비밀번호 보임"
                 )
-            },
-            trailingIcon = {
-                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                    Icon(
-                        imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (isPasswordVisible) "비밀번호 숨김" else "비밀번호 보임"
-                    )
-                }
-            },
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            singleLine = true
-        )
-    }
+            }
+        },
+        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Done
+        ),
+        singleLine = true
+    )
+
 }

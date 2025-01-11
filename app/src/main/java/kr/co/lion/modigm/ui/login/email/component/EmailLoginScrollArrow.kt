@@ -33,8 +33,8 @@ import kr.co.lion.modigm.R
 
 @Composable
 fun EmailLoginScrollArrow(
+    modifier: Modifier = Modifier,
     scrollState: ScrollState,
-    modifier: Modifier = Modifier
 ) {
     val isVisible = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()

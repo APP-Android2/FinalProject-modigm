@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +44,7 @@ import kr.co.lion.modigm.util.JoinType
 
 @Composable
 fun EmailLoginScreen(
+    modifier: Modifier = Modifier,
     isLoading: Boolean,
     emailLoginResult: Boolean,
     emailLoginError: Throwable?,
@@ -75,107 +78,117 @@ fun EmailLoginScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .verticalScroll(scrollState)
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            EmailLoginTitle()
-            EmailLoginSubTitle()
+            Text(
+                text = "모우다임",
+                modifier = modifier
+                    .wrapContentWidth()
+                    .wrapContentHeight()
+                    .padding(top = 100.dp),
+                fontFamily = FontFamily(Font(R.font.one_mobile_pop_otf)),
+                fontSize = dpToSp(70.dp),
+                color = Color.Black,
+                fontWeight = FontWeight.Normal
+            )
+            Text(
+                text = "개발자 스터디의 새로운 패러다임",
+                modifier = modifier
+                    .wrapContentWidth()
+                    .wrapContentHeight()
+                    .padding(top = 10.dp),
+                fontFamily = FontFamily(Font(R.font.one_mobile_pop_otf)),
+                fontSize = dpToSp(22.dp),
+                color = Color.Black,
+                fontWeight = FontWeight.Normal
+            )
+
             EmailTextField(
+                modifier = modifier,
                 email = email.value,
                 onEmailChange = { email.value = it }
             )
             PasswordTextField(
+                modifier = modifier,
                 password = password.value,
                 onPasswordChange = { password.value = it }
             )
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp, end = 0.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                EmailAutoLoginCheckBox(
+                    modifier = modifier,
+                    isChecked = isChecked
+                )
+
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    EmailAutoLoginCheckBox(isChecked = isChecked)
-                }
-                Row(
+                    modifier = modifier,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    FindEmailTextButton(onNavigateToFindEmailFragment = onNavigateToFindEmailFragment)
-                    Text(
-                        text = "|",
-                        fontSize = dpToSp(16.dp)
+                    FindEmailTextButton(
+                        modifier = modifier,
+                        onNavigateToFindEmailFragment = onNavigateToFindEmailFragment
                     )
-                    FindPasswordTextButton(onNavigateToFindPasswordFragment = onNavigateToFindPasswordFragment)
+                    VerticalDivider(
+                        modifier = modifier
+                            .height(15.dp),
+                        thickness = 1.dp,
+                        color = Color.Black,
+                    )
+                    FindPasswordTextButton(
+                        modifier = modifier,
+                        onNavigateToFindPasswordFragment = onNavigateToFindPasswordFragment
+                    )
                 }
             }
             EmailLoginButton(
-                onEmailLoginButtonClick = { onEmailLoginButtonClick (email.value, password.value, isChecked.value) },
+                modifier = modifier,
+                onEmailLoginButtonClick = {
+                    onEmailLoginButtonClick(
+                        email.value,
+                        password.value,
+                        isChecked.value
+                    )
+                },
                 isEnabled = isLoginButtonEnabled
             )
 
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
                     .padding(start = 0.dp, end = 0.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    NavigateToSocialLoginButton(onNavigateToSocialLoginFragment = onNavigateToSocialLoginFragment)
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    EmailLoginJoinButton(onNavigateToJoinFragment = onNavigateToJoinFragment)
-                }
+                NavigateToSocialLoginButton(
+                    modifier = modifier,
+                    onNavigateToSocialLoginFragment = onNavigateToSocialLoginFragment
+                )
+                EmailLoginJoinButton(
+                    modifier = modifier,
+                    onNavigateToJoinFragment = onNavigateToJoinFragment
+                )
             }
         }
         EmailLoginScrollArrow(
+            modifier = modifier.align(Alignment.BottomCenter),
             scrollState = scrollState,
-            modifier = Modifier.align(Alignment.BottomCenter)
         )
-        EmailLoginLoading(isLoading = isLoading)
+        EmailLoginLoading(
+            modifier = modifier,
+            isLoading = isLoading
+        )
     }
-}
-
-@Composable
-fun EmailLoginTitle() {
-    Text(
-        text = "모우다임",
-        modifier = Modifier
-            .wrapContentWidth()
-            .wrapContentHeight()
-            .padding(top = 100.dp),
-        fontFamily = FontFamily(Font(R.font.one_mobile_pop_otf)),
-        fontSize = dpToSp(70.dp),
-        color = Color.Black,
-        fontWeight = FontWeight.Normal
-    )
-}
-
-@Composable
-fun EmailLoginSubTitle() {
-    Text(
-        text = "개발자 스터디의 새로운 패러다임",
-        modifier = Modifier
-            .wrapContentWidth()
-            .wrapContentHeight()
-            .padding(top = 10.dp),
-        fontFamily = FontFamily(Font(R.font.one_mobile_pop_otf)),
-        fontSize = dpToSp(22.dp),
-        color = Color.Black,
-        fontWeight = FontWeight.Normal
-    )
 }
 
 @Preview(showBackground = true)
