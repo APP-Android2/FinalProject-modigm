@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.join
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -48,6 +47,49 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         JoinType.getType(arguments?.getString("joinType")?:"")
     }
 
+    private val viewPagerAdapter by lazy {
+        JoinViewPagerAdapter(this).also {
+            // 뷰페이저에 보여줄 프래그먼트를 회원가입 유형에 따라 다르게 셋팅해준다.
+            when(joinType){
+                // 이메일로 회원가입할 때
+                JoinType.EMAIL -> {
+                    it.addFragments(
+                        arrayListOf(
+                            JoinStep1EmailAndPwFragment(),
+                            JoinEmailVerificationFragment(),
+                            JoinStep2NameAndPhoneFragment(),
+                            JoinStep3InterestFragment()
+                        )
+                    )
+                }
+                // SNS계정으로 회원가입할 때
+                else -> {
+                    it.addFragments(
+                        arrayListOf(
+                            JoinStep2NameAndPhoneFragment(),
+                            JoinStep3InterestFragment()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+
+    private val showLoading = fun(){
+        requireActivity().hideSoftInput()
+        binding.layoutLoadingJoin.visibility = View.VISIBLE
+        requireActivity().window?.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    private val hideLoading = fun(){
+        binding.layoutLoadingJoin.visibility = View.GONE
+        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,8 +99,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         binding.viewModel = joinViewModel
 
         settingValuesFromBundle()
-        settingToolBar()
-        settingCollector()
 
         /**
          * SNS계정은 자동로그인이 강제되기때문에 앱을 껏다 켜도 로그아웃을 직접 하지 않는 이상 회원가입 화면에 진입할 수 없음
@@ -92,19 +132,20 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        settingViewPagerAdapter()
+        settingToolBar()
+        settingBackPressedEvent()
 
-        // 안드로이드 뒤로가기 기능에 뒤로가기 버튼 기능 추가
-        lifecycleScope.launch {
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-                if(binding.viewPagerJoin.currentItem!=0){
-                    binding.viewPagerJoin.currentItem -= 1
-                }else{
-                    // JoinFragment 회원가입 종료, 확인 알림창 띄우기?
-                    showCancelJoinDialog()
-                }
-            }
-        }
+        // 프로그래스바 최대치 설정
+        binding.progressBarJoin.max = 100
+
+        settingViewPagerAdapterFragments()
+        settingViewPagerAttribute()
+        settingViewPagerNextButton()
+
+        settingPhoneVerificationStateCollector()
+        settingPhoneVerificationCancelStateCollector()
+        settingPhoneAlreadyRegisteredStateCollector()
+        settingJoinCompleteStateCollector()
     }
 
     override fun onDestroyView() {
@@ -131,7 +172,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
     private fun settingToolBar(){
         with(binding.toolbarJoin){
-            title = "회원가입"
+            title = resources.getString(R.string.JOIN_TOOLBAR_TITLE)
             setNavigationIcon(R.drawable.arrow_back_24px)
             setNavigationOnClickListener {
                 if(binding.viewPagerJoin.currentItem!=0){
@@ -148,12 +189,12 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
     private fun showCancelJoinDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog, null)
         val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.dialogColor)
-            .setTitle("회원가입 취소")
-            .setMessage("정말로 회원가입을 취소하시겠습니까?")
+            .setTitle(resources.getString(R.string.CANCEL_JOIN_TITLE))
+            .setMessage(resources.getString(R.string.CANCEL_JOIN_MESSAGE))
             .setView(dialogView)
             .create()
 
-        dialogView.findViewById<TextView>(R.id.btnYes).text = "네"
+        dialogView.findViewById<TextView>(R.id.btnYes).text = resources.getString(R.string.DIALOG_BUTTON_YES)
         dialogView.findViewById<TextView>(R.id.btnYes).setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.containerMain, SocialLoginFragment())
@@ -161,7 +202,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             dialog.dismiss()
         }
 
-        dialogView.findViewById<TextView>(R.id.btnNo).text = "아니오"
+        dialogView.findViewById<TextView>(R.id.btnNo).text = resources.getString(R.string.DIALOG_BUTTON_NO)
         dialogView.findViewById<TextView>(R.id.btnNo).setOnClickListener {
             // 아니요 버튼 로직
             dialog.dismiss()
@@ -169,10 +210,8 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         dialog.show()
     }
 
-    private fun settingViewPagerAdapter(){
-        val viewPagerAdapter  = JoinViewPagerAdapter(this)
-
-        // 뷰페이저에 보여줄 프래그먼트를 회원가입 유형에 따라 다르게 셋팅해준다.
+    /** 뷰페이저에 보여줄 프래그먼트를 회원가입 유형에 따라 다르게 셋팅해준다. */
+    private fun settingViewPagerAdapterFragments(){
         when(joinType){
             // 이메일로 회원가입할 때
             JoinType.EMAIL -> {
@@ -195,21 +234,21 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 )
             }
         }
+    }
 
-        with(binding){
+    /** 뷰페이저 속성 셋팅 */
+    private fun settingViewPagerAttribute(){
+        with(binding.viewPagerJoin){
             // 어댑터 설정
-            viewPagerJoin.adapter = viewPagerAdapter
+            adapter = viewPagerAdapter
             // 전환 방향
-            viewPagerJoin.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
             // 터치로 스크롤 막기
-            viewPagerJoin.isUserInputEnabled = false
+            isUserInputEnabled = false
             // 현재 인덱스 기준으로 프래그먼트 생성,소멸 기준수
-            viewPagerJoin.offscreenPageLimit = 3
+            offscreenPageLimit = 3
 
-            // 프로그래스바 설정
-            progressBarJoin.max = 100
-
-            viewPagerJoin.registerOnPageChangeCallback(
+            registerOnPageChangeCallback(
                 object: ViewPager2.OnPageChangeCallback(){
                     override fun onPageSelected(position: Int) {
                         val progress = (position + 1) * 100 / viewPagerAdapter.itemCount
@@ -217,7 +256,12 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                     }
                 }
             )
+        }
+    }
 
+    /** 뷰페이저 다음 버튼 클릭 리스너 셋팅 */
+    private fun settingViewPagerNextButton(){
+        with(binding){
             // 다음 버튼 클릭 시 다음 화면으로 넘어가기
             buttonJoinNext.setOnClickListener {
 
@@ -300,7 +344,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
             }else{
                 // 인증이 안되었으면 스낵바 표시
-                showSnackBar(emailNotVerifiedMessage)
+                showSnackBar(resources.getString(R.string.EMAIL_NOT_VERIFIED))
             }
             hideLoading()
         }
@@ -341,7 +385,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 // 인증 번호 확인 실패
                 joinViewModel.setPhoneNumberVerificationState(false)
             }
-            if(!joinViewModel.isPhoneNumberVerified.value && result=="이미 해당 번호로 가입한 계정이 있습니다."){
+            if(!joinViewModel.isPhoneNumberVerified.value && result==resources.getString(R.string.ALREADY_REGISTERED_PHONE_USER)){
                 joinViewModel.setAlreadyRegisteredUser(
                     step2NameAndPhoneViewModel.alreadyRegisteredUserEmail.value,
                     step2NameAndPhoneViewModel.alreadyRegisteredUserProvider.value
@@ -374,35 +418,38 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
     }
 
-    private val emailNotVerifiedMessage = "이메일 인증이 완료되지 않았습니다."
-
     private fun showSnackBar(message: String) {
 
-        val snackbar =
+        val snackBar =
             Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
 
         // 스낵바의 뷰를 가져옵니다.
-        val snackbarView = snackbar.view
+        val snackBarView = snackBar.view
 
         // 스낵바 텍스트 뷰 찾기
         val textView =
-            snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+            snackBarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
 
         // 텍스트 크기를 dp 단위로 설정
-        val textSizeInPx = dpToPx(requireContext(), 16f)
+        val textSizeInPx = 16f * requireContext().resources.displayMetrics.density
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizeInPx)
 
-        snackbar.show()
+        snackBar.show()
     }
 
-    // 스낵바 글시 크기 설정을 위해 dp를 px로 변환
-    fun dpToPx(context: Context, dp: Float): Float {
-        return dp * context.resources.displayMetrics.density
+    private fun settingBackPressedEvent(){
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if(binding.viewPagerJoin.currentItem!=0){
+                binding.viewPagerJoin.currentItem -= 1
+            }else{
+                // JoinFragment 회원가입 종료, 확인 알림창 띄우기?
+                showCancelJoinDialog()
+            }
+        }
     }
 
-    // 회원가입 절차 StateFlow값 collect 세팅
-    private fun settingCollector() {
-        // 전화번호 인증이 확인 되었을 때
+    /** 전화번호 인증 여부 확인 */
+    private fun settingPhoneVerificationStateCollector() {
         collectWhenStarted(joinViewModel.isPhoneNumberVerified) { isVerified ->
             hideLoading()
             if(isVerified){
@@ -420,15 +467,19 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 joinViewModel.setPhoneNumberVerificationState(false)
             }
         }
+    }
 
-        // 인증하기를 다시 했을 때 기존의 인증 완료 취소
+    /** 인증하기를 다시 했을 때 기존의 인증 완료 취소 */
+    private fun settingPhoneVerificationCancelStateCollector() {
         collectWhenStarted(step2NameAndPhoneViewModel.isVerifiedPhone) {
             if(!it){
                 joinViewModel.setPhoneNumberVerificationState(false)
             }
         }
+    }
 
-        // 전화번호가 기존에 등록된 번호인 것이 확인되었을 때
+    /** 전화번호가 기존에 등록된 번호인 것이 확인되었는지 여부 */
+    private fun settingPhoneAlreadyRegisteredStateCollector() {
         collectWhenStarted(joinViewModel.isPhoneAlreadyRegistered) { isRegistered ->
             if(isRegistered){
                 // 중복인 경우 중복 알림 프래그먼트로 이동
@@ -449,8 +500,11 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                 joinViewModel.setIsPhoneAlreadyRegistered(false)
             }
         }
+    }
 
-        // 회원가입 완료 시 완료 화면으로 이동
+    /** 회원가입 절차 완료 여부 */
+    private fun settingJoinCompleteStateCollector() {
+
         collectWhenStarted(joinViewModel.isJoinCompleted) { isCompleted ->
             hideLoading()
 
@@ -475,20 +529,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                     .commit()
             }
         }
-    }
-
-    private val showLoading = fun(){
-        requireActivity().hideSoftInput()
-        binding.layoutLoadingJoin.visibility = View.VISIBLE
-        requireActivity().window?.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        )
-    }
-
-    private val hideLoading = fun(){
-        binding.layoutLoadingJoin.visibility = View.GONE
-        requireActivity().window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
 }
