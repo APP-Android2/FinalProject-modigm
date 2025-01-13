@@ -138,7 +138,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         // 프로그래스바 최대치 설정
         binding.progressBarJoin.max = 100
 
-        settingViewPagerAdapterFragments()
         settingViewPagerAttribute()
         settingViewPagerNextButton()
 
@@ -208,32 +207,6 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             dialog.dismiss()
         }
         dialog.show()
-    }
-
-    /** 뷰페이저에 보여줄 프래그먼트를 회원가입 유형에 따라 다르게 셋팅해준다. */
-    private fun settingViewPagerAdapterFragments(){
-        when(joinType){
-            // 이메일로 회원가입할 때
-            JoinType.EMAIL -> {
-                viewPagerAdapter.addFragments(
-                    arrayListOf(
-                        JoinStep1EmailAndPwFragment(),
-                        JoinEmailVerificationFragment(),
-                        JoinStep2NameAndPhoneFragment(),
-                        JoinStep3InterestFragment()
-                    )
-                )
-            }
-            // SNS계정으로 회원가입할 때
-            else -> {
-                viewPagerAdapter.addFragments(
-                    arrayListOf(
-                        JoinStep2NameAndPhoneFragment(),
-                        JoinStep3InterestFragment()
-                    )
-                )
-            }
-        }
     }
 
     /** 뷰페이저 속성 셋팅 */
