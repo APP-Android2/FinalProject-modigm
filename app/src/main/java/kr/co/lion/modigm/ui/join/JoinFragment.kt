@@ -266,6 +266,10 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
     }
 
+    private fun moveViewPager(item: Int){
+        binding.viewPagerJoin.setCurrentItemWithDuration(item, 300)
+    }
+
     private fun step1EmailAndPwProcess(){
         // 유효성 검사
         if(!step1EmailAndPwViewModel.validateStep1UserInput()) return
@@ -300,9 +304,9 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             hideLoading()
             // 다음 화면으로 이동
             if(step1EmailAndPwViewModel.isEmailVerified.value){
-                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+                moveViewPager(2)
             }else{
-                binding.viewPagerJoin.setCurrentItemWithDuration(1, 300)
+                moveViewPager(1)
                 // 인증 이메일 발송
                 step1EmailAndPwViewModel.sendEmailVerification()
             }
@@ -314,7 +318,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         step1EmailAndPwViewModel.checkFirebaseEmailValidation{ isVerified ->
             if (isVerified) {
                 // 인증이 되었으면 다음으로 이동
-                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+                moveViewPager(2)
             }else{
                 // 인증이 안되었으면 스낵바 표시
                 showSnackBar(resources.getString(R.string.EMAIL_NOT_VERIFIED))
@@ -330,11 +334,13 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
 
         // 뒤로가기로 돌아왔을 때 이미 인증된 상태인 경우에는 바로 다음페이지로 넘어갈 수 있음
         // 전화번호를 변경하지 않은 경우에만 넘어갈 수 있음
-        if(joinViewModel.verifiedPhoneNumber.value.isNotEmpty() && joinViewModel.verifiedPhoneNumber.value == step2NameAndPhoneViewModel.userInputPhone.value){
+        if(joinViewModel.verifiedPhoneNumber.value.isNotEmpty()
+            && joinViewModel.verifiedPhoneNumber.value == step2NameAndPhoneViewModel.userInputPhone.value)
+        {
             if(joinType==JoinType.EMAIL){
-                binding.viewPagerJoin.setCurrentItemWithDuration(3, 300)
+                moveViewPager(3)
             }else{
-                binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+                moveViewPager(2)
             }
             return
         }
@@ -428,9 +434,9 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
             if(isVerified){
                 // 인증이 되었으면 다음으로 이동
                 if(joinType==JoinType.EMAIL){
-                    binding.viewPagerJoin.setCurrentItemWithDuration(3, 300)
+                    moveViewPager(3)
                 }else{
-                    binding.viewPagerJoin.setCurrentItemWithDuration(2, 300)
+                    moveViewPager(2)
                 }
                 // 인증 관련 초기화
                 step2NameAndPhoneViewModel.apply {
