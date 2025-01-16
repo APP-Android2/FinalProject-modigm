@@ -5,13 +5,13 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 class JoinViewPagerAdapter(fragment: Fragment): FragmentStateAdapter(fragment) {
 
-    private lateinit var fragmentList : ArrayList<Fragment>
+    private lateinit var fragmentList : List<Fragment>
 
     override fun getItemCount(): Int = fragmentList.size
 
     override fun createFragment(position: Int): Fragment = fragmentList[position]
 
-    fun addFragments(fragments: ArrayList<Fragment>) {
+    fun setFragments(fragments: List<Fragment>) {
         fragmentList = fragments
     }
 
