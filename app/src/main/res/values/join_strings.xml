@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="JOIN_TOOLBAR_TITLE">회원가입</string>
+    <string name="ALREADY_REGISTERED_PHONE_USER">이미 해당 번호로 가입한 계정이 있습니다.</string>
+    <string name="EMAIL_NOT_VERIFIED">이메일 인증이 완료되지 않았습니다.</string>
+    <string name="CANCEL_JOIN_TITLE">회원가입 취소</string>
+    <string name="CANCEL_JOIN_MESSAGE">정말로 회원가입을 취소하시겠습니까?</string>
+    <string name="DIALOG_BUTTON_YES">네</string>
+    <string name="DIALOG_BUTTON_NO">아니오</string>
+</resources>
