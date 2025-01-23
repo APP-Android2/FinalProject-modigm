@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.regex.Pattern
@@ -17,54 +18,67 @@ class JoinStep1EmailAndPwViewModel @Inject constructor(
     private val _auth: FirebaseAuth
 ): ViewModel() {
 
-    // ================1. 유효성 검사 관련==============================================================
-
     // 이메일
-    val userInputEmail = MutableStateFlow("")
-    // 이메일 유효성 검사
-    val userInputEmailValidation = MutableStateFlow("")
+    private val _userInputEmail = MutableStateFlow("")
+    val userInputEmail = _userInputEmail.asStateFlow()
+    fun setUserInputEmail(email: String){
+        _userInputEmail.value = email
+    }
+    private val _userInputEmailValidationMessage = MutableStateFlow("")
+    val userInputEmailValidationMessage = _userInputEmailValidationMessage.asStateFlow()
+    fun setUserInputEmailValidationMessage(message: String){
+        _userInputEmailValidationMessage.value = message
+    }
 
     // 비밀번호
-    val userInputPassword = MutableStateFlow("")
-    // 비밀번호 유효성 검사
-    val userInputPwValidation = MutableStateFlow("")
+    private val _userInputPassword = MutableStateFlow("")
+    val userInputPassword = _userInputPassword.asStateFlow()
+    fun setUserInputPassword(password: String){
+        _userInputPassword.value = password
+    }
+    private val _userInputPwValidationMessage = MutableStateFlow("")
+    val userInputPwValidationMessage = _userInputPwValidationMessage.asStateFlow()
 
     // 비밀번호 확인
-    val userInputPasswordCheck = MutableStateFlow("")
-    // 비밀번호 확인 유효성 검사
-    val userInputPwCheckValidation = MutableStateFlow("")
+    private val _userInputPasswordCheck = MutableStateFlow("")
+    val userInputPasswordCheck = _userInputPasswordCheck.asStateFlow()
+    fun setUserInputPasswordCheck(passwordCheck: String){
+        _userInputPasswordCheck.value = passwordCheck
+    }
+    private val _userInputPwCheckValidationMessage = MutableStateFlow("")
+    val userInputPwCheckValidationMessage = _userInputPwCheckValidationMessage.asStateFlow()
 
     // 입력한 내용 유효성 검사
     fun validateStep1UserInput(): Boolean {
         // 에러 초기화
-        userInputEmailValidation.value = ""
-        userInputPwValidation.value = ""
-        userInputPwCheckValidation.value = ""
+        _userInputEmailValidationMessage.value = ""
+        _userInputPwValidationMessage.value = ""
+        _userInputPwCheckValidationMessage.value = ""
 
         var result = true
 
-        if(userInputEmail.value.isEmpty()){
-            userInputEmailValidation.value = "이메일을 입력해주세요."
+        if(_userInputEmail.value.isEmpty()){
+            _userInputEmailValidationMessage.value = "이메일을 입력해주세요."
             result = false
         }
-        if(userInputEmail.value.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(userInputEmail.value).matches()){
-            userInputEmailValidation.value = "올바른 이메일 형식이 아닙니다."
+        if(_userInputEmail.value.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(_userInputEmail.value).matches()){
+            _userInputEmailValidationMessage.value = "올바른 이메일 형식이 아닙니다."
             result = false
         }
-        if(userInputPassword.value.isEmpty()){
-            userInputPwValidation.value = "비밀번호를 입력해주세요."
+        if(_userInputPassword.value.isEmpty()){
+            _userInputPwValidationMessage.value = "비밀번호를 입력해주세요."
             result = false
         }
-        if(userInputPassword.value.isNotEmpty() && !Pattern.matches("^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&.])[A-Za-z[0-9]$@$!%*#?&.]{8,20}$", userInputPassword.value)){
-            userInputPwValidation.value = "영문, 숫자, 특수문자가 포함된 비밀번호를 8~20자로 입력해주세요."
+        if(_userInputPassword.value.isNotEmpty() && !Pattern.matches("^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[$@$!%*#?&.])[A-Za-z[0-9]$@$!%*#?&.]{8,20}$", userInputPassword.value)){
+            _userInputPwValidationMessage.value = "영문, 숫자, 특수문자가 포함된 비밀번호를 8~20자로 입력해주세요."
             result = false
         }
-        if(userInputPasswordCheck.value.isEmpty()){
-            userInputPwCheckValidation.value = "비밀번호 확인을 입력해주세요."
+        if(_userInputPasswordCheck.value.isEmpty()){
+            _userInputPwCheckValidationMessage.value = "비밀번호 확인을 입력해주세요."
             result = false
         }
-        if(userInputPassword.value.isNotEmpty() && userInputPasswordCheck.value.isNotEmpty() &&  userInputPassword.value != userInputPasswordCheck.value){
-            userInputPwCheckValidation.value = "비밀번호가 일치하지 않습니다."
+        if(_userInputPassword.value.isNotEmpty() && _userInputPasswordCheck.value.isNotEmpty() &&  _userInputPassword.value != _userInputPasswordCheck.value){
+            _userInputPwCheckValidationMessage.value = "비밀번호가 일치하지 않습니다."
             result = false
         }
 
@@ -73,12 +87,12 @@ class JoinStep1EmailAndPwViewModel @Inject constructor(
 
     // 입력값 초기화
     fun resetStep1States(){
-        userInputEmail.value = ""
-        userInputEmailValidation.value = ""
-        userInputPassword.value = ""
-        userInputPwValidation.value = ""
-        userInputPasswordCheck.value = ""
-        userInputPwCheckValidation.value = ""
+        _userInputEmail.value = ""
+        _userInputEmailValidationMessage.value = ""
+        _userInputPassword.value = ""
+        _userInputPwValidationMessage.value = ""
+        _userInputPasswordCheck.value = ""
+        _userInputPwCheckValidationMessage.value = ""
         _isEmailVerified.value = false
     }
 
@@ -111,7 +125,7 @@ class JoinStep1EmailAndPwViewModel @Inject constructor(
             _auth.currentUser?.sendEmailVerification()
         }catch (e: Exception){
             Log.e("sendEmailAuth", "${e.message}")
-            userInputEmailValidation.value = "인증 메일 발송 실패"
+            _userInputEmailValidationMessage.value = "인증 메일 발송 실패"
         }
     }
 
