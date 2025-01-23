@@ -3,7 +3,6 @@ package kr.co.lion.modigm.ui.login.email
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -36,8 +35,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
 
     private val viewModel: EmailLoginViewModel by viewModels()
 
-    private val logTag by lazy { EmailLoginFragment::class.simpleName }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -62,6 +59,7 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                         onNavigateToFindPasswordFragment = { navigateToFindPasswordFragment() },
                         onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
                         onEmailLoginButtonClick = { email, password, autoLoginValue ->
+                            requireActivity().hideSoftInput()
                             viewModel.emailLogin(email, password, autoLoginValue)
                         },
                         onNavigateToSocialLoginFragment = { navigateToSocialLoginFragment() },
@@ -140,9 +138,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                 }
             }
 
-            // 로그인 버튼 초기값을 비활성화 상태로 설정
-            buttonOtherLogin.isEnabled = false
-
             // 로그인 버튼 클릭 시 로그인 시도
             buttonOtherLogin.setOnClickListener {
                 if(!checkAllInput()) {
@@ -154,16 +149,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
                 val password = textInputEditOtherPassword.text.toString()
                 val autoLogin = checkBoxOtherAutoLogin.isChecked
                 viewModel.emailLogin(email, password, autoLogin)
-            }
-
-            // 회원가입 버튼 클릭 시 회원가입 화면으로 이동
-            buttonOtherJoin.setOnClickListener {
-                val joinType = JoinType.EMAIL
-                navigateToJoinFragment(joinType)
-            }
-            // 돌아가기 버튼 클릭 시
-            buttonOtherBack.setOnClickListener {
-                parentFragmentManager.popBackStack()
             }
         }
     }
@@ -197,7 +182,6 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
 
     // 회원가입 화면으로 이동하는 메소드
     private fun navigateToJoinFragment(joinType: JoinType) {
-        Log.d(logTag, "navigateToJoinFragment - joinType: ${joinType.provider}")
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
         }

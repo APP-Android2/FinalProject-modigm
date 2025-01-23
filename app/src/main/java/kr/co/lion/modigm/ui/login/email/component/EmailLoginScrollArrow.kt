@@ -11,7 +11,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -27,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
@@ -48,10 +48,9 @@ fun EmailLoginScrollArrow(
 
     Box(
         modifier = modifier
-            .fillMaxWidth()
             .height(50.dp)
             .background(Color.Transparent),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         if (isVisible.value) {
             Image(
@@ -65,7 +64,7 @@ fun EmailLoginScrollArrow(
                         }
                     }
                     .animateEnterExit(),
-                colorFilter = ColorFilter.tint(Color.White)
+                colorFilter = ColorFilter.tint(Color.Black)
             )
         }
     }
@@ -84,4 +83,12 @@ fun Modifier.animateEnterExit(): Modifier {
         label = ""
     )
     return this.offset(y = offsetY.dp)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmailLoginScrollArrowPreview() {
+    EmailLoginScrollArrow(
+        scrollState = ScrollState(0),
+    )
 }

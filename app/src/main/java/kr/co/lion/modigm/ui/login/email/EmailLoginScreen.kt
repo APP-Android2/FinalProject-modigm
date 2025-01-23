@@ -3,16 +3,23 @@ package kr.co.lion.modigm.ui.login.email
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults.buttonColors
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,23 +28,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.login.email.component.EmailAutoLoginCheckBox
-import kr.co.lion.modigm.ui.login.email.component.EmailLoginButton
 import kr.co.lion.modigm.ui.login.email.component.EmailLoginJoinButton
 import kr.co.lion.modigm.ui.login.email.component.EmailLoginLoading
 import kr.co.lion.modigm.ui.login.email.component.EmailLoginScrollArrow
 import kr.co.lion.modigm.ui.login.email.component.EmailTextField
-import kr.co.lion.modigm.ui.login.email.component.FindEmailTextButton
-import kr.co.lion.modigm.ui.login.email.component.FindPasswordTextButton
-import kr.co.lion.modigm.ui.login.email.component.NavigateToSocialLoginButton
 import kr.co.lion.modigm.ui.login.email.component.PasswordTextField
 import kr.co.lion.modigm.ui.login.social.dpToSp
 import kr.co.lion.modigm.util.JoinType
@@ -88,7 +95,7 @@ fun EmailLoginScreen(
         ) {
             Text(
                 text = "모우다임",
-                modifier = modifier
+                modifier = Modifier
                     .wrapContentWidth()
                     .wrapContentHeight()
                     .padding(top = 100.dp),
@@ -99,7 +106,7 @@ fun EmailLoginScreen(
             )
             Text(
                 text = "개발자 스터디의 새로운 패러다임",
-                modifier = modifier
+                modifier = Modifier
                     .wrapContentWidth()
                     .wrapContentHeight()
                     .padding(top = 10.dp),
@@ -110,82 +117,130 @@ fun EmailLoginScreen(
             )
 
             EmailTextField(
-                modifier = modifier,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 30.dp),
                 email = email.value,
                 onEmailChange = { email.value = it }
             )
+
             PasswordTextField(
-                modifier = modifier,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp),
                 password = password.value,
                 onPasswordChange = { password.value = it }
             )
+
             Row(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp, end = 0.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 EmailAutoLoginCheckBox(
-                    modifier = modifier,
+                    modifier = Modifier,
                     isChecked = isChecked
                 )
 
                 Row(
-                    modifier = modifier,
+                    modifier = Modifier,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    FindEmailTextButton(
-                        modifier = modifier,
-                        onNavigateToFindEmailFragment = onNavigateToFindEmailFragment
-                    )
+                    TextButton(
+                        modifier = Modifier.padding(start = 0.dp, end = 15.dp),
+                        onClick = { onNavigateToFindEmailFragment() },
+                        contentPadding = PaddingValues(0.dp),
+                    ) {
+                        Text(
+                            text = "이메일 찾기",
+                            color = Color.Black,
+                            fontSize = dpToSp(16.dp)
+                        )
+                    }
                     VerticalDivider(
-                        modifier = modifier
+                        modifier = Modifier
                             .height(15.dp),
                         thickness = 1.dp,
                         color = Color.Black,
                     )
-                    FindPasswordTextButton(
-                        modifier = modifier,
-                        onNavigateToFindPasswordFragment = onNavigateToFindPasswordFragment
-                    )
+                    TextButton(
+                        modifier = Modifier
+                            .padding(start = 15.dp, end = 0.dp),
+                        onClick = { onNavigateToFindPasswordFragment() },
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text(
+                            text = "비밀번호 찾기",
+                            color = Color.Black,
+                            fontSize = 16.sp,
+                        )
+                    }
                 }
             }
-            EmailLoginButton(
-                modifier = modifier,
-                onEmailLoginButtonClick = {
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                onClick = {
                     onEmailLoginButtonClick(
                         email.value,
                         password.value,
                         isChecked.value
                     )
                 },
-                isEnabled = isLoginButtonEnabled
-            )
+                colors = buttonColors(Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))),
+                enabled = isLoginButtonEnabled
+            ) {
+                Text(
+                    text = "로그인",
+                    fontSize = dpToSp(16.dp)
+                )
+            }
 
             Row(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 0.dp, end = 0.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                NavigateToSocialLoginButton(
-                    modifier = modifier,
-                    onNavigateToSocialLoginFragment = onNavigateToSocialLoginFragment
-                )
+                TextButton(
+                    modifier = Modifier,
+                    onClick = { onNavigateToSocialLoginFragment() },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.icon_back_24px),
+                        contentDescription = "돌아가기",
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "돌아가기",
+                        fontSize = dpToSp(16.dp),
+                        color = Color.Black
+                    )
+                }
                 EmailLoginJoinButton(
-                    modifier = modifier,
+                    modifier = Modifier,
                     onNavigateToJoinFragment = onNavigateToJoinFragment
                 )
             }
         }
+
         EmailLoginScrollArrow(
-            modifier = modifier.align(Alignment.BottomCenter),
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter),
             scrollState = scrollState,
         )
+
         EmailLoginLoading(
-            modifier = modifier,
+            modifier = Modifier
+                .fillMaxSize(),
             isLoading = isLoading
         )
     }

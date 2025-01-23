@@ -2,7 +2,6 @@ package kr.co.lion.modigm.ui.login.email.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,7 +18,6 @@ fun EmailLoginLoading(
     if (isLoading) {
         Box(
             modifier = modifier
-                .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.5f))
                 .pointerInput(Unit) { },
             contentAlignment = Alignment.Center

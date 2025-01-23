@@ -1,7 +1,5 @@
 package kr.co.lion.modigm.ui.login.email.component
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -40,14 +38,12 @@ fun PasswordTextField(
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
 
     OutlinedTextField(
+        modifier = modifier,
         value = password,
         onValueChange = {
             onPasswordChange(it)
             isPasswordVisible = it.isEmpty()
         },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 20.dp),
         textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
         colors = TextFieldDefaults.colors(
             focusedTextColor = Color.Black,
