@@ -36,8 +36,8 @@ fun EmailTextInputField(
     onValueChange: (String) -> Unit,
     isError: Boolean,
     errorMessage: String,
+    modifier: Modifier = Modifier,
     imeAction: ImeAction = ImeAction.Default,
-    modifier: Modifier = Modifier
 ){
     Column(
         modifier = modifier
@@ -103,8 +103,8 @@ fun PasswordTextInputField(
     onValueChange: (String) -> Unit,
     isError: Boolean,
     errorMessage: String,
-    imeAction: ImeAction = ImeAction.Default,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imeAction: ImeAction = ImeAction.Default
 ){
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val image = if (passwordVisible){
