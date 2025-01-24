@@ -1,22 +1,15 @@
-package kr.co.lion.modigm.ui.login.email.component
+package kr.co.lion.modigm.ui.login.component
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -26,15 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.login.util.animateEnterExit
 
 @Composable
-fun EmailLoginScrollArrow(
-    modifier: Modifier = Modifier,
+fun ScrollArrow(
     scrollState: ScrollState,
+    modifier: Modifier = Modifier
 ) {
     val isVisible = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -48,9 +41,10 @@ fun EmailLoginScrollArrow(
 
     Box(
         modifier = modifier
+            .fillMaxWidth()
             .height(50.dp)
             .background(Color.Transparent),
-        contentAlignment = Alignment.TopCenter
+        contentAlignment = Alignment.Center
     ) {
         if (isVisible.value) {
             Image(
@@ -64,31 +58,8 @@ fun EmailLoginScrollArrow(
                         }
                     }
                     .animateEnterExit(),
-                colorFilter = ColorFilter.tint(Color.Black)
+                colorFilter = ColorFilter.tint(Color.White)
             )
         }
     }
-}
-
-@Composable
-fun Modifier.animateEnterExit(): Modifier {
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-    val offsetY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 10f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = ""
-    )
-    return this.offset(y = offsetY.dp)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EmailLoginScrollArrowPreview() {
-    EmailLoginScrollArrow(
-        scrollState = ScrollState(0),
-    )
 }

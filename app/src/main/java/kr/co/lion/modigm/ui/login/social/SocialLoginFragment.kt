@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
@@ -49,23 +50,59 @@ class SocialLoginFragment : Fragment() {
                 val githubLoginError by viewModel.githubLoginError.observeAsState()
                 val autoLoginError by viewModel.autoLoginError.observeAsState()
 
+                LaunchedEffect(kakaoLoginResult) {
+                    if (kakaoLoginResult) {
+                        navigateToBottomNaviFragment(JoinType.KAKAO)
+                    }
+                }
+
+                LaunchedEffect(githubLoginResult) {
+                    if (githubLoginResult) {
+                        navigateToBottomNaviFragment(JoinType.GITHUB)
+                    }
+                }
+
+                LaunchedEffect(kakaoJoinResult) {
+                    if (kakaoJoinResult) {
+                        navigateToJoinFragment(JoinType.KAKAO)
+                    }
+                }
+
+                LaunchedEffect(githubJoinResult) {
+                    if (githubJoinResult) {
+                        navigateToJoinFragment(JoinType.GITHUB)
+                    }
+                }
+
+                LaunchedEffect(emailLoginResult) {
+                    if (emailLoginResult) {
+                        navigateToBottomNaviFragment(JoinType.EMAIL)
+                    }
+                }
+
+                LaunchedEffect(kakaoLoginError) {
+                    kakaoLoginError?.let { error ->
+                        showLoginErrorDialog(error)
+                    }
+                }
+
+                LaunchedEffect(githubLoginError) {
+                    githubLoginError?.let { error ->
+                        showLoginErrorDialog(error)
+                    }
+                }
+
+                LaunchedEffect(autoLoginError) {
+                    autoLoginError?.let { error ->
+                        requireActivity().showLoginSnackBar(error.message.toString(), null)
+                    }
+                }
+
                 SocialLoginScreen(
                     isLoading = isLoading,
-                    kakaoLoginResult = kakaoLoginResult,
-                    githubLoginResult = githubLoginResult,
-                    kakaoJoinResult = kakaoJoinResult,
-                    githubJoinResult = githubJoinResult,
-                    emailLoginResult = emailLoginResult,
-                    kakaoLoginError = kakaoLoginError,
-                    githubLoginError = githubLoginError,
-                    autoLoginError = autoLoginError,
                     onKakaoLoginClick = { viewModel.kakaoLogin(requireContext()) },
                     onGithubLoginClick = { viewModel.githubLogin(requireActivity()) },
                     onNavigateEmailLoginClick = { navigateToEmailLoginFragment() },
-                    onNavigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
-                    onNavigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
-                    showLoginErrorDialog = { error -> showLoginErrorDialog(error) },
-                    showSnackBar = { message -> requireActivity().showLoginSnackBar(message, null) }
                 )
             }
         }

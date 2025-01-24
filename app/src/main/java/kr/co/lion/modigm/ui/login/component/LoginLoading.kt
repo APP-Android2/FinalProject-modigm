@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.ui.login.email.component
+package kr.co.lion.modigm.ui.login.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,7 +11,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun EmailLoginLoading(
+fun LoginLoading(
     modifier: Modifier = Modifier,
     isLoading: Boolean
 ) {
@@ -29,6 +29,6 @@ fun EmailLoginLoading(
 
 @Preview(showBackground = true)
 @Composable
-fun EmailLoginLoadingPreview() {
-    EmailLoginLoading(isLoading = true)
+fun LoginLoadingPreview() {
+    LoginLoading(isLoading = true)
 }

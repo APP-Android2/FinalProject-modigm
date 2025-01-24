@@ -1,6 +1,5 @@
-package kr.co.lion.modigm.ui.login.email.component
+package kr.co.lion.modigm.ui.login.component
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -8,7 +7,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,24 +18,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.login.email.dpToSp
+import kr.co.lion.modigm.ui.login.util.dpToSp
 
 @Composable
 fun EmailTextField(
     modifier: Modifier = Modifier,
-    email: String,
-    onEmailChange: (String) -> Unit
+    userEmail: String,
+    onValueChange: (String) -> Unit,
+    placeholder: @Composable () -> Unit,
 ) {
     val isError by remember { mutableStateOf(false) }
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
 
     OutlinedTextField(
-        value = email,
-        onValueChange = { onEmailChange(it) },
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
+        value = userEmail,
+        onValueChange = { onValueChange(userEmail) },
         textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
         colors = TextFieldDefaults.colors(
             focusedTextColor = Color.Black,
@@ -48,29 +48,40 @@ fun EmailTextField(
             unfocusedIndicatorColor = Color.Black,
             errorContainerColor = Color.White,
         ),
-        placeholder = { Text(text = "이메일") },
+        placeholder = placeholder,
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.icon_mail_24px),
-                contentDescription = "이메일"
+                contentDescription = "이메일 리딩 아이콘"
             )
         },
         trailingIcon = {
-            if (email.isNotEmpty()) {
-                IconButton(onClick = { onEmailChange("") }) {
+            if (userEmail.isNotEmpty()) {
+                IconButton(
+                    onClick = { onValueChange("") }
+                ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "이메일 초기화"
+                        contentDescription = "이메일 초기화 아이콘"
                     )
                 }
             }
         },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Next,
         ),
         singleLine = true,
         isError = isError,
     )
+}
 
+@Preview(showBackground = true)
+@Composable
+fun EmailTextFieldPreview() {
+    EmailTextField(
+        userEmail = "",
+        onValueChange = {},
+        placeholder = {}
+    )
 }

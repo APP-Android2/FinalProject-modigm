@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.login.email
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,71 +18,51 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults.buttonColors
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.login.email.component.EmailAutoLoginCheckBox
-import kr.co.lion.modigm.ui.login.email.component.EmailLoginJoinButton
-import kr.co.lion.modigm.ui.login.email.component.EmailLoginLoading
-import kr.co.lion.modigm.ui.login.email.component.EmailLoginScrollArrow
-import kr.co.lion.modigm.ui.login.email.component.EmailTextField
-import kr.co.lion.modigm.ui.login.email.component.PasswordTextField
-import kr.co.lion.modigm.ui.login.social.dpToSp
+import kr.co.lion.modigm.ui.login.component.EmailTextField
+import kr.co.lion.modigm.ui.login.component.LoginLoading
+import kr.co.lion.modigm.ui.login.component.PasswordTextField
+import kr.co.lion.modigm.ui.login.component.ScrollArrow
+import kr.co.lion.modigm.ui.login.util.dpToSp
 import kr.co.lion.modigm.util.JoinType
 
 @Composable
 fun EmailLoginScreen(
     modifier: Modifier = Modifier,
     isLoading: Boolean,
-    emailLoginResult: Boolean,
-    emailLoginError: Throwable?,
-    onNavigateToBottomNaviFragment: (JoinType) -> Unit,
-    onNavigateToFindEmailFragment: () -> Unit,
-    onNavigateToFindPasswordFragment: () -> Unit,
+    onFindEmailButtonClick: () -> Unit,
+    onFindPasswordButtonClick: () -> Unit,
     onEmailLoginButtonClick: (String, String, Boolean) -> Unit,
-    onNavigateToSocialLoginFragment: () -> Unit,
-    onNavigateToJoinFragment: (JoinType) -> Unit,
-    showLoginErrorDialog: (Throwable) -> Unit,
+    onBackButtonClick: () -> Unit,
+    onJoinButtonClick: (JoinType) -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
+    val userEmail = remember { mutableStateOf("") }
+    val userPassword = remember { mutableStateOf("") }
     val isChecked = remember { mutableStateOf(false) }
 
-    val isLoginButtonEnabled = remember(email.value, password.value) {
-        email.value.isNotBlank() && password.value.isNotBlank()
-    }
-
-    LaunchedEffect(emailLoginResult) {
-        if (emailLoginResult) {
-            onNavigateToBottomNaviFragment(JoinType.EMAIL)
-        }
-    }
-
-    LaunchedEffect(emailLoginError) {
-        emailLoginError?.let { error ->
-            showLoginErrorDialog(error)
-        }
+    val isLoginButtonEnabled = remember(userEmail.value, userPassword.value) {
+        userEmail.value.isNotBlank() && userPassword.value.isNotBlank()
     }
 
     Box(
@@ -120,16 +101,18 @@ fun EmailLoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 30.dp),
-                email = email.value,
-                onEmailChange = { email.value = it }
+                userEmail = userEmail.value,
+                onValueChange = { userEmail.value = it },
+                placeholder = { Text(text = "이메일") },
             )
 
             PasswordTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp),
-                password = password.value,
-                onPasswordChange = { password.value = it }
+                userPassword = userPassword.value,
+                onValueChange = { userPassword.value = it },
+                placeholder = { Text(text = "비밀번호") },
             )
 
             Row(
@@ -139,10 +122,28 @@ fun EmailLoginScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                EmailAutoLoginCheckBox(
-                    modifier = Modifier,
-                    isChecked = isChecked
-                )
+                Row(
+                    modifier = modifier,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = isChecked.value,
+                        onCheckedChange = { isChecked.value = it },
+                        modifier = Modifier
+                            .size(20.dp)
+                            .padding(top = 0.dp, bottom = 0.dp, start = 0.dp, end = 0.dp)
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clickable { isChecked.value = !isChecked.value }
+                    )
+                    Text(
+                        text = "자동 로그인",
+                        fontSize = dpToSp(16.dp),
+                        modifier = Modifier.clickable { isChecked.value = !isChecked.value }
+                    )
+                }
 
                 Row(
                     modifier = Modifier,
@@ -150,7 +151,7 @@ fun EmailLoginScreen(
                 ) {
                     TextButton(
                         modifier = Modifier.padding(start = 0.dp, end = 15.dp),
-                        onClick = { onNavigateToFindEmailFragment() },
+                        onClick = { onFindEmailButtonClick() },
                         contentPadding = PaddingValues(0.dp),
                     ) {
                         Text(
@@ -168,7 +169,7 @@ fun EmailLoginScreen(
                     TextButton(
                         modifier = Modifier
                             .padding(start = 15.dp, end = 0.dp),
-                        onClick = { onNavigateToFindPasswordFragment() },
+                        onClick = { onFindPasswordButtonClick() },
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
@@ -186,8 +187,8 @@ fun EmailLoginScreen(
                     .padding(top = 10.dp),
                 onClick = {
                     onEmailLoginButtonClick(
-                        email.value,
-                        password.value,
+                        userEmail.value,
+                        userPassword.value,
                         isChecked.value
                     )
                 },
@@ -209,7 +210,7 @@ fun EmailLoginScreen(
             ) {
                 TextButton(
                     modifier = Modifier,
-                    onClick = { onNavigateToSocialLoginFragment() },
+                    onClick = { onBackButtonClick() },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Icon(
@@ -224,21 +225,47 @@ fun EmailLoginScreen(
                         color = Color.Black
                     )
                 }
-                EmailLoginJoinButton(
-                    modifier = Modifier,
-                    onNavigateToJoinFragment = onNavigateToJoinFragment
-                )
+                Row(
+                    modifier = modifier,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(end = 4.dp),
+                        text = "계정이 없으신가요?",
+                        fontSize = dpToSp(16.dp),
+                        color = Color.Black
+                    )
+                    TextButton(
+                        modifier = Modifier,
+                        onClick = { onJoinButtonClick(JoinType.EMAIL) },
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier.padding(end = 4.dp),
+                            painter = painterResource(R.drawable.icon_person_add_24px),
+                            contentDescription = "회원가입",
+                            tint = Color.Black
+                        )
+                        Text(
+                            modifier = Modifier,
+                            text = "회원가입",
+                            fontSize = dpToSp(16.dp),
+                            color = Color.Black
+                        )
+                    }
+                }
             }
         }
 
-        EmailLoginScrollArrow(
+        ScrollArrow(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
             scrollState = scrollState,
         )
 
-        EmailLoginLoading(
+        LoginLoading(
             modifier = Modifier
                 .fillMaxSize(),
             isLoading = isLoading
@@ -251,18 +278,11 @@ fun EmailLoginScreen(
 fun EmailLoginScreenPreview() {
     EmailLoginScreen(
         isLoading = false,
-        emailLoginResult = false,
-        emailLoginError = null,
-        onNavigateToBottomNaviFragment = {},
-        showLoginErrorDialog = {},
-        onNavigateToFindEmailFragment = {},
-        onNavigateToFindPasswordFragment = {},
+        onFindEmailButtonClick = {},
+        onFindPasswordButtonClick = {},
         onEmailLoginButtonClick = { email, password, autoLoginValue -> println("email: $email, password: $password, autoLoginValue: $autoLoginValue") },
-        onNavigateToSocialLoginFragment = {},
-        onNavigateToJoinFragment = {},
+        onBackButtonClick = {},
+        onJoinButtonClick = {},
     )
 }
-
-@Composable
-fun dpToSp(dp: Dp) = with(LocalDensity.current) { dp.toSp() }
 

@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.ui.login.email.component
+package kr.co.lion.modigm.ui.login.component
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -8,7 +8,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,22 +25,23 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.login.email.dpToSp
+import kr.co.lion.modigm.ui.login.util.dpToSp
 
 @Composable
 fun PasswordTextField(
     modifier: Modifier = Modifier,
-    password: String,
-    onPasswordChange: (String) -> Unit
+    userPassword: String,
+    onValueChange: (String) -> Unit,
+    placeholder: @Composable () -> Unit,
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
 
     OutlinedTextField(
         modifier = modifier,
-        value = password,
+        value = userPassword,
         onValueChange = {
-            onPasswordChange(it)
+            onValueChange(it)
             isPasswordVisible = it.isEmpty()
         },
         textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
@@ -54,11 +54,11 @@ fun PasswordTextField(
             unfocusedIndicatorColor = Color.Black,
             errorContainerColor = Color.White,
         ),
-        placeholder = { Text(text = "비밀번호") },
+        placeholder = placeholder,
         leadingIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.icon_key_24px),
-                contentDescription = "비밀번호 아이콘"
+                contentDescription = "비밀번호"
             )
         },
         trailingIcon = {
