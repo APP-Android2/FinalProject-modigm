@@ -37,7 +37,10 @@ fun EmailTextInputField(
     isError: Boolean,
     errorMessage: String,
     modifier: Modifier = Modifier,
-    imeAction: ImeAction = ImeAction.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Email,
+        imeAction = ImeAction.Default
+    ),
 ){
     Column(
         modifier = modifier
@@ -59,9 +62,10 @@ fun EmailTextInputField(
             },
             trailingIcon = {
                 if(textValue.isEmpty()) return@OutlinedTextField
+                val emptyValue = stringResource(R.string.JOIN_TEXT_RESET_VALUE)
                 IconButton(
                     onClick = {
-                        onValueChange("")
+                        onValueChange(emptyValue)
                     }
                 ){
                     Icon(
@@ -86,10 +90,7 @@ fun EmailTextInputField(
                 errorContainerColor = Color.Transparent,
                 focusedIndicatorColor = colorResource(R.color.pointColor),
             ),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = imeAction
-            ),
+            keyboardOptions = keyboardOptions,
             modifier = Modifier
                 .fillMaxWidth()
         )
@@ -104,10 +105,10 @@ fun PasswordTextInputField(
     isError: Boolean,
     errorMessage: String,
     modifier: Modifier = Modifier,
-    imeAction: ImeAction = ImeAction.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Default)
 ){
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    val image = if (passwordVisible){
+    val passwordVisibilityIcon = if (passwordVisible){
         Icons.Filled.Visibility
     } else {
         Icons.Filled.VisibilityOff
@@ -143,7 +144,7 @@ fun PasswordTextInputField(
                     }
                 ){
                     Icon(
-                        imageVector  = image,
+                        imageVector  = passwordVisibilityIcon,
                         contentDescription = stringResource(R.string.PASSWORD_TOGGLE_ICON_DESCRIPTION)
                     )
                 }
@@ -164,9 +165,7 @@ fun PasswordTextInputField(
                 errorContainerColor = Color.Transparent,
                 focusedIndicatorColor = colorResource(R.color.pointColor),
             ),
-            keyboardOptions = KeyboardOptions(
-                imeAction = imeAction
-            ),
+            keyboardOptions = keyboardOptions,
             modifier = Modifier
                 .fillMaxWidth()
         )

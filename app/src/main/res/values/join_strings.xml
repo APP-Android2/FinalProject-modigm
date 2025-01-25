@@ -15,4 +15,6 @@
     <string name="JOIN_STEP1_PASSWORD_CHECK_LABEL">비밀번호 확인</string>
     <string name="JOIN_STEP1_INPUT_PLACEHOLDER_TEXT">%1$s 입력</string>
     <string name="PASSWORD_TOGGLE_ICON_DESCRIPTION">toggle password visibility</string>
+
+    <string name="JOIN_TEXT_RESET_VALUE" />
 </resources>
