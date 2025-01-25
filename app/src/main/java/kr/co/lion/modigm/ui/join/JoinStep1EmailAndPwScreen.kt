@@ -13,6 +13,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,7 +52,10 @@ fun JoinStep1EmailAndPwScreen(
             onValueChange = { joinStep1EmailAndPwViewModel.setUserInputEmail(it) },
             isError = emailValidationMessageState.value.isNotEmpty(),
             errorMessage = emailValidationMessageState.value,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
             modifier = Modifier.padding(top = 40.dp)
         )
         PasswordTextInputField(
