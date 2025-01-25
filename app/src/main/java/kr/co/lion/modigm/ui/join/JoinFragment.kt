@@ -304,9 +304,9 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
                     step1EmailAndPwViewModel.resetEmailVerified()
                 }
                 // 계정 중복 확인
-                val isDup = joinViewModel.registerEmailUserToFirebaseAuth()
-                if(isDup.isNotEmpty()){
-                    step1EmailAndPwViewModel.setUserInputEmailValidationMessage(isDup)
+                val isDuplicated = joinViewModel.registerEmailUserToFirebaseAuth()
+                if(isDuplicated.isNotEmpty()){
+                    step1EmailAndPwViewModel.setUserInputEmailValidationMessage(isDuplicated)
                     hideLoading()
                     return@launch
                 }
