@@ -7,4 +7,14 @@
     <string name="CANCEL_JOIN_MESSAGE">정말로 회원가입을 취소하시겠습니까?</string>
     <string name="DIALOG_BUTTON_YES">네</string>
     <string name="DIALOG_BUTTON_NO">아니오</string>
+
+    <string name="JOIN_STEP1_TITLE">사용하실 이메일과 \n비밀번호를 입력해주세요</string>
+    <string name="JOIN_STEP1_EMAIL_LABEL">이메일</string>
+    <string name="JOIN_STEP1_PASSWORD_LABEL">비밀번호</string>
+    <string name="JOIN_STEP1_PASSWORD_GUIDE">8~20자리, 영문, 숫자, 특수문자 포함 입력</string>
+    <string name="JOIN_STEP1_PASSWORD_CHECK_LABEL">비밀번호 확인</string>
+    <string name="JOIN_STEP1_INPUT_PLACEHOLDER_TEXT">%1$s 입력</string>
+    <string name="PASSWORD_TOGGLE_ICON_DESCRIPTION">toggle password visibility</string>
+
+    <string name="JOIN_TEXT_RESET_VALUE" />
 </resources>
