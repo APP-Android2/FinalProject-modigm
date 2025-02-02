@@ -70,7 +70,7 @@ fun EmailTextInputField(
                 ){
                     Icon(
                         imageVector  = Icons.Filled.Clear,
-                        contentDescription = stringResource(R.string.PASSWORD_TOGGLE_ICON_DESCRIPTION)
+                        contentDescription = stringResource(R.string.CLEAR_ICON_DESCRIPTION)
                     )
                 }
             },
@@ -146,6 +146,210 @@ fun PasswordTextInputField(
                     Icon(
                         imageVector  = passwordVisibilityIcon,
                         contentDescription = stringResource(R.string.PASSWORD_TOGGLE_ICON_DESCRIPTION)
+                    )
+                }
+            },
+            singleLine = true,
+            isError = isError,
+            supportingText = {
+                if(isError){
+                    Text(
+                        text = errorMessage,
+                        color = colorResource(R.color.redColor)
+                    )
+                }
+            },
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent,
+                focusedIndicatorColor = colorResource(R.color.pointColor),
+            ),
+            keyboardOptions = keyboardOptions,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun NameTextInputField(
+    inputTitle: String,
+    textValue: String,
+    onValueChange: (String) -> Unit,
+    isError: Boolean,
+    errorMessage: String,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Text,
+        imeAction = ImeAction.Default
+    ),
+){
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = inputTitle,
+            style = TextStyle(
+                fontSize = 16.sp,
+            )
+        )
+        OutlinedTextField(
+            value = textValue,
+            onValueChange = onValueChange,
+            placeholder = {
+                Text(
+                    stringResource(R.string.JOIN_STEP1_INPUT_PLACEHOLDER_TEXT, inputTitle),
+                    color = colorResource(R.color.textGray)
+                )
+            },
+            trailingIcon = {
+                if(textValue.isEmpty()) return@OutlinedTextField
+                val emptyValue = stringResource(R.string.JOIN_TEXT_RESET_VALUE)
+                IconButton(
+                    onClick = {
+                        onValueChange(emptyValue)
+                    }
+                ){
+                    Icon(
+                        imageVector  = Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.CLEAR_ICON_DESCRIPTION)
+                    )
+                }
+            },
+            singleLine = true,
+            isError = isError,
+            supportingText = {
+                if(isError){
+                    Text(
+                        text = errorMessage,
+                        color = colorResource(R.color.redColor)
+                    )
+                }
+            },
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent,
+                focusedIndicatorColor = colorResource(R.color.pointColor),
+            ),
+            keyboardOptions = keyboardOptions,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun PhoneTextInputField(
+    inputTitle: String,
+    textValue: String,
+    onValueChange: (String) -> Unit,
+    isError: Boolean,
+    errorMessage: String,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Phone,
+        imeAction = ImeAction.Default
+    ),
+){
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = inputTitle,
+            style = TextStyle(
+                fontSize = 16.sp,
+            )
+        )
+        OutlinedTextField(
+            value = textValue,
+            onValueChange = onValueChange,
+            placeholder = {
+                Text(
+                    stringResource(R.string.JOIN_STEP1_INPUT_PLACEHOLDER_TEXT, inputTitle),
+                    color = colorResource(R.color.textGray)
+                )
+            },
+            trailingIcon = {
+                if(textValue.isEmpty()) return@OutlinedTextField
+                val emptyValue = stringResource(R.string.JOIN_TEXT_RESET_VALUE)
+                IconButton(
+                    onClick = {
+                        onValueChange(emptyValue)
+                    }
+                ){
+                    Icon(
+                        imageVector  = Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.CLEAR_ICON_DESCRIPTION)
+                    )
+                }
+            },
+            singleLine = true,
+            isError = isError,
+            supportingText = {
+                if(isError){
+                    Text(
+                        text = errorMessage,
+                        color = colorResource(R.color.redColor)
+                    )
+                }
+            },
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                errorContainerColor = Color.Transparent,
+                focusedIndicatorColor = colorResource(R.color.pointColor),
+            ),
+            keyboardOptions = keyboardOptions,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun PhoneAuthTextInputField(
+    inputTitle: String,
+    textValue: String,
+    onValueChange: (String) -> Unit,
+    isError: Boolean,
+    errorMessage: String,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Text,
+        imeAction = ImeAction.Default
+    ),
+){
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = inputTitle,
+            style = TextStyle(
+                fontSize = 16.sp,
+            )
+        )
+        OutlinedTextField(
+            value = textValue,
+            onValueChange = onValueChange,
+            placeholder = {
+                Text(
+                    stringResource(R.string.JOIN_STEP1_INPUT_PLACEHOLDER_TEXT, inputTitle),
+                    color = colorResource(R.color.textGray)
+                )
+            },
+            trailingIcon = {
+                if(textValue.isEmpty()) return@OutlinedTextField
+                val emptyValue = stringResource(R.string.JOIN_TEXT_RESET_VALUE)
+                IconButton(
+                    onClick = {
+                        onValueChange(emptyValue)
+                    }
+                ){
+                    Icon(
+                        imageVector  = Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.CLEAR_ICON_DESCRIPTION)
                     )
                 }
             },
