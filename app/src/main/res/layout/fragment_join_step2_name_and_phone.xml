@@ -3,7 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/composeViewJoinStep2NameAndPhone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </androidx.compose.ui.platform.ComposeView>
+
+    <!--data>
         <variable
             name="viewModel"
             type="kr.co.lion.modigm.ui.join.vm.JoinStep2NameAndPhoneViewModel" />
@@ -150,6 +156,6 @@
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+    </ScrollView-->
 
 </layout>
