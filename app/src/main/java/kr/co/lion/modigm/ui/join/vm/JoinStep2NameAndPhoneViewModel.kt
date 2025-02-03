@@ -34,7 +34,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
 ): ViewModel() {
     // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================
     val showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
-    fun showLoading(){
+    private fun showLoading(){
         showLoadingCallback.value?.invoke()
     }
 
@@ -58,7 +58,16 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     private val _userInputPhone = MutableStateFlow("")
     val userInputPhone = _userInputPhone.asStateFlow()
     fun setUserInputPhone(phone: String){
-        _userInputPhone.value = phone
+        val phoneNumberWithOutHyphens = phone.replace("-","")
+
+        if(phoneNumberWithOutHyphens.length > 11) return
+
+        val formattedText = when {
+            phoneNumberWithOutHyphens.length >= 11 -> "${phoneNumberWithOutHyphens.substring(0, 3)}-${phoneNumberWithOutHyphens.substring(3, 7)}-${phoneNumberWithOutHyphens.substring(7)}"
+            else -> phoneNumberWithOutHyphens
+        }
+
+        _userInputPhone.value = formattedText
     }
     private val _userInputPhoneValidation = MutableStateFlow("")
     val userInputPhoneValidation = _userInputPhoneValidation.asStateFlow()
@@ -104,7 +113,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     // 인증하기 버튼 눌렀을 때 유효성 검사
-    fun checkUserInputPhoneValidation(): Boolean {
+    private fun checkUserInputPhoneValidation(): Boolean {
         // 인증번호 입력칸 초기화
         _userInputSmsCode.value = ""
         // 에러 표시 초기화
@@ -150,7 +159,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     private val _phoneAuthErrorMessage = MutableStateFlow("")
 
     // 나중에 이메일 계정과 합칠 때 필요한 전화번호 인증 credential
-    private var _phoneAuthCredential = MutableStateFlow<AuthCredential?>(null)
+    private val _phoneAuthCredential = MutableStateFlow<AuthCredential?>(null)
 
     // 이미 등록된 전화번호 계정이 있는지 여부
     private val _isAlreadyRegisteredPhoneUser = MutableStateFlow(false)
@@ -215,7 +224,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         _isPhoneAuthExpired.value = false
 
         // 전화번호 앞에 "+82 " 국가코드 붙여주기
-        val setNumber = userInputPhone.value.replaceRange(0,1,"+82 ")
+        val setNumber = _userInputPhone.value.replaceRange(0,1,"+82 ")
 
         _firebaseAuth.setLanguageCode("kr")
 

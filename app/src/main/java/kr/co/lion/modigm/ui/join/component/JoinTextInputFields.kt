@@ -264,7 +264,9 @@ fun PhoneTextInputField(
         )
         OutlinedTextField(
             value = textValue,
-            onValueChange = onValueChange,
+            onValueChange = {
+                onValueChange(it)
+            },
             placeholder = {
                 Text(
                     stringResource(R.string.JOIN_STEP1_INPUT_PLACEHOLDER_TEXT, inputTitle),
