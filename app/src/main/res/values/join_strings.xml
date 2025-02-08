@@ -15,6 +15,13 @@
     <string name="JOIN_STEP1_PASSWORD_CHECK_LABEL">비밀번호 확인</string>
     <string name="JOIN_STEP1_INPUT_PLACEHOLDER_TEXT">%1$s 입력</string>
     <string name="PASSWORD_TOGGLE_ICON_DESCRIPTION">toggle password visibility</string>
+    <string name="CLEAR_ICON_DESCRIPTION">text clear</string>
+
+    <string name="JOIN_STEP2_TITLE">이름과 전화번호를 \n입력해주세요</string>
+    <string name="JOIN_STEP2_NAME_LABEL">이름</string>
+    <string name="JOIN_STEP2_NAME_GUIDE">이름은 추후에 변경이 불가능합니다. 본명을 입력해주세요.</string>
+    <string name="JOIN_STEP2_PHONE_LABEL">전화번호</string>
+    <string name="JOIN_STEP2_PHONE_AUTH_LABEL">인증번호 확인</string>
 
     <string name="JOIN_STEP3_TITLE">관심있는 분야를 \n선택해주세요</string>
     <string name="JOIN_STEP3_ALERT_EMPTY_INTEREST_LIST">관심있는 분야를 선택해주세요</string>
