@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -27,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
@@ -137,7 +140,8 @@ class ProfileFragment : Fragment() {
             Image(
                 painter = painterResource(id = R.drawable.image_loading_gray),
                 contentDescription = "Profile Picture",
-                modifier = Modifier.size(100.dp)
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(100.dp).clip(CircleShape)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
