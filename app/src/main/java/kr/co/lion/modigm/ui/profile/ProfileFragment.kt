@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -103,9 +104,11 @@ class ProfileFragment : Fragment() {
         val profilePartStudies by viewModel.profilePartStudyList.collectAsState(initial = emptyList())
 
         Scaffold(
+            modifier = Modifier.background(Color.White),
             topBar = {
                 TopAppBar(
                     title = { Text(text = "프로필") },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
                     actions = {
                         IconButton(onClick = { /* TODO: Handle settings */ }) {
                             Icon(painterResource(id = R.drawable.icon_settings_24px), contentDescription = "Settings")
@@ -118,6 +121,7 @@ class ProfileFragment : Fragment() {
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
+                    .background(Color.White)
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
