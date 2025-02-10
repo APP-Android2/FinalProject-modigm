@@ -126,7 +126,8 @@ class ProfileFragment : Fragment() {
                     .fillMaxSize()
                     .background(Color.White)
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ProfileHeader(name = profileName ?: "Default Name", intro = profileIntro ?: "Default Intro")
                 Spacer(modifier = Modifier.height(16.dp))
@@ -162,7 +163,7 @@ class ProfileFragment : Fragment() {
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun InterestsSection(interests: String) {
-        Column {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Text(text = "관심분야", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             FlowRow {
