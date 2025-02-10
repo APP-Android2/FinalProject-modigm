@@ -52,6 +52,7 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
+import kr.co.lion.modigm.ui.theme.ModigmTheme
 import kr.co.lion.modigm.util.CustomColor
 import kr.co.lion.modigm.util.FragmentName
 import java.net.URL
@@ -83,7 +84,9 @@ class ProfileFragment : Fragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                ProfileScreen(viewModel = viewModel)
+                ModigmTheme {
+                    ProfileScreen(viewModel = viewModel)
+                }
             }
         }
     }
@@ -104,9 +107,9 @@ class ProfileFragment : Fragment() {
         val profilePartStudies by viewModel.profilePartStudyList.collectAsState(initial = emptyList())
 
         Scaffold(
-            modifier = Modifier.background(Color.White),
             topBar = {
                 TopAppBar(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp),
                     title = { Text(text = "프로필") },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
                     actions = {
@@ -145,7 +148,9 @@ class ProfileFragment : Fragment() {
                 painter = painterResource(id = R.drawable.image_loading_gray),
                 contentDescription = "Profile Picture",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(100.dp).clip(CircleShape)
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -185,24 +190,32 @@ class ProfileFragment : Fragment() {
                     Image(
                         painter = painterResource(id = iconRes),
                         contentDescription = "$domain icon",
-                        modifier = Modifier.size(30.dp).padding(end = 8.dp).clickable {
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                // bundle 에 필요한 정보를 담는다
-                                val bundle = Bundle()
-                                bundle.putString("link", link)
+                        modifier = Modifier
+                            .size(30.dp)
+                            .padding(end = 8.dp)
+                            .clickable {
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    // bundle 에 필요한 정보를 담는다
+                                    val bundle = Bundle()
+                                    bundle.putString("link", link)
 
-                                // 이동할 프래그먼트로 bundle을 넘긴다
-                                val profileWebFragment = ProfileWebFragment()
-                                profileWebFragment.arguments = bundle
+                                    // 이동할 프래그먼트로 bundle을 넘긴다
+                                    val profileWebFragment = ProfileWebFragment()
+                                    profileWebFragment.arguments = bundle
 
-                                // Fragment 교체
-                                requireActivity().supportFragmentManager.commit {
-                                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                                    replace(R.id.containerMain, profileWebFragment)
-                                    addToBackStack(FragmentName.PROFILE_WEB.str)
+                                    // Fragment 교체
+                                    requireActivity().supportFragmentManager.commit {
+                                        setCustomAnimations(
+                                            R.anim.slide_in,
+                                            R.anim.fade_out,
+                                            R.anim.fade_in,
+                                            R.anim.slide_out
+                                        )
+                                        replace(R.id.containerMain, profileWebFragment)
+                                        addToBackStack(FragmentName.PROFILE_WEB.str)
+                                    }
                                 }
                             }
-                        }
                     )
                 }
             }
@@ -234,24 +247,32 @@ class ProfileFragment : Fragment() {
     @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     fun StudyItem(study: StudyData) {
-        Row(modifier = Modifier.fillMaxWidth().padding(8.dp).clickable {
-            viewLifecycleOwner.lifecycleScope.launch {
-                val detailFragment = DetailFragment()
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val detailFragment = DetailFragment()
 
-                // Bundle 생성 및 현재 사용자 uid 담기
-                val bundle = Bundle()
-                bundle.putInt("studyIdx", study.studyIdx)
+                    // Bundle 생성 및 현재 사용자 uid 담기
+                    val bundle = Bundle()
+                    bundle.putInt("studyIdx", study.studyIdx)
 
-                // Bundle을 ProfileFragment에 설정
-                detailFragment.arguments = bundle
+                    // Bundle을 ProfileFragment에 설정
+                    detailFragment.arguments = bundle
 
-                requireActivity().supportFragmentManager.commit {
-                    setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
-                    replace(R.id.containerMain, detailFragment)
-                    addToBackStack(FragmentName.DETAIL.str)
+                    requireActivity().supportFragmentManager.commit {
+                        setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.fade_out,
+                            R.anim.fade_in,
+                            R.anim.slide_out
+                        )
+                        replace(R.id.containerMain, detailFragment)
+                        addToBackStack(FragmentName.DETAIL.str)
+                    }
                 }
-            }
-        }) {
+            }) {
             Card(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.size(70.dp)
