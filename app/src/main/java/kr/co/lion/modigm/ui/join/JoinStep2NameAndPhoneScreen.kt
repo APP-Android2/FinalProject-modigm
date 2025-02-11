@@ -61,23 +61,26 @@ fun JoinStep2NameAndPhoneScreen(
             text = stringResource(R.string.JOIN_STEP2_TITLE),
             style = TextStyle(fontSize = 26.sp)
         )
+
         NameTextInputField(
             inputTitle = stringResource(R.string.JOIN_STEP2_NAME_LABEL),
             textValue = inputName,
             onValueChange = setUserInputName,
             isError = nameValidationMessage.isNotEmpty(),
             errorMessage = nameValidationMessage,
+            modifier = Modifier.padding(top = 16.dp),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Text
-            ),
-            modifier = Modifier.padding(top = 16.dp)
+            )
         )
+
         Text(
             text = stringResource(R.string.JOIN_STEP2_NAME_GUIDE),
             color = colorResource(R.color.redColor),
             modifier = Modifier.padding(start = 15.dp),
         )
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 16.dp)
@@ -88,29 +91,31 @@ fun JoinStep2NameAndPhoneScreen(
                 onValueChange = setUserInputPhone,
                 isError = phoneValidationMessage.isNotEmpty(),
                 errorMessage = phoneValidationMessage,
+                modifier = Modifier.weight(2f),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Phone
-                ),
-                modifier = Modifier.weight(2f)
+                )
             )
+
             Button(
                 onClick = phoneAuthButtonClickEvent,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(start = 10.dp)
+                    .weight(1f),
+                enabled = isPhoneAuthExpired,
                 colors = ButtonColors(
                     containerColor = colorResource(R.color.pointColor),
                     contentColor = colorResource(R.color.white),
                     disabledContainerColor = colorResource(R.color.textGray),
                     disabledContentColor = colorResource(R.color.black)
-                ),
-                enabled = isPhoneAuthExpired,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(start = 10.dp)
-                    .weight(1f)
+                )
             ) {
                 Text(phoneAuthButtonText)
             }
         }
+
         if(isPhoneAuthCodeSent){
             PhoneAuthTextInputField(
                 inputTitle = stringResource(R.string.JOIN_STEP2_PHONE_AUTH_LABEL),
@@ -118,8 +123,8 @@ fun JoinStep2NameAndPhoneScreen(
                 onValueChange = setUserInputSmsCode,
                 isError = phoneAuthCodeValidationMessage.isNotEmpty(),
                 errorMessage = phoneAuthCodeValidationMessage,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 16.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
             )
         }
     }
