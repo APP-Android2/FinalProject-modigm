@@ -147,10 +147,18 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
     private fun deleteNotification(notification: NotificationData) {
         lifecycleScope.launch {
-            val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
-            if (viewModel.deleteNotification(notification)) {
-                viewModel.refreshNotifications(userIdx)// RecyclerView 갱신
-                updateBadgeState()// 모든 알림 상태 업데이트
+            try {
+                val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+                val isDeleted = viewModel.deleteNotification(notification)
+
+                if (isDeleted) {
+                    viewModel.refreshNotifications(userIdx)// RecyclerView 갱신
+                    updateBadgeState()// 모든 알림 상태 업데이트
+                } else {
+                    Log.e("NotificationFragment", "Failed to delete notification: ${notification.notificationIdx}")
+                }
+            } catch (e: Exception) {
+                Log.e("NotificationFragment", "Error deleting notification", e)
             }
         }
     }
@@ -162,11 +170,14 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun fetchAndDisplayNotifications(){
-        // 현재 사용자 ID 가져오기
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
-        Log.d("NotificationFragment", "Refreshing notifications for userIdx: $userIdx")
-        // ViewModel을 통해 알림 데이터를 다시 가져옵니다.
-        viewModel.fetchNotifications(userIdx)
+        try {
+            // 현재 사용자 ID 가져오기
+            val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
+            // ViewModel을 통해 알림 데이터를 다시 가져옵니다.
+            viewModel.fetchNotifications(userIdx)
+        } catch (e: Exception){
+            Log.e("NotificationFragment", "Error fetching notifications", e)
+        }
     }
 
     override fun onResume() {
@@ -181,7 +192,11 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun handleScreenVisibilityChange() {
-        viewModel.markAllNotificationsAsRead()
+        try {
+            viewModel.markAllNotificationsAsRead()
+        } catch (e: Exception) {
+            Log.e("NotificationFragment", "Error marking all notifications as read", e)
+        }
     }
 
     override fun onDestroyView() {
@@ -192,12 +207,16 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
     private fun markNotificationAsRead(notification: NotificationData) {
         lifecycleScope.launch {
-            viewModel.markNotificationAsRead(notification.notificationIdx) // 서버에 읽음 상태 업데이트
+            try {
+                viewModel.markNotificationAsRead(notification.notificationIdx) // 서버에 읽음 상태 업데이트
 
-            // **알림 읽음 처리 후 isRead 값을 true로 업데이트**
-            notification.isRead = true
-            adapter.updateData(viewModel.notifications.value)
-            updateBadgeState()
+                // **알림 읽음 처리 후 isRead 값을 true로 업데이트**
+                notification.isRead = true
+                adapter.updateData(viewModel.notifications.value)
+                updateBadgeState()
+            } catch (e: Exception) {
+                Log.e("NotificationFragment", "Error marking notification as read: ${notification.notificationIdx}", e)
+            }
         }
     }
 }
