@@ -181,7 +181,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun handleScreenVisibilityChange() {
-        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent("ACTION_MARK_ALL_READ"))
+        viewModel.markAllNotificationsAsRead()
     }
 
     override fun onDestroyView() {
