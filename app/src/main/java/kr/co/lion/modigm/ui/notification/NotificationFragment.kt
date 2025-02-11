@@ -100,9 +100,20 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         // 로딩 상태 관찰
         lifecycleScope.launchWhenStarted {
             viewModel.isLoading.collect { isLoading ->
-                toggleLoadingState(isLoading)// 로딩 상태 업데이트
+//                toggleLoadingState(isLoading)// 로딩 상태 업데이트
+                if (isLoading) showLoading() else hideLoading() // 🔹 기존 `toggleLoadingState(isLoading)`을 두 개의 함수로 분리
             }
         }
+    }
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        hideContent()
+    }
+
+    private fun hideLoading() {
+        binding.progressBar.visibility = View.GONE
+        updateNotificationUI(viewModel.notifications.value)
     }
 
     private fun updateNotificationUI(notifications: List<NotificationData>) {
@@ -111,11 +122,6 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         } else {
             displayEmptyState()
         }
-    }
-
-    private fun toggleLoadingState(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        if (isLoading) hideContent() else updateNotificationUI(viewModel.notifications.value)
     }
 
     private fun displayNotifications(notifications: List<NotificationData>) {
