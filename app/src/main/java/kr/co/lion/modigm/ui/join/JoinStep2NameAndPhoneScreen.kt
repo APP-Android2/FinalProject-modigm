@@ -22,9 +22,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.join.component.NameTextInputField
-import kr.co.lion.modigm.ui.join.component.PhoneAuthTextInputField
-import kr.co.lion.modigm.ui.join.component.PhoneTextInputField
+import kr.co.lion.modigm.ui.join.component.NameTextField
+import kr.co.lion.modigm.ui.join.component.PhoneAuthTextField
+import kr.co.lion.modigm.ui.join.component.PhoneTextField
 
 @Composable
 fun JoinStep2NameAndPhoneScreen(
@@ -62,7 +62,7 @@ fun JoinStep2NameAndPhoneScreen(
             style = TextStyle(fontSize = 26.sp)
         )
 
-        NameTextInputField(
+        NameTextField(
             inputTitle = stringResource(R.string.JOIN_STEP2_NAME_LABEL),
             textValue = inputName,
             onValueChange = setUserInputName,
@@ -77,15 +77,15 @@ fun JoinStep2NameAndPhoneScreen(
 
         Text(
             text = stringResource(R.string.JOIN_STEP2_NAME_GUIDE),
-            color = colorResource(R.color.redColor),
             modifier = Modifier.padding(start = 15.dp),
+            color = colorResource(R.color.redColor),
         )
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            PhoneTextInputField(
+            PhoneTextField(
                 inputTitle = stringResource(R.string.JOIN_STEP2_PHONE_LABEL),
                 textValue = inputPhoneNumber,
                 onValueChange = setUserInputPhone,
@@ -117,7 +117,7 @@ fun JoinStep2NameAndPhoneScreen(
         }
 
         if(isPhoneAuthCodeSent){
-            PhoneAuthTextInputField(
+            PhoneAuthTextField(
                 inputTitle = stringResource(R.string.JOIN_STEP2_PHONE_AUTH_LABEL),
                 textValue = inputPhoneAuthCode,
                 onValueChange = setUserInputSmsCode,
