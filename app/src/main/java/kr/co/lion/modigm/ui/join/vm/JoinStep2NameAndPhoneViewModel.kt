@@ -33,14 +33,16 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     private val _firebaseAuth: FirebaseAuth
 ): ViewModel() {
     // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================
-    val showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
-    private fun showLoading(){
-        showLoadingCallback.value?.invoke()
+    private val _showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+
+    fun setShowLoading(showLoading: () -> Unit){
+        _showLoadingCallback.value = showLoading
     }
 
-    val hideLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
-    fun hideLoading(){
-        hideLoadingCallback.value?.invoke()
+    private val _hideLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+
+    fun setHideLoading(hideLoading: () -> Unit){
+        _hideLoadingCallback.value = hideLoading
     }
 
     // ================1. 유효성 검사 관련==============================================================
@@ -48,15 +50,15 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     // 이름
     private val _userInputName = MutableStateFlow("")
     val userInputName = _userInputName.asStateFlow()
+
     fun setUserInputName(name: String){
         _userInputName.value = name
     }
-    private val _userInputNameValidation = MutableStateFlow("")
-    val userInputNameValidation = _userInputNameValidation.asStateFlow()
 
     // 전화번호
     private val _userInputPhone = MutableStateFlow("")
     val userInputPhone = _userInputPhone.asStateFlow()
+
     fun setUserInputPhone(phone: String){
         val phoneNumberWithOutHyphens = phone.replace("-","")
 
@@ -69,15 +71,21 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
 
         _userInputPhone.value = formattedText
     }
-    private val _userInputPhoneValidation = MutableStateFlow("")
-    val userInputPhoneValidation = _userInputPhoneValidation.asStateFlow()
 
     // 인증번호입력
     private val _userInputSmsCode = MutableStateFlow(SmsReceiver.smsCode.value)
     val userInputSmsCode = _userInputSmsCode.asStateFlow()
+
     fun setUserInputSmsCode(code: String){
         _userInputSmsCode.value = code
     }
+
+    private val _userInputNameValidation = MutableStateFlow("")
+    val userInputNameValidation = _userInputNameValidation.asStateFlow()
+
+    private val _userInputPhoneValidation = MutableStateFlow("")
+    val userInputPhoneValidation = _userInputPhoneValidation.asStateFlow()
+
     private val _userInputSmsCodeValidation = MutableStateFlow("")
     val userInputSmsCodeValidation = _userInputSmsCodeValidation.asStateFlow()
 
@@ -87,17 +95,18 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         _userInputNameValidation.value =""
         _userInputPhoneValidation.value =""
         _userInputSmsCodeValidation.value =""
+
         var result = true
 
-        if(userInputName.value.isEmpty()){
+        if(_userInputName.value.isEmpty()){
             _userInputNameValidation.value = "이름을 입력해주세요."
             result = false
         }
-        if(userInputPhone.value.isEmpty()){
+        if(_userInputPhone.value.isEmpty()){
             _userInputPhoneValidation.value = "전화번호를 입력해주세요."
             result = false
         }else{
-            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", userInputPhone.value)){
+            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", _userInputPhone.value)){
                 _userInputPhoneValidation.value = "올바른 전화번호가 아닙니다."
                 result = false
             }else if(!_isPhoneAuthCodeSent.value){
@@ -105,7 +114,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
                 result = false
             }
         }
-        if(userInputSmsCode.value.isEmpty()){
+        if(_userInputSmsCode.value.isEmpty()){
             _userInputSmsCodeValidation.value = "인증번호를 입력해주세요."
             result = false
         }
@@ -118,13 +127,14 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         _userInputSmsCode.value = ""
         // 에러 표시 초기화
         _userInputPhoneValidation.value =""
-        var result = true
 
-        if(userInputPhone.value.isEmpty()){
+        var result = validateStep2UserInput()
+
+        if(_userInputPhone.value.isEmpty()){
             _userInputPhoneValidation.value = "전화번호를 입력해주세요."
             result = false
         }else{
-            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", userInputPhone.value)){
+            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", _userInputPhone.value)){
                 _userInputPhoneValidation.value = "올바른 전화번호가 아닙니다."
                 result = false
             }
@@ -143,6 +153,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     // 인증문자 발송 여부
     private val _isPhoneAuthCodeSent = MutableStateFlow(false)
     val isPhoneAuthCodeSent: StateFlow<Boolean> = _isPhoneAuthCodeSent
+
     fun resetPhoneAuthCodeSentState(){
         _isPhoneAuthCodeSent.value = false
     }
@@ -173,7 +184,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     val alreadyRegisteredUserProvider: StateFlow<String> = _alreadyRegisteredUserProvider
 
     // 문자 수신 60초 타이머
-    val phoneAuthTimer: CountDownTimer by lazy {
+    private val _phoneAuthTimer: CountDownTimer by lazy {
         _isPhoneAuthExpired.value = false
         object : CountDownTimer(60000, 1000){
             override fun onTick(millisUntilFinished: Long) {
@@ -190,7 +201,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     // 전화번호 인증계정을 앞선 이메일(SNS)계정과 연결
     suspend fun linkWithPhoneAuthCredential(): String {
         // DB에 해당 번호로 등록된 계정이 있는지 확인한다.
-        _joinRepository.checkUserByPhone(userInputPhone.value).onSuccess { resultMap ->
+        _joinRepository.checkUserByPhone(_userInputPhone.value).onSuccess { resultMap ->
             if(resultMap != null){
                 _phoneAuthErrorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
                 _alreadyRegisteredUserProvider.value = resultMap["userProvider"] ?: ""
@@ -258,7 +269,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
             _isVerifiedPhone.value = false
             _userInputPhoneValidation.value = e.message ?: "인증에 실패했습니다."
             _isPhoneAuthExpired.value = true
-            hideLoading()
+            _hideLoadingCallback.value?.invoke()
         }
 
         override fun onCodeSent(
@@ -269,15 +280,15 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
             _phoneAuthVerificationId.value = verificationId
             _isPhoneAuthCodeSent.value = true
             _userInputSmsCode.value = ""
-            phoneAuthTimer.start()
+            _phoneAuthTimer.start()
         }
     }
 
     fun phoneAuthButtonClickEvent(activity: Activity){
-        showLoading()
+        _showLoadingCallback.value?.invoke()
         // 전화번호 유효성 검사 먼저 한 후
         if(!checkUserInputPhoneValidation()){
-            hideLoading()
+            _hideLoadingCallback.value?.invoke()
             return
         }
 
@@ -342,7 +353,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     fun cancelPhoneAuthTimer(){
-        phoneAuthTimer.cancel()
+        _phoneAuthTimer.cancel()
         _phoneAuthButtonText.value = "인증하기"
         _isPhoneAuthExpired.value = true
     }
