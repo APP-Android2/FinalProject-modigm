@@ -1,6 +1,5 @@
 package kr.co.lion.modigm.ui.join
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,33 +21,32 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.lion.modigm.R
 import kr.co.lion.modigm.ui.join.component.NameTextInputField
 import kr.co.lion.modigm.ui.join.component.PhoneAuthTextInputField
 import kr.co.lion.modigm.ui.join.component.PhoneTextInputField
-import kr.co.lion.modigm.ui.join.vm.JoinStep2NameAndPhoneViewModel
 
 @Composable
 fun JoinStep2NameAndPhoneScreen(
-    joinStep2NameAndPhoneViewModel: JoinStep2NameAndPhoneViewModel,
-    requireActivity: Activity
+    inputName: String,
+    nameValidationMessage: String,
+    inputPhoneNumber: String,
+    phoneValidationMessage: String,
+    inputPhoneAuthCode: String,
+    phoneAuthCodeValidationMessage: String,
+    phoneAuthButtonText: String,
+    isPhoneAuthCodeSent: Boolean,
+    isPhoneAuthExpired: Boolean,
+    setUserInputName: (String) -> Unit,
+    setUserInputPhone: (String) -> Unit,
+    phoneAuthButtonClickEvent: () -> Unit,
+    setUserInputSmsCode: (String) -> Unit,
+    cancelPhoneAuth: () -> Unit,
 ){
-
-    val nameTextValueState = joinStep2NameAndPhoneViewModel.userInputName.collectAsStateWithLifecycle()
-    val nameValidationMessageState = joinStep2NameAndPhoneViewModel.userInputNameValidation.collectAsStateWithLifecycle()
-    val phoneTextValueState = joinStep2NameAndPhoneViewModel.userInputPhone.collectAsStateWithLifecycle()
-    val phoneValidationMessageState = joinStep2NameAndPhoneViewModel.userInputPhoneValidation.collectAsStateWithLifecycle()
-    val phoneAuthTextValueState = joinStep2NameAndPhoneViewModel.userInputSmsCode.collectAsStateWithLifecycle()
-    val phoneAuthValidationMessageState = joinStep2NameAndPhoneViewModel.userInputSmsCodeValidation.collectAsStateWithLifecycle()
-    val phoneAuthButtonText = joinStep2NameAndPhoneViewModel.phoneAuthButtonText.collectAsStateWithLifecycle()
-    val phoneAuthCodeSentState = joinStep2NameAndPhoneViewModel.isPhoneAuthCodeSent.collectAsStateWithLifecycle()
-    val phoneAuthExpiredState = joinStep2NameAndPhoneViewModel.isPhoneAuthExpired.collectAsStateWithLifecycle()
 
     DisposableEffect(Unit) {
         onDispose {
-            joinStep2NameAndPhoneViewModel.phoneAuthTimer.cancel()
-            joinStep2NameAndPhoneViewModel.stopSmsReceiver(requireActivity)
+            cancelPhoneAuth()
         }
     }
 
@@ -65,12 +63,10 @@ fun JoinStep2NameAndPhoneScreen(
         )
         NameTextInputField(
             inputTitle = stringResource(R.string.JOIN_STEP2_NAME_LABEL),
-            textValue = nameTextValueState.value,
-            onValueChange = {
-                joinStep2NameAndPhoneViewModel.setUserInputName(it)
-            },
-            isError = nameValidationMessageState.value.isNotEmpty(),
-            errorMessage = nameValidationMessageState.value,
+            textValue = inputName,
+            onValueChange = setUserInputName,
+            isError = nameValidationMessage.isNotEmpty(),
+            errorMessage = nameValidationMessage,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Text
@@ -88,12 +84,10 @@ fun JoinStep2NameAndPhoneScreen(
         ) {
             PhoneTextInputField(
                 inputTitle = stringResource(R.string.JOIN_STEP2_PHONE_LABEL),
-                textValue = phoneTextValueState.value,
-                onValueChange = {
-                    joinStep2NameAndPhoneViewModel.setUserInputPhone(it)
-                },
-                isError = phoneValidationMessageState.value.isNotEmpty(),
-                errorMessage = phoneValidationMessageState.value,
+                textValue = inputPhoneNumber,
+                onValueChange = setUserInputPhone,
+                isError = phoneValidationMessage.isNotEmpty(),
+                errorMessage = phoneValidationMessage,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Phone
@@ -101,33 +95,29 @@ fun JoinStep2NameAndPhoneScreen(
                 modifier = Modifier.weight(2f)
             )
             Button(
-                onClick = {
-                    joinStep2NameAndPhoneViewModel.phoneAuthButtonClickEvent(requireActivity)
-                },
+                onClick = phoneAuthButtonClickEvent,
                 colors = ButtonColors(
                     containerColor = colorResource(R.color.pointColor),
                     contentColor = colorResource(R.color.white),
                     disabledContainerColor = colorResource(R.color.textGray),
                     disabledContentColor = colorResource(R.color.black)
                 ),
-                enabled = phoneAuthExpiredState.value,
+                enabled = isPhoneAuthExpired,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(start = 10.dp)
                     .weight(1f)
             ) {
-                Text(phoneAuthButtonText.value)
+                Text(phoneAuthButtonText)
             }
         }
-        if(phoneAuthCodeSentState.value){
+        if(isPhoneAuthCodeSent){
             PhoneAuthTextInputField(
                 inputTitle = stringResource(R.string.JOIN_STEP2_PHONE_AUTH_LABEL),
-                textValue = phoneAuthTextValueState.value,
-                onValueChange = {
-                    joinStep2NameAndPhoneViewModel.setUserInputSmsCode(it)
-                },
-                isError = phoneAuthValidationMessageState.value.isNotEmpty(),
-                errorMessage = phoneAuthValidationMessageState.value,
+                textValue = inputPhoneAuthCode,
+                onValueChange = setUserInputSmsCode,
+                isError = phoneAuthCodeValidationMessage.isNotEmpty(),
+                errorMessage = phoneAuthCodeValidationMessage,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 modifier = Modifier.padding(top = 16.dp)
             )
