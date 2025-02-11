@@ -44,7 +44,8 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     }
 
     private fun setupUI() {
-        initializeUI()
+        setupToolbar()
+        setupRecyclerView()
         observeViewModel()
     }
 
@@ -52,11 +53,6 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         // 데이터 새로고침 브로드캐스트 리시버 등록
         LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(dataRefreshReceiver, IntentFilter("ACTION_REFRESH_DATA"))
-    }
-
-    private fun initializeUI() {
-        setupToolbar()
-        setupRecyclerView()
     }
     private fun setupToolbar() {
         with(binding.toolBarNotification) {
