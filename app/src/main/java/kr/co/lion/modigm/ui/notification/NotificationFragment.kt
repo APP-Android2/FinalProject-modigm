@@ -32,7 +32,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private val dataRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             // 데이터 갱신 요청 수신 시 호출되는 메소드
-            refreshNotifications()
+            fetchAndDisplayNotifications()
         }
     }
 
@@ -70,7 +70,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.notification_toolbar_refresh -> {
-                        refreshNotifications() // 새로고침 실행
+                        fetchAndDisplayNotifications() // 새로고침 실행
                         true
                     }
                     else -> false
@@ -165,7 +165,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         }
     }
 
-    private fun refreshNotifications() {
+    private fun fetchAndDisplayNotifications(){
         // 현재 사용자 ID 가져오기
         val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
         Log.d("NotificationFragment", "Refreshing notifications for userIdx: $userIdx")
