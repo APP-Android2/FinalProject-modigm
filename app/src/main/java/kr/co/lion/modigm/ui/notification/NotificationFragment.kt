@@ -40,7 +40,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         super.onViewCreated(view, savedInstanceState)
         setupUI()
         registerReceiver()
-        loadData()
+        fetchAndDisplayNotifications()
     }
 
     private fun setupUI() {
@@ -52,11 +52,6 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         // 데이터 새로고침 브로드캐스트 리시버 등록
         LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(dataRefreshReceiver, IntentFilter("ACTION_REFRESH_DATA"))
-    }
-
-    private fun loadData() {
-        val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
-        viewModel.fetchNotifications(userIdx) // 알림 데이터 가져오기
     }
 
     private fun initializeUI() {
