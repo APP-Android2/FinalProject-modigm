@@ -100,8 +100,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         // 로딩 상태 관찰
         lifecycleScope.launchWhenStarted {
             viewModel.isLoading.collect { isLoading ->
-//                toggleLoadingState(isLoading)// 로딩 상태 업데이트
-                if (isLoading) showLoading() else hideLoading() // 🔹 기존 `toggleLoadingState(isLoading)`을 두 개의 함수로 분리
+                if (isLoading) showLoading() else hideLoading()
             }
         }
     }
@@ -172,16 +171,16 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
     override fun onResume() {
         super.onResume()
-        markAllAsRead()
+        handleScreenVisibilityChange()
     }
 
     override fun onPause() {
         super.onPause()
         // 알림 화면을 벗어날 때 모든 알림을 읽음으로 표시
-        markAllAsRead()
+        handleScreenVisibilityChange()
     }
 
-    private fun markAllAsRead() {
+    private fun handleScreenVisibilityChange() {
         LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent("ACTION_MARK_ALL_READ"))
     }
 
