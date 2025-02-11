@@ -128,7 +128,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         // 에러 표시 초기화
         _userInputPhoneValidation.value =""
 
-        var result = validateStep2UserInput()
+        var result = true
 
         if(_userInputPhone.value.isEmpty()){
             _userInputPhoneValidation.value = "전화번호를 입력해주세요."
