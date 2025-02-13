@@ -1,6 +1,8 @@
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.NotificationData
 import kr.co.lion.modigm.repository.NotificationRepository
+import kr.co.lion.modigm.util.ModigmApplication
 
 class NotificationViewModel : ViewModel() {
     private val repository = NotificationRepository()
@@ -79,11 +82,21 @@ class NotificationViewModel : ViewModel() {
 
 
     // 모든 알림을 읽음으로 표시하는 메서드
-    fun markAllNotificationsAsRead(userIdx: Int) {
+    fun markAllNotificationsAsRead() {
         viewModelScope.launch {
+            val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
             repository.markAllNotificationsAsRead(userIdx)
             refreshNotifications(userIdx) // 모든 알림 상태를 읽음으로 변경 후 데이터 갱신
+
+            // 모든 알림을 읽음 처리한 후, 브로드캐스트 전송
+            sendMarkAllReadBroadcast()
         }
+    }
+
+    // 브로드캐스트 전송을 ViewModel에서 처리하도록 함수 추가
+    private fun sendMarkAllReadBroadcast() {
+        LocalBroadcastManager.getInstance(ModigmApplication.instance)
+            .sendBroadcast(Intent("ACTION_MARK_ALL_READ"))
     }
 
     // 서버에서 FCM 토큰을 삭제하는 메서드
