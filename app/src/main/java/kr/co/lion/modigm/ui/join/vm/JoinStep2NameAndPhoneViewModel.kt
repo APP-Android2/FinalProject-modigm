@@ -1,8 +1,12 @@
 package kr.co.lion.modigm.ui.join.vm
 
 import android.app.Activity
+import android.content.Context
+import android.os.Build
 import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -13,8 +17,12 @@ import com.google.firebase.auth.PhoneAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.repository.JoinRepository
+import kr.co.lion.modigm.util.SmsReceiver
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 import javax.inject.Inject
@@ -25,78 +33,109 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     private val _firebaseAuth: FirebaseAuth
 ): ViewModel() {
     // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================
-    val showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
-    fun showLoading(){
-        showLoadingCallback.value?.invoke()
+    private val _showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+
+    fun setShowLoading(showLoading: () -> Unit){
+        _showLoadingCallback.value = showLoading
     }
 
-    val hideLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
-    fun hideLoading(){
-        hideLoadingCallback.value?.invoke()
+    private val _hideLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+
+    fun setHideLoading(hideLoading: () -> Unit){
+        _hideLoadingCallback.value = hideLoading
     }
 
     // ================1. 유효성 검사 관련==============================================================
 
     // 이름
-    val userInputName = MutableStateFlow("")
-    // 이름 유효성 검사
-    val userInputNameValidation = MutableStateFlow("")
+    private val _userInputName = MutableStateFlow("")
+    val userInputName = _userInputName.asStateFlow()
+
+    fun setUserInputName(name: String){
+        _userInputName.value = name
+    }
 
     // 전화번호
-    val userInputPhone = MutableStateFlow("")
-    // 전화번호 유효성 검사
-    val userInputPhoneValidation = MutableStateFlow("")
+    private val _userInputPhone = MutableStateFlow("")
+    val userInputPhone = _userInputPhone.asStateFlow()
+
+    fun setUserInputPhone(phone: String){
+        val phoneNumberWithOutHyphens = phone.replace("-","")
+
+        if(phoneNumberWithOutHyphens.length > 11) return
+
+        val formattedText = when {
+            phoneNumberWithOutHyphens.length >= 11 -> "${phoneNumberWithOutHyphens.substring(0, 3)}-${phoneNumberWithOutHyphens.substring(3, 7)}-${phoneNumberWithOutHyphens.substring(7)}"
+            else -> phoneNumberWithOutHyphens
+        }
+
+        _userInputPhone.value = formattedText
+    }
 
     // 인증번호입력
-    val userInputSmsCode = MutableStateFlow("")
-    // 인증번호입력 유효성 검사
-    val userInputSmsCodeValidation = MutableStateFlow("")
+    private val _userInputSmsCode = MutableStateFlow(SmsReceiver.smsCode.value)
+    val userInputSmsCode = _userInputSmsCode.asStateFlow()
+
+    fun setUserInputSmsCode(code: String){
+        _userInputSmsCode.value = code
+    }
+
+    private val _userInputNameValidation = MutableStateFlow("")
+    val userInputNameValidation = _userInputNameValidation.asStateFlow()
+
+    private val _userInputPhoneValidation = MutableStateFlow("")
+    val userInputPhoneValidation = _userInputPhoneValidation.asStateFlow()
+
+    private val _userInputSmsCodeValidation = MutableStateFlow("")
+    val userInputSmsCodeValidation = _userInputSmsCodeValidation.asStateFlow()
 
     // 유효성 검사
     fun validateStep2UserInput(): Boolean {
         // 에러 표시 초기화
-        userInputNameValidation.value =""
-        userInputPhoneValidation.value =""
-        userInputSmsCodeValidation.value =""
+        _userInputNameValidation.value =""
+        _userInputPhoneValidation.value =""
+        _userInputSmsCodeValidation.value =""
+
         var result = true
 
-        if(userInputName.value.isEmpty()){
-            userInputNameValidation.value = "이름을 입력해주세요."
+        if(_userInputName.value.isEmpty()){
+            _userInputNameValidation.value = "이름을 입력해주세요."
             result = false
         }
-        if(userInputPhone.value.isEmpty()){
-            userInputPhoneValidation.value = "전화번호를 입력해주세요."
+        if(_userInputPhone.value.isEmpty()){
+            _userInputPhoneValidation.value = "전화번호를 입력해주세요."
             result = false
         }else{
-            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", userInputPhone.value)){
-                userInputPhoneValidation.value = "올바른 전화번호가 아닙니다."
+            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", _userInputPhone.value)){
+                _userInputPhoneValidation.value = "올바른 전화번호가 아닙니다."
                 result = false
             }else if(!_isPhoneAuthCodeSent.value){
-                userInputPhoneValidation.value = "인증하기 버튼을 눌러서 인증을 진행해주세요."
+                _userInputPhoneValidation.value = "인증하기 버튼을 눌러서 인증을 진행해주세요."
                 result = false
             }
         }
-        if(userInputSmsCode.value.isEmpty()){
-            userInputSmsCodeValidation.value = "인증번호를 입력해주세요."
+        if(_userInputSmsCode.value.isEmpty()){
+            _userInputSmsCodeValidation.value = "인증번호를 입력해주세요."
             result = false
         }
         return result
     }
 
     // 인증하기 버튼 눌렀을 때 유효성 검사
-    fun checkUserInputPhoneValidation(): Boolean {
+    private fun checkUserInputPhoneValidation(): Boolean {
         // 인증번호 입력칸 초기화
-        userInputSmsCode.value = ""
+        _userInputSmsCode.value = ""
         // 에러 표시 초기화
-        userInputPhoneValidation.value =""
+        _userInputPhoneValidation.value =""
+
         var result = true
 
-        if(userInputPhone.value.isEmpty()){
-            userInputPhoneValidation.value = "전화번호를 입력해주세요."
+        if(_userInputPhone.value.isEmpty()){
+            _userInputPhoneValidation.value = "전화번호를 입력해주세요."
             result = false
         }else{
-            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", userInputPhone.value)){
-                userInputPhoneValidation.value = "올바른 전화번호가 아닙니다."
+            if(!Pattern.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", _userInputPhone.value)){
+                _userInputPhoneValidation.value = "올바른 전화번호가 아닙니다."
                 result = false
             }
         }
@@ -114,6 +153,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     // 인증문자 발송 여부
     private val _isPhoneAuthCodeSent = MutableStateFlow(false)
     val isPhoneAuthCodeSent: StateFlow<Boolean> = _isPhoneAuthCodeSent
+
     fun resetPhoneAuthCodeSentState(){
         _isPhoneAuthCodeSent.value = false
     }
@@ -130,7 +170,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     private val _phoneAuthErrorMessage = MutableStateFlow("")
 
     // 나중에 이메일 계정과 합칠 때 필요한 전화번호 인증 credential
-    private var _phoneAuthCredential = MutableStateFlow<AuthCredential?>(null)
+    private val _phoneAuthCredential = MutableStateFlow<AuthCredential?>(null)
 
     // 이미 등록된 전화번호 계정이 있는지 여부
     private val _isAlreadyRegisteredPhoneUser = MutableStateFlow(false)
@@ -144,7 +184,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     val alreadyRegisteredUserProvider: StateFlow<String> = _alreadyRegisteredUserProvider
 
     // 문자 수신 60초 타이머
-    val phoneAuthTimer: CountDownTimer by lazy {
+    private val _phoneAuthTimer: CountDownTimer by lazy {
         _isPhoneAuthExpired.value = false
         object : CountDownTimer(60000, 1000){
             override fun onTick(millisUntilFinished: Long) {
@@ -161,7 +201,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     // 전화번호 인증계정을 앞선 이메일(SNS)계정과 연결
     suspend fun linkWithPhoneAuthCredential(): String {
         // DB에 해당 번호로 등록된 계정이 있는지 확인한다.
-        _joinRepository.checkUserByPhone(userInputPhone.value).onSuccess { resultMap ->
+        _joinRepository.checkUserByPhone(_userInputPhone.value).onSuccess { resultMap ->
             if(resultMap != null){
                 _phoneAuthErrorMessage.value = "이미 해당 번호로 가입한 계정이 있습니다."
                 _alreadyRegisteredUserProvider.value = resultMap["userProvider"] ?: ""
@@ -182,20 +222,20 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
                 _firebaseAuth.currentUser?.linkWithCredential(phoneCredential)?.await()
             }catch (e: FirebaseAuthException){
                 _phoneAuthErrorMessage.value = e.message.toString()
-                userInputSmsCodeValidation.value = _phoneAuthErrorMessage.value
+                _userInputSmsCodeValidation.value = _phoneAuthErrorMessage.value
             }
         }
         return _phoneAuthErrorMessage.value
     }
 
     // 전화 인증 발송
-    fun sendPhoneAuthCode(activity: Activity, startSmsReceiver: ()->Unit){
+    private fun sendPhoneAuthCode(activity: Activity, startSmsReceiver: ()->Unit){
         // 전화 인증 여부를 초기화
         _isVerifiedPhone.value = false
         _isPhoneAuthExpired.value = false
 
         // 전화번호 앞에 "+82 " 국가코드 붙여주기
-        val setNumber = userInputPhone.value.replaceRange(0,1,"+82 ")
+        val setNumber = _userInputPhone.value.replaceRange(0,1,"+82 ")
 
         _firebaseAuth.setLanguageCode("kr")
 
@@ -216,6 +256,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
             // 제한 시간이 경과된 경우
             super.onCodeAutoRetrievalTimeOut(p0)
             _isVerifiedPhone.value = false
+            _isPhoneAuthExpired.value = true
         }
 
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -226,7 +267,9 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         override fun onVerificationFailed(e: FirebaseException) {
             // 입력한 전화번호 또는 인증번호가 잘못되었을 경우
             _isVerifiedPhone.value = false
-            userInputPhoneValidation.value = e.message ?: "인증에 실패했습니다."
+            _userInputPhoneValidation.value = e.message ?: "인증에 실패했습니다."
+            _isPhoneAuthExpired.value = true
+            _hideLoadingCallback.value?.invoke()
         }
 
         override fun onCodeSent(
@@ -236,19 +279,66 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
             // verificationId는 문자로 받는 코드가 아니었다
             _phoneAuthVerificationId.value = verificationId
             _isPhoneAuthCodeSent.value = true
-            userInputSmsCode.value = ""
-            phoneAuthTimer.start()
+            _userInputSmsCode.value = ""
+            _phoneAuthTimer.start()
+        }
+    }
+
+    fun phoneAuthButtonClickEvent(activity: Activity){
+        _showLoadingCallback.value?.invoke()
+        // 전화번호 유효성 검사 먼저 한 후
+        if(!checkUserInputPhoneValidation()){
+            _hideLoadingCallback.value?.invoke()
+            return
+        }
+
+        // 응답한 전화번호로 인증번호 SMS 보내기
+        sendPhoneAuthCode(activity){
+            startSmsReceiver(activity)
+        }
+    }
+
+    private var smsReceiver: SmsReceiver? = null
+
+    private fun startSmsReceiver(context: Context){
+        SmsRetriever.getClient(context).startSmsRetriever().also { task ->
+            task.addOnSuccessListener {
+                smsReceiver = SmsReceiver()
+
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                    context.registerReceiver(smsReceiver, smsReceiver!!.doFilter(),
+                        Context.RECEIVER_NOT_EXPORTED)
+                }else{
+                    context.registerReceiver(smsReceiver, smsReceiver!!.doFilter())
+                }
+
+                viewModelScope.launch {
+                    SmsReceiver.smsCode.collectLatest {
+                        setUserInputSmsCode(it)
+                    }
+                }
+            }
+            task.addOnFailureListener {
+                stopSmsReceiver(context)
+            }
+        }
+    }
+
+    fun stopSmsReceiver(context: Context){
+        if(smsReceiver != null) {
+            context.unregisterReceiver(smsReceiver)
+            smsReceiver = null
         }
     }
 
     // ================3. 초기화 ==============================================================
     fun resetStep2States(){
-        userInputName.value = ""
-        userInputPhone.value = ""
-        userInputSmsCode.value = ""
-        userInputNameValidation.value = ""
-        userInputPhoneValidation.value = ""
-        userInputSmsCodeValidation.value = ""
+        _userInputName.value = ""
+        _userInputPhone.value = ""
+        _userInputSmsCode.value = ""
+        _userInputNameValidation.value = ""
+        _userInputPhoneValidation.value = ""
+        _userInputSmsCodeValidation.value = ""
 
         _isPhoneAuthCodeSent.value = false
         _phoneAuthVerificationId.value = ""
@@ -263,7 +353,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     fun cancelPhoneAuthTimer(){
-        phoneAuthTimer.cancel()
+        _phoneAuthTimer.cancel()
         _phoneAuthButtonText.value = "인증하기"
         _isPhoneAuthExpired.value = true
     }
