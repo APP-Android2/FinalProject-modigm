@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.join.component.EmailTextInputField
-import kr.co.lion.modigm.ui.join.component.PasswordTextInputField
+import kr.co.lion.modigm.ui.join.component.EmailTextField
+import kr.co.lion.modigm.ui.join.component.PasswordTextField
 import kr.co.lion.modigm.ui.join.vm.JoinStep1EmailAndPwViewModel
 
 @Composable
@@ -46,7 +46,7 @@ fun JoinStep1EmailAndPwScreen(
             text = stringResource(R.string.JOIN_STEP1_TITLE),
             style = TextStyle(fontSize = 26.sp)
         )
-        EmailTextInputField(
+        EmailTextField(
             inputTitle = stringResource(R.string.JOIN_STEP1_EMAIL_LABEL),
             textValue = emailTextValueState.value,
             onValueChange = { joinStep1EmailAndPwViewModel.setUserInputEmail(it) },
@@ -58,7 +58,7 @@ fun JoinStep1EmailAndPwScreen(
             ),
             modifier = Modifier.padding(top = 40.dp)
         )
-        PasswordTextInputField(
+        PasswordTextField(
             inputTitle = stringResource(R.string.JOIN_STEP1_PASSWORD_LABEL),
             textValue = passwordTextValueState.value,
             onValueChange = { joinStep1EmailAndPwViewModel.setUserInputPassword(it) },
@@ -72,7 +72,7 @@ fun JoinStep1EmailAndPwScreen(
             color = colorResource(R.color.redColor),
             modifier = Modifier.padding(start = 15.dp),
         )
-        PasswordTextInputField(
+        PasswordTextField(
             inputTitle = stringResource(R.string.JOIN_STEP1_PASSWORD_CHECK_LABEL),
             textValue = passwordCheckTextValueState.value,
             onValueChange = { joinStep1EmailAndPwViewModel.setUserInputPasswordCheck(it) },

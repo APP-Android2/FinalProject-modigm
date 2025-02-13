@@ -121,8 +121,8 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         }
 
         // sms 인증 코드 발송 시 보여줄 프로그래스바 익명함수를 viewModelStep2에 전달
-        step2NameAndPhoneViewModel.hideLoadingCallback.value = hideLoading
-        step2NameAndPhoneViewModel.showLoadingCallback.value = showLoading
+        step2NameAndPhoneViewModel.setHideLoading(hideLoading)
+        step2NameAndPhoneViewModel.setShowLoading(showLoading)
 
         return binding.root
     }
