@@ -391,7 +391,7 @@ class JoinFragment : DBBaseFragment<FragmentJoinBinding>(R.layout.fragment_join)
         if(!step3InterestViewModel.validateStep3UserInput()) return
         // 응답값
         step3InterestViewModel.selectedInterestList.value.let {
-            joinViewModel.setUserInterests(it)
+            joinViewModel.setUserInterests(it.toMutableList())
         }
 
         val handler = CoroutineExceptionHandler { context, throwable ->

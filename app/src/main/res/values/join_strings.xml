@@ -22,6 +22,9 @@
     <string name="JOIN_STEP2_NAME_GUIDE">이름은 추후에 변경이 불가능합니다. 본명을 입력해주세요.</string>
     <string name="JOIN_STEP2_PHONE_LABEL">전화번호</string>
     <string name="JOIN_STEP2_PHONE_AUTH_LABEL">인증번호 확인</string>
+  
+    <string name="JOIN_STEP3_TITLE">관심있는 분야를 \n선택해주세요</string>
+    <string name="JOIN_STEP3_ALERT_EMPTY_INTEREST_LIST">관심있는 분야를 선택해주세요</string>
 
     <string name="JOIN_TEXT_RESET_VALUE" />
 </resources>
