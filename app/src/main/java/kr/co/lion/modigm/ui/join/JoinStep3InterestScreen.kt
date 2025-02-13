@@ -23,17 +23,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.ui.join.vm.JoinStep3InterestViewModel
 import kr.co.lion.modigm.util.Interest
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun JoinStep3InterestScreen(
-    joinStep3InterestViewModel: JoinStep3InterestViewModel
+    isInterestSelected: Boolean,
+    removeFromInterestList: (String) -> Unit,
+    addToInterestList: (String) -> Unit
 ){
-    val interestListValidationState = joinStep3InterestViewModel.isInterestListValidated.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -47,7 +46,7 @@ fun JoinStep3InterestScreen(
             style = TextStyle(fontSize = 26.sp),
             modifier = Modifier.padding(bottom = 40.dp)
         )
-        if(!interestListValidationState.value){
+        if(!isInterestSelected){
             Text(
                 text = stringResource(R.string.JOIN_STEP3_ALERT_EMPTY_INTEREST_LIST),
                 style = TextStyle(fontSize = 16.sp, color = colorResource(R.color.redColor)),
@@ -62,9 +61,9 @@ fun JoinStep3InterestScreen(
                 AssistChip(
                     onClick = {
                         if(isSelected){
-                            joinStep3InterestViewModel.removeFromInterestList(it.str)
+                            removeFromInterestList(it.str)
                         }else{
-                            joinStep3InterestViewModel.addToInterestList(it.str)
+                            addToInterestList(it.str)
                         }
                         isSelected = !isSelected
                     },

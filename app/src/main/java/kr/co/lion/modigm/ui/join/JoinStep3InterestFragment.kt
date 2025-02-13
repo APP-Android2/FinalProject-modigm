@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.lion.modigm.ui.join.vm.JoinStep3InterestViewModel
 
 class JoinStep3InterestFragment : Fragment() {
@@ -24,7 +25,11 @@ class JoinStep3InterestFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                JoinStep3InterestScreen(joinStep3InterestViewModel)
+                JoinStep3InterestScreen(
+                    isInterestSelected = joinStep3InterestViewModel.isInterestListValidated.collectAsStateWithLifecycle().value,
+                    removeFromInterestList = joinStep3InterestViewModel::removeFromInterestList,
+                    addToInterestList = joinStep3InterestViewModel::addToInterestList
+                )
             }
         }
     }
