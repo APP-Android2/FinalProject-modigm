@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.PhoneAuthCredential
@@ -168,9 +167,6 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
 
     // 인증 에러 메시지
     private val _phoneAuthErrorMessage = MutableStateFlow("")
-
-    // 나중에 이메일 계정과 합칠 때 필요한 전화번호 인증 credential
-    private val _phoneAuthCredential = MutableStateFlow<AuthCredential?>(null)
 
     // 이미 등록된 전화번호 계정이 있는지 여부
     private val _isAlreadyRegisteredPhoneUser = MutableStateFlow(false)
@@ -340,7 +336,6 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         _phoneAuthVerificationId.value = ""
         _isVerifiedPhone.value = false
         _phoneAuthErrorMessage.value = ""
-        _phoneAuthCredential.value = null
         _isAlreadyRegisteredPhoneUser.value = false
         _alreadyRegisteredUserEmail.value = ""
         _alreadyRegisteredUserProvider.value = ""
