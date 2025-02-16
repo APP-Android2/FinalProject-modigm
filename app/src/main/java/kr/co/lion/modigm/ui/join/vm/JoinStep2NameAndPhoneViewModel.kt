@@ -298,18 +298,17 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         }
     }
 
-    private var smsReceiver: SmsReceiver? = null
+    private val smsReceiver by lazy { SmsReceiver() }
 
     private fun startSmsReceiver(context: Context){
         SmsRetriever.getClient(context).startSmsRetriever().also { task ->
             task.addOnSuccessListener {
-                smsReceiver = SmsReceiver()
 
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-                    context.registerReceiver(smsReceiver, smsReceiver!!.doFilter(),
+                    context.registerReceiver(smsReceiver, smsReceiver.doFilter(),
                         Context.RECEIVER_NOT_EXPORTED)
                 }else{
-                    context.registerReceiver(smsReceiver, smsReceiver!!.doFilter())
+                    context.registerReceiver(smsReceiver, smsReceiver.doFilter())
                 }
 
                 viewModelScope.launch {
@@ -325,10 +324,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     fun stopSmsReceiver(context: Context){
-        if(smsReceiver != null) {
-            context.unregisterReceiver(smsReceiver)
-            smsReceiver = null
-        }
+        context.unregisterReceiver(smsReceiver)
     }
 
     // ================3. 초기화 ==============================================================
