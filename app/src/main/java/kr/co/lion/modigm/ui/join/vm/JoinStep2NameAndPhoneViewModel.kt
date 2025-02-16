@@ -33,13 +33,13 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     private val _firebaseAuth: FirebaseAuth
 ): ViewModel() {
     // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================
-    private val _showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+    private val _showLoadingCallback = MutableStateFlow {}
 
     fun setShowLoading(showLoading: () -> Unit){
         _showLoadingCallback.value = showLoading
     }
 
-    private val _hideLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+    private val _hideLoadingCallback = MutableStateFlow {}
 
     fun setHideLoading(hideLoading: () -> Unit){
         _hideLoadingCallback.value = hideLoading
@@ -269,7 +269,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
             _isVerifiedPhone.value = false
             _userInputPhoneValidation.value = e.message ?: "인증에 실패했습니다."
             _isPhoneAuthExpired.value = true
-            _hideLoadingCallback.value?.invoke()
+            _hideLoadingCallback.value.invoke()
         }
 
         override fun onCodeSent(
@@ -285,10 +285,10 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     fun phoneAuthButtonClickEvent(activity: Activity){
-        _showLoadingCallback.value?.invoke()
+        _showLoadingCallback.value.invoke()
         // 전화번호 유효성 검사 먼저 한 후
         if(!checkUserInputPhoneValidation()){
-            _hideLoadingCallback.value?.invoke()
+            _hideLoadingCallback.value.invoke()
             return
         }
 
