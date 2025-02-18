@@ -112,10 +112,11 @@ class ProfileFragment : Fragment() {
                     title = { Text(text = "프로필") },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
                     actions = {
-                        IconButton(onClick = { /* TODO: Handle settings */ }) {
+                        IconButton(onClick = { changeToSettingsFragment() }) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.icon_settings_24px),
-                                contentDescription = "Settings")
+                                contentDescription = "Settings"
+                            )
                         }
                     }
                 )
@@ -139,6 +140,24 @@ class ProfileFragment : Fragment() {
                 StudiesSection("진행한 스터디", profileHostStudies)
                 Spacer(modifier = Modifier.height(16.dp))
                 StudiesSection("참여한 스터디", profilePartStudies)
+            }
+        }
+    }
+
+    private fun changeToSettingsFragment() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val settingsFragment = SettingsFragment()
+
+            // Fragment 교체
+            requireActivity().supportFragmentManager.commit {
+                setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.slide_out
+                )
+                replace(R.id.containerMain, settingsFragment)
+                addToBackStack(FragmentName.SETTINGS.str)
             }
         }
     }
