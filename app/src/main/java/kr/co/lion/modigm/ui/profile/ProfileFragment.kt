@@ -12,14 +12,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
@@ -156,7 +153,7 @@ class ProfileFragment : Fragment() {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = intro, fontSize = 14.sp, color = CustomColor.TEXTGRAY)
+            Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
         }
     }
 
@@ -220,6 +217,16 @@ class ProfileFragment : Fragment() {
                     )
                 }
             }
+        }
+    }
+
+    private fun extractDomain(url: String): String {
+        return try {
+            val uri = URL(url)
+            val domain = uri.host
+            if (domain.startsWith("www.")) domain.substring(4) else domain
+        } catch (e: Exception) {
+            "invalid"
         }
     }
 
@@ -339,15 +346,5 @@ class ProfileFragment : Fragment() {
         viewModel.loadUserLinkListData()
         viewModel.loadHostStudyList(userIdx!!)
         viewModel.loadPartStudyList(userIdx!!)
-    }
-
-    private fun extractDomain(url: String): String {
-        return try {
-            val uri = URL(url)
-            val domain = uri.host
-            if (domain.startsWith("www.")) domain.substring(4) else domain
-        } catch (e: Exception) {
-            "invalid"
-        }
     }
 }
