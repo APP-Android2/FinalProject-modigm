@@ -82,7 +82,7 @@ class ProfileFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 ModigmTheme {
-                    ProfileScreen(viewModel = viewModel)
+                    ProfileScreen()
                 }
             }
         }
@@ -95,7 +95,7 @@ class ProfileFragment : Fragment() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
+    fun ProfileScreen() {
         val profileName by viewModel.profileName.collectAsState(initial = "")
         val profileIntro by viewModel.profileIntro.collectAsState(initial = "")
         val profileInterests by viewModel.profileInterests.collectAsState(initial = "")
