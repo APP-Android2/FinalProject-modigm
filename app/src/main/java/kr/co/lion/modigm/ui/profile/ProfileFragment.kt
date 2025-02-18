@@ -113,7 +113,9 @@ class ProfileFragment : Fragment() {
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
                     actions = {
                         IconButton(onClick = { /* TODO: Handle settings */ }) {
-                            Icon(ImageVector.vectorResource(id = R.drawable.icon_settings_24px), contentDescription = "Settings")
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.icon_settings_24px),
+                                contentDescription = "Settings")
                         }
                     }
                 )
