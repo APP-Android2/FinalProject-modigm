@@ -152,6 +152,7 @@ dependencies {
     // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("jp.wasabeef:glide-transformations:4.3.0")
+    implementation("com.github.bumptech.glide:compose:1.0.0-alpha.1")
 
     // 원형 이미지 라이브러리
     implementation("de.hdodenhof:circleimageview:3.1.0")
