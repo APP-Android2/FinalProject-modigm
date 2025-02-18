@@ -131,14 +131,18 @@ class ProfileFragment : Fragment() {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileHeader(name = profileName ?: "Default Name", intro = profileIntro ?: "Default Intro")
+                ProfileHeader(name = profileName ?: "", intro = profileIntro ?: "")
                 Spacer(modifier = Modifier.height(16.dp))
+
                 InterestsSection(profileInterests ?: "")
                 Spacer(modifier = Modifier.height(16.dp))
+
                 LinksSection(profileLinks)
                 Spacer(modifier = Modifier.height(16.dp))
+
                 StudiesSection("진행한 스터디", profileHostStudies)
                 Spacer(modifier = Modifier.height(16.dp))
+
                 StudiesSection("참여한 스터디", profilePartStudies)
             }
         }
