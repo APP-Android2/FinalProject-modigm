@@ -1,4 +1,4 @@
-package kr.co.lion.modigm.ui.theme
+package kr.co.lion.modigm.ui.common
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*

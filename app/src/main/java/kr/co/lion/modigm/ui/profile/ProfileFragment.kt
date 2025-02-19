@@ -43,7 +43,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import kotlinx.coroutines.launch
@@ -51,8 +50,8 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
-import kr.co.lion.modigm.ui.theme.ModigmTheme
-import kr.co.lion.modigm.util.CustomColor
+import kr.co.lion.modigm.ui.common.ModigmTheme
+import kr.co.lion.modigm.ui.common.ModigmTopAppBar
 import kr.co.lion.modigm.util.FragmentName
 import java.net.URL
 
@@ -107,18 +106,9 @@ class ProfileFragment : Fragment() {
 
         Scaffold(
             topBar = {
-                TopAppBar(
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp),
-                    title = { Text(text = "프로필") },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
-                    actions = {
-                        IconButton(onClick = { changeToSettingsFragment() }) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.icon_settings_24px),
-                                contentDescription = "Settings"
-                            )
-                        }
-                    }
+                ModigmTopAppBar(
+                    title = "프로필",
+                    onSettingsClick = { changeToSettingsFragment() }
                 )
             }
         ) { paddingValues ->
