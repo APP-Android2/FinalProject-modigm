@@ -107,7 +107,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
-        hideContent()
+        hideNotificationUI()
     }
 
     private fun hideLoading() {
@@ -135,7 +135,7 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
         clearBadgeOnBottomNavigation()
     }
 
-    private fun hideContent() {
+    private fun hideNotificationUI() {
         binding.recyclerviewNotification.visibility = View.GONE
         binding.blankLayoutNotification.visibility = View.GONE
     }
