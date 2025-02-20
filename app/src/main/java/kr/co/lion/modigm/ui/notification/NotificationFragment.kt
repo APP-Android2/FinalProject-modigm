@@ -162,8 +162,15 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
                 } else {
                     Log.e("NotificationFragment", "Failed to delete notification: ${notification.notificationIdx}")
                 }
-            } catch (e: Exception) {
-                Log.e("NotificationFragment", "Error deleting notification", e)
+            } catch (e: IOException) { // 네트워크 오류
+                Log.e("NotificationFragment", "Network error while deleting notification: ${notification.notificationIdx}", e)
+                showErrorMessage("인터넷 연결을 확인해주세요.")
+            } catch (e: HttpException) { // 서버 오류
+                Log.e("NotificationFragment", "Server error while deleting notification: ${notification.notificationIdx}", e)
+                showErrorMessage("서버 응답이 없습니다. 잠시 후 다시 시도해주세요.")
+            } catch (e: Exception) { // 기타 오류
+                Log.e("NotificationFragment", "Unexpected error in deleteNotification: ${notification.notificationIdx}", e)
+                showErrorMessage("알 수 없는 오류가 발생했습니다.")
             }
         }
     }
@@ -180,27 +187,27 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
             val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
             // ViewModel을 통해 알림 데이터를 다시 가져옵니다.
             viewModel.fetchNotifications(userIdx)
-        } catch (e: IOException) { // 🔹 네트워크 오류 처리
+        } catch (e: IOException) { // 네트워크 오류 처리
             Log.e("NotificationFragment", "Network error while fetching notifications", e)
             showErrorMessage("인터넷 연결을 확인해주세요.")
-        } catch (e: HttpException) { // 🔹 서버 오류
+        } catch (e: HttpException) { // 서버 오류
             Log.e("NotificationFragment", "Server error while fetching notifications", e)
-            showErrorMessage("서버 응답이 없습니다. 잠시 후 다시 시도해주세요.") // 🔹 사용자에게 메시지 표시
-        } catch (e: SocketTimeoutException) { // 🔹 서버 응답 지연
+            showErrorMessage("서버 응답이 없습니다. 잠시 후 다시 시도해주세요.")
+        } catch (e: SocketTimeoutException) { // 서버 응답 지연
             Log.e("NotificationFragment", "SocketTimeoutException in fetchAndDisplayNotifications", e)
             showErrorMessage("서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
-        } catch (e: UnknownHostException) { // 🔹 서버 찾을 수 없음
+        } catch (e: UnknownHostException) { // 서버 찾을 수 없음
             Log.e("NotificationFragment", "UnknownHostException in fetchAndDisplayNotifications", e)
             showErrorMessage("네트워크 연결이 원활하지 않습니다.")
-        } catch (e: NullPointerException) { // 🔹 Null 오류 처리
+        } catch (e: NullPointerException) { // Null 오류 처리
             Log.e("NotificationFragment", "NullPointerException in fetchAndDisplayNotifications", e)
-        } catch (e: Exception) { // 🔹 기타 예상치 못한 오류
+        } catch (e: Exception) { // 기타 예상치 못한 오류
             Log.e("NotificationFragment", "Unexpected error in fetchAndDisplayNotifications", e)
             showErrorMessage("알 수 없는 오류가 발생했습니다.")
         }
     }
 
-    // 🔹 사용자에게 에러 메시지를 보여주는 함수
+    // 사용자에게 에러 메시지를 보여주는 함수
     private fun showErrorMessage(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
@@ -219,8 +226,15 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun handleScreenVisibilityChange() {
         try {
             viewModel.markAllNotificationsAsRead()
-        } catch (e: Exception) {
-            Log.e("NotificationFragment", "Error marking all notifications as read", e)
+        } catch (e: IOException) { // 네트워크 오류
+            Log.e("NotificationFragment", "Network error while marking all notifications as read", e)
+            showErrorMessage("인터넷 연결을 확인해주세요.")
+        } catch (e: HttpException) { // 서버 오류
+            Log.e("NotificationFragment", "Server error while marking all notifications as read", e)
+            showErrorMessage("서버 응답이 없습니다. 잠시 후 다시 시도해주세요.")
+        } catch (e: Exception) { // 기타 오류
+            Log.e("NotificationFragment", "Unexpected error in handleScreenVisibilityChange", e)
+            showErrorMessage("알 수 없는 오류가 발생했습니다.")
         }
     }
 
@@ -239,8 +253,15 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
                 notification.isRead = true
                 adapter.updateData(viewModel.notifications.value)
                 updateBadgeState()
-            } catch (e: Exception) {
-                Log.e("NotificationFragment", "Error marking notification as read: ${notification.notificationIdx}", e)
+            } catch (e: IOException) { // 네트워크 오류
+                Log.e("NotificationFragment", "Network error while marking notification as read: ${notification.notificationIdx}", e)
+                showErrorMessage("인터넷 연결을 확인해주세요.")
+            } catch (e: HttpException) { // 서버 오류
+                Log.e("NotificationFragment", "Server error while marking notification as read: ${notification.notificationIdx}", e)
+                showErrorMessage("서버 응답이 없습니다. 잠시 후 다시 시도해주세요.")
+            } catch (e: Exception) { // 기타 오류
+                Log.e("NotificationFragment", "Unexpected error in markNotificationAsRead: ${notification.notificationIdx}", e)
+                showErrorMessage("알 수 없는 오류가 발생했습니다.")
             }
         }
     }
