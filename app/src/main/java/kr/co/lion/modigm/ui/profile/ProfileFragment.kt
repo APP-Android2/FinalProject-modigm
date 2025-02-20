@@ -186,7 +186,7 @@ class ProfileFragment : Fragment() {
                     .background(Color.Gray)
             )
             Text(text = name, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
-            Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
+            if (intro.isNotBlank()) Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
         }
     }
 
