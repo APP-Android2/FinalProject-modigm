@@ -226,6 +226,10 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun handleScreenVisibilityChange() {
         try {
             viewModel.markAllNotificationsAsRead()
+
+            //UI 관련 이벤트는 Fragment에서 처리
+            sendMarkAllReadBroadcast()
+
         } catch (e: IOException) { // 네트워크 오류
             Log.e("NotificationFragment", "Network error while marking all notifications as read", e)
             showErrorMessage("인터넷 연결을 확인해주세요.")
@@ -236,6 +240,11 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
             Log.e("NotificationFragment", "Unexpected error in handleScreenVisibilityChange", e)
             showErrorMessage("알 수 없는 오류가 발생했습니다.")
         }
+    }
+
+    private fun sendMarkAllReadBroadcast() {
+        LocalBroadcastManager.getInstance(requireContext())
+            .sendBroadcast(Intent("ACTION_MARK_ALL_READ"))
     }
 
     override fun onDestroyView() {

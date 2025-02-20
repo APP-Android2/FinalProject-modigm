@@ -87,16 +87,7 @@ class NotificationViewModel : ViewModel() {
             val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
             repository.markAllNotificationsAsRead(userIdx)
             refreshNotifications(userIdx) // 모든 알림 상태를 읽음으로 변경 후 데이터 갱신
-
-            // 모든 알림을 읽음 처리한 후, 브로드캐스트 전송
-            sendMarkAllReadBroadcast()
         }
-    }
-
-    // 브로드캐스트 전송을 ViewModel에서 처리하도록 함수 추가
-    private fun sendMarkAllReadBroadcast() {
-        LocalBroadcastManager.getInstance(ModigmApplication.instance)
-            .sendBroadcast(Intent("ACTION_MARK_ALL_READ"))
     }
 
     // 서버에서 FCM 토큰을 삭제하는 메서드
