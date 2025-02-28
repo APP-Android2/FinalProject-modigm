@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.PhoneAuthCredential
@@ -33,13 +32,13 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     private val _firebaseAuth: FirebaseAuth
 ): ViewModel() {
     // ================0. SMS 인증 코드 관련 프로그래스 바 이벤트======================================================
-    private val _showLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+    private val _showLoadingCallback = MutableStateFlow {}
 
     fun setShowLoading(showLoading: () -> Unit){
         _showLoadingCallback.value = showLoading
     }
 
-    private val _hideLoadingCallback = MutableStateFlow<(() -> Unit)?>(null)
+    private val _hideLoadingCallback = MutableStateFlow {}
 
     fun setHideLoading(hideLoading: () -> Unit){
         _hideLoadingCallback.value = hideLoading
@@ -169,9 +168,6 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     // 인증 에러 메시지
     private val _phoneAuthErrorMessage = MutableStateFlow("")
 
-    // 나중에 이메일 계정과 합칠 때 필요한 전화번호 인증 credential
-    private val _phoneAuthCredential = MutableStateFlow<AuthCredential?>(null)
-
     // 이미 등록된 전화번호 계정이 있는지 여부
     private val _isAlreadyRegisteredPhoneUser = MutableStateFlow(false)
 
@@ -269,7 +265,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
             _isVerifiedPhone.value = false
             _userInputPhoneValidation.value = e.message ?: "인증에 실패했습니다."
             _isPhoneAuthExpired.value = true
-            _hideLoadingCallback.value?.invoke()
+            _hideLoadingCallback.value.invoke()
         }
 
         override fun onCodeSent(
@@ -285,10 +281,10 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     fun phoneAuthButtonClickEvent(activity: Activity){
-        _showLoadingCallback.value?.invoke()
+        _showLoadingCallback.value.invoke()
         // 전화번호 유효성 검사 먼저 한 후
         if(!checkUserInputPhoneValidation()){
-            _hideLoadingCallback.value?.invoke()
+            _hideLoadingCallback.value.invoke()
             return
         }
 
@@ -298,18 +294,17 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         }
     }
 
-    private var smsReceiver: SmsReceiver? = null
+    private val smsReceiver by lazy { SmsReceiver() }
 
     private fun startSmsReceiver(context: Context){
         SmsRetriever.getClient(context).startSmsRetriever().also { task ->
             task.addOnSuccessListener {
-                smsReceiver = SmsReceiver()
 
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
-                    context.registerReceiver(smsReceiver, smsReceiver!!.doFilter(),
+                    context.registerReceiver(smsReceiver, smsReceiver.doFilter(),
                         Context.RECEIVER_NOT_EXPORTED)
                 }else{
-                    context.registerReceiver(smsReceiver, smsReceiver!!.doFilter())
+                    context.registerReceiver(smsReceiver, smsReceiver.doFilter())
                 }
 
                 viewModelScope.launch {
@@ -325,10 +320,7 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     fun stopSmsReceiver(context: Context){
-        if(smsReceiver != null) {
-            context.unregisterReceiver(smsReceiver)
-            smsReceiver = null
-        }
+        context.unregisterReceiver(smsReceiver)
     }
 
     // ================3. 초기화 ==============================================================
@@ -344,7 +336,6 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
         _phoneAuthVerificationId.value = ""
         _isVerifiedPhone.value = false
         _phoneAuthErrorMessage.value = ""
-        _phoneAuthCredential.value = null
         _isAlreadyRegisteredPhoneUser.value = false
         _alreadyRegisteredUserEmail.value = ""
         _alreadyRegisteredUserProvider.value = ""
