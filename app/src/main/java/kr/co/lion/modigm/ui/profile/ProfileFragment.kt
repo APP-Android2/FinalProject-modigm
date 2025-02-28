@@ -1,6 +1,7 @@
 package kr.co.lion.modigm.ui.profile
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,12 +17,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,7 +40,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import kotlinx.coroutines.launch
@@ -49,8 +49,8 @@ import kr.co.lion.modigm.R
 import kr.co.lion.modigm.model.StudyData
 import kr.co.lion.modigm.ui.detail.DetailFragment
 import kr.co.lion.modigm.ui.profile.vm.ProfileViewModel
-import kr.co.lion.modigm.ui.theme.ModigmTheme
-import kr.co.lion.modigm.util.CustomColor
+import kr.co.lion.modigm.ui.common.ModigmTheme
+import kr.co.lion.modigm.ui.common.ModigmTopAppBar
 import kr.co.lion.modigm.util.FragmentName
 import java.net.URL
 
@@ -82,7 +82,7 @@ class ProfileFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 ModigmTheme {
-                    ProfileScreen(viewModel = viewModel)
+                    ProfileScreen()
                 }
             }
         }
@@ -93,11 +93,20 @@ class ProfileFragment : Fragment() {
         setupUserInfo()
     }
 
+    private fun setupUserInfo() {
+        viewModel.profileUserIdx.value = userIdx
+        viewModel.loadUserData()
+        viewModel.loadUserLinkListData()
+        viewModel.loadHostStudyList(userIdx!!)
+        viewModel.loadPartStudyList(userIdx!!)
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
+    fun ProfileScreen() {
         val profileName by viewModel.profileName.collectAsState(initial = "")
         val profileIntro by viewModel.profileIntro.collectAsState(initial = "")
+        val profilePicUrl by viewModel.profileUserImage.collectAsState(initial = "")
         val profileInterests by viewModel.profileInterests.collectAsState(initial = "")
         val profileLinks by viewModel.profileLinkList.collectAsState(initial = emptyList())
         val profileHostStudies by viewModel.profileHostStudyList.collectAsState(initial = emptyList())
@@ -105,15 +114,9 @@ class ProfileFragment : Fragment() {
 
         Scaffold(
             topBar = {
-                TopAppBar(
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp),
-                    title = { Text(text = "프로필") },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
-                    actions = {
-                        IconButton(onClick = { /* TODO: Handle settings */ }) {
-                            Icon(painterResource(id = R.drawable.icon_settings_24px), contentDescription = "Settings")
-                        }
-                    }
+                ModigmTopAppBar(
+                    title = "프로필",
+                    onSettingsClick = { changeToSettingsFragment() }
                 )
             }
         ) { paddingValues ->
@@ -126,34 +129,64 @@ class ProfileFragment : Fragment() {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileHeader(name = profileName ?: "Default Name", intro = profileIntro ?: "Default Intro")
+                ProfileHeader(profileName ?: "", profileIntro ?: "", profilePicUrl ?: "")
                 Spacer(modifier = Modifier.height(16.dp))
+
                 InterestsSection(profileInterests ?: "")
                 Spacer(modifier = Modifier.height(16.dp))
+
                 LinksSection(profileLinks)
                 Spacer(modifier = Modifier.height(16.dp))
+
                 StudiesSection("진행한 스터디", profileHostStudies)
                 Spacer(modifier = Modifier.height(16.dp))
+
                 StudiesSection("참여한 스터디", profilePartStudies)
             }
         }
     }
 
+    private fun changeToSettingsFragment() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val settingsFragment = SettingsFragment()
+
+            // Fragment 교체
+            requireActivity().supportFragmentManager.commit {
+                setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.slide_out
+                )
+                replace(R.id.containerMain, settingsFragment)
+                addToBackStack(FragmentName.SETTINGS.str)
+            }
+        }
+    }
+
     @Composable
-    fun ProfileHeader(name: String, intro: String) {
+    fun ProfileHeader(name: String, intro: String, profilePicUrl: String?) {
+        val painter = rememberAsyncImagePainter(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(profilePicUrl)
+                .crossfade(true)
+                .build(),
+            contentScale = ContentScale.Crop,
+            error = painterResource(id = R.drawable.image_default_profile)
+        )
+
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.image_loading_gray),
+                painter = painter,
                 contentDescription = "Profile Picture",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)
+                    .background(Color.Gray)
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
+            Text(text = name, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
+            if (intro.isNotBlank()) Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
         }
     }
 
@@ -338,13 +371,5 @@ class ProfileFragment : Fragment() {
     @Composable
     fun ProfileScreenPreview() {
         ProfileScreen()
-    }
-
-    private fun setupUserInfo() {
-        viewModel.profileUserIdx.value = userIdx
-        viewModel.loadUserData()
-        viewModel.loadUserLinkListData()
-        viewModel.loadHostStudyList(userIdx!!)
-        viewModel.loadPartStudyList(userIdx!!)
     }
 }
