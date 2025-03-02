@@ -3,6 +3,7 @@ package kr.co.lion.modigm.ui.profile
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -100,13 +101,13 @@ fun ProfileScreen(
             InterestsSection(profileInterests ?: "")
             Spacer(modifier = Modifier.height(16.dp))
 
-            LinksSection(links = profileLinks, changeToLinkWebView = { changeToLinkWebView })
+            LinksSection(links = profileLinks, changeToLinkWebView = changeToLinkWebView)
             Spacer(modifier = Modifier.height(16.dp))
 
-            StudiesSection("진행한 스터디", profileHostStudies, changeToDetailFragment)
+            StudiesSection(title = "진행한 스터디", studies = profileHostStudies, changeToDetailFragment = changeToDetailFragment)
             Spacer(modifier = Modifier.height(16.dp))
 
-            StudiesSection("참여한 스터디", profilePartStudies, changeToDetailFragment)
+            StudiesSection(title = "참여한 스터디", studies = profilePartStudies, changeToDetailFragment = changeToDetailFragment)
         }
     }
 }
@@ -142,12 +143,24 @@ fun ProfileHeader(name: String, intro: String, profilePicUrl: String?) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun InterestsSection(interests: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = "관심분야", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
-        FlowRow {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(32.dp)) // 모서리 둥글게
+            .background(Color(0x66e3eeff)) // 배경색 변경
+            .padding(16.dp) // 내부 패딩 추가
+    ) {
+        Text(text = "관심분야", fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 8.dp))
+        HorizontalDivider(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp), color = Color(0x55777777))
+        FlowRow(
+            verticalArrangement = Arrangement.spacedBy((-8).dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             interests.split(",").forEach { interest ->
-                SuggestionChip(onClick = { /*TODO*/ }, label = { Text(interest) })
+                SuggestionChip(
+                    onClick = { /*TODO*/ },
+                    label = { Text(interest) },
+                )
             }
         }
     }
