@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -100,8 +101,6 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfileHeader(name = profileName ?: "", profilePicUrl = profilePicUrl ?: "")
-            Spacer(modifier = Modifier.height(16.dp))
-
             IntroSection(intro = profileIntro ?: "", links = profileLinks, changeToLinkWebView = changeToLinkWebView)
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -145,15 +144,9 @@ fun ProfileHeader(name: String, profilePicUrl: String?) {
 
 @Composable
 fun IntroSection(intro: String, links: List<String>, changeToLinkWebView: (String) -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = "링크", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
-        links.forEach { link ->
-            Row(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth()
-            ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally,) {
+        Row(modifier = Modifier.padding(start = 8.dp)) {
+            links.forEach { link ->
                 val domain = extractDomain(link)
                 val iconRes = domainIcons[domain] ?: R.drawable.icon_link
 
@@ -161,14 +154,25 @@ fun IntroSection(intro: String, links: List<String>, changeToLinkWebView: (Strin
                     painter = painterResource(id = iconRes),
                     contentDescription = "$domain icon",
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(32.dp)
                         .padding(end = 8.dp)
                         .clickable { changeToLinkWebView(link) }
                 )
             }
+
         }
-        if (intro.isNotBlank()) Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
+
+        if (intro.isNotBlank()) {
+            Text(
+                text = intro,
+                fontSize = 14.sp,
+                lineHeight = 18.sp,
+                color = Color(0xFF777777),
+                modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, top = 4.dp)
+            )
+        }
     }
+
 }
 
 private fun extractDomain(url: String): String {
