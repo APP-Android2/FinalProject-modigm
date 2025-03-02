@@ -102,7 +102,7 @@ fun ProfileScreen(
             ProfileHeader(profileName ?: "", profileIntro ?: "", profilePicUrl ?: "")
             Spacer(modifier = Modifier.height(16.dp))
 
-            LinksSection(links = profileLinks, changeToLinkWebView = changeToLinkWebView)
+            IntroSection(links = profileLinks, changeToLinkWebView = changeToLinkWebView)
             Spacer(modifier = Modifier.height(16.dp))
 
             InterestsSection(profileInterests ?: "")
@@ -144,36 +144,8 @@ fun ProfileHeader(name: String, intro: String, profilePicUrl: String?) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun InterestsSection(interests: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(32.dp)) // 모서리 둥글게
-            .background(Color(0x66e3eeff)) // 배경색 변경
-            .padding(16.dp) // 내부 패딩 추가
-    ) {
-        Text(text = "관심분야", fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 8.dp))
-        HorizontalDivider(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp), color = Color(0x55777777))
-        FlowRow(
-            verticalArrangement = Arrangement.spacedBy((-8).dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            interests.split(",").forEach { interest ->
-                SuggestionChip(
-                    onClick = { /*TODO: 이거 삭제하기*/ },
-                    label = { Text(interest, color = Color(0xff666666)) },
-                    colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color(0x10888888)),
-                    border = BorderStroke(1.dp, Color(0xff888888))
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun LinksSection(links: List<String>, changeToLinkWebView: (String) -> Unit) {
+fun IntroSection(links: List<String>, changeToLinkWebView: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = "링크", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
@@ -206,6 +178,34 @@ private fun extractDomain(url: String): String {
         if (domain.startsWith("www.")) domain.substring(4) else domain
     } catch (e: Exception) {
         "invalid"
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun InterestsSection(interests: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(32.dp)) // 모서리 둥글게
+            .background(Color(0x66e3eeff)) // 배경색 변경
+            .padding(16.dp) // 내부 패딩 추가
+    ) {
+        Text(text = "관심분야", fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 8.dp))
+        HorizontalDivider(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp), color = Color(0x55777777))
+        FlowRow(
+            verticalArrangement = Arrangement.spacedBy((-8).dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            interests.split(",").forEach { interest ->
+                SuggestionChip(
+                    onClick = { /*TODO: 이거 삭제하기*/ },
+                    label = { Text(interest, color = Color(0xff666666)) },
+                    colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color(0x10888888)),
+                    border = BorderStroke(1.dp, Color(0xff888888))
+                )
+            }
+        }
     }
 }
 
