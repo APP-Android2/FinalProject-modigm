@@ -102,10 +102,10 @@ fun ProfileScreen(
             ProfileHeader(profileName ?: "", profileIntro ?: "", profilePicUrl ?: "")
             Spacer(modifier = Modifier.height(16.dp))
 
-            InterestsSection(profileInterests ?: "")
+            LinksSection(links = profileLinks, changeToLinkWebView = changeToLinkWebView)
             Spacer(modifier = Modifier.height(16.dp))
 
-            LinksSection(links = profileLinks, changeToLinkWebView = changeToLinkWebView)
+            InterestsSection(profileInterests ?: "")
             Spacer(modifier = Modifier.height(16.dp))
 
             StudiesSection(title = "진행한 스터디", studies = profileHostStudies, changeToDetailFragment = changeToDetailFragment)
@@ -162,7 +162,7 @@ fun InterestsSection(interests: String) {
         ) {
             interests.split(",").forEach { interest ->
                 SuggestionChip(
-                    onClick = { /*TODO*/ },
+                    onClick = { /*TODO: 이거 삭제하기*/ },
                     label = { Text(interest, color = Color(0xff666666)) },
                     colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color(0x10888888)),
                     border = BorderStroke(1.dp, Color(0xff888888))
