@@ -99,10 +99,10 @@ fun ProfileScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ProfileHeader(profileName ?: "", profileIntro ?: "", profilePicUrl ?: "")
+            ProfileHeader(name = profileName ?: "", profilePicUrl = profilePicUrl ?: "")
             Spacer(modifier = Modifier.height(16.dp))
 
-            IntroSection(links = profileLinks, changeToLinkWebView = changeToLinkWebView)
+            IntroSection(intro = profileIntro ?: "", links = profileLinks, changeToLinkWebView = changeToLinkWebView)
             Spacer(modifier = Modifier.height(16.dp))
 
             InterestsSection(profileInterests ?: "")
@@ -119,7 +119,7 @@ fun ProfileScreen(
 
 
 @Composable
-fun ProfileHeader(name: String, intro: String, profilePicUrl: String?) {
+fun ProfileHeader(name: String, profilePicUrl: String?) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
             .data(profilePicUrl)
@@ -140,12 +140,11 @@ fun ProfileHeader(name: String, intro: String, profilePicUrl: String?) {
                 .background(Color.Gray)
         )
         Text(text = name, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
-        if (intro.isNotBlank()) Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
     }
 }
 
 @Composable
-fun IntroSection(links: List<String>, changeToLinkWebView: (String) -> Unit) {
+fun IntroSection(intro: String, links: List<String>, changeToLinkWebView: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = "링크", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
@@ -168,6 +167,7 @@ fun IntroSection(links: List<String>, changeToLinkWebView: (String) -> Unit) {
                 )
             }
         }
+        if (intro.isNotBlank()) Text(text = intro, fontSize = 14.sp, color = Color(0xFF777777))
     }
 }
 
