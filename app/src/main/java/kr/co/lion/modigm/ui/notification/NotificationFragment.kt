@@ -51,7 +51,9 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
     private fun setupUI() {
         setupToolbar()
         setupRecyclerView()
-        observeViewModel()
+
+        observeNotifications()
+        observeLoadingState()
     }
 
     private fun registerReceiver() {
@@ -84,11 +86,6 @@ class NotificationFragment : VBBaseFragment<FragmentNotificationBinding>(Fragmen
             { notification -> markNotificationAsRead(notification) } // 읽음 상태로 표시하는 메서드
         )
         binding.recyclerviewNotification.adapter = adapter
-    }
-
-    private fun observeViewModel() {
-        observeNotifications()
-        observeLoadingState()
     }
 
     private fun observeNotifications() {
