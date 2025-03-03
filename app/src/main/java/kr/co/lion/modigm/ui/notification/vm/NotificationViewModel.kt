@@ -1,6 +1,8 @@
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.lion.modigm.model.NotificationData
 import kr.co.lion.modigm.repository.NotificationRepository
+import kr.co.lion.modigm.util.ModigmApplication
 
 class NotificationViewModel : ViewModel() {
     private val repository = NotificationRepository()
@@ -79,8 +82,9 @@ class NotificationViewModel : ViewModel() {
 
 
     // 모든 알림을 읽음으로 표시하는 메서드
-    fun markAllNotificationsAsRead(userIdx: Int) {
+    fun markAllNotificationsAsRead() {
         viewModelScope.launch {
+            val userIdx = ModigmApplication.prefs.getInt("currentUserIdx", 0)
             repository.markAllNotificationsAsRead(userIdx)
             refreshNotifications(userIdx) // 모든 알림 상태를 읽음으로 변경 후 데이터 갱신
         }
