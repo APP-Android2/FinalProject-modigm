@@ -19,7 +19,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kr.co.lion.modigm.R
 
-@Preview(showBackground = true)
 @Composable
 fun JoinEmailVerificationScreen(){
 
@@ -51,4 +50,10 @@ fun JoinEmailVerificationScreen(){
             iterations = LottieConstants.IterateForever
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewJoinEmailVerificationScreen(){
+    JoinEmailVerificationScreen()
 }
