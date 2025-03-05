@@ -95,7 +95,7 @@ class InterestBottomSheetFragment: VBBaseBottomSheetFragment<FragmentInterestBot
             .toList()
 
         // 선택된 칩들을 콤마로 연결한 문자열로 변환
-        val selectedChipsString = selectedChips.joinToString(", ")
+        val selectedChipsString = selectedChips.joinToString(",")
 
         // ViewModel의 문자열 필드 업데이트
         editProfileViewModel.editProfileInterests.value = selectedChipsString
