@@ -215,7 +215,7 @@ fun InterestsSection(interests: String) {
         ) {
             interests.split(",").forEach { interest ->
                 SuggestionChip(
-                    onClick = { /*TODO: 이거 삭제하기*/ },
+                    onClick = {},
                     label = { Text(interest, color = Color(0xff666666)) },
                     colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color(0x10888888)),
                     border = BorderStroke(1.dp, Color(0xff888888))
