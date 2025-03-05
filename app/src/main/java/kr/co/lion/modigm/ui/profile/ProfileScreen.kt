@@ -187,9 +187,9 @@ fun IntroSection(intro: String, links: List<String>, changeToLinkWebView: (Strin
 
 }
 
-private fun extractDomain(url: String): String {
+private fun extractDomain(link: String): String {
     return try {
-        val uri = URL(url)
+        val uri = URL(link)
         val domain = uri.host
         if (domain.startsWith("www.")) domain.substring(4) else domain
     } catch (e: Exception) {
