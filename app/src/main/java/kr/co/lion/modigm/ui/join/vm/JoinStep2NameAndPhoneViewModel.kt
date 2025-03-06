@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.phone.SmsRetriever
@@ -320,7 +321,11 @@ class JoinStep2NameAndPhoneViewModel @Inject constructor(
     }
 
     fun stopSmsReceiver(context: Context){
-        context.unregisterReceiver(smsReceiver)
+        try {
+            context.unregisterReceiver(smsReceiver)
+        } catch (e: IllegalArgumentException){
+            Log.e("stopSmsReceiver", "${e.message}")
+        }
     }
 
     // ================3. 초기화 ==============================================================
