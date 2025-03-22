@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.login.component
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -8,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,9 +35,11 @@ fun PasswordTextField(
     userPassword: String,
     onValueChange: (String) -> Unit,
     placeholder: @Composable () -> Unit,
+    errorMessage: String = ""
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
+    val isPasswordInputError = errorMessage != ""
 
     OutlinedTextField(
         modifier = modifier,
@@ -74,7 +78,16 @@ fun PasswordTextField(
             keyboardType = KeyboardType.Password,
             imeAction = ImeAction.Done
         ),
-        singleLine = true
+        singleLine = true,
+        isError = isPasswordInputError,
     )
+    if (isPasswordInputError) {
+        Text(
+            text = errorMessage,
+            color = Color.Red,
+            fontSize = dpToSp(12.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+        )
+    }
 
 }

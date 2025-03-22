@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.login.component
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -7,11 +8,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,14 +29,15 @@ fun EmailTextField(
     userEmail: String,
     onValueChange: (String) -> Unit,
     placeholder: @Composable () -> Unit,
+    errorMessage: String = ""
 ) {
-    val isError by remember { mutableStateOf(false) }
+    val isEmailInputError = errorMessage != ""
     val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
 
     OutlinedTextField(
         modifier = modifier,
         value = userEmail,
-        onValueChange = { onValueChange(userEmail) },
+        onValueChange = { onValueChange(it) },
         textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
         colors = TextFieldDefaults.colors(
             focusedTextColor = Color.Black,
@@ -72,8 +72,16 @@ fun EmailTextField(
             imeAction = ImeAction.Next,
         ),
         singleLine = true,
-        isError = isError,
+        isError = isEmailInputError,
     )
+    if (isEmailInputError) {
+        Text(
+            text = errorMessage,
+            color = Color.Red,
+            fontSize = dpToSp(12.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+        )
+    }
 }
 
 @Preview(showBackground = true)
