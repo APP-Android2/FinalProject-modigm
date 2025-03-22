@@ -1,40 +1,25 @@
 package kr.co.lion.modigm.ui.login.email
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import kr.co.lion.modigm.R
-import kr.co.lion.modigm.databinding.FragmentEmailLoginBinding
-import kr.co.lion.modigm.ui.VBBaseFragment
 import kr.co.lion.modigm.ui.join.JoinFragment
-import kr.co.lion.modigm.ui.login.CustomLoginErrorDialog
 import kr.co.lion.modigm.ui.login.FindEmailFragment
 import kr.co.lion.modigm.ui.login.FindPasswordFragment
 import kr.co.lion.modigm.ui.study.BottomNaviFragment
 import kr.co.lion.modigm.util.FragmentName
 import kr.co.lion.modigm.util.JoinType
-import kr.co.lion.modigm.util.hideSoftInput
-import kr.co.lion.modigm.util.shake
-import kr.co.lion.modigm.util.showSoftInput
 
-class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEmailLoginBinding::inflate) {
-
-    private val viewModel: EmailLoginViewModel by viewModels()
+class EmailLoginFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,133 +28,21 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val isLoading by viewModel.isLoading.observeAsState(false)
-                val emailLoginResult by viewModel.emailLoginResult.observeAsState(false)
-                val emailLoginError by viewModel.emailLoginError.observeAsState()
-
-
-                LaunchedEffect(emailLoginResult) {
-                    if (emailLoginResult) {
-                        navigateToBottomNaviFragment(JoinType.EMAIL)
-                    }
-                }
-
-                LaunchedEffect(emailLoginError) {
-                    emailLoginError?.let { error ->
-                        showLoginErrorDialog(error.message.toString())
-                    }
-                }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
                     EmailLoginScreen(
+                        navigateToBottomNavi = { navigateToBottomNaviFragment() },
+                        navigateToFindEmail = { navigateToFindEmailFragment() },
+                        navigateToFindPassword = { navigateToFindPasswordFragment() },
+                        navigateToSocialLogin = { navigateToSocialLoginFragment() },
+                        navigateToJoin = {navigateToJoinFragment() },
                         modifier = Modifier.padding(innerPadding),
-                        isLoading = isLoading,
-                        onFindEmailButtonClick = { navigateToFindEmailFragment() },
-                        onFindPasswordButtonClick = { navigateToFindPasswordFragment() },
-                        onEmailLoginButtonClick = { email, password, autoLoginValue ->
-                            requireActivity().hideSoftInput()
-                            viewModel.emailLogin(email, password, autoLoginValue)
-                        },
-                        onBackButtonClick = { navigateToSocialLoginFragment() },
-                        onJoinButtonClick = { joinType -> navigateToJoinFragment(joinType) },
                     )
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        initView()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // 이메일 텍스트 필드 포커싱 및 소프트키보드 보여주기
-        with(binding) {
-            requireActivity().showSoftInput(textInputEditOtherEmail)
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        viewModel.clearViewModelData() // ViewModel 데이터 초기화
-    }
-
-    private fun initView() {
-        with(binding){
-
-            // 실시간 텍스트 변경 감지 설정
-            textInputEditOtherEmail.apply{
-                // 텍스트 변경 시
-                addTextChangedListener(inputWatcher)
-
-                // 포커스 변경 시
-                setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        // 이메일 필드가 포커스를 받을 때 해당 필드로 스크롤
-                        otherLoginScrollView.smoothScrollTo(0, textViewOtherTitle.top)
-                        requireActivity().showSoftInput(this)
-                    } else {
-                        // 이메일 필드가 포커스를 잃으면 키보드 숨기기
-                        requireActivity().hideSoftInput()
-                    }
-                }
-            }
-            // 비밀번호 입력
-            textInputEditOtherPassword.apply {
-                // 텍스트 변경 시
-                addTextChangedListener(inputWatcher)
-                // 에디터 액션 설정
-                setOnEditorActionListener { _, actionId, _ ->
-                    // 엔터키 입력 시 로그인 시도
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        buttonOtherLogin.performClick() // 로그인 버튼 클릭
-                        true
-                    } else {
-                        false
-                    }
-                }
-                // 포커스 변경 시
-                setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        // 비밀번호 필드가 포커스를 받을 때 해당 필드로 스크롤
-                        otherLoginScrollView.smoothScrollTo(0, textViewOtherSecondTitle.top)
-                        requireActivity().showSoftInput(this)
-                    }
-                    if(!hasFocus){
-                        // 비밀번호 필드가 포커스를 잃으면 키보드 숨기기
-                        requireActivity().hideSoftInput()
-                    }
-                }
-            }
-
-            // 로그인 버튼 클릭 시 로그인 시도
-            buttonOtherLogin.setOnClickListener {
-                if(!checkAllInput()) {
-                    return@setOnClickListener
-                }
-                requireActivity().hideSoftInput()
-
-                val email = textInputEditOtherEmail.text.toString()
-                val password = textInputEditOtherPassword.text.toString()
-                val autoLogin = checkBoxOtherAutoLogin.isChecked
-                viewModel.emailLogin(email, password, autoLogin)
-            }
-        }
-    }
-
-    private fun showErrorDialog(e: Throwable) {
-        val message = if (e.message != null) {
-            e.message.toString()
-        } else {
-            "알 수 없는 오류!\n코드번호: 9999"
-        }
-        showLoginErrorDialog(message)
     }
 
     private fun navigateToFindEmailFragment() {
@@ -190,10 +63,9 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         parentFragmentManager.popBackStack()
     }
 
-    // 회원가입 화면으로 이동하는 메소드
-    private fun navigateToJoinFragment(joinType: JoinType) {
+    private fun navigateToJoinFragment() {
         val bundle = Bundle().apply {
-            putString("joinType", joinType.provider)
+            putString("joinType", JoinType.EMAIL.provider)
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, JoinFragment().apply { arguments = bundle })
@@ -201,114 +73,13 @@ class EmailLoginFragment : VBBaseFragment<FragmentEmailLoginBinding>(FragmentEma
         }
     }
 
-    private fun navigateToBottomNaviFragment(joinType: JoinType) {
+    private fun navigateToBottomNaviFragment() {
         val bundle = Bundle().apply {
-            putString("joinType", joinType.provider)
+            putString("joinType", JoinType.EMAIL.provider)
         }
         parentFragmentManager.commit {
             replace(R.id.containerMain, BottomNaviFragment().apply { arguments = bundle })
             addToBackStack(FragmentName.BOTTOM_NAVI.str)
-        }
-    }
-
-    // 오류 다이얼로그 표시
-    private fun showLoginErrorDialog(message: String) {
-        // 다이얼로그 생성
-        val dialog = CustomLoginErrorDialog(requireContext())
-        with(dialog){
-            // 다이얼로그 제목
-            setTitle("오류")
-            // 다이얼로그 메시지
-            setMessage(message)
-            // 확인 버튼
-            setPositiveButton("확인") {
-                // 확인 버튼 클릭 시 다이얼로그 닫기
-                dismiss()
-            }
-            // 다이얼로그 표시
-            show()
-        }
-
-    }
-
-    // 유효성 검사
-    private fun checkAllInput(): Boolean {
-        return checkEmail() && checkPassword()
-    }
-
-    private fun checkEmail(): Boolean {
-        with(binding){
-            // 에러 메시지를 설정하고 포커스와 흔들기 동작을 수행하는 함수
-            fun showError(message: String) {
-                textInputLayoutOtherEmail.error = message
-                textInputEditOtherEmail.requestFocus()
-                textInputEditOtherEmail.shake()
-            }
-            return when {
-                textInputEditOtherEmail.text.toString().isEmpty() -> {
-                    showError("이메일을 입력해주세요.")
-                    false
-                }
-                !isEmailValid(textInputEditOtherEmail.text.toString()) -> {
-                    showError("올바른 이메일을 입력해주세요.")
-                    false
-                }
-                else -> {
-                    textInputLayoutOtherEmail.error = null
-                    true
-                }
-            }
-        }
-    }
-
-    private fun checkPassword(): Boolean {
-        with(binding) {
-
-            // 에러 메시지를 설정하고 포커스와 흔들기 동작을 수행하는 함수
-            fun showError(message: String) {
-                textInputLayoutOtherPassword.error = message
-                textInputEditOtherPassword.requestFocus()
-                textInputEditOtherPassword.shake()
-            }
-            return when {
-                textInputEditOtherPassword.text.toString().isEmpty() -> {
-                    showError("비밀번호를 입력해주세요.")
-                    false
-                }
-                !isPasswordValid(textInputEditOtherPassword.text.toString()) -> {
-                    showError("올바른 비밀번호를 입력해주세요.")
-                    false
-                }
-                else -> {
-                    textInputLayoutOtherPassword.error = null
-                    true
-                }
-            }
-        }
-    }
-
-    // 이메일 유효성을 검사하는 함수
-    private fun isEmailValid(email: String): Boolean {
-        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    }
-
-
-    // 비밀번호 유효성을 검사하는 함수
-    private fun isPasswordValid(password: String): Boolean {
-        return password.length >= 6
-    }
-
-    // 유효성 검사 및 버튼 활성화/비활성화 업데이트
-    private val inputWatcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            with(binding){
-                buttonOtherLogin.isEnabled =
-                    !textInputEditOtherEmail.text.isNullOrEmpty() && !textInputEditOtherPassword.text.isNullOrEmpty()
-            }
-        }
-        override fun afterTextChanged(p0: Editable?) {
         }
     }
 }
