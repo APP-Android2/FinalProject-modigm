@@ -1,5 +1,6 @@
 package kr.co.lion.modigm.ui.login.email
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -153,7 +154,9 @@ fun EmailLoginScreen(
     val scrollState = rememberScrollState()
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White),
     ) {
         Column(
             modifier = modifier
