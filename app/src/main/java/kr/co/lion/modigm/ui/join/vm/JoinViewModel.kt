@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kr.co.lion.modigm.model.UserData
-import kr.co.lion.modigm.repository.JoinUserRepository
+import kr.co.lion.modigm.repository.JoinRepository
 import kr.co.lion.modigm.repository.LoginRepository
 import kr.co.lion.modigm.util.JoinType
 import kr.co.lion.modigm.util.ModigmApplication.Companion.prefs
@@ -25,28 +25,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class JoinViewModel @Inject constructor(
-    private val _joinUserRepository: JoinUserRepository,
+    private val _joinRepository: JoinRepository,
     private val _loginRepository: LoginRepository,
-    private val _auth: FirebaseAuth
+    private val _firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
     // 파이어베이스에 연동된 유저
-    private var _user: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null)
-    val user: StateFlow<FirebaseUser?> = _user
+    private var _firebaseUser: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null)
+    val firebaseUser: StateFlow<FirebaseUser?> = _firebaseUser
 
     // provider(제공자 이름, email, kakao, github)
     private var _userProvider: MutableStateFlow<String> = MutableStateFlow("")
-    val userProvider: StateFlow<String> = _userProvider
     fun setUserProvider(provider:String){
         _userProvider.value = provider
     }
 
-    // email
-    private var _userEmail: MutableStateFlow<String?> = MutableStateFlow(null)
-    val userEmail: StateFlow<String?> = _userEmail
-    fun setUserEmail(){
-        if(_auth.currentUser != null){
-            _userEmail.value = _auth.currentUser?.email ?: ""
+    // sns계정의 email
+    private var _snsUserEmail: MutableStateFlow<String?> = MutableStateFlow(null)
+    fun setSnsUserEmail(){
+        if(_firebaseAuth.currentUser != null){
+            _snsUserEmail.value = _firebaseAuth.currentUser?.email ?: ""
         }
     }
 
@@ -54,11 +52,11 @@ class JoinViewModel @Inject constructor(
     private var _verifiedEmail: MutableStateFlow<String> = MutableStateFlow("")
     val verifiedEmail: StateFlow<String> = _verifiedEmail
 
-    // 전화번호 인증
-    private var _phoneVerification: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val phoneVerification: StateFlow<Boolean> = _phoneVerification
-    fun setPhoneVerified(verified:Boolean){
-        _phoneVerification.value = verified
+    // 전화번호 인증 여부
+    private var _isPhoneNumberVerified: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isPhoneNumberVerified: StateFlow<Boolean> = _isPhoneNumberVerified
+    fun setPhoneNumberVerificationState(verified:Boolean){
+        _isPhoneNumberVerified.value = verified
     }
 
     // 인증된 전화번호
@@ -88,45 +86,45 @@ class JoinViewModel @Inject constructor(
     }
 
     // 회원가입 완료 여부
-    private var _joinCompleted: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val joinCompleted: StateFlow<Boolean> = _joinCompleted
+    private var _isJoinCompleted: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isJoinCompleted: StateFlow<Boolean> = _isJoinCompleted
 
     // 회원 객체 생성을 위한 정보
-    private val _uid: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _userUid: MutableStateFlow<String?> = MutableStateFlow(null)
     fun setUserUid() {
-        if (_auth.currentUser != null) {
-            _uid.value = _auth.currentUser?.uid
+        if (_firebaseAuth.currentUser != null) {
+            _userUid.value = _firebaseAuth.currentUser?.uid
         }
     }
 
-    private val _email: MutableStateFlow<String> = MutableStateFlow("")
-    private val _password: MutableStateFlow<String> = MutableStateFlow("")
+    private val _userEmail: MutableStateFlow<String> = MutableStateFlow("")
+    private val _userPassword: MutableStateFlow<String> = MutableStateFlow("")
     fun setEmailAndPw(email:String, pw:String){
-        _email.value = email
-        _password.value = pw
+        _userEmail.value = email
+        _userPassword.value = pw
     }
 
     private val _userName: MutableStateFlow<String> = MutableStateFlow("")
-    private val _phoneNumber: MutableStateFlow<String> = MutableStateFlow("")
-    fun setUserNameAndPhoneNumber(name:String, phone:String){
+    private val _userPhone: MutableStateFlow<String> = MutableStateFlow("")
+    fun setUserNameAndUserPhone(name:String, phone:String){
         _userName.value = name
-        _phoneNumber.value = phone
+        _userPhone.value = phone
     }
 
-    private val _interests: MutableStateFlow<MutableList<String>?> = MutableStateFlow(null)
-    fun setInterests(interests:MutableList<String>){
-        _interests.value = interests
+    private val _userInterests: MutableStateFlow<MutableList<String>?> = MutableStateFlow(null)
+    fun setUserInterests(selectedInterests:MutableList<String>){
+        _userInterests.value = selectedInterests
     }
 
     // FirebaseAuth에 이메일 계정 등록
-    suspend fun createEmailUser(): String {
+    suspend fun registerEmailUserToFirebaseAuth(): String {
         // 오류 메시지
         var error = ""
         try {
-            val authResult = _auth.createUserWithEmailAndPassword(_email.value, _password.value).await()
-            _user.value = authResult.user
-            _uid.value = authResult.user?.uid?:""
-            _verifiedEmail.value = _email.value
+            val authResult = _firebaseAuth.createUserWithEmailAndPassword(_userEmail.value, _userPassword.value).await()
+            _firebaseUser.value = authResult.user
+            _userUid.value = authResult.user?.uid?:""
+            _verifiedEmail.value = _userEmail.value
         }catch (e:FirebaseAuthException){
             if(e.errorCode=="ERROR_EMAIL_ALREADY_IN_USE"){
                 error = "이미 등록되어 있는 이메일 계정입니다."
@@ -136,10 +134,10 @@ class JoinViewModel @Inject constructor(
     }
 
     // 회원가입 이탈 시 이미 Auth에 등록되어있는 인증 정보 삭제
-    fun deleteCurrentUser(){
+    fun deleteCurrentRegisteredFirebaseUser(){
         // 인증 정보 삭제
         CoroutineScope(Dispatchers.IO).launch {
-            _auth.currentUser?.delete()?.addOnSuccessListener {
+            _firebaseAuth.currentUser?.delete()?.addOnSuccessListener {
                 Log.d("JoinViewModel", "deleteCurrentUser: 인증 정보 삭제 성공")
             }
         }
@@ -150,25 +148,25 @@ class JoinViewModel @Inject constructor(
         // 각 화면에서 응답받은 정보 가져와서 객체 생성 후 return
         return UserData(
             -1,
-            _uid.value?:"",
+            _userUid.value?:"",
             _userName.value,
-            _phoneNumber.value,
+            _userPhone.value,
             "",
             "",
-            _userEmail.value?:_email.value,
+            _snsUserEmail.value?:_userEmail.value,
             _userProvider.value,
-            _interests.value?.joinToString(",")?:"",
+            _userInterests.value?.joinToString(",")?:"",
             LocalDateTime.now()
         )
     }
 
     // 회원 가입 완료
-    fun completeJoinUser(handler: CoroutineExceptionHandler){
+    fun completeJoinProcess(handler: CoroutineExceptionHandler){
         viewModelScope.launch(handler) {
-            _user.value = _auth.currentUser
+            _firebaseUser.value = _firebaseAuth.currentUser
 
             val user = createUserInfoData()
-            val result = _joinUserRepository.insetUserData(user)
+            val result = _joinRepository.insetUserData(user)
             result.onSuccess { userIdx ->
                 // SharedPreferences에 유저 idx 저장
                  prefs.setInt("currentUserIdx", userIdx)
@@ -177,25 +175,25 @@ class JoinViewModel @Inject constructor(
                     registerFcmTokenToServer(userIdx)
                 }
                 // 회원가입 완료 처리
-                _joinCompleted.value = true
+                _isJoinCompleted.value = true
             }.onFailure {
-                _joinCompleted.value = false
+                _isJoinCompleted.value = false
                 throw Exception("회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.")
             }
         }
     }
 
     // 상태값 초기화
-    fun reset(){
-        _user.value = null
+    fun resetViewModelStates(){
+        _firebaseUser.value = null
 
         _userProvider.value = ""
 
-        _userEmail.value = null
+        _snsUserEmail.value = null
 
         _verifiedEmail.value = ""
 
-        _phoneVerification.value = false
+        _isPhoneNumberVerified.value = false
 
         _verifiedPhoneNumber.value = ""
 
@@ -205,22 +203,22 @@ class JoinViewModel @Inject constructor(
 
         _alreadyRegisteredUserProvider.value = ""
 
-        _joinCompleted.value = false
+        _isJoinCompleted.value = false
 
-        _uid.value = null
+        _userUid.value = null
 
-        _email.value = ""
-        _password.value = ""
+        _userEmail.value = ""
+        _userPassword.value = ""
 
         _userName.value = ""
-        _phoneNumber.value = ""
+        _userPhone.value = ""
 
-        _interests.value = null
+        _userInterests.value = null
     }
 
-    fun signOut(){
-        if(_auth.currentUser != null){
-            _auth.signOut()
+    fun signOutCurrentFirebaseUser(){
+        if(_firebaseAuth.currentUser != null){
+            _firebaseAuth.signOut()
         }
     }
 
