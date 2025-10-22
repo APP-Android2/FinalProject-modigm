@@ -200,7 +200,7 @@ ROOM 데이터베이스를 적용하면 데이터를 로컬에서 더 빠르게 
 
 다음 링크에서 어플리케이션을 다운로드합니다.
 
-https://downloadlink.com
+[플레이스토어 모우다임 다운로드](https://play.google.com/store/apps/details?id=kr.co.lion.modigm&pcampaignid=web_share)
 
 ## 🤝🏻 팀원 및 참고 자료
 
