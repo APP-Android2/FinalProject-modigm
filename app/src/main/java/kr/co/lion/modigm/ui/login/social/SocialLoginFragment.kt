@@ -5,6 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -37,15 +40,69 @@ class SocialLoginFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                val isLoading by viewModel.isLoading.observeAsState(false)
+                val kakaoLoginResult by viewModel.kakaoLoginResult.observeAsState(false)
+                val githubLoginResult by viewModel.githubLoginResult.observeAsState(false)
+                val kakaoJoinResult by viewModel.kakaoJoinResult.observeAsState(false)
+                val githubJoinResult by viewModel.githubJoinResult.observeAsState(false)
+                val emailLoginResult by viewModel.emailAutoLoginResult.observeAsState(false)
+                val kakaoLoginError by viewModel.kakaoLoginError.observeAsState()
+                val githubLoginError by viewModel.githubLoginError.observeAsState()
+                val autoLoginError by viewModel.autoLoginError.observeAsState()
+
+                LaunchedEffect(kakaoLoginResult) {
+                    if (kakaoLoginResult) {
+                        navigateToBottomNaviFragment(JoinType.KAKAO)
+                    }
+                }
+
+                LaunchedEffect(githubLoginResult) {
+                    if (githubLoginResult) {
+                        navigateToBottomNaviFragment(JoinType.GITHUB)
+                    }
+                }
+
+                LaunchedEffect(kakaoJoinResult) {
+                    if (kakaoJoinResult) {
+                        navigateToJoinFragment(JoinType.KAKAO)
+                    }
+                }
+
+                LaunchedEffect(githubJoinResult) {
+                    if (githubJoinResult) {
+                        navigateToJoinFragment(JoinType.GITHUB)
+                    }
+                }
+
+                LaunchedEffect(emailLoginResult) {
+                    if (emailLoginResult) {
+                        navigateToBottomNaviFragment(JoinType.EMAIL)
+                    }
+                }
+
+                LaunchedEffect(kakaoLoginError) {
+                    kakaoLoginError?.let { error ->
+                        showLoginErrorDialog(error)
+                    }
+                }
+
+                LaunchedEffect(githubLoginError) {
+                    githubLoginError?.let { error ->
+                        showLoginErrorDialog(error)
+                    }
+                }
+
+                LaunchedEffect(autoLoginError) {
+                    autoLoginError?.let { error ->
+                        requireActivity().showLoginSnackBar(error.message.toString(), null)
+                    }
+                }
+
                 SocialLoginScreen(
-                    viewModel = viewModel,
+                    isLoading = isLoading,
                     onKakaoLoginClick = { viewModel.kakaoLogin(requireContext()) },
                     onGithubLoginClick = { viewModel.githubLogin(requireActivity()) },
-                    onEmailLoginClick = { navigateToEmailLoginFragment() },
-                    navigateToJoinFragment = { joinType -> navigateToJoinFragment(joinType) },
-                    navigateToBottomNaviFragment = { joinType -> navigateToBottomNaviFragment(joinType) },
-                    showLoginErrorDialog = { message -> showLoginErrorDialog(message) },
-                    showSnackBar = { message -> requireActivity().showLoginSnackBar(message,null) }
+                    onNavigateEmailLoginClick = { navigateToEmailLoginFragment() },
                 )
             }
         }
@@ -125,6 +182,7 @@ class SocialLoginFragment : Fragment() {
     }
 
     private fun navigateToBottomNaviFragment(joinType: JoinType) {
+        viewModel.registerFcmTokenToServer()
         val bundle = Bundle().apply {
             putString("joinType", joinType.provider)
         }

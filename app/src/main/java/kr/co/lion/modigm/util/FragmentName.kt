@@ -23,8 +23,8 @@ enum class FragmentName (var str: String){
     EMAIL_LOGIN("EmailLoginFragment"),
     FIND_EMAIL("FindEmailFragment"),
     FIND_EMAIL_AUTH("FindEmailAuthFragment"),
-    FIND_PW("FindPwFragment"),
-    FIND_PW_AUTH("FindPwAuthFragment"),
+    FIND_PASSWORD("FindPasswordFragment"),
+    FIND_PW_AUTH("FindPasswordAuthFragment"),
     RESET_PW("ResetPwFragment"),
 
     // 프로필

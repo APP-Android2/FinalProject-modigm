@@ -1,0 +1,93 @@
+package kr.co.lion.modigm.ui.login.component
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import kr.co.lion.modigm.R
+import kr.co.lion.modigm.ui.login.util.dpToSp
+
+@Composable
+fun PasswordTextField(
+    modifier: Modifier = Modifier,
+    userPassword: String,
+    onValueChange: (String) -> Unit,
+    placeholder: @Composable () -> Unit,
+    errorMessage: String = ""
+) {
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    val pointColor = Color(ContextCompat.getColor(LocalContext.current, R.color.pointColor))
+    val isPasswordInputError = errorMessage != ""
+
+    OutlinedTextField(
+        modifier = modifier,
+        value = userPassword,
+        onValueChange = {
+            onValueChange(it)
+            isPasswordVisible = it.isEmpty()
+        },
+        textStyle = LocalTextStyle.current.copy(fontSize = dpToSp(16.dp)),
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedIndicatorColor = pointColor,
+            unfocusedIndicatorColor = Color.Black,
+            errorContainerColor = Color.White,
+        ),
+        placeholder = placeholder,
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_key_24px),
+                contentDescription = "비밀번호"
+            )
+        },
+        trailingIcon = {
+            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                Icon(
+                    imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    contentDescription = if (isPasswordVisible) "비밀번호 숨김" else "비밀번호 보임"
+                )
+            }
+        },
+        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Done
+        ),
+        singleLine = true,
+        isError = isPasswordInputError,
+    )
+    if (isPasswordInputError) {
+        Text(
+            text = errorMessage,
+            color = Color.Red,
+            fontSize = dpToSp(12.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+        )
+    }
+
+}
